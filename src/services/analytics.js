@@ -123,4 +123,4 @@ export function trackAddressSelected(addressType) {
 }
 
 // Export the stub for any code that might try to import it
-export { ReactPixel };
+export { ReactPixel };npm uninstall react-facebook-pixel
