@@ -10,7 +10,7 @@ import AddressForm from './components/Form/AddressForm';
 import PersonalInfoForm from './components/Form/PersonalInfoForm';
 import QualifyingForm from './components/Form/QualifyingForm';
 import ThankYou from './components/Form/ThankYou';
-import Privacy from './components/legal/Privacy';
+import Privacy from './components/common/Privacy';
 
 // Styles
 import './styles/main.css';
