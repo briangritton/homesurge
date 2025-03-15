@@ -1,6 +1,6 @@
 import ReactGA from 'react-ga4';
 import TagManager from 'react-gtm-module';
-
+//
 // Stub implementation for ReactPixel 
 const ReactPixel = {
   init: () => console.log('Pixel initialized (stub)'),
@@ -123,4 +123,4 @@ export function trackAddressSelected(addressType) {
 }
 
 // Export the stub for any code that might try to import it
-export { ReactPixel };npm uninstall react-facebook-pixel
+// export { ReactPixel };npm uninstall react-facebook-pixel
