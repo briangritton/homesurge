@@ -1,7 +1,7 @@
 import ReactGA from 'react-ga4';
 import TagManager from 'react-gtm-module';
 
-// Stub implementation for ReactPixel
+// Stub implementation for ReactPixel 
 const ReactPixel = {
   init: () => console.log('Pixel initialized (stub)'),
   pageView: () => console.log('Pixel pageview (stub)'),
