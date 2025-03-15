@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
-import { validateName, validatePhone } from '../../utils/validation';
+import { validateName, validatePhone } from '../../utils/validation.js';
 import { trackFormSubmission, trackFormError, trackPhoneNumberLead } from '../../services/analytics';
 import { GoogleMap } from '@react-google-maps/api';
 import mapIcon from '../../assets/images/mapicon.png';

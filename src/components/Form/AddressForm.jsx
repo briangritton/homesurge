@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import { initializeGoogleMapsAutocomplete, lookupPropertyInfo } from '../../services/maps';
-import { validateAddress } from '../../utils/validation';
+import { validateAddress } from '../../utils/validation.js';
 import { trackAddressSelected, trackFormError } from '../../services/analytics';
 
 function AddressForm() {
