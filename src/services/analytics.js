@@ -1,16 +1,21 @@
 import ReactGA from 'react-ga4';
 import TagManager from 'react-gtm-module';
 
+// Stub implementation for ReactPixel
+const ReactPixel = {
+  init: () => console.log('Pixel initialized (stub)'),
+  pageView: () => console.log('Pixel pageview (stub)'),
+  track: () => console.log('Pixel event (stub)')
+};
+
 // Configuration constants
 const GA_TRACKING_ID = 'G-L961YM0GEN';
- const GTM_ID = 'GTM-MXD6W8K';
+const GTM_ID = 'GTM-MXD6W8K';
 
 // Initialize analytics services
 export function initializeAnalytics() {
   // Initialize Google Analytics
   ReactGA.initialize(GA_TRACKING_ID);
-  
-   
   
   // Initialize Google Tag Manager
   const tagManagerArgs = {
@@ -27,7 +32,6 @@ export function trackPageView(path) {
   // Google Analytics page view
   ReactGA.pageview(path);
   
- 
   // GTM page view event
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({
@@ -47,8 +51,6 @@ export function trackFormSubmission(formData) {
     action: 'Submit',
     label: 'Lead Form'
   });
-  
- 
   
   // GTM form submission event
   window.dataLayer.push({
@@ -119,3 +121,6 @@ export function trackAddressSelected(addressType) {
     addressType: addressType
   });
 }
+
+// Export the stub for any code that might try to import it
+export { ReactPixel };
