@@ -1,5 +1,5 @@
 import React from 'react';
-import { BsTelephoneFill } from '../../../node_modules/react-icons/bs';
+import { BsTelephoneFill } from 'react-icons/bs';
 import logo from '../../../src/assets/images/logo.png';
 
 function Header() {
