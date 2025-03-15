@@ -1,10 +1,10 @@
 import ReactGA from 'react-ga4';
-import ReactPixel from 'react-facebook-pixel';
+// import ReactPixel from 'react-facebook-pixel';
 import TagManager from 'react-gtm-module';
 
 // Configuration constants
 const GA_TRACKING_ID = 'G-L961YM0GEN';
-const FB_PIXEL_ID = '268197213521133';
+// const FB_PIXEL_ID = '268197213521133';
 const GTM_ID = 'GTM-MXD6W8K';
 
 // Initialize analytics services
@@ -13,7 +13,7 @@ export function initializeAnalytics() {
   ReactGA.initialize(GA_TRACKING_ID);
   
   // Initialize Facebook Pixel
-  ReactPixel.init(FB_PIXEL_ID);
+  // ReactPixel.init(FB_PIXEL_ID);
   
   // Initialize Google Tag Manager
   const tagManagerArgs = {
@@ -31,7 +31,7 @@ export function trackPageView(path) {
   ReactGA.pageview(path);
   
   // Facebook Pixel page view
-  ReactPixel.pageView();
+  // ReactPixel.pageView();
   
   // GTM page view event
   window.dataLayer = window.dataLayer || [];
@@ -54,13 +54,13 @@ export function trackFormSubmission(formData) {
   });
   
   // Facebook Pixel lead event
-  ReactPixel.track('Lead', {
-    name: formData.name,
-    email: formData.email,
-    phone: formData.phone,
-    zip: formData.zip,
-    street: formData.street
-  });
+  // ReactPixel.track('Lead', {
+  //   name: formData.name,
+  //   email: formData.email,
+  //   phone: formData.phone,
+  //   zip: formData.zip,
+  //   street: formData.street
+  // });
   
   // GTM form submission event
   window.dataLayer.push({
