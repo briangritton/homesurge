@@ -1,5 +1,4 @@
 import ReactGA from 'react-ga4';
-// import ReactPixel from 'react-facebook-pixel';
 import TagManager from 'react-gtm-module';
 
 // Configuration constants
