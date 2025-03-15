@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
-import Privacy from '../legal/Privacy';
+import Privacy from './Privacy';
 
 function Footer() {
   const privacyRef = useRef(null);
