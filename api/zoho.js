@@ -229,9 +229,9 @@ module.exports = async (req, res) => {
             bedrooms: formData.bedrooms?.toString() || "",
             bathrooms: formData.bathrooms?.toString() || "",
             floors: formData.floors?.toString() || "",
-            garage: formData.hasGarage || "",
-            garageCars: formData.garageCapacity?.toString() || "",
-            hasHoa: formData.hasHOA || "",
+            garage: formData.garage || "", // This is the field name in Zoho
+            garageCars: formData.garageCars?.toString() || "",
+            hasHoa: formData.hasHoa || "", // Correct casing
             hasSolar: formData.hasSolar || "",
             planningToBuy: formData.planningToBuy || "",
             septicOrSewer: formData.septicOrSewer || "",
@@ -259,12 +259,13 @@ module.exports = async (req, res) => {
             apiMaxHomeValue: formData.apiMaxHomeValue?.toString() || "",
             apiHomeValue: formData.apiEstimatedValue?.toString() || "",
             apiOwnerName: formData.apiOwnerName || "",
-            apiEquity: "0", // Default if not provided
-            apiPercentage: "0", // Default if not provided
+            apiEquity: formData.apiEquity?.toString() || "0",
+            apiPercentage: formData.apiPercentage?.toString() || "0",
             
             // Metadata
             addressSelectionType: formData.addressSelectionType || "Manual",
-            qualifyingQuestionStep: formData.qualifyingQuestionStep?.toString() || ""
+            qualifyingQuestionStep: formData.qualifyingQuestionStep?.toString() || "",
+            userInputtedStreet: formData.userInputtedStreet || ""
           }
         ]
       };
@@ -314,7 +315,7 @@ module.exports = async (req, res) => {
             
             // Property details - using exact field names from Zoho
             isPropertyOwner: formData.isPropertyOwner,
-            needRepairs: formData.needsRepairs, // Note: matches Zoho field name (no "s")
+            needRepairs: formData.needsRepairs, // Matches Zoho field name (no "s")
             workingWithAgent: formData.workingWithAgent,
             homeType: formData.homeType || "",
             remainingMortgage: formData.remainingMortgage?.toString() || "0",
@@ -326,9 +327,9 @@ module.exports = async (req, res) => {
             bedrooms: formData.bedrooms?.toString() || "",
             bathrooms: formData.bathrooms?.toString() || "",
             floors: formData.floors?.toString() || "",
-            garage: formData.hasGarage || "",
-            garageCars: formData.garageCapacity?.toString() || "",
-            hasHoa: formData.hasHOA || "",
+            garage: formData.garage || "", // Corrected field name
+            garageCars: formData.garageCars?.toString() || "",
+            hasHoa: formData.hasHoa || "", // Corrected casing
             hasSolar: formData.hasSolar || "",
             planningToBuy: formData.planningToBuy || "",
             septicOrSewer: formData.septicOrSewer || "",

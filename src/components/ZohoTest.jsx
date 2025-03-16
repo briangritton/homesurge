@@ -20,7 +20,7 @@ function ZohoTest() {
     
     // Property details
     isPropertyOwner: 'true',
-    needsRepairs: 'false', // This matches Zoho's field name
+    needsRepairs: 'false', // Note: this matches Zoho's field name
     workingWithAgent: 'false',
     homeType: "Single Family",
     remainingMortgage: "200000", // Send as string to match Zoho's text field
@@ -29,12 +29,13 @@ function ZohoTest() {
     bedrooms: "3",
     bathrooms: "2",
     floors: "2",
-    garage: "Yes", // Use garage instead of hasGarage
+    
+    // Garage information - using correct field names
+    garage: "Yes", // This is the field name in Zoho
     garageCars: "2",
-    hasHoa: "No", // Use hasHoa instead of hasHOA
-    howSoonSell: "ASAP",
     
     // Property condition
+    hasHoa: "No", // Correct casing to match Zoho
     planningToBuy: "No",
     hasSolar: "No",
     septicOrSewer: "Sewer",
@@ -65,11 +66,14 @@ function ZohoTest() {
     apiOwnerName: "John Doe",
     apiEstimatedValue: "400000",
     apiMaxHomeValue: "450000",
+    apiEquity: "0",
+    apiPercentage: "0",
     formattedApiEstimatedValue: "$400,000",
     
     // Metadata
     addressSelectionType: "Manual",
-    qualifyingQuestionStep: "1"
+    qualifyingQuestionStep: "1",
+    userInputtedStreet: ""
   });
 
   const testApiEndpoint = async () => {
@@ -529,6 +533,32 @@ function ZohoTest() {
                   onChange={handleFormChange}
                   style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
                 />
+              </div>
+              
+              <div style={{ marginTop: '10px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Garage:</label>
+                <select
+                  name="garage"
+                  value={formData.garage}
+                  onChange={handleFormChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                >
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </div>
+              
+              <div style={{ marginTop: '10px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}>HOA:</label>
+                <select
+                  name="hasHoa"
+                  value={formData.hasHoa}
+                  onChange={handleFormChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                >
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
               </div>
             </div>
           </div>
