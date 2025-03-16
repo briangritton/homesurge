@@ -1,16 +1,16 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import { validateName, validatePhone } from '../../utils/validation.js';
-import { trackFormSubmission, trackFormError, trackPhoneNumberLead } from '../../services/analytics';
+import { trackFormSubmission, trackFormError, trackPhoneNumberLead, trackFormStepComplete } from '../../services/analytics';
 import { GoogleMap } from '@react-google-maps/api';
 import mapIcon from '../../assets/images/mapicon.png';
-/////
 
 function PersonalInfoForm() {
   const { formData, updateFormData, nextStep, submitLead } = useFormContext();
   const [nameError, setNameError] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [overlayVisible, setOverlayVisible] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const nameRef = useRef(null);
   const phoneRef = useRef(null);
@@ -32,6 +32,11 @@ function PersonalInfoForm() {
       stylers: [{ visibility: 'off' }]
     }
   ];
+  
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   
   // Handle form input changes
   const handleChange = (e) => {
@@ -61,6 +66,11 @@ function PersonalInfoForm() {
       }
       isValid = false;
       trackFormError('Invalid name', 'name');
+    } else {
+      setNameError('');
+      if (nameRef.current) {
+        nameRef.current.className = 'overlay-form-input';
+      }
     }
     
     // Validate phone
@@ -71,6 +81,11 @@ function PersonalInfoForm() {
       }
       isValid = false;
       trackFormError('Invalid phone', 'phone');
+    } else {
+      setPhoneError('');
+      if (phoneRef.current) {
+        phoneRef.current.className = 'overlay-form-input';
+      }
     }
     
     if (!isValid) {
@@ -78,12 +93,26 @@ function PersonalInfoForm() {
     }
     
     // If validation passes, submit the lead
-    const success = await submitLead();
-    
-    if (success) {
-      trackFormSubmission(formData);
-      trackPhoneNumberLead();
-      nextStep();
+    try {
+      setIsSubmitting(true);
+      console.log('Submitting lead with form data:', formData);
+      const success = await submitLead();
+      
+      if (success) {
+        console.log('Lead submitted successfully');
+        trackFormSubmission(formData);
+        trackPhoneNumberLead();
+        trackFormStepComplete(2, 'Personal Info Form');
+        nextStep();
+      } else {
+        console.error('Failed to submit lead');
+        setPhoneError('There was a problem submitting your information. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error during lead submission:', error);
+      setPhoneError('There was a problem submitting your information. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
   
@@ -115,12 +144,20 @@ function PersonalInfoForm() {
           
           <div className="hero-middle-map-container" style={{ position: 'relative', width: '100%', height: '200px', margin: '10px 0' }}>
             <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: '0.5px solid black', maxWidth: '425px' }}>
-              {formData.addressSelectionType === 'Google' && (
+              {window.google && window.google.maps && (
                 <GoogleMap
-                  center={{ lat: 33.749, lng: -84.388 }} // Default to Atlanta if no coordinates
+                  center={formData.location 
+                    ? { lat: formData.location.lat, lng: formData.location.lng }
+                    : { lat: 33.749, lng: -84.388 }} // Default to Atlanta if no coordinates
                   zoom={17}
                   mapContainerStyle={{ width: '100%', height: '100%' }}
-                  options={{ styles: mapStyles }}
+                  options={{ 
+                    styles: mapStyles,
+                    zoomControl: false,
+                    streetViewControl: false,
+                    mapTypeControl: false,
+                    fullscreenControl: false
+                  }}
                 />
               )}
             </div>
@@ -143,13 +180,15 @@ function PersonalInfoForm() {
               <button
                 className="hero-middle-map-submit-button"
                 onClick={handleConfirm}
+                disabled={isSubmitting}
               >
-                Yes, that's correct
+                {isSubmitting ? 'Processing...' : 'Yes, that\'s correct'}
               </button>
               
               <button
                 className="hero-middle-map-edit-button"
                 onClick={() => setOverlayVisible(true)}
+                disabled={isSubmitting}
               >
                 Edit info
               </button>
@@ -182,7 +221,13 @@ function PersonalInfoForm() {
                 onChange={handleChange}
                 onFocus={(e) => e.target.placeholder = ''}
                 onBlur={(e) => e.target.placeholder = 'Full name'}
+                disabled={isSubmitting}
               />
+              {nameError && (
+                <div className="phone-error-message">
+                  {nameError}
+                </div>
+              )}
               
               <input
                 ref={phoneRef}
@@ -195,6 +240,7 @@ function PersonalInfoForm() {
                 onChange={handleChange}
                 onFocus={(e) => e.target.placeholder = ''}
                 onBlur={(e) => e.target.placeholder = 'Phone (receive quick offer text)'}
+                disabled={isSubmitting}
               />
               
               {phoneError && (
@@ -203,8 +249,12 @@ function PersonalInfoForm() {
                 </div>
               )}
               
-              <button className="registration-button" type="submit">
-                CHECK OFFER
+              <button 
+                className="registration-button" 
+                type="submit"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'PROCESSING...' : 'CHECK OFFER'}
               </button>
             </form>
           </div>

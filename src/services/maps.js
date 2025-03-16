@@ -12,7 +12,10 @@ export function initializeGoogleMapsAutocomplete(inputRef, onPlaceSelected) {
     return () => {};
   }
 
-  const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current);
+  const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
+    types: ['address'],
+    componentRestrictions: { country: 'us' }, // Restrict to US addresses
+  });
   
   // Add listener for place selection
   const listener = autocomplete.addListener('place_changed', () => {
@@ -40,14 +43,17 @@ export function initializeGoogleMapsAutocomplete(inputRef, onPlaceSelected) {
       }
     });
 
+    // Create location object
+    const location = {
+      lat: place.geometry.location.lat(),
+      lng: place.geometry.location.lng()
+    };
+
     // Call the callback with place data
     onPlaceSelected({
       formattedAddress: place.formatted_address,
       addressComponents,
-      location: {
-        lat: place.geometry.location.lat(),
-        lng: place.geometry.location.lng()
-      }
+      location
     });
   });
 
@@ -66,12 +72,17 @@ export function initializeGoogleMapsAutocomplete(inputRef, onPlaceSelected) {
  */
 export async function lookupPropertyInfo(address) {
   try {
-    // Replace with your actual property data API endpoint
-    const url = `https://property.melissadata.net/v4/WEB/LookupProperty?id=TyXpKLplL6R0lDTHV7B8Bb**nSAcwXpxhQ0PC2lXxuDAZ-**&format=json&cols=GrpAll&opt=desc:on&ff=${encodeURIComponent(address)}`;
+    // Use environment variable for API key if available
+    const apiKey = process.env.REACT_APP_MELISSA_API_KEY || 'TyXpKLplL6R0lDTHV7B8Bb**nSAcwXpxhQ0PC2lXxuDAZ-**';
+    const url = `https://property.melissadata.net/v4/WEB/LookupProperty?id=${apiKey}&format=json&cols=GrpAll&opt=desc:on&ff=${encodeURIComponent(address)}`;
     
+    console.log(`Looking up property data for: ${address}`);
     const { data } = await axios.get(url);
     
+    console.log('Property lookup response:', data);
+    
     if (!data.Records || data.Records.length === 0) {
+      console.log('No property records found');
       return null;
     }
     
@@ -98,13 +109,32 @@ export async function lookupPropertyInfo(address) {
       maximumFractionDigits: 0
     }).format(apiEstimatedValue);
     
+    // Get additional property details if available
+    let bedrooms = '';
+    let bathrooms = '';
+    let squareFootage = 1000;
+    
+    if (record.BuildingData) {
+      bedrooms = record.BuildingData.BedroomCount || '';
+      bathrooms = record.BuildingData.BathroomCount || '';
+      squareFootage = record.BuildingData.AreaBuilding || 1000;
+    }
+    
+    // Create result object with all the needed data
     return {
       propertyRecord: record,
       apiOwnerName,
       apiMaxValue,
       apiEstimatedValue,
       formattedApiMaxValue,
-      formattedApiEstimatedValue
+      formattedApiEstimatedValue,
+      bedrooms,
+      bathrooms,
+      finishedSquareFootage: squareFootage,
+      // Include city and zip if they were found in the response
+      city: record.AddressData?.City || '',
+      zip: record.AddressData?.PostalCode || '',
+      state: record.AddressData?.State || 'GA',
     };
   } catch (error) {
     console.error('Error looking up property:', error);

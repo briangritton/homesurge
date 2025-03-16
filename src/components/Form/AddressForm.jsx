@@ -2,11 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import { initializeGoogleMapsAutocomplete, lookupPropertyInfo } from '../../services/maps';
 import { validateAddress } from '../../utils/validation.js';
-import { trackAddressSelected, trackFormError } from '../../services/analytics';
+import { trackAddressSelected, trackFormError, trackFormStepComplete } from '../../services/analytics';
 
 function AddressForm() {
   const { formData, updateFormData, nextStep, setDynamicContent } = useFormContext();
   const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const streetRef = useRef(null);
   const [autocompleteValue, setAutocompleteValue] = useState('street-address');
   
@@ -38,16 +39,26 @@ function AddressForm() {
       street: formattedAddress,
       city: addressComponents.city || '',
       zip: addressComponents.zip || '',
-      addressSelectionType: 'Google'
+      state: addressComponents.state || 'GA',
+      addressSelectionType: 'Google',
+      location: location
     });
     
+    setIsLoading(true);
+    
     // Look up property information using the selected address
-    const propertyInfo = await lookupPropertyInfo(formattedAddress);
-    if (propertyInfo) {
-      updateFormData({
-        ...propertyInfo,
-        addressSelectionType: 'Google'
-      });
+    try {
+      const propertyInfo = await lookupPropertyInfo(formattedAddress);
+      if (propertyInfo) {
+        updateFormData({
+          ...propertyInfo,
+          addressSelectionType: 'Google'
+        });
+      }
+    } catch (error) {
+      console.error('Error looking up property:', error);
+    } finally {
+      setIsLoading(false);
     }
     
     trackAddressSelected('Google');
@@ -92,17 +103,46 @@ function AddressForm() {
       return;
     }
     
+    // Show loading state while we look up property info
+    setErrorMessage('');
+    setIsLoading(true);
+    if (streetRef.current) {
+      streetRef.current.className = 'address-input';
+    }
+    
     // If address is valid and we don't have property info yet, look it up
     if (formData.addressSelectionType === 'Manual' && !formData.propertyRecord) {
       try {
+        console.log('Looking up property info for:', formData.street);
         const propertyInfo = await lookupPropertyInfo(formData.street);
+        
         if (propertyInfo) {
-          updateFormData(propertyInfo);
+          console.log('Property info found:', propertyInfo);
+          updateFormData({
+            ...propertyInfo,
+            addressSelectionType: 'Manual',
+            userInputtedStreet: formData.street
+          });
+        } else {
+          console.log('No property info found, continuing with manual address');
+          // If no property info found, continue with just the address
+          updateFormData({
+            addressSelectionType: 'Manual',
+            userInputtedStreet: formData.street
+          });
         }
       } catch (error) {
         console.error('Error looking up property:', error);
+        // Continue despite error - don't block the form submission
+      } finally {
+        setIsLoading(false);
       }
+    } else {
+      setIsLoading(false);
     }
+    
+    // Track successful step completion
+    trackFormStepComplete(1, 'Address Form');
     
     // Proceed to next step
     nextStep();
@@ -126,10 +166,15 @@ function AddressForm() {
               onChange={handleChange}
               onFocus={(e) => e.target.placeholder = ''}
               onBlur={(e) => e.target.placeholder = 'Street address...'}
+              disabled={isLoading}
             />
             
-            <button className="submit-button" type="submit">
-              CHECK OFFER
+            <button 
+              className="submit-button" 
+              type="submit"
+              disabled={isLoading}
+            >
+              {isLoading ? 'CHECKING...' : 'CHECK OFFER'}
             </button>
           </form>
           
