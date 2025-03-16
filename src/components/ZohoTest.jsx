@@ -8,6 +8,7 @@ function ZohoTest() {
   const [error, setError] = useState(null);
   const [leadId, setLeadId] = useState('');
   const [showFullForm, setShowFullForm] = useState(false);
+  const [detailedResponse, setDetailedResponse] = useState(null);
   const [formData, setFormData] = useState({
     // Basic information
     name: "Test User",
@@ -19,26 +20,30 @@ function ZohoTest() {
     
     // Property details
     isPropertyOwner: 'true',
-    needsRepairs: 'false',
+    needsRepairs: 'false', // Note: this matches Zoho's field name
     workingWithAgent: 'false',
     homeType: "Single Family",
-    remainingMortgage: 200000,
-    finishedSquareFootage: 2000,
-    basementSquareFootage: 500,
-    bedrooms: 3,
-    bathrooms: 2,
-    floors: 2,
-    hasGarage: "Yes",
-    garageCapacity: 2,
-    hasHOA: "No",
-    howSoonSell: "ASAP",
+    remainingMortgage: "200000", // Send as string to match Zoho's text field
+    finishedSquareFootage: "2000", // Send as string
+    basementSquareFootage: "500", // Send as string
+    bedrooms: "3",
+    bathrooms: "2",
+    floors: "2",
+    
+    // Garage information - using correct field names
+    garage: "Yes", // This is the field name in Zoho
+    garageCars: "2",
     
     // Property condition
+    hasHoa: "No", // Correct casing to match Zoho
     planningToBuy: "No",
     hasSolar: "No",
     septicOrSewer: "Sewer",
     knownIssues: "None",
     reasonForSelling: "Relocation",
+    
+    // Time to sell - this field is important and was missing
+    howSoonSell: "ASAP",
     
     // Appointment information
     wantToSetAppointment: "Yes",
@@ -54,23 +59,43 @@ function ZohoTest() {
     gclid: "test_gclid_123",
     url: "https://sellforcash.online/?test=true",
     
+    // Dynamic content
+    dynamicHeadline: "Sell Your House Fast",
+    dynamicSubHeadline: "Get a cash offer today!",
+    thankYouHeadline: "Thank You!",
+    thankYouSubHeadline: "We'll be in touch soon",
+    
     // API data
     apiOwnerName: "John Doe",
-    apiEstimatedValue: 400000,
-    formattedApiEstimatedValue: "$400,000"
+    apiEstimatedValue: "400000",
+    apiMaxHomeValue: "450000",
+    apiEquity: "0",
+    apiPercentage: "0",
+    formattedApiEstimatedValue: "$400,000",
+    
+    // Metadata
+    addressSelectionType: "Manual",
+    qualifyingQuestionStep: "1",
+    userInputtedStreet: ""
   });
 
   const testApiEndpoint = async () => {
     setLoading(true);
     setResult(null);
     setError(null);
+    setDetailedResponse(null);
 
     try {
       // Simple test request to check if the API endpoint exists
-      const response = await axios.post('/api/zoho', { action: 'ping' });
-      setResult(`API Endpoint Response: ${JSON.stringify(response.data)}`);
+      const response = await axios.post('/api/zoho', { 
+        action: 'ping',
+        debug: true 
+      });
+      setResult(`API Endpoint Response: ${JSON.stringify(response.data.message || 'Success')}`);
+      setDetailedResponse(response.data);
     } catch (err) {
       setError(`API Endpoint Error: ${err.message}. Status: ${err.response?.status || 'unknown'}`);
+      setDetailedResponse(err.response?.data);
     } finally {
       setLoading(false);
     }
@@ -80,14 +105,27 @@ function ZohoTest() {
     setLoading(true);
     setResult(null);
     setError(null);
+    setDetailedResponse(null);
 
     try {
-      // Submit test lead
-      const id = await submitLeadToZoho(formData);
-      setLeadId(id);
-      setResult(`Success! Lead created with ID: ${id}`);
+      // Submit test lead with debug flag
+      const response = await axios.post('/api/zoho', {
+        action: 'create',
+        formData,
+        debug: true
+      });
+      
+      if (response.data && response.data.success) {
+        setLeadId(response.data.leadId);
+        setResult(`Success! Lead created with ID: ${response.data.leadId}`);
+        setDetailedResponse(response.data);
+      } else {
+        setError(`Error: No lead ID returned`);
+        setDetailedResponse(response.data);
+      }
     } catch (err) {
       setError(`Error: ${err.message}`);
+      setDetailedResponse(err.response?.data);
     } finally {
       setLoading(false);
     }
@@ -102,13 +140,106 @@ function ZohoTest() {
     setLoading(true);
     setResult(null);
     setError(null);
+    setDetailedResponse(null);
 
     try {
-      // Update test lead
-      await updateLeadInZoho(leadId, formData);
+      // Update test lead with debug flag
+      const response = await axios.post('/api/zoho', {
+        action: 'update',
+        leadId,
+        formData,
+        debug: true
+      });
+      
       setResult(`Success! Lead ${leadId} updated`);
+      setDetailedResponse(response.data);
     } catch (err) {
       setError(`Error: ${err.message}`);
+      setDetailedResponse(err.response?.data);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const createMinimalLead = async () => {
+    setLoading(true);
+    setResult(null);
+    setError(null);
+    setDetailedResponse(null);
+    
+    try {
+      // Create a minimal lead with just required fields
+      const response = await axios.post('/api/zoho', {
+        action: 'create',
+        debug: true,
+        formData: {
+          name: "Test Minimal Lead",
+          phone: "7705551234",
+          email: "test@example.com"
+        }
+      });
+      
+      if (response.data && response.data.success) {
+        setLeadId(response.data.leadId);
+        setResult(`Created minimal lead with ID: ${response.data.leadId}`);
+        setDetailedResponse(response.data);
+      } else {
+        setResult('Request successful but no lead ID returned');
+        setDetailedResponse(response.data);
+      }
+    } catch (err) {
+      setError(`Error: ${err.message}`);
+      setDetailedResponse(err.response?.data);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const getLeadFields = async () => {
+    setLoading(true);
+    setResult(null);
+    setError(null);
+    setDetailedResponse(null);
+    
+    try {
+      const response = await axios.post('/api/zoho', {
+        action: 'getFields',
+        debug: true
+      });
+      
+      setResult('Retrieved field definitions');
+      setDetailedResponse(response.data);
+    } catch (err) {
+      setError(`Error: ${err.message}`);
+      setDetailedResponse(err.response?.data);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const getLead = async () => {
+    if (!leadId) {
+      setError('Please enter a lead ID');
+      return;
+    }
+    
+    setLoading(true);
+    setResult(null);
+    setError(null);
+    setDetailedResponse(null);
+    
+    try {
+      const response = await axios.post('/api/zoho', {
+        action: 'getLead',
+        debug: true,
+        leadId
+      });
+      
+      setResult(`Retrieved lead ${leadId}`);
+      setDetailedResponse(response.data);
+    } catch (err) {
+      setError(`Error: ${err.message}`);
+      setDetailedResponse(err.response?.data);
     } finally {
       setLoading(false);
     }
@@ -130,7 +261,7 @@ function ZohoTest() {
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
       <h2>Zoho CRM Integration Test</h2>
       
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
         <button 
           onClick={testApiEndpoint}
           disabled={loading}
@@ -147,6 +278,36 @@ function ZohoTest() {
         </button>
         
         <button 
+          onClick={createMinimalLead}
+          disabled={loading}
+          style={{
+            padding: '10px 20px',
+            backgroundColor: loading ? '#cccccc' : '#9b59b6',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: loading ? 'default' : 'pointer'
+          }}
+        >
+          Create Minimal Lead
+        </button>
+        
+        <button 
+          onClick={getLeadFields}
+          disabled={loading}
+          style={{
+            padding: '10px 20px',
+            backgroundColor: loading ? '#cccccc' : '#f39c12',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: loading ? 'default' : 'pointer'
+          }}
+        >
+          Get Field Definitions
+        </button>
+        
+        <button 
           onClick={createTestLead}
           disabled={loading}
           style={{
@@ -158,7 +319,7 @@ function ZohoTest() {
             cursor: loading ? 'default' : 'pointer'
           }}
         >
-          {loading ? 'Creating...' : 'Create Test Lead'}
+          {loading ? 'Creating...' : 'Create Full Test Lead'}
         </button>
         
         <button 
@@ -166,7 +327,7 @@ function ZohoTest() {
           disabled={loading || !leadId}
           style={{
             padding: '10px 20px',
-            backgroundColor: loading ? '#cccccc' : (leadId ? '#f39c12' : '#cccccc'),
+            backgroundColor: loading ? '#cccccc' : (leadId ? '#e74c3c' : '#cccccc'),
             color: 'white',
             border: 'none',
             borderRadius: '5px',
@@ -175,10 +336,25 @@ function ZohoTest() {
         >
           {loading ? 'Updating...' : 'Update Test Lead'}
         </button>
+        
+        <button 
+          onClick={getLead}
+          disabled={loading || !leadId}
+          style={{
+            padding: '10px 20px',
+            backgroundColor: loading ? '#cccccc' : (leadId ? '#2ecc71' : '#cccccc'),
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: (loading || !leadId) ? 'default' : 'pointer'
+          }}
+        >
+          View Lead Details
+        </button>
       </div>
 
       <div style={{ marginBottom: '20px' }}>
-        <label style={{ display: 'block', marginBottom: '5px' }}>Lead ID (for updates):</label>
+        <label style={{ display: 'block', marginBottom: '5px' }}>Lead ID (for updates/viewing):</label>
         <input 
           type="text" 
           value={leadId} 
@@ -343,7 +519,7 @@ function ZohoTest() {
               <div style={{ marginTop: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}>Remaining Mortgage:</label>
                 <input 
-                  type="number" 
+                  type="text" 
                   name="remainingMortgage" 
                   value={formData.remainingMortgage} 
                   onChange={handleFormChange}
@@ -354,73 +530,19 @@ function ZohoTest() {
               <div style={{ marginTop: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}>Square Footage:</label>
                 <input 
-                  type="number" 
+                  type="text" 
                   name="finishedSquareFootage" 
                   value={formData.finishedSquareFootage} 
                   onChange={handleFormChange}
                   style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
                 />
               </div>
-            </div>
-          </div>
-          
-          <div style={{ marginTop: '20px' }}>
-            <h4>Marketing Information</h4>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Traffic Source:</label>
-                <input 
-                  type="text" 
-                  name="trafficSource" 
-                  value={formData.trafficSource} 
-                  onChange={handleFormChange}
-                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-                />
-              </div>
               
-              <div>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Campaign Name:</label>
-                <input 
-                  type="text" 
-                  name="campaignName" 
-                  value={formData.campaignName} 
-                  onChange={handleFormChange}
-                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-                />
-              </div>
-              
-              <div>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Ad Group:</label>
-                <input 
-                  type="text" 
-                  name="adgroupName" 
-                  value={formData.adgroupName} 
-                  onChange={handleFormChange}
-                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-                />
-              </div>
-              
-              <div>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Keyword:</label>
-                <input 
-                  type="text" 
-                  name="keyword" 
-                  value={formData.keyword} 
-                  onChange={handleFormChange}
-                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-                />
-              </div>
-            </div>
-          </div>
-          
-          <div style={{ marginTop: '20px' }}>
-            <h4>Appointment Information</h4>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Want Appointment:</label>
+              <div style={{ marginTop: '10px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Garage:</label>
                 <select
-                  name="wantToSetAppointment"
-                  value={formData.wantToSetAppointment}
+                  name="garage"
+                  value={formData.garage}
                   onChange={handleFormChange}
                   style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
                 >
@@ -429,26 +551,33 @@ function ZohoTest() {
                 </select>
               </div>
               
-              <div>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Appointment Date:</label>
-                <input 
-                  type="text" 
-                  name="selectedAppointmentDate" 
-                  value={formData.selectedAppointmentDate} 
+              <div style={{ marginTop: '10px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}>HOA:</label>
+                <select
+                  name="hasHoa"
+                  value={formData.hasHoa}
                   onChange={handleFormChange}
                   style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-                />
+                >
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
               </div>
               
-              <div>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Appointment Time:</label>
-                <input 
-                  type="text" 
-                  name="selectedAppointmentTime" 
-                  value={formData.selectedAppointmentTime} 
+              <div style={{ marginTop: '10px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}>How Soon to Sell:</label>
+                <select
+                  name="howSoonSell"
+                  value={formData.howSoonSell}
                   onChange={handleFormChange}
                   style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-                />
+                >
+                  <option value="ASAP">ASAP</option>
+                  <option value="0-3 months">0-3 months</option>
+                  <option value="3-6 months">3-6 months</option>
+                  <option value="6-12 months">6-12 months</option>
+                  <option value="Not sure">Not sure</option>
+                </select>
               </div>
             </div>
           </div>
@@ -464,6 +593,22 @@ function ZohoTest() {
       {error && (
         <div style={{ marginTop: '20px', padding: '10px', backgroundColor: '#f7e6e6', borderRadius: '5px' }}>
           {error}
+        </div>
+      )}
+      
+      {detailedResponse && (
+        <div style={{ marginTop: '20px' }}>
+          <h3>Detailed Response:</h3>
+          <pre style={{ 
+            backgroundColor: '#f5f5f5', 
+            padding: '15px', 
+            borderRadius: '5px',
+            overflowX: 'auto',
+            maxHeight: '400px',
+            overflowY: 'auto'
+          }}>
+            {JSON.stringify(detailedResponse, null, 2)}
+          </pre>
         </div>
       )}
     </div>

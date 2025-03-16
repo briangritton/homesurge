@@ -57,7 +57,7 @@ module.exports = async (req, res) => {
   }
   
   try {
-    const { action, leadId, formData, propertyRecord, userId } = req.body;
+    const { action, leadId, formData, propertyRecord, userId, debug } = req.body;
     
     if (!action) {
       return res.status(400).json({ error: 'Missing action parameter' });
@@ -65,10 +65,78 @@ module.exports = async (req, res) => {
     
     // Handle simple ping test
     if (action === 'ping') {
+      if (debug) {
+        try {
+          const token = await getAccessToken();
+          return res.status(200).json({ 
+            success: true, 
+            message: 'API endpoint is working',
+            debug: {
+              token: token ? 'Valid token retrieved' : 'Failed to get token',
+              tokenExpiry: tokenExpiry ? new Date(tokenExpiry).toISOString() : 'No expiry set'
+            }
+          });
+        } catch (error) {
+          return res.status(500).json({
+            success: false,
+            message: 'API endpoint is working but token retrieval failed',
+            error: error.message
+          });
+        }
+      }
       return res.status(200).json({ success: true, message: 'API endpoint is working' });
     }
     
     const token = await getAccessToken();
+    
+    // Action to get lead field definitions
+    if (action === 'getFields') {
+      const response = await axios.get(
+        `${ZOHO_API_DOMAIN}/crm/v2/settings/fields?module=Leads`,
+        {
+          headers: {
+            'Authorization': `Zoho-oauthtoken ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      // Format the fields to be more readable
+      const formattedFields = response.data.fields.map(field => ({
+        apiName: field.api_name,
+        displayName: field.field_label,
+        dataType: field.data_type,
+        required: field.system_mandatory,
+        customField: field.custom_field,
+        length: field.length,
+        options: field.pick_list_values?.map(v => v.display_value) || []
+      }));
+      
+      return res.status(200).json({
+        success: true,
+        fields: formattedFields,
+        rawResponse: debug ? response.data : undefined
+      });
+    }
+    
+    // Action to get a specific lead
+    if (action === 'getLead' && leadId) {
+      const response = await axios.get(
+        `${ZOHO_API_DOMAIN}/crm/v2/Leads/${leadId}`,
+        {
+          headers: {
+            'Authorization': `Zoho-oauthtoken ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      return res.status(200).json({
+        success: true,
+        lead: response.data.data[0],
+        rawResponse: debug ? response.data : undefined
+      });
+    }
     
     if (action === 'create' && formData) {
       // Prepare name field - Zoho requires Last_Name at minimum
@@ -85,169 +153,230 @@ module.exports = async (req, res) => {
         }
       }
       
-      // Convert boolean string values to actual booleans
-      const convertStringToBoolean = (value) => {
-        if (value === 'true' || value === true) return true;
-        if (value === 'false' || value === false) return false;
-        return value;
-      };
-
-      // Create a new lead
+      // Create a new lead with bare minimum fields to test
+      if (Object.keys(formData).length <= 3 && formData.name && formData.phone) {
+        // This is a minimal test lead
+        const payload = {
+          data: [
+            {
+              First_Name: firstName,
+              Last_Name: lastName,
+              Phone: formData.phone,
+              Email: formData.email || "",
+              Lead_Source: "Test"
+            }
+          ]
+        };
+        
+        console.log("Creating minimal test lead with payload:", JSON.stringify(payload, null, 2));
+        
+        const response = await axios.post(
+          `${ZOHO_API_DOMAIN}/crm/v2/Leads`,
+          payload,
+          {
+            headers: {
+              'Authorization': `Zoho-oauthtoken ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        
+        if (response.data && response.data.data && response.data.data.length > 0) {
+          return res.status(200).json({ 
+            success: true, 
+            leadId: response.data.data[0].id,
+            fullResponse: debug ? response.data : undefined
+          });
+        } else {
+          return res.status(500).json({ 
+            error: 'No lead ID returned from Zoho CRM',
+            fullResponse: debug ? response.data : undefined
+          });
+        }
+      }
+      
+      // Regular lead creation with all fields using the exact field names from Zoho
       const payload = {
         data: [
           {
-            // Basic contact information
+            // Basic information - standard fields
             First_Name: firstName,
             Last_Name: lastName,
             Phone: formData.phone,
             Email: formData.email || "",
             
-            // Address information
+            // Address
             Street: formData.street,
             City: formData.city || "",
             Zip_Code: formData.zip || "",
-            State: formData.state || "GA", // Default state
+            State: formData.state || "GA",
             
             // Lead metadata
             Lead_Source: formData.trafficSource || "Website",
-            Description: `Property Address: ${formData.street}\n${formData.additionalInfo || ''}`,
-            Lead_Status: "New",
+            Description: `Property: ${formData.street}`,
             
-            // Property details
-            Property_Owner: convertStringToBoolean(formData.isPropertyOwner),
-            Needs_Repairs: convertStringToBoolean(formData.needsRepairs),
-            Working_with_Agent: convertStringToBoolean(formData.workingWithAgent),
-            Property_Type: formData.homeType || "",
-            Remaining_Mortgage: parseFloat(formData.remainingMortgage) || 0,
-            Square_Footage: parseFloat(formData.finishedSquareFootage) || 0,
-            Basement_Square_Footage: parseFloat(formData.basementSquareFootage) || 0,
-            Timeframe_to_Sell: formData.howSoonSell || "",
+            // Property details - using exact field names from Zoho
+            isPropertyOwner: formData.isPropertyOwner,
+            needRepairs: formData.needsRepairs, // Note: matches Zoho field name (no "s")
+            workingWithAgent: formData.workingWithAgent,
+            homeType: formData.homeType || "",
+            remainingMortgage: formData.remainingMortgage?.toString() || "0",
+            finishedSquareFootage: formData.finishedSquareFootage?.toString() || "0",
+            basementSquareFootage: formData.basementSquareFootage?.toString() || "0",
+            // Make sure both potential field names are included
+            howSoonSell: formData.howSoonSell || "",
+            "How soon do you want to sell?": formData.howSoonSell || "",
             
-            // Additional property details
-            Bedrooms: formData.bedrooms || "",
-            Bathrooms: formData.bathrooms || "",
-            Floors: formData.floors || "",
-            Has_Garage: formData.hasGarage || "",
-            Garage_Capacity: formData.garageCapacity || "",
-            Has_HOA: formData.hasHOA || "",
-            Has_Solar: formData.hasSolar || "",
-            Planning_To_Buy: formData.planningToBuy || "",
-            Septic_Or_Sewer: formData.septicOrSewer || "",
-            Known_Issues: formData.knownIssues || "",
-            Reason_For_Selling: formData.reasonForSelling || "",
+            // Additional property fields
+            bedrooms: formData.bedrooms?.toString() || "",
+            bathrooms: formData.bathrooms?.toString() || "",
+            floors: formData.floors?.toString() || "",
+            garage: formData.garage || "", // This is the field name in Zoho
+            garageCars: formData.garageCars?.toString() || "",
+            hasHoa: formData.hasHoa || "", // Correct casing
+            hasSolar: formData.hasSolar || "",
+            planningToBuy: formData.planningToBuy || "",
+            septicOrSewer: formData.septicOrSewer || "",
+            knownIssues: formData.knownIssues || "",
+            reasonForSelling: formData.reasonForSelling || "",
             
             // Appointment information
-            Want_to_Set_Appointment: convertStringToBoolean(formData.wantToSetAppointment),
-            Appointment_Date: formData.selectedAppointmentDate || "",
-            Appointment_Time: formData.selectedAppointmentTime || "",
-            
-            // Property valuation
-            API_Owner_Name: formData.apiOwnerName || "",
-            API_Estimated_Value: parseFloat(formData.apiEstimatedValue) || 0,
+            wantToSetAppointment: formData.wantToSetAppointment || "",
+            selectedAppointmentDate: formData.selectedAppointmentDate || "",
+            selectedAppointmentTime: formData.selectedAppointmentTime || "",
             
             // Marketing information
-            Campaign_Name: formData.campaignName || "",
-            Ad_Group: formData.adgroupName || "",
-            Keyword: formData.keyword || "",
-            Device: formData.device || "",
-            GCLID: formData.gclid || "",
-            URL: formData.url || ""
+            trafficSource: formData.trafficSource || "",
+            campaignName: formData.campaignName || "",
+            adgroupName: formData.adgroupName || "",
+            device: formData.device || "",
+            
+            // Dynamic content
+            dynamicHeadline: formData.dynamicHeadline || "",
+            dynamicSubHeadline: formData.dynamicSubHeadline || "",
+            thankYouHeadline: formData.thankYouHeadline || "",
+            thankYouSubHeadline: formData.thankYouSubHeadline || "",
+            
+            // Property valuation
+            apiMaxHomeValue: formData.apiMaxHomeValue?.toString() || "",
+            apiHomeValue: formData.apiEstimatedValue?.toString() || "",
+            apiOwnerName: formData.apiOwnerName || "",
+            apiEquity: formData.apiEquity?.toString() || "0",
+            apiPercentage: formData.apiPercentage?.toString() || "0",
+            
+            // Metadata
+            addressSelectionType: formData.addressSelectionType || "Manual",
+            qualifyingQuestionStep: formData.qualifyingQuestionStep?.toString() || "",
+            userInputtedStreet: formData.userInputtedStreet || ""
           }
         ]
       };
       
       console.log("Creating lead with payload:", JSON.stringify(payload, null, 2));
       
-      const response = await axios.post(
-        `${ZOHO_API_DOMAIN}/crm/v2/Leads`,
-        payload,
-        {
-          headers: {
-            'Authorization': `Zoho-oauthtoken ${token}`,
-            'Content-Type': 'application/json'
+      try {
+        const response = await axios.post(
+          `${ZOHO_API_DOMAIN}/crm/v2/Leads`,
+          payload,
+          {
+            headers: {
+              'Authorization': `Zoho-oauthtoken ${token}`,
+              'Content-Type': 'application/json'
+            }
           }
+        );
+        
+        if (response.data && response.data.data && response.data.data.length > 0) {
+          return res.status(200).json({ 
+            success: true, 
+            leadId: response.data.data[0].id,
+            fullResponse: debug ? response.data : undefined,
+            attemptedPayload: debug ? payload : undefined
+          });
+        } else {
+          return res.status(500).json({ 
+            error: 'No lead ID returned from Zoho CRM',
+            fullResponse: debug ? response.data : undefined,
+            attemptedPayload: debug ? payload : undefined
+          });
         }
-      );
-      
-      if (response.data && response.data.data && response.data.data.length > 0) {
-        return res.status(200).json({ 
-          success: true, 
-          leadId: response.data.data[0].id 
+      } catch (error) {
+        return res.status(500).json({ 
+          error: 'Failed to create lead',
+          message: error.message,
+          details: error.response?.data,
+          attemptedPayload: debug ? payload : undefined
         });
-      } else {
-        return res.status(500).json({ error: 'No lead ID returned from Zoho CRM' });
       }
-      
     } else if (action === 'update' && leadId && formData) {
-      // Convert boolean string values to actual booleans
-      const convertStringToBoolean = (value) => {
-        if (value === 'true' || value === true) return true;
-        if (value === 'false' || value === false) return false;
-        return value;
-      };
-      
-      // Update existing lead with all available fields
+      // Update existing lead with the exact field names from Zoho
       const payload = {
         data: [
           {
             id: leadId,
             
-            // Property details
-            Property_Owner: convertStringToBoolean(formData.isPropertyOwner),
-            Needs_Repairs: convertStringToBoolean(formData.needsRepairs),
-            Working_with_Agent: convertStringToBoolean(formData.workingWithAgent),
-            Property_Type: formData.homeType || "",
-            Remaining_Mortgage: parseFloat(formData.remainingMortgage) || 0,
-            Square_Footage: parseFloat(formData.finishedSquareFootage) || 0,
-            Basement_Square_Footage: parseFloat(formData.basementSquareFootage) || 0,
-            Timeframe_to_Sell: formData.howSoonSell || "",
+            // Property details - using exact field names from Zoho
+            isPropertyOwner: formData.isPropertyOwner,
+            needRepairs: formData.needsRepairs, // Matches Zoho field name (no "s")
+            workingWithAgent: formData.workingWithAgent,
+            homeType: formData.homeType || "",
+            remainingMortgage: formData.remainingMortgage?.toString() || "0",
+            finishedSquareFootage: formData.finishedSquareFootage?.toString() || "0",
+            basementSquareFootage: formData.basementSquareFootage?.toString() || "0",
+            howSoonSell: formData.howSoonSell || "",
+            "How soon do you want to sell?": formData.howSoonSell || "",
             
-            // Additional property details
-            Bedrooms: formData.bedrooms || "",
-            Bathrooms: formData.bathrooms || "",
-            Floors: formData.floors || "",
-            Has_Garage: formData.hasGarage || "",
-            Garage_Capacity: formData.garageCapacity || "",
-            Has_HOA: formData.hasHOA || "",
-            Has_Solar: formData.hasSolar || "",
-            Planning_To_Buy: formData.planningToBuy || "",
-            Septic_Or_Sewer: formData.septicOrSewer || "",
-            Known_Issues: formData.knownIssues || "",
-            Reason_For_Selling: formData.reasonForSelling || "",
+            // Additional property fields
+            bedrooms: formData.bedrooms?.toString() || "",
+            bathrooms: formData.bathrooms?.toString() || "",
+            floors: formData.floors?.toString() || "",
+            garage: formData.garage || "", // Corrected field name
+            garageCars: formData.garageCars?.toString() || "",
+            hasHoa: formData.hasHoa || "", // Corrected casing
+            hasSolar: formData.hasSolar || "",
+            planningToBuy: formData.planningToBuy || "",
+            septicOrSewer: formData.septicOrSewer || "",
+            knownIssues: formData.knownIssues || "",
+            reasonForSelling: formData.reasonForSelling || "",
             
             // Appointment information
-            Want_to_Set_Appointment: convertStringToBoolean(formData.wantToSetAppointment),
-            Appointment_Date: formData.selectedAppointmentDate || "",
-            Appointment_Time: formData.selectedAppointmentTime || "",
+            wantToSetAppointment: formData.wantToSetAppointment || "",
+            selectedAppointmentDate: formData.selectedAppointmentDate || "",
+            selectedAppointmentTime: formData.selectedAppointmentTime || "",
             
-            // Add any additional fields that might have been updated
-            Description: formData.additionalInfo ? 
-              `Additional information: ${formData.additionalInfo}` : undefined
+            // Metadata
+            qualifyingQuestionStep: formData.qualifyingQuestionStep?.toString() || ""
           }
         ]
       };
       
-      console.log("Updating lead with payload:", JSON.stringify(payload, null, 2));
-      
-      await axios.put(
-        `${ZOHO_API_DOMAIN}/crm/v2/Leads`,
-        payload,
-        {
-          headers: {
-            'Authorization': `Zoho-oauthtoken ${token}`,
-            'Content-Type': 'application/json'
+      try {
+        const response = await axios.put(
+          `${ZOHO_API_DOMAIN}/crm/v2/Leads`,
+          payload,
+          {
+            headers: {
+              'Authorization': `Zoho-oauthtoken ${token}`,
+              'Content-Type': 'application/json'
+            }
           }
-        }
-      );
-      
-      return res.status(200).json({ success: true });
+        );
+        
+        return res.status(200).json({ 
+          success: true,
+          fullResponse: debug ? response.data : undefined,
+          attemptedPayload: debug ? payload : undefined
+        });
+      } catch (error) {
+        return res.status(500).json({ 
+          error: 'Failed to update lead',
+          message: error.message,
+          details: error.response?.data,
+          attemptedPayload: debug ? payload : undefined
+        });
+      }
     } else if (action === 'saveRecord' && propertyRecord && leadId) {
-      // This is a placeholder for saving property records
-      // We'd need to adjust this based on the actual Zoho CRM structure
-      // Potentially use Zoho Notes API to attach property data
-      console.log('Saving property record:', propertyRecord);
-      
-      // Example implementation for saving as a Note in Zoho
+      // Save property record as a Note in Zoho
       const notePayload = {
         data: [
           {
@@ -259,18 +388,29 @@ module.exports = async (req, res) => {
         ]
       };
       
-      await axios.post(
-        `${ZOHO_API_DOMAIN}/crm/v2/Notes`,
-        notePayload,
-        {
-          headers: {
-            'Authorization': `Zoho-oauthtoken ${token}`,
-            'Content-Type': 'application/json'
+      try {
+        const response = await axios.post(
+          `${ZOHO_API_DOMAIN}/crm/v2/Notes`,
+          notePayload,
+          {
+            headers: {
+              'Authorization': `Zoho-oauthtoken ${token}`,
+              'Content-Type': 'application/json'
+            }
           }
-        }
-      );
-      
-      return res.status(200).json({ success: true });
+        );
+        
+        return res.status(200).json({ 
+          success: true,
+          fullResponse: debug ? response.data : undefined
+        });
+      } catch (error) {
+        return res.status(500).json({ 
+          error: 'Failed to save property record',
+          message: error.message,
+          details: error.response?.data
+        });
+      }
     } else {
       return res.status(400).json({ error: 'Invalid action or missing required parameters' });
     }
