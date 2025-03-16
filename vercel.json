@@ -1,31 +1,11 @@
 {
-    "rewrites": [
-      {
-        "source": "/(.*)",
-        "destination": "/index.html"
-      }
-    ],
-    "headers": [
-      {
-        "source": "/static/(.*)",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "public, max-age=31536000, immutable"
-          }
-        ]
-      },
-      {
-        "source": "/(.*)\\.(.*)$",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "public, max-age=31536000, immutable"
-          }
-        ]
-      }
-    ],
-    "github": {
-      "silent": true
-    }
-  }
+  "version": 2,
+  "builds": [
+    { "src": "package.json", "use": "@vercel/static-build" },
+    { "src": "api/**/*.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
+}
