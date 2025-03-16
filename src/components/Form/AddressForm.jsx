@@ -8,28 +8,41 @@ function AddressForm() {
   const { formData, updateFormData, nextStep, setDynamicContent } = useFormContext();
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [googleMapsLoaded, setGoogleMapsLoaded] = useState(false);
   const streetRef = useRef(null);
   const [autocompleteValue, setAutocompleteValue] = useState('street-address');
   
-  // Set dynamic content based on URL parameters
+  // Check if Google Maps API is loaded
   useEffect(() => {
+    const checkGoogleMapsLoaded = () => {
+      if (window.google && window.google.maps) {
+        setGoogleMapsLoaded(true);
+      } else {
+        // Check again in 500ms
+        setTimeout(checkGoogleMapsLoaded, 500);
+      }
+    };
+    
+    checkGoogleMapsLoaded();
+    
+    // Set dynamic content based on URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const keyword = urlParams.get('keyword');
-    if (keyword) {
+    if (keyword && setDynamicContent) {
       setDynamicContent(keyword);
     }
   }, [setDynamicContent]);
   
-  // Initialize Google Maps autocomplete
+  // Initialize Google Maps autocomplete once API is loaded
   useEffect(() => {
-    if (!streetRef.current || !window.google || !window.google.maps) {
+    if (!streetRef.current || !googleMapsLoaded) {
       return;
     }
     
     const cleanup = initializeGoogleMapsAutocomplete(streetRef, handlePlaceSelected);
     
     return cleanup;
-  }, [streetRef]);
+  }, [googleMapsLoaded, streetRef]);
   
   // Handle place selection from Google Maps autocomplete
   const handlePlaceSelected = async (placeData) => {
@@ -152,8 +165,8 @@ function AddressForm() {
     <div className="hero-section">
       <div className="hero-middle-container">
         <div className="hero-content fade-in">
-          <div className="hero-headline">{formData.dynamicHeadline}</div>
-          <div className="hero-subheadline">{formData.dynamicSubHeadline}</div>
+          <div className="hero-headline">{formData.dynamicHeadline || 'Sell Your House For Cash Fast!'}</div>
+          <div className="hero-subheadline">{formData.dynamicSubHeadline || 'Get a Great Cash Offer For Your House and Close Fast!'}</div>
           
           <form className="form-container" onSubmit={handleSubmit}>
             <input
@@ -162,7 +175,7 @@ function AddressForm() {
               type="text"
               placeholder="Street address..."
               className={errorMessage ? 'address-input-invalid' : 'address-input'}
-              value={formData.street}
+              value={formData.street || ''}
               onChange={handleChange}
               onFocus={(e) => e.target.placeholder = ''}
               onBlur={(e) => e.target.placeholder = 'Street address...'}
