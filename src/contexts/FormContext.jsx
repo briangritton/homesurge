@@ -11,6 +11,7 @@ const initialFormState = {
   street: '',
   city: '',
   zip: '',
+  state: 'GA',
   
   // Meta information
   userId: '',
@@ -18,12 +19,6 @@ const initialFormState = {
   submitting: false,
   submitted: false,
   submissionError: null,
-  
-  // Property information
-  apiOwnerName: '',
-  apiMaxHomeValue: '',
-  apiEstimatedValue: '',
-  formattedApiEstimatedValue: '',
   
   // Traffic source information
   dynamicHeadline: 'Sell Your House For Cash Fast!',
@@ -44,24 +39,13 @@ const initialFormState = {
   isPropertyOwner: 'true',
   needsRepairs: 'false',
   workingWithAgent: 'false',
-  homeType: '',
+  homeType: 'Single Family',
   remainingMortgage: 100000,
-  bedrooms: '',
-  bathrooms: '',
-  floors: '',
   finishedSquareFootage: 1000,
-  basementSquareFootage: 1000,
-  howSoonSell: '',
-  reasonForSelling: '',
-  garage: '',
-  garageCars: '',
-  hasHoa: '',
-  hasSolar: '',
-  planningToBuy: '',
-  septicOrSewer: '',
-  knownIssues: '',
+  basementSquareFootage: 0,
+  howSoonSell: 'ASAP',
   qualifyingQuestionStep: 1,
-  wantToSetAppointment: '',
+  wantToSetAppointment: 'false',
   selectedAppointmentDate: '',
   selectedAppointmentTime: '',
 };
@@ -104,21 +88,6 @@ export function FormProvider({ children }) {
       trafficSource: urlParams.get('source') || 'Direct',
       url: window.location.href
     }));
-    
-    // If campaign ID exists, set the campaign name
-    if (campaignId) {
-      setCampaignName(campaignId);
-    }
-    
-    // If adgroup ID exists, set the adgroup name
-    if (adgroupId) {
-      setAdgroupName(adgroupId);
-    }
-    
-    // If keyword exists, set dynamic content
-    if (keyword) {
-      setDynamicContent(keyword);
-    }
   }, []);
 
   // Handle form updates
@@ -191,105 +160,37 @@ export function FormProvider({ children }) {
     }
   };
 
-  // Set campaign name based on campaign ID
-  const setCampaignName = (campaignId) => {
-    let campaignName = "No Campaign";
-    
-    if (campaignId === "20196006239") {
-      campaignName = "Sell For Cash Form Submit (Google only)";
-    } else if (campaignId === "20490389456") {
-      campaignName = "Sell For Cash Form Submit (Search Partners)";
-    } else if (campaignId === "20311247419") {
-      campaignName = "Sell Fast, On Own, No Agent, Form Submit (Google only)";
-    } else if (campaignId === "20490511649") {
-      campaignName = "Sell Fast, On Own, No Agent, Form Submit (Search Partners)";
-    }
-    
-    setFormData(prev => ({ ...prev, campaignName }));
-  };
-
-  // Set adgroup name based on adgroup ID
-  const setAdgroupName = (adgroupId) => {
-    let adgroupName = "No Ad Group";
-    
-    if (adgroupId === "149782006756") {
-      adgroupName = "(exact)";
-    } else if (adgroupId === "153620745798") {
-      adgroupName = "(phrase)";
-    } else if (adgroupId === "151670982418") {
-      adgroupName = "(exact)";
-    } else if (adgroupId === "156658963430") {
-      adgroupName = "(phrase)";
-    } else if (adgroupId === "153325247952") {
-      adgroupName = "(exact)";
-    } else if (adgroupId === "153325247992") {
-      adgroupName = "(phrase)";
-    } else if (adgroupId === "156355988601") {
-      adgroupName = "(exact)";
-    } else if (adgroupId === "156355988761") {
-      adgroupName = "(phrase)";
-    }
-    
-    setFormData(prev => ({ ...prev, adgroupName }));
-  };
-
-  // Set dynamic headlines based on keywords
+  // Set dynamic content based on keywords
   const setDynamicContent = (keyword) => {
     if (!keyword) return;
     
-    const sanitizedKeyword = keyword.replace(/[^a-z0-9\s]/gi, '').toLowerCase();
-    const keywordWords = sanitizedKeyword.split(' ');
+    // Convert to lowercase for case-insensitive matching
+    const lowerKeyword = keyword.toLowerCase();
     
-    const possibleHeadlines = [
-      {
-        keywords: ['get', 'cash'],
-        headline: 'Get Cash For Your House Fast!',
-        subHeadline: 'Get a great cash offer for your house and close fast! Enter your address below to generate your cash offer',
+    // Simple matching logic based on keywords
+    if (lowerKeyword.includes('cash') && lowerKeyword.includes('sell')) {
+      updateFormData({
+        dynamicHeadline: 'Sell Your House For Cash Fast!',
+        dynamicSubHeadline: 'Get a great cash offer for your house and close fast!',
         thankYouHeadline: 'Cash Offer Request Completed!',
-        thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!',
-      },
-      {
-        keywords: ['cash', 'out'],
-        headline: 'Check Your Home Cash Out Amount',
-        subHeadline: 'Get a great cash out offer for your house and close fast! Enter your address below to generate your cash amount',
-        thankYouHeadline: 'Cash Offer Request Completed!',
-        thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!',
-      },
-      {
-        keywords: ['sell', 'cash'],
-        headline: 'Sell Your House For Cash Fast',
-        subHeadline: 'Get a great cash offer for your house and close fast! Enter your address below to generate your cash offer',
-        thankYouHeadline: 'Cash Offer Request Completed!',
-        thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!',
-      },
-      {
-        keywords: ['sell', 'fast'],
-        headline: 'Sell Your House Fast In As Little As 4 Days!',
-        subHeadline: 'Check your sell price and get an instant cash offer for your house! Enter your address below to generate your cash value',
+        thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!'
+      });
+    } else if (lowerKeyword.includes('value')) {
+      updateFormData({
+        dynamicHeadline: 'Check The Value Of Your House!',
+        dynamicSubHeadline: 'Find out how much your home is worth today.',
         thankYouHeadline: 'Home Value Request Completed!',
-        thankYouSubHeadline: 'You\'ll be receiving your home value details at your contact number shortly, thank you!',
-      },
-      {
-        keywords: ['value'],
-        headline: 'Check The Market Value Of Your House!',
-        subHeadline: 'Check your home value fast. Enter your address below to generate.',
-        thankYouHeadline: 'Home Value Request Completed!',
-        thankYouSubHeadline: 'You\'ll be receiving your home value details at your contact number shortly, thank you!',
-      }
-    ];
-    
-    for (let i = 0; i < possibleHeadlines.length; i++) {
-      if (possibleHeadlines[i].keywords.every(kw => keywordWords.includes(kw))) {
-        setFormData(prev => ({
-          ...prev,
-          dynamicHeadline: possibleHeadlines[i].headline,
-          dynamicSubHeadline: possibleHeadlines[i].subHeadline,
-          thankYouHeadline: possibleHeadlines[i].thankYouHeadline,
-          thankYouSubHeadline: possibleHeadlines[i].thankYouSubHeadline,
-        }));
-        return;
-      }
+        thankYouSubHeadline: 'You\'ll be receiving your home value details at your contact number shortly, thank you!'
+      });
+    } else if (lowerKeyword.includes('fast')) {
+      updateFormData({
+        dynamicHeadline: 'Sell Your House Fast!',
+        dynamicSubHeadline: 'Get a cash offer and close in as little as 10 days!',
+        thankYouHeadline: 'Fast Sale Request Completed!',
+        thankYouSubHeadline: 'You\'ll be receiving your fast sale details at your contact number shortly, thank you!'
+      });
     }
+    // Default values are already set in initialFormState
   };
 
   // Provide the context value to children
@@ -303,8 +204,6 @@ export function FormProvider({ children }) {
       goToStep,
       submitLead,
       updateLead,
-      setCampaignName,
-      setAdgroupName,
       setDynamicContent
     }}>
       {children}
