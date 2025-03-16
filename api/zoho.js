@@ -85,37 +85,21 @@ module.exports = async (req, res) => {
             Lead_Source: formData.trafficSource || "Website",
             Description: `Street: ${formData.street}`,
             Lead_Status: "New",
-            
-            // Custom fields with exact names from Zoho CRM
-            "Are you the property owner?": formData.isPropertyOwner === 'true' ? true : false,
-            "Does the property need any major repairs?": formData.needsRepairs === 'true' ? true : false,
-            "Are you working with a real estate agent?": formData.workingWithAgent === 'true' ? true : false,
-            "What type of property is it?": formData.homeType || "",
-            "What is your remaining mortgage amount?": parseInt(formData.remainingMortgage) || 0,
-            "What is your finished square footage?": parseInt(formData.finishedSquareFootage) || 0,
-            "What is your unfinished basement square footage?": parseInt(formData.basementSquareFootage) || 0,
-            "How soon do you want to sell?": formData.howSoonSell || "",
-            "Why are you selling?": formData.reasonForSelling || "",
-            "Do you have a garage?": formData.garage || "",
-            "How many cars can fit in your garage?": formData.garageCars || "",
-            "Do you have an HOA?": formData.hasHoa || "",
-            "Does your home have solar panels?": formData.hasSolar || "",
-            "Are you planning to buy a home?": formData.planningToBuy || "",
-            "Do you have septic or sewer?": formData.septicOrSewer || "",
-            "Does your home have any known issues or necessary": formData.knownIssues || "",
-            "Do you want to set a virtual appointment?": formData.wantToSetAppointment === 'true' ? true : false,
-            "Select your preferred appointment date.": formData.selectedAppointmentDate || "",
-            "Select your preferred appointment time ?": formData.selectedAppointmentTime || "",
-            "Number of bedrooms?": formData.bedrooms || "",
-            "Number of bathrooms?": formData.bathrooms || "",
-            "How many floor does your home have?": formData.floors || "",
-            
+            // Custom fields
+            Property_Owner: formData.isPropertyOwner === 'true' ? true : false,
+            Needs_Repairs: formData.needsRepairs === 'true' ? true : false,
+            Working_with_Agent: formData.workingWithAgent === 'true' ? true : false,
+            Property_Type: formData.homeType || "",
+            Remaining_Mortgage: formData.remainingMortgage || 0,
+            Square_Footage: formData.finishedSquareFootage || 0,
+            Basement_Square_Footage: formData.basementSquareFootage || 0,
+            Timeframe_to_Sell: formData.howSoonSell || "",
             // Marketing information
-            trafficSource: formData.trafficSource || "",
-            campaignName: formData.campaignName || "",
-            adgroupName: formData.adgroupName || "",
-            device: formData.device || "",
-            gclid: formData.gclid || "",
+            Campaign_Name: formData.campaignName || "",
+            Ad_Group: formData.adgroupName || "",
+            Keyword: formData.keyword || "",
+            Device: formData.device || "",
+            GCLID: formData.gclid || "",
             URL: formData.url || ""
           }
         ]
@@ -147,25 +131,18 @@ module.exports = async (req, res) => {
         data: [
           {
             id: leadId,
-            "Are you the property owner?": formData.isPropertyOwner === 'true' ? true : false,
-            "Does the property need any major repairs?": formData.needsRepairs === 'true' ? true : false,
-            "Are you working with a real estate agent?": formData.workingWithAgent === 'true' ? true : false,
-            "What type of property is it?": formData.homeType || "",
-            "What is your remaining mortgage amount?": parseInt(formData.remainingMortgage) || 0,
-            "What is your finished square footage?": parseInt(formData.finishedSquareFootage) || 0,
-            "What is your unfinished basement square footage?": parseInt(formData.basementSquareFootage) || 0,
-            "How soon do you want to sell?": formData.howSoonSell || "",
-            "Why are you selling?": formData.reasonForSelling || "",
-            "Do you have a garage?": formData.garage || "",
-            "How many cars can fit in your garage?": formData.garageCars || "",
-            "Do you have an HOA?": formData.hasHoa || "",
-            "Does your home have solar panels?": formData.hasSolar || "",
-            "Are you planning to buy a home?": formData.planningToBuy || "",
-            "Do you have septic or sewer?": formData.septicOrSewer || "",
-            "Does your home have any known issues or necessary": formData.knownIssues || "",
-            "Do you want to set a virtual appointment?": formData.wantToSetAppointment === 'true' ? true : false,
-            "Select your preferred appointment date.": formData.selectedAppointmentDate || "",
-            "Select your preferred appointment time ?": formData.selectedAppointmentTime || ""
+            Property_Owner: formData.isPropertyOwner === 'true' ? true : false,
+            Needs_Repairs: formData.needsRepairs === 'true' ? true : false,
+            Working_with_Agent: formData.workingWithAgent === 'true' ? true : false,
+            Property_Type: formData.homeType || "",
+            Remaining_Mortgage: formData.remainingMortgage || 0,
+            Square_Footage: formData.finishedSquareFootage || 0,
+            Basement_Square_Footage: formData.basementSquareFootage || 0,
+            Timeframe_to_Sell: formData.howSoonSell || "",
+            // Appointment information if applicable
+            Want_to_Set_Appointment: formData.wantToSetAppointment === 'true' ? true : false,
+            Appointment_Date: formData.selectedAppointmentDate || "",
+            Appointment_Time: formData.selectedAppointmentTime || ""
           }
         ]
       };
