@@ -4,9 +4,10 @@ import { trackFormStepComplete } from '../../services/analytics';
 
 function QualifyingForm() {
   const { formData, updateFormData, nextStep, updateLead } = useFormContext();
-  const [qualifyingStep, setQualifyingStep] = useState(1);
+  const [qualifyingStep, setQualifyingStep] = useState(formData.qualifyingQuestionStep || 1);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedOptionLR, setSelectedOptionLR] = useState('left');
+  const [isUpdating, setIsUpdating] = useState(false);
   
   // Refs for toggle buttons
   const toggleLeftRef = useRef(null);
@@ -18,9 +19,9 @@ function QualifyingForm() {
   const basementSquareFootageSliderRef = useRef(null);
   
   // Local state for slider values
-  const [remainingMortgage, setRemainingMortgage] = useState(formData.remainingMortgage);
-  const [finishedSquareFootage, setFinishedSquareFootage] = useState(formData.finishedSquareFootage);
-  const [basementSquareFootage, setBasementSquareFootage] = useState(formData.basementSquareFootage);
+  const [remainingMortgage, setRemainingMortgage] = useState(formData.remainingMortgage || 100000);
+  const [finishedSquareFootage, setFinishedSquareFootage] = useState(formData.finishedSquareFootage || 1000);
+  const [basementSquareFootage, setBasementSquareFootage] = useState(formData.basementSquareFootage || 1000);
   
   // Update toggle button styles based on selection
   useEffect(() => {
@@ -105,8 +106,8 @@ function QualifyingForm() {
   
   // Format display values for sliders
   const displayMortgageValue = remainingMortgage >= 1000000
-    ? remainingMortgage.toLocaleString() + '+'
-    : remainingMortgage.toLocaleString();
+    ? '$' + remainingMortgage.toLocaleString() + '+'
+    : '$' + remainingMortgage.toLocaleString();
     
   const displayFinishedSquareFootage = finishedSquareFootage >= 10000
     ? finishedSquareFootage.toLocaleString() + '+ sq/ft'
@@ -117,16 +118,26 @@ function QualifyingForm() {
     : basementSquareFootage.toLocaleString() + ' sq/ft';
   
   // Handle advancing to next qualifying question
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     // Update lead in Zoho to save progress
-    updateLead();
+    setIsUpdating(true);
+    try {
+      console.log(`Updating lead with qualifying step ${qualifyingStep} data`);
+      await updateLead();
+    } catch (error) {
+      console.error('Error updating lead:', error);
+      // Continue despite error - don't block the user's progress
+    } finally {
+      setIsUpdating(false);
+    }
     
     // Track form step completion for analytics
     trackFormStepComplete(qualifyingStep, `Qualifying Question ${qualifyingStep}`);
     
     // Move to next step
-    setQualifyingStep(prev => prev + 1);
-    updateFormData({ qualifyingQuestionStep: qualifyingStep + 1 });
+    const nextQuestionStep = qualifyingStep + 1;
+    setQualifyingStep(nextQuestionStep);
+    updateFormData({ qualifyingQuestionStep: nextQuestionStep });
   };
   
   // Handle going to specific step
@@ -136,9 +147,19 @@ function QualifyingForm() {
   };
   
   // Handle completing the qualifying form
-  const completeForm = () => {
+  const completeForm = async () => {
     // Update lead in Zoho one final time
-    updateLead();
+    setIsUpdating(true);
+    try {
+      console.log('Finalizing lead data with qualifying form answers');
+      await updateLead();
+      console.log('Lead successfully updated with all qualifying information');
+    } catch (error) {
+      console.error('Error finalizing lead:', error);
+      // Continue despite error - don't block the user's progress
+    } finally {
+      setIsUpdating(false);
+    }
     
     // Track form completion for analytics
     trackFormStepComplete('complete', 'Qualifying Form Complete');
@@ -167,6 +188,7 @@ function QualifyingForm() {
                   setSelectedOptionLR('left');
                   handleNextStep();
                 }}
+                disabled={isUpdating}
               >
                 Yes
               </button>
@@ -179,6 +201,7 @@ function QualifyingForm() {
                   setSelectedOptionLR('right');
                   handleNextStep();
                 }}
+                disabled={isUpdating}
               >
                 No
               </button>
@@ -203,6 +226,7 @@ function QualifyingForm() {
                   setSelectedOptionLR('left');
                   handleNextStep();
                 }}
+                disabled={isUpdating}
               >
                 No
               </button>
@@ -215,6 +239,7 @@ function QualifyingForm() {
                   setSelectedOptionLR('right');
                   handleNextStep();
                 }}
+                disabled={isUpdating}
               >
                 Yes
               </button>
@@ -239,6 +264,7 @@ function QualifyingForm() {
                   setSelectedOptionLR('left');
                   handleNextStep();
                 }}
+                disabled={isUpdating}
               >
                 No
               </button>
@@ -251,6 +277,7 @@ function QualifyingForm() {
                   setSelectedOptionLR('right');
                   handleNextStep();
                 }}
+                disabled={isUpdating}
               >
                 Yes
               </button>
@@ -269,6 +296,7 @@ function QualifyingForm() {
               <button
                 className="dropbtn"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
+                disabled={isUpdating}
               >
                 {formData.homeType || "Select an option"}
               </button>
@@ -303,6 +331,15 @@ function QualifyingForm() {
                 >
                   &nbsp;&nbsp;Townhouse
                 </div>
+                <div
+                  onClick={() => {
+                    updateFormData({ homeType: "Multi-Family" });
+                    setDropdownOpen(false);
+                    handleNextStep();
+                  }}
+                >
+                  &nbsp;&nbsp;Multi-Family
+                </div>
               </div>
             </div>
           </div>
@@ -317,7 +354,7 @@ function QualifyingForm() {
             </div>
             <div className="qualifying-slider-container">
               <div className="qualifying-slider-text">
-                ${displayMortgageValue}
+                {displayMortgageValue}
               </div>
               <input
                 type="range"
@@ -327,13 +364,15 @@ function QualifyingForm() {
                 className="qualifying-slider"
                 ref={mortgageSliderRef}
                 onChange={handleSliderChangeMortgage}
+                disabled={isUpdating}
               />
             </div>
             <button
               className="qualifying-button"
               onClick={handleNextStep}
+              disabled={isUpdating}
             >
-              Next...
+              {isUpdating ? 'Processing...' : 'Next...'}
             </button>
           </div>
         );
@@ -357,13 +396,15 @@ function QualifyingForm() {
                 className="qualifying-slider"
                 ref={squareFootageSliderRef}
                 onChange={handleSliderChangeSquareFootage}
+                disabled={isUpdating}
               />
             </div>
             <button
               className="qualifying-button"
               onClick={handleNextStep}
+              disabled={isUpdating}
             >
-              Next...
+              {isUpdating ? 'Processing...' : 'Next...'}
             </button>
           </div>
         );
@@ -379,6 +420,7 @@ function QualifyingForm() {
               <button
                 className="dropbtn"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
+                disabled={isUpdating}
               >
                 {formData.howSoonSell || "Select an option"}
               </button>
@@ -454,6 +496,7 @@ function QualifyingForm() {
                   setSelectedOptionLR('left');
                   completeForm();
                 }}
+                disabled={isUpdating}
               >
                 No
               </button>
@@ -466,6 +509,7 @@ function QualifyingForm() {
                   setSelectedOptionLR('right');
                   goToStep(9);
                 }}
+                disabled={isUpdating}
               >
                 Yes
               </button>
@@ -484,6 +528,7 @@ function QualifyingForm() {
               <button
                 className="dropbtn"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
+                disabled={isUpdating}
               >
                 {formData.selectedAppointmentDate || "Select a Date"}
               </button>
@@ -519,6 +564,7 @@ function QualifyingForm() {
               <button
                 className="dropbtn"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
+                disabled={isUpdating}
               >
                 {formData.selectedAppointmentTime || "Select a Time"}
               </button>
@@ -553,8 +599,9 @@ function QualifyingForm() {
             <button
               className="qualifying-button"
               onClick={completeForm}
+              disabled={isUpdating}
             >
-              Finish
+              {isUpdating ? 'Processing...' : 'Finish'}
             </button>
           </div>
         );

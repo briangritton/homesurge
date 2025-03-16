@@ -83,11 +83,8 @@ export function FormProvider({ children }) {
       userId = uuidv4();
       localStorage.setItem('userId', userId);
     }
-    setFormData(prev => ({ ...prev, userId }));
-  }, []);
-  
-  // Parse URL parameters for campaign tracking
-  useEffect(() => {
+    
+    // Get URL parameters for tracking
     const urlParams = new URLSearchParams(window.location.search);
     const campaignId = urlParams.get('campaignid');
     const adgroupId = urlParams.get('adgroupid');
@@ -95,18 +92,35 @@ export function FormProvider({ children }) {
     const device = urlParams.get('device');
     const gclid = urlParams.get('gclid');
     
-    if (campaignId || adgroupId || keyword || device || gclid) {
-      setFormData(prev => ({
-        ...prev,
-        campaignId: campaignId || '',
-        adgroupId: adgroupId || '',
-        keyword: keyword || '',
-        device: device || '',
-        gclid: gclid || '',
-      }));
+    // Update form data with user ID and tracking parameters
+    setFormData(prev => ({
+      ...prev,
+      userId,
+      campaignId: campaignId || '',
+      adgroupId: adgroupId || '',
+      keyword: keyword || '',
+      device: device || '',
+      gclid: gclid || '',
+      trafficSource: urlParams.get('source') || 'Direct',
+      url: window.location.href
+    }));
+    
+    // If campaign ID exists, set the campaign name
+    if (campaignId) {
+      setCampaignName(campaignId);
+    }
+    
+    // If adgroup ID exists, set the adgroup name
+    if (adgroupId) {
+      setAdgroupName(adgroupId);
+    }
+    
+    // If keyword exists, set dynamic content
+    if (keyword) {
+      setDynamicContent(keyword);
     }
   }, []);
-  
+
   // Handle form updates
   const updateFormData = (updates) => {
     setFormData(prev => ({ ...prev, ...updates }));
@@ -114,22 +128,32 @@ export function FormProvider({ children }) {
 
   // Handle form step navigation
   const nextStep = () => {
-    setFormData(prev => ({ ...prev, formStep: prev.formStep + 1 }));
+    const newStep = formData.formStep + 1;
+    setFormData(prev => ({ ...prev, formStep: newStep }));
+    
+    // Save current step to localStorage to persist across page refreshes
+    localStorage.setItem('formStep', newStep.toString());
   };
 
   const previousStep = () => {
-    setFormData(prev => ({ ...prev, formStep: prev.formStep - 1 }));
+    const newStep = Math.max(1, formData.formStep - 1);
+    setFormData(prev => ({ ...prev, formStep: newStep }));
+    localStorage.setItem('formStep', newStep.toString());
   };
 
   const goToStep = (step) => {
     setFormData(prev => ({ ...prev, formStep: step }));
+    localStorage.setItem('formStep', step.toString());
   };
 
   // Submit initial lead data to Zoho
   const submitLead = async () => {
     setFormData(prev => ({ ...prev, submitting: true }));
     try {
+      console.log("Submitting lead to Zoho:", formData);
       const id = await submitLeadToZoho(formData);
+      console.log("Lead submitted successfully, ID:", id);
+      
       setLeadId(id);
       setFormData(prev => ({ 
         ...prev, 
@@ -151,10 +175,15 @@ export function FormProvider({ children }) {
 
   // Update lead information in Zoho
   const updateLead = async () => {
-    if (!leadId) return false;
+    if (!leadId) {
+      console.warn("Cannot update lead: No lead ID available");
+      return false;
+    }
     
     try {
+      console.log("Updating lead in Zoho:", leadId, formData);
       await updateLeadInZoho(leadId, formData);
+      console.log("Lead updated successfully");
       return true;
     } catch (error) {
       console.error("Failed to update lead:", error);
@@ -267,6 +296,7 @@ export function FormProvider({ children }) {
   return (
     <FormContext.Provider value={{
       formData,
+      leadId,
       updateFormData,
       nextStep,
       previousStep,
