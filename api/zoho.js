@@ -223,7 +223,9 @@ module.exports = async (req, res) => {
             remainingMortgage: formData.remainingMortgage?.toString() || "0",
             finishedSquareFootage: formData.finishedSquareFootage?.toString() || "0",
             basementSquareFootage: formData.basementSquareFootage?.toString() || "0",
+            // Make sure both potential field names are included
             howSoonSell: formData.howSoonSell || "",
+            "How soon do you want to sell?": formData.howSoonSell || "",
             
             // Additional property fields
             bedrooms: formData.bedrooms?.toString() || "",
@@ -322,6 +324,7 @@ module.exports = async (req, res) => {
             finishedSquareFootage: formData.finishedSquareFootage?.toString() || "0",
             basementSquareFootage: formData.basementSquareFootage?.toString() || "0",
             howSoonSell: formData.howSoonSell || "",
+            "How soon do you want to sell?": formData.howSoonSell || "",
             
             // Additional property fields
             bedrooms: formData.bedrooms?.toString() || "",

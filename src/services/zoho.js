@@ -159,6 +159,11 @@ function prepareFormDataForZoho(formData) {
     delete prepared.hasHOA;
   }
   
+  // Add both possible field names for howSoonSell
+  if (prepared.howSoonSell !== undefined) {
+    prepared["How soon do you want to sell?"] = prepared.howSoonSell;
+  }
+  
   // Convert property value fields to strings
   if (prepared.apiEstimatedValue !== undefined) {
     prepared.apiHomeValue = prepared.apiEstimatedValue.toString();

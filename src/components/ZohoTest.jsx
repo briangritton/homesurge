@@ -42,6 +42,9 @@ function ZohoTest() {
     knownIssues: "None",
     reasonForSelling: "Relocation",
     
+    // Time to sell - this field is important and was missing
+    howSoonSell: "ASAP",
+    
     // Appointment information
     wantToSetAppointment: "Yes",
     selectedAppointmentDate: "Monday, 3/17",
@@ -558,6 +561,22 @@ function ZohoTest() {
                 >
                   <option value="Yes">Yes</option>
                   <option value="No">No</option>
+                </select>
+              </div>
+              
+              <div style={{ marginTop: '10px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}>How Soon to Sell:</label>
+                <select
+                  name="howSoonSell"
+                  value={formData.howSoonSell}
+                  onChange={handleFormChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                >
+                  <option value="ASAP">ASAP</option>
+                  <option value="0-3 months">0-3 months</option>
+                  <option value="3-6 months">3-6 months</option>
+                  <option value="6-12 months">6-12 months</option>
+                  <option value="Not sure">Not sure</option>
                 </select>
               </div>
             </div>
