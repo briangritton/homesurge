@@ -8,7 +8,7 @@ import axios from 'axios';
 export async function submitLeadToZoho(formData) {
   try {
     console.log("Attempting to submit lead to Zoho:", { formData });
-    const response = await axios.post('/api/zoho', {
+    const response = await axios.post('http://localhost:3000/api/zoho', {
       action: 'create',
       formData
     });
@@ -44,7 +44,7 @@ export async function submitLeadToZoho(formData) {
  */
 export async function updateLeadInZoho(leadId, formData) {
   try {
-    const response = await axios.post('/api/zoho', {
+    const response = await axios.post('http://localhost:3000/api/zoho', {
       action: 'update',
       leadId,
       formData
@@ -70,7 +70,7 @@ export async function updateLeadInZoho(leadId, formData) {
  */
 export async function savePropertyRecord(propertyRecord, leadId, userId) {
   try {
-    const response = await axios.post('/api/zoho', {
+    const response = await axios.post('http://localhost:3000/api/zoho', {
       action: 'saveRecord',
       propertyRecord,
       leadId,
