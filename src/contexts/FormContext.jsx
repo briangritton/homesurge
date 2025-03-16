@@ -58,6 +58,21 @@ export function FormProvider({ children }) {
   const [formData, setFormData] = useState(initialFormState);
   const [leadId, setLeadId] = useState(null);
   
+  // Check for saved leadId from localStorage
+  useEffect(() => {
+    const savedLeadId = localStorage.getItem('leadId');
+    if (savedLeadId) {
+      setLeadId(savedLeadId);
+    }
+  }, []);
+  
+  // Save leadId to localStorage whenever it changes
+  useEffect(() => {
+    if (leadId) {
+      localStorage.setItem('leadId', leadId);
+    }
+  }, [leadId]);
+  
   // Initialize user ID from localStorage or create a new one
   useEffect(() => {
     let userId;
@@ -88,7 +103,41 @@ export function FormProvider({ children }) {
       trafficSource: urlParams.get('source') || 'Direct',
       url: window.location.href
     }));
+    
+    // Check if we have stored form data from a previous session
+    const storedFormData = localStorage.getItem('formData');
+    if (storedFormData) {
+      try {
+        const parsedData = JSON.parse(storedFormData);
+        setFormData(prev => ({...prev, ...parsedData}));
+      } catch (e) {
+        console.error('Error parsing stored form data:', e);
+      }
+    }
   }, []);
+  
+  // Save crucial form data to localStorage when it changes
+  useEffect(() => {
+    // Only save non-sensitive data
+    const dataToStore = {
+      street: formData.street,
+      city: formData.city,
+      zip: formData.zip,
+      state: formData.state,
+      formStep: formData.formStep,
+      qualifyingQuestionStep: formData.qualifyingQuestionStep,
+      isPropertyOwner: formData.isPropertyOwner,
+      needsRepairs: formData.needsRepairs,
+      workingWithAgent: formData.workingWithAgent,
+      homeType: formData.homeType,
+      howSoonSell: formData.howSoonSell,
+      wantToSetAppointment: formData.wantToSetAppointment
+    };
+    
+    localStorage.setItem('formData', JSON.stringify(dataToStore));
+  }, [formData.formStep, formData.street, formData.qualifyingQuestionStep, formData.isPropertyOwner, 
+      formData.needsRepairs, formData.workingWithAgent, formData.homeType, formData.howSoonSell, 
+      formData.wantToSetAppointment]);
 
   // Handle form updates
   const updateFormData = (updates) => {
@@ -192,6 +241,15 @@ export function FormProvider({ children }) {
     }
     // Default values are already set in initialFormState
   };
+  
+  // Clear all form data (for testing or resetting)
+  const clearFormData = () => {
+    localStorage.removeItem('formData');
+    localStorage.removeItem('formStep');
+    localStorage.removeItem('leadId');
+    setLeadId(null);
+    setFormData(initialFormState);
+  };
 
   // Provide the context value to children
   return (
@@ -204,7 +262,8 @@ export function FormProvider({ children }) {
       goToStep,
       submitLead,
       updateLead,
-      setDynamicContent
+      setDynamicContent,
+      clearFormData
     }}>
       {children}
     </FormContext.Provider>

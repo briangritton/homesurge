@@ -21,7 +21,7 @@ function QualifyingForm() {
   // Local state for slider values
   const [remainingMortgage, setRemainingMortgage] = useState(formData.remainingMortgage || 100000);
   const [finishedSquareFootage, setFinishedSquareFootage] = useState(formData.finishedSquareFootage || 1000);
-  const [basementSquareFootage, setBasementSquareFootage] = useState(formData.basementSquareFootage || 1000);
+  const [basementSquareFootage, setBasementSquareFootage] = useState(formData.basementSquareFootage || 0);
   
   // Update toggle button styles based on selection
   useEffect(() => {
@@ -71,7 +71,7 @@ function QualifyingForm() {
   const availableDates = getNextSevenDays();
   const availableTimes = getTimeSlots();
   
-  // Handle slider changes
+  // Handle slider changes with real-time Zoho updates
   const handleSliderChangeMortgage = (e) => {
     const selectedValue = parseInt(e.target.value, 10);
     
@@ -84,6 +84,19 @@ function QualifyingForm() {
     updateFormData({ remainingMortgage: selectedValue });
   };
   
+  // When slider stops moving, update Zoho
+  const handleSliderChangeMortgageEnd = async () => {
+    setIsUpdating(true);
+    try {
+      console.log(`Updating lead with mortgage amount: ${remainingMortgage}`);
+      await updateLead();
+    } catch (error) {
+      console.error('Error updating lead:', error);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+  
   const handleSliderChangeSquareFootage = (e) => {
     const selectedValue = parseInt(e.target.value, 10);
     
@@ -94,6 +107,19 @@ function QualifyingForm() {
     updateFormData({ finishedSquareFootage: selectedValue });
   };
   
+  // When slider stops moving, update Zoho
+  const handleSliderChangeSquareFootageEnd = async () => {
+    setIsUpdating(true);
+    try {
+      console.log(`Updating lead with square footage: ${finishedSquareFootage}`);
+      await updateLead();
+    } catch (error) {
+      console.error('Error updating lead:', error);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+  
   const handleSliderChangeBasementSquareFootage = (e) => {
     const selectedValue = parseInt(e.target.value, 10);
     
@@ -102,6 +128,19 @@ function QualifyingForm() {
     }
     
     updateFormData({ basementSquareFootage: selectedValue });
+  };
+  
+  // When slider stops moving, update Zoho
+  const handleSliderChangeBasementSquareFootageEnd = async () => {
+    setIsUpdating(true);
+    try {
+      console.log(`Updating lead with basement square footage: ${basementSquareFootage}`);
+      await updateLead();
+    } catch (error) {
+      console.error('Error updating lead:', error);
+    } finally {
+      setIsUpdating(false);
+    }
   };
   
   // Format display values for sliders
@@ -116,6 +155,32 @@ function QualifyingForm() {
   const displayBasementSquareFootage = basementSquareFootage >= 10000
     ? basementSquareFootage.toLocaleString() + '+ sq/ft'
     : basementSquareFootage.toLocaleString() + ' sq/ft';
+  
+  // Update lead with new response and go to next step
+  const handleResponseSubmitted = async (fieldName, value) => {
+    // Update form data locally first
+    updateFormData({ [fieldName]: value });
+    
+    // Then update in Zoho
+    setIsUpdating(true);
+    try {
+      console.log(`Updating lead with ${fieldName}: ${value}`);
+      await updateLead();
+    } catch (error) {
+      console.error('Error updating lead:', error);
+      // Continue despite error
+    } finally {
+      setIsUpdating(false);
+    }
+    
+    // Track step completion for analytics
+    trackFormStepComplete(qualifyingStep, `Qualifying Question ${qualifyingStep}`);
+    
+    // Move to next step
+    const nextQuestionStep = qualifyingStep + 1;
+    setQualifyingStep(nextQuestionStep);
+    updateFormData({ qualifyingQuestionStep: nextQuestionStep });
+  };
   
   // Handle advancing to next qualifying question
   const handleNextStep = async () => {
@@ -184,9 +249,8 @@ function QualifyingForm() {
                 ref={toggleLeftRef}
                 value="true"
                 onClick={(e) => {
-                  updateFormData({ isPropertyOwner: e.target.value });
+                  handleResponseSubmitted('isPropertyOwner', e.target.value);
                   setSelectedOptionLR('left');
-                  handleNextStep();
                 }}
                 disabled={isUpdating}
               >
@@ -197,15 +261,15 @@ function QualifyingForm() {
                 ref={toggleRightRef}
                 value="false"
                 onClick={(e) => {
-                  updateFormData({ isPropertyOwner: e.target.value });
+                  handleResponseSubmitted('isPropertyOwner', e.target.value);
                   setSelectedOptionLR('right');
-                  handleNextStep();
                 }}
                 disabled={isUpdating}
               >
                 No
               </button>
             </div>
+            {isUpdating && <div className="update-status">Saving...</div>}
           </div>
         );
         
@@ -222,9 +286,8 @@ function QualifyingForm() {
                 ref={toggleLeftRef}
                 value="false"
                 onClick={(e) => {
-                  updateFormData({ needsRepairs: e.target.value });
+                  handleResponseSubmitted('needsRepairs', e.target.value);
                   setSelectedOptionLR('left');
-                  handleNextStep();
                 }}
                 disabled={isUpdating}
               >
@@ -235,15 +298,15 @@ function QualifyingForm() {
                 ref={toggleRightRef}
                 value="true"
                 onClick={(e) => {
-                  updateFormData({ needsRepairs: e.target.value });
+                  handleResponseSubmitted('needsRepairs', e.target.value);
                   setSelectedOptionLR('right');
-                  handleNextStep();
                 }}
                 disabled={isUpdating}
               >
                 Yes
               </button>
             </div>
+            {isUpdating && <div className="update-status">Saving...</div>}
           </div>
         );
         
@@ -260,9 +323,8 @@ function QualifyingForm() {
                 ref={toggleLeftRef}
                 value="false"
                 onClick={(e) => {
-                  updateFormData({ workingWithAgent: e.target.value });
+                  handleResponseSubmitted('workingWithAgent', e.target.value);
                   setSelectedOptionLR('left');
-                  handleNextStep();
                 }}
                 disabled={isUpdating}
               >
@@ -273,15 +335,15 @@ function QualifyingForm() {
                 ref={toggleRightRef}
                 value="true"
                 onClick={(e) => {
-                  updateFormData({ workingWithAgent: e.target.value });
+                  handleResponseSubmitted('workingWithAgent', e.target.value);
                   setSelectedOptionLR('right');
-                  handleNextStep();
                 }}
                 disabled={isUpdating}
               >
                 Yes
               </button>
             </div>
+            {isUpdating && <div className="update-status">Saving...</div>}
           </div>
         );
         
@@ -304,44 +366,20 @@ function QualifyingForm() {
                 className="dropdown-content"
                 style={{ display: dropdownOpen ? "block" : "none" }}
               >
-                <div
-                  onClick={() => {
-                    updateFormData({ homeType: "Single Family" });
-                    setDropdownOpen(false);
-                    handleNextStep();
-                  }}
-                >
-                  &nbsp;&nbsp;Single Family
-                </div>
-                <div
-                  onClick={() => {
-                    updateFormData({ homeType: "Condo" });
-                    setDropdownOpen(false);
-                    handleNextStep();
-                  }}
-                >
-                  &nbsp;&nbsp;Condo
-                </div>
-                <div
-                  onClick={() => {
-                    updateFormData({ homeType: "Townhouse" });
-                    setDropdownOpen(false);
-                    handleNextStep();
-                  }}
-                >
-                  &nbsp;&nbsp;Townhouse
-                </div>
-                <div
-                  onClick={() => {
-                    updateFormData({ homeType: "Multi-Family" });
-                    setDropdownOpen(false);
-                    handleNextStep();
-                  }}
-                >
-                  &nbsp;&nbsp;Multi-Family
-                </div>
+                {['Single Family', 'Condo', 'Townhouse', 'Multi-Family'].map((option) => (
+                  <div
+                    key={option}
+                    onClick={() => {
+                      handleResponseSubmitted('homeType', option);
+                      setDropdownOpen(false);
+                    }}
+                  >
+                    &nbsp;&nbsp;{option}
+                  </div>
+                ))}
               </div>
             </div>
+            {isUpdating && <div className="update-status">Saving...</div>}
           </div>
         );
         
@@ -364,6 +402,8 @@ function QualifyingForm() {
                 className="qualifying-slider"
                 ref={mortgageSliderRef}
                 onChange={handleSliderChangeMortgage}
+                onMouseUp={handleSliderChangeMortgageEnd}
+                onTouchEnd={handleSliderChangeMortgageEnd}
                 disabled={isUpdating}
               />
             </div>
@@ -372,8 +412,9 @@ function QualifyingForm() {
               onClick={handleNextStep}
               disabled={isUpdating}
             >
-              {isUpdating ? 'Processing...' : 'Next...'}
+              {isUpdating ? 'Saving...' : 'Next...'}
             </button>
+            {isUpdating && <div className="update-status">Saving...</div>}
           </div>
         );
         
@@ -396,6 +437,8 @@ function QualifyingForm() {
                 className="qualifying-slider"
                 ref={squareFootageSliderRef}
                 onChange={handleSliderChangeSquareFootage}
+                onMouseUp={handleSliderChangeSquareFootageEnd}
+                onTouchEnd={handleSliderChangeSquareFootageEnd}
                 disabled={isUpdating}
               />
             </div>
@@ -404,8 +447,9 @@ function QualifyingForm() {
               onClick={handleNextStep}
               disabled={isUpdating}
             >
-              {isUpdating ? 'Processing...' : 'Next...'}
+              {isUpdating ? 'Saving...' : 'Next...'}
             </button>
+            {isUpdating && <div className="update-status">Saving...</div>}
           </div>
         );
         
@@ -428,53 +472,20 @@ function QualifyingForm() {
                 className="dropdown-content"
                 style={{ display: dropdownOpen ? "block" : "none" }}
               >
-                <div
-                  onClick={() => {
-                    updateFormData({ howSoonSell: "ASAP" });
-                    setDropdownOpen(false);
-                    handleNextStep();
-                  }}
-                >
-                  &nbsp;&nbsp;ASAP
-                </div>
-                <div
-                  onClick={() => {
-                    updateFormData({ howSoonSell: "0-3 months" });
-                    setDropdownOpen(false);
-                    handleNextStep();
-                  }}
-                >
-                  &nbsp;&nbsp;0-3 months
-                </div>
-                <div
-                  onClick={() => {
-                    updateFormData({ howSoonSell: "3-6 months" });
-                    setDropdownOpen(false);
-                    handleNextStep();
-                  }}
-                >
-                  &nbsp;&nbsp;3-6 months
-                </div>
-                <div
-                  onClick={() => {
-                    updateFormData({ howSoonSell: "6-12 months" });
-                    setDropdownOpen(false);
-                    handleNextStep();
-                  }}
-                >
-                  &nbsp;&nbsp;6-12 months
-                </div>
-                <div
-                  onClick={() => {
-                    updateFormData({ howSoonSell: "not sure" });
-                    setDropdownOpen(false);
-                    handleNextStep();
-                  }}
-                >
-                  &nbsp;&nbsp;Not sure
-                </div>
+                {['ASAP', '0-3 months', '3-6 months', '6-12 months', 'not sure'].map((option) => (
+                  <div
+                    key={option}
+                    onClick={() => {
+                      handleResponseSubmitted('howSoonSell', option);
+                      setDropdownOpen(false);
+                    }}
+                  >
+                    &nbsp;&nbsp;{option}
+                  </div>
+                ))}
               </div>
             </div>
+            {isUpdating && <div className="update-status">Saving...</div>}
           </div>
         );
         
@@ -514,6 +525,7 @@ function QualifyingForm() {
                 Yes
               </button>
             </div>
+            {isUpdating && <div className="update-status">Saving...</div>}
           </div>
         );
         
@@ -540,9 +552,8 @@ function QualifyingForm() {
                   <div
                     key={index}
                     onClick={() => {
-                      updateFormData({ selectedAppointmentDate: date });
+                      handleResponseSubmitted('selectedAppointmentDate', date);
                       setDropdownOpen(false);
-                      handleNextStep();
                     }}
                   >
                     &nbsp;&nbsp;{date}
@@ -550,6 +561,7 @@ function QualifyingForm() {
                 ))}
               </div>
             </div>
+            {isUpdating && <div className="update-status">Saving...</div>}
           </div>
         );
         
@@ -586,6 +598,7 @@ function QualifyingForm() {
                 ))}
               </div>
             </div>
+            {isUpdating && <div className="update-status">Saving...</div>}
           </div>
         );
         
@@ -601,8 +614,9 @@ function QualifyingForm() {
               onClick={completeForm}
               disabled={isUpdating}
             >
-              {isUpdating ? 'Processing...' : 'Finish'}
+              {isUpdating ? 'Finalizing...' : 'Finish'}
             </button>
+            {isUpdating && <div className="update-status">Saving...</div>}
           </div>
         );
     }
@@ -616,6 +630,14 @@ function QualifyingForm() {
       <div className="qualifying-form-container">
         {renderCurrentQuestion()}
       </div>
+      
+      <style jsx="true">{`
+        .update-status {
+          margin-top: 10px;
+          color: #3490d1;
+          font-style: italic;
+        }
+      `}</style>
     </div>
   );
 }

@@ -63,18 +63,24 @@ export async function updateLeadInZoho(leadId, formData) {
   }
   
   try {
-    // Include only the essential fields to update
+    // Include all relevant fields to ensure complete updates
     const updateData = {
-      // Property qualifications
+      // Property qualifications - using exact field names from Zoho API
       isPropertyOwner: formData.isPropertyOwner || 'true',
-      needsRepairs: formData.needsRepairs || 'false',
+      needRepairs: formData.needsRepairs || 'false', // Note: Zoho field name is 'needRepairs' not 'needsRepairs'
       workingWithAgent: formData.workingWithAgent || 'false',
       homeType: formData.homeType || 'Single Family',
-      howSoonSell: formData.howSoonSell || '',
+      remainingMortgage: formData.remainingMortgage?.toString() || '0',
+      finishedSquareFootage: formData.finishedSquareFootage?.toString() || '0',
+      basementSquareFootage: formData.basementSquareFootage?.toString() || '0',
+      howSoonSell: formData.howSoonSell || 'ASAP',
+      "How soon do you want to sell?": formData.howSoonSell || 'ASAP', // Including both possible field names
+      
       // Appointment information
       wantToSetAppointment: formData.wantToSetAppointment || 'false',
       selectedAppointmentDate: formData.selectedAppointmentDate || '',
       selectedAppointmentTime: formData.selectedAppointmentTime || '',
+      
       // Progress tracking
       qualifyingQuestionStep: formData.qualifyingQuestionStep?.toString() || '1'
     };
