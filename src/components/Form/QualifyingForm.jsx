@@ -3,12 +3,13 @@ import { useFormContext } from '../../contexts/FormContext';
 import { trackFormStepComplete } from '../../services/analytics';
 
 function QualifyingForm() {
-  const { formData, updateFormData, nextStep, updateLead } = useFormContext();
+  const { formData, updateFormData, nextStep, updateLead, leadId } = useFormContext();
   const [qualifyingStep, setQualifyingStep] = useState(formData.qualifyingQuestionStep || 1);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedOptionLR, setSelectedOptionLR] = useState('left');
   const [isUpdating, setIsUpdating] = useState(false);
   const [updateMessage, setUpdateMessage] = useState('');
+  const [saveAttempted, setSaveAttempted] = useState(false);
   
   // Refs for toggle buttons
   const toggleLeftRef = useRef(null);
@@ -23,6 +24,15 @@ function QualifyingForm() {
   const [remainingMortgage, setRemainingMortgage] = useState(formData.remainingMortgage || 100000);
   const [finishedSquareFootage, setFinishedSquareFootage] = useState(formData.finishedSquareFootage || 1000);
   const [basementSquareFootage, setBasementSquareFootage] = useState(formData.basementSquareFootage || 0);
+  
+  // Check if we're using a temp ID and show a message
+  useEffect(() => {
+    if (leadId && leadId.startsWith('temp_') && !saveAttempted) {
+      setSaveAttempted(true);
+      setUpdateMessage('Note: Using demo mode - changes will not be saved to Zoho CRM');
+      setTimeout(() => setUpdateMessage(''), 5000);
+    }
+  }, [leadId, saveAttempted]);
   
   // Update toggle button styles based on selection
   useEffect(() => {
@@ -126,34 +136,32 @@ function QualifyingForm() {
     // Show updating state
     setIsUpdating(true);
     setUpdateMessage(`Saving ${fieldName}...`);
+    setSaveAttempted(true);
     
     try {
       console.log(`Updating Zoho with ${fieldName} = ${value}`);
       const success = await updateLead();
       
-      if (success) {
+      // Show appropriate message based on leadId
+      if (leadId && leadId.startsWith('temp_')) {
+        setUpdateMessage('Demo mode - moving to next question');
+      } else if (success) {
         setUpdateMessage('Saved successfully!');
-        setTimeout(() => setUpdateMessage(''), 1500);
-        
-        // Track analytics
-        trackFormStepComplete(qualifyingStep, `Qualifying Question ${qualifyingStep}`);
-        
-        // Move to next step
-        setTimeout(() => {
-          const nextQuestionStep = qualifyingStep + 1;
-          setQualifyingStep(nextQuestionStep);
-          updateFormData({ qualifyingQuestionStep: nextQuestionStep });
-        }, 1000);
       } else {
         setUpdateMessage('Save failed - continuing anyway');
-        
-        // Still move to next step
-        setTimeout(() => {
-          const nextQuestionStep = qualifyingStep + 1;
-          setQualifyingStep(nextQuestionStep);
-          updateFormData({ qualifyingQuestionStep: nextQuestionStep });
-        }, 1500);
       }
+      
+      setTimeout(() => setUpdateMessage(''), 1500);
+      
+      // Track analytics
+      trackFormStepComplete(qualifyingStep, `Qualifying Question ${qualifyingStep}`);
+      
+      // Move to next step
+      setTimeout(() => {
+        const nextQuestionStep = qualifyingStep + 1;
+        setQualifyingStep(nextQuestionStep);
+        updateFormData({ qualifyingQuestionStep: nextQuestionStep });
+      }, 1000);
     } catch (error) {
       console.error(`Error updating ${fieldName}:`, error);
       setUpdateMessage('Error saving - continuing anyway');
@@ -177,11 +185,17 @@ function QualifyingForm() {
     // Update lead in Zoho one final time
     setIsUpdating(true);
     setUpdateMessage('Saving your responses...');
+    setSaveAttempted(true);
     
     try {
       console.log('Finalizing lead data with qualifying form answers');
       await updateLead();
-      setUpdateMessage('All data saved successfully!');
+      
+      if (leadId && leadId.startsWith('temp_')) {
+        setUpdateMessage('Demo complete - thank you!');
+      } else {
+        setUpdateMessage('All data saved successfully!');
+      }
     } catch (error) {
       console.error('Error finalizing lead:', error);
       setUpdateMessage('Unable to save some responses - continuing anyway');
@@ -200,6 +214,29 @@ function QualifyingForm() {
   const goToStep = (step) => {
     setQualifyingStep(step);
     updateFormData({ qualifyingQuestionStep: step });
+  };
+  
+  // Render a message about using temp ID
+  const renderTempIdMessage = () => {
+    if (leadId && leadId.startsWith('temp_')) {
+      return (
+        <div style={{
+          position: 'fixed',
+          bottom: '10px',
+          right: '10px',
+          backgroundColor: '#f1f1f1',
+          padding: '8px 12px',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+          fontSize: '12px',
+          color: '#666',
+          zIndex: 1000
+        }}>
+          Demo Mode: Updates not sent to CRM
+        </div>
+      );
+    }
+    return null;
   };
   
   // Get the current qualifying question to display
@@ -730,6 +767,7 @@ function QualifyingForm() {
       <div className="qualifying-form-container">
         {renderCurrentQuestion()}
       </div>
+      {renderTempIdMessage()}
     </div>
   );
 }
