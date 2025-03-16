@@ -62,6 +62,11 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'Missing action parameter' });
     }
     
+    // Handle simple ping test
+    if (action === 'ping') {
+      return res.status(200).json({ success: true, message: 'API endpoint is working' });
+    }
+    
     const token = await getAccessToken();
     
     if (action === 'create' && formData) {
@@ -164,10 +169,17 @@ module.exports = async (req, res) => {
     }
     
   } catch (error) {
-    console.error('Error handling Zoho request:', error);
+    console.error('Error handling Zoho request:', {
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data,
+      action: req.body.action,
+      leadId: req.body.leadId
+    });
+    
     return res.status(500).json({ 
       error: 'Failed to process request', 
-      details: error.response?.data?.message || error.message 
+      details: error.response?.data || error.message 
     });
   }
 };

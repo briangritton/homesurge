@@ -11,6 +11,7 @@ import PersonalInfoForm from './components/Form/PersonalInfoForm';
 import QualifyingForm from './components/Form/QualifyingForm';
 import ThankYou from './components/Form/ThankYou';
 import Privacy from './components/common/Privacy';
+import ZohoTest from './components/ZohoTest';
 
 // Styles
 import './styles/main.css';
@@ -58,6 +59,7 @@ function App() {
           <Header />
           <Routes>
             <Route path="/" element={<FormContainer />} />
+            <Route path="/test-zoho" element={<ZohoTest />} />
             <Route path="/privacy" element={<Privacy handleTermsClick={() => {}} />} />
             <Route path="/thank-you" element={<ThankYou />} />
           </Routes>

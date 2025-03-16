@@ -1,10 +1,5 @@
 import axios from 'axios';
 
-// Determine the API base URL based on environment
-const API_BASE = process.env.NODE_ENV === 'production' 
-  ? '/api' 
-  : 'http://localhost:3000/api';
-
 /**
  * Submit new lead to Zoho CRM
  * @param {Object} formData - The form data to submit
@@ -12,10 +7,13 @@ const API_BASE = process.env.NODE_ENV === 'production'
  */
 export async function submitLeadToZoho(formData) {
   try {
-    const response = await axios.post(`${API_BASE}/zoho`, {
+    console.log("Attempting to submit lead to Zoho:", { formData });
+    const response = await axios.post('/api/zoho', {
       action: 'create',
       formData
     });
+    
+    console.log("Zoho API response:", response.data);
     
     if (response.data && response.data.success) {
       return response.data.leadId;
@@ -23,8 +21,18 @@ export async function submitLeadToZoho(formData) {
       throw new Error('No lead ID returned');
     }
   } catch (error) {
-    console.error('Error submitting lead to Zoho:', error);
-    throw new Error(error.response?.data?.error || 'Failed to submit lead');
+    console.error("Error submitting lead to Zoho:", {
+      message: error.message,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      responseData: error.response?.data,
+      config: {
+        url: error.config?.url,
+        method: error.config?.method,
+        data: error.config?.data
+      }
+    });
+    throw new Error(error.response?.data?.error || error.message || 'Failed to submit lead');
   }
 }
 
@@ -36,7 +44,7 @@ export async function submitLeadToZoho(formData) {
  */
 export async function updateLeadInZoho(leadId, formData) {
   try {
-    const response = await axios.post(`${API_BASE}/zoho`, {
+    const response = await axios.post('/api/zoho', {
       action: 'update',
       leadId,
       formData
@@ -62,7 +70,7 @@ export async function updateLeadInZoho(leadId, formData) {
  */
 export async function savePropertyRecord(propertyRecord, leadId, userId) {
   try {
-    const response = await axios.post(`${API_BASE}/zoho`, {
+    const response = await axios.post('/api/zoho', {
       action: 'saveRecord',
       propertyRecord,
       leadId,
@@ -77,23 +85,6 @@ export async function savePropertyRecord(propertyRecord, leadId, userId) {
   } catch (error) {
     console.error('Error saving property record:', error);
     // If this fails, we don't want to stop the whole process
-    return false;
-  }
-}
-
-/**
- * Check API connection to Zoho
- * @returns {Promise<boolean>} - True if connection is successful
- */
-export async function checkZohoConnection() {
-  try {
-    const response = await axios.post(`${API_BASE}/zoho`, {
-      action: 'checkConnection'
-    });
-    
-    return response.data && response.data.success;
-  } catch (error) {
-    console.error('Error checking Zoho connection:', error);
     return false;
   }
 }
