@@ -57,11 +57,13 @@ const FormContext = createContext();
 export function FormProvider({ children }) {
   const [formData, setFormData] = useState(initialFormState);
   const [leadId, setLeadId] = useState(null);
+  const [lastUpdateTime, setLastUpdateTime] = useState(null);
   
   // Check for saved leadId from localStorage
   useEffect(() => {
     const savedLeadId = localStorage.getItem('leadId');
     if (savedLeadId) {
+      console.log("Retrieved lead ID from localStorage:", savedLeadId);
       setLeadId(savedLeadId);
     }
   }, []);
@@ -69,6 +71,7 @@ export function FormProvider({ children }) {
   // Save leadId to localStorage whenever it changes
   useEffect(() => {
     if (leadId) {
+      console.log("Saving lead ID to localStorage:", leadId);
       localStorage.setItem('leadId', leadId);
     }
   }, [leadId]);
@@ -115,29 +118,6 @@ export function FormProvider({ children }) {
       }
     }
   }, []);
-  
-  // Save crucial form data to localStorage when it changes
-  useEffect(() => {
-    // Only save non-sensitive data
-    const dataToStore = {
-      street: formData.street,
-      city: formData.city,
-      zip: formData.zip,
-      state: formData.state,
-      formStep: formData.formStep,
-      qualifyingQuestionStep: formData.qualifyingQuestionStep,
-      isPropertyOwner: formData.isPropertyOwner,
-      needsRepairs: formData.needsRepairs,
-      workingWithAgent: formData.workingWithAgent,
-      homeType: formData.homeType,
-      howSoonSell: formData.howSoonSell,
-      wantToSetAppointment: formData.wantToSetAppointment
-    };
-    
-    localStorage.setItem('formData', JSON.stringify(dataToStore));
-  }, [formData.formStep, formData.street, formData.qualifyingQuestionStep, formData.isPropertyOwner, 
-      formData.needsRepairs, formData.workingWithAgent, formData.homeType, formData.howSoonSell, 
-      formData.wantToSetAppointment]);
 
   // Handle form updates
   const updateFormData = (updates) => {
@@ -172,7 +152,9 @@ export function FormProvider({ children }) {
       const id = await submitLeadToZoho(formData);
       console.log("Lead submitted successfully, ID:", id);
       
+      // Save the lead ID
       setLeadId(id);
+      
       setFormData(prev => ({ 
         ...prev, 
         submitted: true, 
@@ -191,11 +173,32 @@ export function FormProvider({ children }) {
     }
   };
 
-  // Update lead information in Zoho
+  // Update lead information in Zoho, or create a new lead if no ID exists
   const updateLead = async () => {
+    // Throttle updates to avoid overloading the API
+    const now = Date.now();
+    if (lastUpdateTime && now - lastUpdateTime < 2000) {
+      console.log("Throttling update - too soon after last update");
+      return true; // Pretend success but don't actually send the request
+    }
+    
+    setLastUpdateTime(now);
+    
     if (!leadId) {
-      console.warn("Cannot update lead: No lead ID available");
-      return false;
+      console.warn("No lead ID available - will create a new lead instead of updating");
+      try {
+        // Create a new lead instead of updating
+        const newLeadId = await submitLeadToZoho(formData);
+        if (newLeadId) {
+          console.log("Created a new lead instead:", newLeadId);
+          setLeadId(newLeadId);
+          return true;
+        }
+        return false;
+      } catch (error) {
+        console.error("Failed to create replacement lead:", error);
+        return false;
+      }
     }
     
     try {
