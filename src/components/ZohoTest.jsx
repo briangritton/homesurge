@@ -13,7 +13,7 @@ function ZohoTest() {
     setError(null);
 
     try {
-      // Create test lead data
+      // Create test lead data with all necessary fields
       const testFormData = {
         name: "Test User",
         phone: "7705551234",
@@ -21,13 +21,40 @@ function ZohoTest() {
         street: "123 Test St, Atlanta, GA 30301",
         city: "Atlanta",
         zip: "30301",
-        isPropertyOwner: 'true',
-        needsRepairs: 'false',
-        workingWithAgent: 'false',
-        homeType: 'Single Family',
+        state: "GA",
+        country: "",
+        trafficSource: "Test",
+        campaignName: "Spring Promo",
+        adgroupName: "High Intent",
+        device: "Mobile",
+        userInputtedStreet: "123 Test St",
+        homeType: "Single Family",
         remainingMortgage: 200000,
         finishedSquareFootage: 2000,
-        trafficSource: 'Test'
+        basementSquareFootage: 500,
+        bedrooms: 3,
+        bathrooms: 2,
+        floors: 2,
+        hasGarage: "Yes",
+        garageCapacity: 2,
+        hasHOA: "No",
+        planningToBuy: "No",
+        solarPanels: "No",
+        septicOrSewer: "Sewer",
+        knownIssues: "None",
+        needMajorRepairs: "No",
+        workingWithAgent: "No",
+        howSoonSell: "3 Months",
+        whySelling: "Relocation",
+        wantsVirtualAppointment: "Yes",
+        selectedAppointmentDate: "2025-03-18",
+        selectedAppointmentTime: "10:00 AM",
+        propertyOwner: "Yes",
+        apiOwnerName: "John Doe",
+        apiMaxHomeValue: 450000,
+        apiHomeValue: 400000,
+        apiEquity: 50000,
+        apiPercentage: 20,
       };
 
       // Submit test lead
