@@ -13,21 +13,37 @@ function ZohoTest() {
     setError(null);
 
     try {
-      // Create test lead data
+      // Create test lead data with field names matching Zoho CRM
       const testFormData = {
-        name: "Test User",
-        phone: "7705551234",
-        email: "test@example.com",
-        street: "123 Test St, Atlanta, GA 30301",
+        name: "Test User 2",
+        phone: "7705551235",
+        email: "test2@example.com",
+        street: "124 Test St, Atlanta, GA 30301",
         city: "Atlanta",
         zip: "30301",
-        isPropertyOwner: 'true',
-        needsRepairs: 'false',
-        workingWithAgent: 'false',
-        homeType: 'Single Family',
-        remainingMortgage: 200000,
-        finishedSquareFootage: 2000,
-        trafficSource: 'Test'
+        isPropertyOwner: 'true',            // Maps to "Are you the property owner?"
+        needsRepairs: 'false',              // Maps to "Does the property need any major repairs?"
+        workingWithAgent: 'false',          // Maps to "Are you working with a real estate agent?"
+        homeType: 'Single Family',          // Maps to "What type of property is it?"
+        remainingMortgage: 200000,          // Maps to "What is your remaining mortgage amount?"
+        finishedSquareFootage: 2000,        // Maps to "What is your finished square footage?"
+        basementSquareFootage: 1000,        // Maps to "What is your unfinished basement square footage?"
+        howSoonSell: "ASAP",                // Maps to "How soon do you want to sell?"
+        reasonForSelling: "Moving",         // Maps to "Why are you selling?"
+        garage: "Yes",                      // Maps to "Do you have a garage?"
+        garageCars: "2",                    // Maps to "How many cars can fit in your garage?"
+        hasHoa: "No",                       // Maps to "Do you have an HOA?"
+        hasSolar: "No",                     // Maps to "Does your home have solar panels?"
+        planningToBuy: "Yes",               // Maps to "Are you planning to buy a home?"
+        septicOrSewer: "Sewer",             // Maps to "Do you have septic or sewer?"
+        knownIssues: "None",                // Maps to "Does your home have any known issues or necessary"
+        wantToSetAppointment: "false",      // Maps to "Do you want to set a virtual appointment?"
+        selectedAppointmentDate: "",        // Maps to "Select your preferred appointment date."
+        selectedAppointmentTime: "",        // Maps to "Select your preferred appointment time ?"
+        bedrooms: "3",                      // Maps to "Number of bedrooms?"
+        bathrooms: "2",                     // Maps to "Number of bathrooms?"
+        floors: "2",                        // Maps to "How many floor does your home have?"
+        trafficSource: 'Test'               // Maps to "trafficSource"
       };
 
       // Submit test lead
