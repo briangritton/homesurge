@@ -195,14 +195,7 @@ module.exports = async (req, res) => {
         }
       }
       
-      // Convert boolean string values to actual booleans
-      const convertStringToBoolean = (value) => {
-        if (value === 'true' || value === true) return true;
-        if (value === 'false' || value === false) return false;
-        return value;
-      };
-      
-      // Regular lead creation with all fields
+      // Regular lead creation with all fields using the exact field names from Zoho
       const payload = {
         data: [
           {
@@ -216,56 +209,62 @@ module.exports = async (req, res) => {
             Street: formData.street,
             City: formData.city || "",
             Zip_Code: formData.zip || "",
-            State: "GA",
+            State: formData.state || "GA",
             
             // Lead metadata
             Lead_Source: formData.trafficSource || "Website",
             Description: `Property: ${formData.street}`,
             
-            // Property details - try various field naming conventions
-            // For property owner
-            "Property Owner": convertStringToBoolean(formData.isPropertyOwner),
-            Property_Owner: convertStringToBoolean(formData.isPropertyOwner),
+            // Property details - using exact field names from Zoho
+            isPropertyOwner: formData.isPropertyOwner,
+            needRepairs: formData.needsRepairs, // Note: matches Zoho field name (no "s")
+            workingWithAgent: formData.workingWithAgent,
+            homeType: formData.homeType || "",
+            remainingMortgage: formData.remainingMortgage?.toString() || "0",
+            finishedSquareFootage: formData.finishedSquareFootage?.toString() || "0",
+            basementSquareFootage: formData.basementSquareFootage?.toString() || "0",
+            howSoonSell: formData.howSoonSell || "",
             
-            // For needs repairs
-            "Needs Repairs": convertStringToBoolean(formData.needsRepairs),
-            Needs_Repairs: convertStringToBoolean(formData.needsRepairs),
+            // Additional property fields
+            bedrooms: formData.bedrooms?.toString() || "",
+            bathrooms: formData.bathrooms?.toString() || "",
+            floors: formData.floors?.toString() || "",
+            garage: formData.hasGarage || "",
+            garageCars: formData.garageCapacity?.toString() || "",
+            hasHoa: formData.hasHOA || "",
+            hasSolar: formData.hasSolar || "",
+            planningToBuy: formData.planningToBuy || "",
+            septicOrSewer: formData.septicOrSewer || "",
+            knownIssues: formData.knownIssues || "",
+            reasonForSelling: formData.reasonForSelling || "",
             
-            // For working with agent
-            "Working with Agent": convertStringToBoolean(formData.workingWithAgent),
-            Working_with_Agent: convertStringToBoolean(formData.workingWithAgent),
+            // Appointment information
+            wantToSetAppointment: formData.wantToSetAppointment || "",
+            selectedAppointmentDate: formData.selectedAppointmentDate || "",
+            selectedAppointmentTime: formData.selectedAppointmentTime || "",
             
-            // For property type
-            "Property Type": formData.homeType || "",
-            Property_Type: formData.homeType || "",
+            // Marketing information
+            trafficSource: formData.trafficSource || "",
+            campaignName: formData.campaignName || "",
+            adgroupName: formData.adgroupName || "",
+            device: formData.device || "",
             
-            // For remaining mortgage
-            "Remaining Mortgage": parseFloat(formData.remainingMortgage) || 0,
-            Remaining_Mortgage: parseFloat(formData.remainingMortgage) || 0,
+            // Dynamic content
+            dynamicHeadline: formData.dynamicHeadline || "",
+            dynamicSubHeadline: formData.dynamicSubHeadline || "",
+            thankYouHeadline: formData.thankYouHeadline || "",
+            thankYouSubHeadline: formData.thankYouSubHeadline || "",
             
-            // For square footage
-            "Square Footage": parseFloat(formData.finishedSquareFootage) || 0,
-            Square_Footage: parseFloat(formData.finishedSquareFootage) || 0,
+            // Property valuation
+            apiMaxHomeValue: formData.apiMaxHomeValue?.toString() || "",
+            apiHomeValue: formData.apiEstimatedValue?.toString() || "",
+            apiOwnerName: formData.apiOwnerName || "",
+            apiEquity: "0", // Default if not provided
+            apiPercentage: "0", // Default if not provided
             
-            // For basement square footage
-            "Basement Square Footage": parseFloat(formData.basementSquareFootage) || 0,
-            Basement_Square_Footage: parseFloat(formData.basementSquareFootage) || 0,
-            
-            // For timeframe to sell
-            "Timeframe to Sell": formData.howSoonSell || "",
-            Timeframe_to_Sell: formData.howSoonSell || "",
-            
-            // Marketing
-            "Campaign Name": formData.campaignName || "",
-            Campaign_Name: formData.campaignName || "",
-            
-            "Ad Group": formData.adgroupName || "",
-            Ad_Group: formData.adgroupName || "",
-            
-            Keyword: formData.keyword || "",
-            Device: formData.device || "",
-            GCLID: formData.gclid || "",
-            URL: formData.url || ""
+            // Metadata
+            addressSelectionType: formData.addressSelectionType || "Manual",
+            qualifyingQuestionStep: formData.qualifyingQuestionStep?.toString() || ""
           }
         ]
       };
@@ -307,61 +306,42 @@ module.exports = async (req, res) => {
         });
       }
     } else if (action === 'update' && leadId && formData) {
-      // Convert boolean string values to actual booleans
-      const convertStringToBoolean = (value) => {
-        if (value === 'true' || value === true) return true;
-        if (value === 'false' || value === false) return false;
-        return value;
-      };
-      
-      // Update payload with various field naming conventions
+      // Update existing lead with the exact field names from Zoho
       const payload = {
         data: [
           {
             id: leadId,
             
-            // Try various field naming conventions
-            // For property owner
-            "Property Owner": convertStringToBoolean(formData.isPropertyOwner),
-            Property_Owner: convertStringToBoolean(formData.isPropertyOwner),
+            // Property details - using exact field names from Zoho
+            isPropertyOwner: formData.isPropertyOwner,
+            needRepairs: formData.needsRepairs, // Note: matches Zoho field name (no "s")
+            workingWithAgent: formData.workingWithAgent,
+            homeType: formData.homeType || "",
+            remainingMortgage: formData.remainingMortgage?.toString() || "0",
+            finishedSquareFootage: formData.finishedSquareFootage?.toString() || "0",
+            basementSquareFootage: formData.basementSquareFootage?.toString() || "0",
+            howSoonSell: formData.howSoonSell || "",
             
-            // For needs repairs
-            "Needs Repairs": convertStringToBoolean(formData.needsRepairs),
-            Needs_Repairs: convertStringToBoolean(formData.needsRepairs),
-            
-            // For working with agent
-            "Working with Agent": convertStringToBoolean(formData.workingWithAgent),
-            Working_with_Agent: convertStringToBoolean(formData.workingWithAgent),
-            
-            // For property type
-            "Property Type": formData.homeType || "",
-            Property_Type: formData.homeType || "",
-            
-            // For remaining mortgage
-            "Remaining Mortgage": parseFloat(formData.remainingMortgage) || 0,
-            Remaining_Mortgage: parseFloat(formData.remainingMortgage) || 0,
-            
-            // For square footage
-            "Square Footage": parseFloat(formData.finishedSquareFootage) || 0,
-            Square_Footage: parseFloat(formData.finishedSquareFootage) || 0,
-            
-            // For basement square footage
-            "Basement Square Footage": parseFloat(formData.basementSquareFootage) || 0,
-            Basement_Square_Footage: parseFloat(formData.basementSquareFootage) || 0,
-            
-            // For timeframe to sell
-            "Timeframe to Sell": formData.howSoonSell || "",
-            Timeframe_to_Sell: formData.howSoonSell || "",
+            // Additional property fields
+            bedrooms: formData.bedrooms?.toString() || "",
+            bathrooms: formData.bathrooms?.toString() || "",
+            floors: formData.floors?.toString() || "",
+            garage: formData.hasGarage || "",
+            garageCars: formData.garageCapacity?.toString() || "",
+            hasHoa: formData.hasHOA || "",
+            hasSolar: formData.hasSolar || "",
+            planningToBuy: formData.planningToBuy || "",
+            septicOrSewer: formData.septicOrSewer || "",
+            knownIssues: formData.knownIssues || "",
+            reasonForSelling: formData.reasonForSelling || "",
             
             // Appointment information
-            "Want to Set Appointment": convertStringToBoolean(formData.wantToSetAppointment),
-            Want_to_Set_Appointment: convertStringToBoolean(formData.wantToSetAppointment),
+            wantToSetAppointment: formData.wantToSetAppointment || "",
+            selectedAppointmentDate: formData.selectedAppointmentDate || "",
+            selectedAppointmentTime: formData.selectedAppointmentTime || "",
             
-            "Appointment Date": formData.selectedAppointmentDate || "",
-            Appointment_Date: formData.selectedAppointmentDate || "",
-            
-            "Appointment Time": formData.selectedAppointmentTime || "",
-            Appointment_Time: formData.selectedAppointmentTime || ""
+            // Metadata
+            qualifyingQuestionStep: formData.qualifyingQuestionStep?.toString() || ""
           }
         ]
       };
@@ -392,12 +372,7 @@ module.exports = async (req, res) => {
         });
       }
     } else if (action === 'saveRecord' && propertyRecord && leadId) {
-      // This is a placeholder for saving property records
-      // We'd need to adjust this based on the actual Zoho CRM structure
-      // Potentially use Zoho Notes API to attach property data
-      console.log('Saving property record:', propertyRecord);
-      
-      // Example implementation for saving as a Note in Zoho
+      // Save property record as a Note in Zoho
       const notePayload = {
         data: [
           {

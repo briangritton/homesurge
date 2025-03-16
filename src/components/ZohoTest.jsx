@@ -20,18 +20,18 @@ function ZohoTest() {
     
     // Property details
     isPropertyOwner: 'true',
-    needsRepairs: 'false',
+    needsRepairs: 'false', // This matches Zoho's field name
     workingWithAgent: 'false',
     homeType: "Single Family",
-    remainingMortgage: 200000,
-    finishedSquareFootage: 2000,
-    basementSquareFootage: 500,
-    bedrooms: 3,
-    bathrooms: 2,
-    floors: 2,
-    hasGarage: "Yes",
-    garageCapacity: 2,
-    hasHOA: "No",
+    remainingMortgage: "200000", // Send as string to match Zoho's text field
+    finishedSquareFootage: "2000", // Send as string
+    basementSquareFootage: "500", // Send as string
+    bedrooms: "3",
+    bathrooms: "2",
+    floors: "2",
+    garage: "Yes", // Use garage instead of hasGarage
+    garageCars: "2",
+    hasHoa: "No", // Use hasHoa instead of hasHOA
     howSoonSell: "ASAP",
     
     // Property condition
@@ -55,10 +55,21 @@ function ZohoTest() {
     gclid: "test_gclid_123",
     url: "https://sellforcash.online/?test=true",
     
+    // Dynamic content
+    dynamicHeadline: "Sell Your House Fast",
+    dynamicSubHeadline: "Get a cash offer today!",
+    thankYouHeadline: "Thank You!",
+    thankYouSubHeadline: "We'll be in touch soon",
+    
     // API data
     apiOwnerName: "John Doe",
-    apiEstimatedValue: 400000,
-    formattedApiEstimatedValue: "$400,000"
+    apiEstimatedValue: "400000",
+    apiMaxHomeValue: "450000",
+    formattedApiEstimatedValue: "$400,000",
+    
+    // Metadata
+    addressSelectionType: "Manual",
+    qualifyingQuestionStep: "1"
   });
 
   const testApiEndpoint = async () => {
@@ -501,7 +512,7 @@ function ZohoTest() {
               <div style={{ marginTop: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}>Remaining Mortgage:</label>
                 <input 
-                  type="number" 
+                  type="text" 
                   name="remainingMortgage" 
                   value={formData.remainingMortgage} 
                   onChange={handleFormChange}
@@ -512,7 +523,7 @@ function ZohoTest() {
               <div style={{ marginTop: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}>Square Footage:</label>
                 <input 
-                  type="number" 
+                  type="text" 
                   name="finishedSquareFootage" 
                   value={formData.finishedSquareFootage} 
                   onChange={handleFormChange}
