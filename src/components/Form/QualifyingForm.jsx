@@ -8,6 +8,7 @@ function QualifyingForm() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedOptionLR, setSelectedOptionLR] = useState('left');
   const [isUpdating, setIsUpdating] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState('');
   
   // Refs for toggle buttons
   const toggleLeftRef = useRef(null);
@@ -21,7 +22,7 @@ function QualifyingForm() {
   // Local state for slider values
   const [remainingMortgage, setRemainingMortgage] = useState(formData.remainingMortgage || 100000);
   const [finishedSquareFootage, setFinishedSquareFootage] = useState(formData.finishedSquareFootage || 1000);
-  const [basementSquareFootage, setBasementSquareFootage] = useState(formData.basementSquareFootage || 1000);
+  const [basementSquareFootage, setBasementSquareFootage] = useState(formData.basementSquareFootage || 0);
   
   // Update toggle button styles based on selection
   useEffect(() => {
@@ -117,55 +118,88 @@ function QualifyingForm() {
     ? basementSquareFootage.toLocaleString() + '+ sq/ft'
     : basementSquareFootage.toLocaleString() + ' sq/ft';
   
-  // Handle advancing to next qualifying question
-  const handleNextStep = async () => {
-    // Update lead in Zoho to save progress
+  // This function handles updating a field value and saving to Zoho
+  const handleValueUpdate = async (fieldName, value) => {
+    // Update form data locally first
+    updateFormData({ [fieldName]: value });
+    
+    // Show updating state
     setIsUpdating(true);
+    setUpdateMessage(`Saving ${fieldName}...`);
+    
     try {
-      console.log(`Updating lead with qualifying step ${qualifyingStep} data`);
-      await updateLead();
+      console.log(`Updating Zoho with ${fieldName} = ${value}`);
+      const success = await updateLead();
+      
+      if (success) {
+        setUpdateMessage('Saved successfully!');
+        setTimeout(() => setUpdateMessage(''), 1500);
+        
+        // Track analytics
+        trackFormStepComplete(qualifyingStep, `Qualifying Question ${qualifyingStep}`);
+        
+        // Move to next step
+        setTimeout(() => {
+          const nextQuestionStep = qualifyingStep + 1;
+          setQualifyingStep(nextQuestionStep);
+          updateFormData({ qualifyingQuestionStep: nextQuestionStep });
+        }, 1000);
+      } else {
+        setUpdateMessage('Save failed - continuing anyway');
+        
+        // Still move to next step
+        setTimeout(() => {
+          const nextQuestionStep = qualifyingStep + 1;
+          setQualifyingStep(nextQuestionStep);
+          updateFormData({ qualifyingQuestionStep: nextQuestionStep });
+        }, 1500);
+      }
     } catch (error) {
-      console.error('Error updating lead:', error);
-      // Continue despite error - don't block the user's progress
+      console.error(`Error updating ${fieldName}:`, error);
+      setUpdateMessage('Error saving - continuing anyway');
+      
+      // Still move to next step
+      setTimeout(() => {
+        const nextQuestionStep = qualifyingStep + 1;
+        setQualifyingStep(nextQuestionStep);
+        updateFormData({ qualifyingQuestionStep: nextQuestionStep });
+      }, 1500);
     } finally {
-      setIsUpdating(false);
+      // Reset updating state after a delay
+      setTimeout(() => {
+        setIsUpdating(false);
+      }, 1500);
     }
-    
-    // Track form step completion for analytics
-    trackFormStepComplete(qualifyingStep, `Qualifying Question ${qualifyingStep}`);
-    
-    // Move to next step
-    const nextQuestionStep = qualifyingStep + 1;
-    setQualifyingStep(nextQuestionStep);
-    updateFormData({ qualifyingQuestionStep: nextQuestionStep });
-  };
-  
-  // Handle going to specific step
-  const goToStep = (step) => {
-    setQualifyingStep(step);
-    updateFormData({ qualifyingQuestionStep: step });
   };
   
   // Handle completing the qualifying form
   const completeForm = async () => {
     // Update lead in Zoho one final time
     setIsUpdating(true);
+    setUpdateMessage('Saving your responses...');
+    
     try {
       console.log('Finalizing lead data with qualifying form answers');
       await updateLead();
-      console.log('Lead successfully updated with all qualifying information');
+      setUpdateMessage('All data saved successfully!');
     } catch (error) {
       console.error('Error finalizing lead:', error);
-      // Continue despite error - don't block the user's progress
+      setUpdateMessage('Unable to save some responses - continuing anyway');
     } finally {
-      setIsUpdating(false);
+      setTimeout(() => {
+        setIsUpdating(false);
+        // Track form completion for analytics
+        trackFormStepComplete('complete', 'Qualifying Form Complete');
+        // Move to thank you page
+        nextStep();
+      }, 1500);
     }
-    
-    // Track form completion for analytics
-    trackFormStepComplete('complete', 'Qualifying Form Complete');
-    
-    // Move to thank you page
-    nextStep();
+  };
+  
+  // Helper function to go to a specific step
+  const goToStep = (step) => {
+    setQualifyingStep(step);
+    updateFormData({ qualifyingQuestionStep: step });
   };
   
   // Get the current qualifying question to display
@@ -184,28 +218,36 @@ function QualifyingForm() {
                 ref={toggleLeftRef}
                 value="true"
                 onClick={(e) => {
-                  updateFormData({ isPropertyOwner: e.target.value });
+                  handleValueUpdate('isPropertyOwner', e.target.value);
                   setSelectedOptionLR('left');
-                  handleNextStep();
                 }}
                 disabled={isUpdating}
               >
-                Yes
+                {isUpdating ? 'Saving...' : 'Yes'}
               </button>
               <button
                 className="qualifying-toggle-deselected-right"
                 ref={toggleRightRef}
                 value="false"
                 onClick={(e) => {
-                  updateFormData({ isPropertyOwner: e.target.value });
+                  handleValueUpdate('isPropertyOwner', e.target.value);
                   setSelectedOptionLR('right');
-                  handleNextStep();
                 }}
                 disabled={isUpdating}
               >
-                No
+                {isUpdating ? 'Saving...' : 'No'}
               </button>
             </div>
+            {updateMessage && (
+              <div style={{ 
+                marginTop: '15px',
+                color: '#3490d1',
+                fontStyle: 'italic',
+                textAlign: 'center'
+              }}>
+                {updateMessage}
+              </div>
+            )}
           </div>
         );
         
@@ -222,28 +264,36 @@ function QualifyingForm() {
                 ref={toggleLeftRef}
                 value="false"
                 onClick={(e) => {
-                  updateFormData({ needsRepairs: e.target.value });
+                  handleValueUpdate('needsRepairs', e.target.value);
                   setSelectedOptionLR('left');
-                  handleNextStep();
                 }}
                 disabled={isUpdating}
               >
-                No
+                {isUpdating ? 'Saving...' : 'No'}
               </button>
               <button
                 className="qualifying-toggle-deselected-right"
                 ref={toggleRightRef}
                 value="true"
                 onClick={(e) => {
-                  updateFormData({ needsRepairs: e.target.value });
+                  handleValueUpdate('needsRepairs', e.target.value);
                   setSelectedOptionLR('right');
-                  handleNextStep();
                 }}
                 disabled={isUpdating}
               >
-                Yes
+                {isUpdating ? 'Saving...' : 'Yes'}
               </button>
             </div>
+            {updateMessage && (
+              <div style={{ 
+                marginTop: '15px',
+                color: '#3490d1',
+                fontStyle: 'italic',
+                textAlign: 'center'
+              }}>
+                {updateMessage}
+              </div>
+            )}
           </div>
         );
         
@@ -260,28 +310,36 @@ function QualifyingForm() {
                 ref={toggleLeftRef}
                 value="false"
                 onClick={(e) => {
-                  updateFormData({ workingWithAgent: e.target.value });
+                  handleValueUpdate('workingWithAgent', e.target.value);
                   setSelectedOptionLR('left');
-                  handleNextStep();
                 }}
                 disabled={isUpdating}
               >
-                No
+                {isUpdating ? 'Saving...' : 'No'}
               </button>
               <button
                 className="qualifying-toggle-deselected-right"
                 ref={toggleRightRef}
                 value="true"
                 onClick={(e) => {
-                  updateFormData({ workingWithAgent: e.target.value });
+                  handleValueUpdate('workingWithAgent', e.target.value);
                   setSelectedOptionLR('right');
-                  handleNextStep();
                 }}
                 disabled={isUpdating}
               >
-                Yes
+                {isUpdating ? 'Saving...' : 'Yes'}
               </button>
             </div>
+            {updateMessage && (
+              <div style={{ 
+                marginTop: '15px',
+                color: '#3490d1',
+                fontStyle: 'italic',
+                textAlign: 'center'
+              }}>
+                {updateMessage}
+              </div>
+            )}
           </div>
         );
         
@@ -298,50 +356,35 @@ function QualifyingForm() {
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 disabled={isUpdating}
               >
-                {formData.homeType || "Select an option"}
+                {isUpdating ? 'Saving...' : (formData.homeType || "Select an option")}
               </button>
               <div
                 className="dropdown-content"
                 style={{ display: dropdownOpen ? "block" : "none" }}
               >
-                <div
-                  onClick={() => {
-                    updateFormData({ homeType: "Single Family" });
-                    setDropdownOpen(false);
-                    handleNextStep();
-                  }}
-                >
-                  &nbsp;&nbsp;Single Family
-                </div>
-                <div
-                  onClick={() => {
-                    updateFormData({ homeType: "Condo" });
-                    setDropdownOpen(false);
-                    handleNextStep();
-                  }}
-                >
-                  &nbsp;&nbsp;Condo
-                </div>
-                <div
-                  onClick={() => {
-                    updateFormData({ homeType: "Townhouse" });
-                    setDropdownOpen(false);
-                    handleNextStep();
-                  }}
-                >
-                  &nbsp;&nbsp;Townhouse
-                </div>
-                <div
-                  onClick={() => {
-                    updateFormData({ homeType: "Multi-Family" });
-                    setDropdownOpen(false);
-                    handleNextStep();
-                  }}
-                >
-                  &nbsp;&nbsp;Multi-Family
-                </div>
+                {['Single Family', 'Condo', 'Townhouse', 'Multi-Family'].map((option) => (
+                  <div
+                    key={option}
+                    onClick={() => {
+                      handleValueUpdate('homeType', option);
+                      setDropdownOpen(false);
+                    }}
+                  >
+                    &nbsp;&nbsp;{option}
+                  </div>
+                ))}
               </div>
             </div>
+            {updateMessage && (
+              <div style={{ 
+                marginTop: '15px',
+                color: '#3490d1',
+                fontStyle: 'italic',
+                textAlign: 'center'
+              }}>
+                {updateMessage}
+              </div>
+            )}
           </div>
         );
         
@@ -369,11 +412,21 @@ function QualifyingForm() {
             </div>
             <button
               className="qualifying-button"
-              onClick={handleNextStep}
+              onClick={() => handleValueUpdate('remainingMortgage', remainingMortgage)}
               disabled={isUpdating}
             >
-              {isUpdating ? 'Processing...' : 'Next...'}
+              {isUpdating ? 'Saving...' : 'Next...'}
             </button>
+            {updateMessage && (
+              <div style={{ 
+                marginTop: '15px',
+                color: '#3490d1',
+                fontStyle: 'italic',
+                textAlign: 'center'
+              }}>
+                {updateMessage}
+              </div>
+            )}
           </div>
         );
         
@@ -401,11 +454,21 @@ function QualifyingForm() {
             </div>
             <button
               className="qualifying-button"
-              onClick={handleNextStep}
+              onClick={() => handleValueUpdate('finishedSquareFootage', finishedSquareFootage)}
               disabled={isUpdating}
             >
-              {isUpdating ? 'Processing...' : 'Next...'}
+              {isUpdating ? 'Saving...' : 'Next...'}
             </button>
+            {updateMessage && (
+              <div style={{ 
+                marginTop: '15px',
+                color: '#3490d1',
+                fontStyle: 'italic',
+                textAlign: 'center'
+              }}>
+                {updateMessage}
+              </div>
+            )}
           </div>
         );
         
@@ -422,59 +485,35 @@ function QualifyingForm() {
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 disabled={isUpdating}
               >
-                {formData.howSoonSell || "Select an option"}
+                {isUpdating ? 'Saving...' : (formData.howSoonSell || "Select an option")}
               </button>
               <div
                 className="dropdown-content"
                 style={{ display: dropdownOpen ? "block" : "none" }}
               >
-                <div
-                  onClick={() => {
-                    updateFormData({ howSoonSell: "ASAP" });
-                    setDropdownOpen(false);
-                    handleNextStep();
-                  }}
-                >
-                  &nbsp;&nbsp;ASAP
-                </div>
-                <div
-                  onClick={() => {
-                    updateFormData({ howSoonSell: "0-3 months" });
-                    setDropdownOpen(false);
-                    handleNextStep();
-                  }}
-                >
-                  &nbsp;&nbsp;0-3 months
-                </div>
-                <div
-                  onClick={() => {
-                    updateFormData({ howSoonSell: "3-6 months" });
-                    setDropdownOpen(false);
-                    handleNextStep();
-                  }}
-                >
-                  &nbsp;&nbsp;3-6 months
-                </div>
-                <div
-                  onClick={() => {
-                    updateFormData({ howSoonSell: "6-12 months" });
-                    setDropdownOpen(false);
-                    handleNextStep();
-                  }}
-                >
-                  &nbsp;&nbsp;6-12 months
-                </div>
-                <div
-                  onClick={() => {
-                    updateFormData({ howSoonSell: "not sure" });
-                    setDropdownOpen(false);
-                    handleNextStep();
-                  }}
-                >
-                  &nbsp;&nbsp;Not sure
-                </div>
+                {['ASAP', '0-3 months', '3-6 months', '6-12 months', 'not sure'].map((option) => (
+                  <div
+                    key={option}
+                    onClick={() => {
+                      handleValueUpdate('howSoonSell', option);
+                      setDropdownOpen(false);
+                    }}
+                  >
+                    &nbsp;&nbsp;{option}
+                  </div>
+                ))}
               </div>
             </div>
+            {updateMessage && (
+              <div style={{ 
+                marginTop: '15px',
+                color: '#3490d1',
+                fontStyle: 'italic',
+                textAlign: 'center'
+              }}>
+                {updateMessage}
+              </div>
+            )}
           </div>
         );
         
@@ -494,11 +533,23 @@ function QualifyingForm() {
                 onClick={(e) => {
                   updateFormData({ wantToSetAppointment: e.target.value });
                   setSelectedOptionLR('left');
-                  completeForm();
+                  
+                  setIsUpdating(true);
+                  setUpdateMessage('Saving your choice...');
+                  
+                  updateLead().finally(() => {
+                    setTimeout(() => {
+                      setUpdateMessage('Saved!');
+                      setTimeout(() => {
+                        setIsUpdating(false);
+                        completeForm();
+                      }, 1000);
+                    }, 1000);
+                  });
                 }}
                 disabled={isUpdating}
               >
-                No
+                {isUpdating ? 'Saving...' : 'No'}
               </button>
               <button
                 className="qualifying-toggle-deselected-right"
@@ -507,13 +558,35 @@ function QualifyingForm() {
                 onClick={(e) => {
                   updateFormData({ wantToSetAppointment: e.target.value });
                   setSelectedOptionLR('right');
-                  goToStep(9);
+                  
+                  setIsUpdating(true);
+                  setUpdateMessage('Saving your choice...');
+                  
+                  updateLead().finally(() => {
+                    setTimeout(() => {
+                      setUpdateMessage('Saved!');
+                      setTimeout(() => {
+                        setIsUpdating(false);
+                        goToStep(9);
+                      }, 1000);
+                    }, 1000);
+                  });
                 }}
                 disabled={isUpdating}
               >
-                Yes
+                {isUpdating ? 'Saving...' : 'Yes'}
               </button>
             </div>
+            {updateMessage && (
+              <div style={{ 
+                marginTop: '15px',
+                color: '#3490d1',
+                fontStyle: 'italic',
+                textAlign: 'center'
+              }}>
+                {updateMessage}
+              </div>
+            )}
           </div>
         );
         
@@ -530,7 +603,7 @@ function QualifyingForm() {
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 disabled={isUpdating}
               >
-                {formData.selectedAppointmentDate || "Select a Date"}
+                {isUpdating ? 'Saving...' : (formData.selectedAppointmentDate || "Select a Date")}
               </button>
               <div
                 className="dropdown-content"
@@ -540,9 +613,8 @@ function QualifyingForm() {
                   <div
                     key={index}
                     onClick={() => {
-                      updateFormData({ selectedAppointmentDate: date });
+                      handleValueUpdate('selectedAppointmentDate', date);
                       setDropdownOpen(false);
-                      handleNextStep();
                     }}
                   >
                     &nbsp;&nbsp;{date}
@@ -550,6 +622,16 @@ function QualifyingForm() {
                 ))}
               </div>
             </div>
+            {updateMessage && (
+              <div style={{ 
+                marginTop: '15px',
+                color: '#3490d1',
+                fontStyle: 'italic',
+                textAlign: 'center'
+              }}>
+                {updateMessage}
+              </div>
+            )}
           </div>
         );
         
@@ -566,7 +648,7 @@ function QualifyingForm() {
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 disabled={isUpdating}
               >
-                {formData.selectedAppointmentTime || "Select a Time"}
+                {isUpdating ? 'Saving...' : (formData.selectedAppointmentTime || "Select a Time")}
               </button>
               <div
                 className="dropdown-content"
@@ -578,7 +660,19 @@ function QualifyingForm() {
                     onClick={() => {
                       updateFormData({ selectedAppointmentTime: time });
                       setDropdownOpen(false);
-                      completeForm();
+                      
+                      setIsUpdating(true);
+                      setUpdateMessage('Saving appointment time...');
+                      
+                      updateLead().finally(() => {
+                        setTimeout(() => {
+                          setUpdateMessage('Appointment scheduled!');
+                          setTimeout(() => {
+                            setIsUpdating(false);
+                            completeForm();
+                          }, 1500);
+                        }, 1000);
+                      });
                     }}
                   >
                     &nbsp;&nbsp;{time}
@@ -586,6 +680,16 @@ function QualifyingForm() {
                 ))}
               </div>
             </div>
+            {updateMessage && (
+              <div style={{ 
+                marginTop: '15px',
+                color: '#3490d1',
+                fontStyle: 'italic',
+                textAlign: 'center'
+              }}>
+                {updateMessage}
+              </div>
+            )}
           </div>
         );
         
@@ -601,8 +705,18 @@ function QualifyingForm() {
               onClick={completeForm}
               disabled={isUpdating}
             >
-              {isUpdating ? 'Processing...' : 'Finish'}
+              {isUpdating ? 'Finalizing...' : 'Finish'}
             </button>
+            {updateMessage && (
+              <div style={{ 
+                marginTop: '15px',
+                color: '#3490d1',
+                fontStyle: 'italic',
+                textAlign: 'center'
+              }}>
+                {updateMessage}
+              </div>
+            )}
           </div>
         );
     }
