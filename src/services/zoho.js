@@ -1,5 +1,13 @@
 import axios from 'axios';
 
+// Determine if we're in development or production
+const isDev = window.location.hostname === 'localhost';
+
+// Choose the right API endpoint based on environment
+const apiUrl = isDev 
+  ? 'http://localhost:3000/api/zoho'  // For local development with vercel dev
+  : '/api/zoho';                     // For production
+
 /**
  * Submit new lead to Zoho CRM
  * @param {Object} formData - The form data to submit
@@ -7,8 +15,17 @@ import axios from 'axios';
  */
 export async function submitLeadToZoho(formData) {
   try {
+    // If in development mode and not using vercel dev, use mock data
+    if (isDev) {
+      console.log("Using mock data for local testing");
+      console.log("Would submit form data:", formData);
+      
+      // Return a mock leadId
+      return `mock-${Date.now()}`;
+    }
+    
     console.log("Attempting to submit lead to Zoho:", { formData });
-    const response = await axios.post('/api/zoho', {
+    const response = await axios.post(apiUrl, {
       action: 'create',
       formData
     });
@@ -44,7 +61,14 @@ export async function submitLeadToZoho(formData) {
  */
 export async function updateLeadInZoho(leadId, formData) {
   try {
-    const response = await axios.post('/api/zoho', {
+    // If in development mode and not using vercel dev, use mock data
+    if (isDev) {
+      console.log("Using mock data for local testing");
+      console.log("Would update lead:", leadId, "with data:", formData);
+      return true;
+    }
+    
+    const response = await axios.post(apiUrl, {
       action: 'update',
       leadId,
       formData
@@ -70,7 +94,14 @@ export async function updateLeadInZoho(leadId, formData) {
  */
 export async function savePropertyRecord(propertyRecord, leadId, userId) {
   try {
-    const response = await axios.post('/api/zoho', {
+    // If in development mode and not using vercel dev, use mock data
+    if (isDev) {
+      console.log("Using mock data for local testing");
+      console.log("Would save property record for lead:", leadId, "with data:", propertyRecord);
+      return true;
+    }
+    
+    const response = await axios.post(apiUrl, {
       action: 'saveRecord',
       propertyRecord,
       leadId,
