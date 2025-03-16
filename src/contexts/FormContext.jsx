@@ -152,8 +152,15 @@ export function FormProvider({ children }) {
       const id = await submitLeadToZoho(formData);
       console.log("Lead submitted successfully, ID:", id);
       
-      // Save the lead ID
-      setLeadId(id);
+      // If we got a proper ID (not a temp ID), save it
+      if (id && !id.startsWith('temp_')) {
+        setLeadId(id);
+      } else if (id && id.startsWith('temp_')) {
+        // For temp IDs, we still save it to localStorage to maintain flow
+        // but add a console warning
+        console.warn("Using temporary lead ID - Zoho updates will be skipped");
+        setLeadId(id);
+      }
       
       setFormData(prev => ({ 
         ...prev, 
@@ -175,6 +182,12 @@ export function FormProvider({ children }) {
 
   // Update lead information in Zoho, or create a new lead if no ID exists
   const updateLead = async () => {
+    // Don't attempt to update if we have a temp ID
+    if (leadId && leadId.startsWith('temp_')) {
+      console.log("Using temporary lead ID - update operation skipped");
+      return true;
+    }
+    
     // Throttle updates to avoid overloading the API
     const now = Date.now();
     if (lastUpdateTime && now - lastUpdateTime < 2000) {

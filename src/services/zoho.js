@@ -39,25 +39,29 @@ export async function submitLeadToZoho(formData) {
     console.log("Zoho API full response:", response.data);
     
     if (response.data && response.data.success) {
-      // Check if leadId exists in the response
-      if (!response.data.leadId) {
-        console.error("API returned success but no leadId! Full response:", response.data);
-        
-        // If there's a fullResponse with data, try to extract the ID
-        if (response.data.fullResponse && response.data.fullResponse.data && 
-            response.data.fullResponse.data.length > 0 && 
-            response.data.fullResponse.data[0].id) {
-          console.log("Found lead ID in fullResponse:", response.data.fullResponse.data[0].id);
-          return response.data.fullResponse.data[0].id;
-        }
-        
-        // Last resort - generate a temporary fake ID for testing
-        const tempId = "temp_" + new Date().getTime();
-        console.warn("Generating temporary ID for testing:", tempId);
-        return tempId;
+      // Check if leadId exists directly in the response
+      if (response.data.leadId) {
+        console.log("Found lead ID in direct response:", response.data.leadId);
+        return response.data.leadId;
       }
       
-      return response.data.leadId;
+      // Try to extract from fullResponse if available
+      if (response.data.fullResponse && 
+          response.data.fullResponse.data && 
+          response.data.fullResponse.data.length > 0 &&
+          response.data.fullResponse.data[0].id) {
+        const extractedId = response.data.fullResponse.data[0].id;
+        console.log("Extracted lead ID from fullResponse:", extractedId);
+        return extractedId;
+      }
+      
+      // If we're here, we still don't have a lead ID
+      console.error("API returned success but no leadId could be extracted! Full response:", response.data);
+      
+      // Last resort - generate a temporary fake ID for testing
+      const tempId = "temp_" + new Date().getTime();
+      console.warn("Generating temporary ID for testing:", tempId);
+      return tempId;
     } else {
       throw new Error(response.data?.error || 'No lead ID returned');
     }

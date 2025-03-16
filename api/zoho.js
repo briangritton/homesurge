@@ -184,7 +184,7 @@ module.exports = async (req, res) => {
         if (response.data && response.data.data && response.data.data.length > 0) {
           return res.status(200).json({ 
             success: true, 
-            leadId: response.data.data[0].id,
+            leadId: response.data.data[0].id,  // FIX: Include leadId in the response
             fullResponse: debug ? response.data : undefined
           });
         } else {
@@ -289,7 +289,7 @@ module.exports = async (req, res) => {
         if (response.data && response.data.data && response.data.data.length > 0) {
           return res.status(200).json({ 
             success: true, 
-            leadId: response.data.data[0].id,
+            leadId: response.data.data[0].id,  // FIX: Include leadId in the response
             fullResponse: debug ? response.data : undefined,
             attemptedPayload: debug ? payload : undefined
           });
