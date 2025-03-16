@@ -1,3 +1,4 @@
+// src/services/zoho.js
 import axios from 'axios';
 
 /**
@@ -7,7 +8,7 @@ import axios from 'axios';
  */
 export async function submitLeadToZoho(formData) {
   try {
-    console.log("Attempting to submit lead to Zoho:", { formData });
+    console.log("Submitting lead to Zoho:", { formData });
     const response = await axios.post('/api/zoho', {
       action: 'create',
       formData
@@ -44,11 +45,14 @@ export async function submitLeadToZoho(formData) {
  */
 export async function updateLeadInZoho(leadId, formData) {
   try {
+    console.log("Updating lead in Zoho:", { leadId, formData });
     const response = await axios.post('/api/zoho', {
       action: 'update',
       leadId,
       formData
     });
+    
+    console.log("Zoho API update response:", response.data);
     
     if (!response.data || !response.data.success) {
       throw new Error('Update failed');
@@ -56,7 +60,12 @@ export async function updateLeadInZoho(leadId, formData) {
     
     return true;
   } catch (error) {
-    console.error('Error updating lead in Zoho:', error);
+    console.error('Error updating lead in Zoho:', {
+      message: error.message,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      responseData: error.response?.data
+    });
     throw new Error(error.response?.data?.error || 'Failed to update lead');
   }
 }
@@ -70,6 +79,7 @@ export async function updateLeadInZoho(leadId, formData) {
  */
 export async function savePropertyRecord(propertyRecord, leadId, userId) {
   try {
+    console.log("Saving property record to Zoho:", { propertyRecord, leadId, userId });
     const response = await axios.post('/api/zoho', {
       action: 'saveRecord',
       propertyRecord,

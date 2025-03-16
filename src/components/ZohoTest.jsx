@@ -1,71 +1,64 @@
 import React, { useState } from 'react';
-import { submitLeadToZoho } from '../services/zoho';
+import { submitLeadToZoho, updateLeadInZoho } from '../services/zoho';
 import axios from 'axios';
 
 function ZohoTest() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
-
-  const testZohoIntegration = async () => {
-    setLoading(true);
-    setResult(null);
-    setError(null);
-
-    try {
-      // Create test lead data with all necessary fields
-      const testFormData = {
-        name: "Test User",
-        phone: "7705551234",
-        email: "test@example.com",
-        street: "123 Test St, Atlanta, GA 30301",
-        city: "Atlanta",
-        zip: "30301",
-        state: "GA",
-        country: "",
-        trafficSource: "Test",
-        campaignName: "Spring Promo",
-        adgroupName: "High Intent",
-        device: "Mobile",
-        userInputtedStreet: "123 Test St",
-        homeType: "Single Family",
-        remainingMortgage: 200000,
-        finishedSquareFootage: 2000,
-        basementSquareFootage: 500,
-        bedrooms: 3,
-        bathrooms: 2,
-        floors: 2,
-        hasGarage: "Yes",
-        garageCapacity: 2,
-        hasHOA: "No",
-        planningToBuy: "No",
-        solarPanels: "No",
-        septicOrSewer: "Sewer",
-        knownIssues: "None",
-        needMajorRepairs: "No",
-        workingWithAgent: "No",
-        howSoonSell: "3 Months",
-        whySelling: "Relocation",
-        wantsVirtualAppointment: "Yes",
-        selectedAppointmentDate: "2025-03-18",
-        selectedAppointmentTime: "10:00 AM",
-        propertyOwner: "Yes",
-        apiOwnerName: "John Doe",
-        apiMaxHomeValue: 450000,
-        apiHomeValue: 400000,
-        apiEquity: 50000,
-        apiPercentage: 20,
-      };
-
-      // Submit test lead
-      const leadId = await submitLeadToZoho(testFormData);
-      setResult(`Success! Lead ID: ${leadId}`);
-    } catch (err) {
-      setError(`Error: ${err.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [leadId, setLeadId] = useState('');
+  const [showFullForm, setShowFullForm] = useState(false);
+  const [formData, setFormData] = useState({
+    // Basic information
+    name: "Test User",
+    phone: "7705551234",
+    email: "test@example.com",
+    street: "123 Test St, Atlanta, GA 30301",
+    city: "Atlanta",
+    zip: "30301",
+    
+    // Property details
+    isPropertyOwner: 'true',
+    needsRepairs: 'false',
+    workingWithAgent: 'false',
+    homeType: "Single Family",
+    remainingMortgage: 200000,
+    finishedSquareFootage: 2000,
+    basementSquareFootage: 500,
+    bedrooms: 3,
+    bathrooms: 2,
+    floors: 2,
+    hasGarage: "Yes",
+    garageCapacity: 2,
+    hasHOA: "No",
+    howSoonSell: "ASAP",
+    
+    // Property condition
+    planningToBuy: "No",
+    hasSolar: "No",
+    septicOrSewer: "Sewer",
+    knownIssues: "None",
+    reasonForSelling: "Relocation",
+    
+    // Appointment information
+    wantToSetAppointment: "Yes",
+    selectedAppointmentDate: "Monday, 3/17",
+    selectedAppointmentTime: "10:00 AM",
+    
+    // Marketing information
+    trafficSource: "Test Source",
+    campaignName: "Spring Promo",
+    adgroupName: "High Intent",
+    keyword: "sell house fast",
+    device: "Mobile",
+    gclid: "test_gclid_123",
+    url: "https://sellforcash.online/?test=true",
+    
+    // API data
+    apiOwnerName: "John Doe",
+    apiEstimatedValue: 400000,
+    formattedApiEstimatedValue: "$400,000"
+  });
 
   const testApiEndpoint = async () => {
     setLoading(true);
@@ -83,9 +76,60 @@ function ZohoTest() {
     }
   };
 
+  const createTestLead = async () => {
+    setLoading(true);
+    setResult(null);
+    setError(null);
+
+    try {
+      // Submit test lead
+      const id = await submitLeadToZoho(formData);
+      setLeadId(id);
+      setResult(`Success! Lead created with ID: ${id}`);
+    } catch (err) {
+      setError(`Error: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateTestLead = async () => {
+    if (!leadId) {
+      setError("No lead ID available. Please create a lead first.");
+      return;
+    }
+
+    setLoading(true);
+    setResult(null);
+    setError(null);
+
+    try {
+      // Update test lead
+      await updateLeadInZoho(leadId, formData);
+      setResult(`Success! Lead ${leadId} updated`);
+    } catch (err) {
+      setError(`Error: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleLeadIdChange = (e) => {
+    setLeadId(e.target.value);
+  };
+
   return (
-    <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
-      <h2>Zoho Integration Test</h2>
+    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+      <h2>Zoho CRM Integration Test</h2>
+      
       <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
         <button 
           onClick={testApiEndpoint}
@@ -101,8 +145,9 @@ function ZohoTest() {
         >
           Test API Endpoint
         </button>
+        
         <button 
-          onClick={testZohoIntegration}
+          onClick={createTestLead}
           disabled={loading}
           style={{
             padding: '10px 20px',
@@ -113,9 +158,302 @@ function ZohoTest() {
             cursor: loading ? 'default' : 'pointer'
           }}
         >
-          {loading ? 'Testing...' : 'Test Zoho Integration'}
+          {loading ? 'Creating...' : 'Create Test Lead'}
+        </button>
+        
+        <button 
+          onClick={updateTestLead}
+          disabled={loading || !leadId}
+          style={{
+            padding: '10px 20px',
+            backgroundColor: loading ? '#cccccc' : (leadId ? '#f39c12' : '#cccccc'),
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: (loading || !leadId) ? 'default' : 'pointer'
+          }}
+        >
+          {loading ? 'Updating...' : 'Update Test Lead'}
         </button>
       </div>
+
+      <div style={{ marginBottom: '20px' }}>
+        <label style={{ display: 'block', marginBottom: '5px' }}>Lead ID (for updates):</label>
+        <input 
+          type="text" 
+          value={leadId} 
+          onChange={handleLeadIdChange}
+          style={{ 
+            padding: '8px',
+            width: '100%',
+            boxSizing: 'border-box',
+            borderRadius: '5px',
+            border: '1px solid #ccc'
+          }}
+          placeholder="Enter Lead ID for updates"
+        />
+      </div>
+
+      <div style={{ marginBottom: '20px' }}>
+        <button
+          onClick={() => setShowFullForm(!showFullForm)}
+          style={{
+            padding: '8px 15px',
+            backgroundColor: '#555',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer'
+          }}
+        >
+          {showFullForm ? 'Hide Form Data' : 'Show Form Data'}
+        </button>
+      </div>
+
+      {showFullForm && (
+        <div style={{ marginBottom: '20px', border: '1px solid #ddd', padding: '15px', borderRadius: '5px' }}>
+          <h3>Test Form Data</h3>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div>
+              <h4>Basic Information</h4>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Name:</label>
+                <input 
+                  type="text" 
+                  name="name" 
+                  value={formData.name} 
+                  onChange={handleFormChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                />
+              </div>
+              
+              <div style={{ marginTop: '10px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Phone:</label>
+                <input 
+                  type="text" 
+                  name="phone" 
+                  value={formData.phone} 
+                  onChange={handleFormChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                />
+              </div>
+              
+              <div style={{ marginTop: '10px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Email:</label>
+                <input 
+                  type="text" 
+                  name="email" 
+                  value={formData.email} 
+                  onChange={handleFormChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                />
+              </div>
+              
+              <div style={{ marginTop: '10px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Address:</label>
+                <input 
+                  type="text" 
+                  name="street" 
+                  value={formData.street} 
+                  onChange={handleFormChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                />
+              </div>
+              
+              <div style={{ marginTop: '10px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}>City:</label>
+                <input 
+                  type="text" 
+                  name="city" 
+                  value={formData.city} 
+                  onChange={handleFormChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                />
+              </div>
+              
+              <div style={{ marginTop: '10px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Zip:</label>
+                <input 
+                  type="text" 
+                  name="zip" 
+                  value={formData.zip} 
+                  onChange={handleFormChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                />
+              </div>
+            </div>
+            
+            <div>
+              <h4>Property Details</h4>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Property Owner:</label>
+                <select
+                  name="isPropertyOwner"
+                  value={formData.isPropertyOwner}
+                  onChange={handleFormChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                >
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
+                </select>
+              </div>
+              
+              <div style={{ marginTop: '10px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Needs Repairs:</label>
+                <select
+                  name="needsRepairs"
+                  value={formData.needsRepairs}
+                  onChange={handleFormChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                >
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
+                </select>
+              </div>
+              
+              <div style={{ marginTop: '10px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Working With Agent:</label>
+                <select
+                  name="workingWithAgent"
+                  value={formData.workingWithAgent}
+                  onChange={handleFormChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                >
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
+                </select>
+              </div>
+              
+              <div style={{ marginTop: '10px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Home Type:</label>
+                <select
+                  name="homeType"
+                  value={formData.homeType}
+                  onChange={handleFormChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                >
+                  <option value="Single Family">Single Family</option>
+                  <option value="Condo">Condo</option>
+                  <option value="Townhouse">Townhouse</option>
+                  <option value="Multi-Family">Multi-Family</option>
+                </select>
+              </div>
+              
+              <div style={{ marginTop: '10px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Remaining Mortgage:</label>
+                <input 
+                  type="number" 
+                  name="remainingMortgage" 
+                  value={formData.remainingMortgage} 
+                  onChange={handleFormChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                />
+              </div>
+              
+              <div style={{ marginTop: '10px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Square Footage:</label>
+                <input 
+                  type="number" 
+                  name="finishedSquareFootage" 
+                  value={formData.finishedSquareFootage} 
+                  onChange={handleFormChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                />
+              </div>
+            </div>
+          </div>
+          
+          <div style={{ marginTop: '20px' }}>
+            <h4>Marketing Information</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Traffic Source:</label>
+                <input 
+                  type="text" 
+                  name="trafficSource" 
+                  value={formData.trafficSource} 
+                  onChange={handleFormChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                />
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Campaign Name:</label>
+                <input 
+                  type="text" 
+                  name="campaignName" 
+                  value={formData.campaignName} 
+                  onChange={handleFormChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                />
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Ad Group:</label>
+                <input 
+                  type="text" 
+                  name="adgroupName" 
+                  value={formData.adgroupName} 
+                  onChange={handleFormChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                />
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Keyword:</label>
+                <input 
+                  type="text" 
+                  name="keyword" 
+                  value={formData.keyword} 
+                  onChange={handleFormChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                />
+              </div>
+            </div>
+          </div>
+          
+          <div style={{ marginTop: '20px' }}>
+            <h4>Appointment Information</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Want Appointment:</label>
+                <select
+                  name="wantToSetAppointment"
+                  value={formData.wantToSetAppointment}
+                  onChange={handleFormChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                >
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Appointment Date:</label>
+                <input 
+                  type="text" 
+                  name="selectedAppointmentDate" 
+                  value={formData.selectedAppointmentDate} 
+                  onChange={handleFormChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                />
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Appointment Time:</label>
+                <input 
+                  type="text" 
+                  name="selectedAppointmentTime" 
+                  value={formData.selectedAppointmentTime} 
+                  onChange={handleFormChange}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {result && (
         <div style={{ marginTop: '20px', padding: '10px', backgroundColor: '#e6f7e6', borderRadius: '5px' }}>
