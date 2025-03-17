@@ -12,7 +12,7 @@ function AddressForm() {
   // Reference to visible input that user interacts with
   const visibleInputRef = useRef(null);
   
-  // Reference to hidden input that Google Maps attaches to
+  // Reference to Google input that Google Maps attaches to
   const googleInputRef = useRef(null);
   
   // Reference to autocomplete instance
@@ -30,8 +30,9 @@ function AddressForm() {
     if (googleInputRef.current) {
       googleInputRef.current.value = value;
       
-      // Trigger the autocomplete by simulating user input
+      // Trigger the autocomplete by focusing and simulating user input
       if (googleApiLoaded) {
+        googleInputRef.current.focus();
         const event = new Event('input', { bubbles: true });
         googleInputRef.current.dispatchEvent(event);
       }
@@ -40,6 +41,21 @@ function AddressForm() {
     // Clear error message when user starts typing
     if (errorMessage) {
       setErrorMessage('');
+    }
+  };
+  
+  // Handle directly typing in the Google input
+  const handleGoogleInputChange = (e) => {
+    const value = e.target.value;
+    
+    // Update the main input and form data
+    updateFormData({ 
+      street: value,
+      addressSelectionType: 'Manual'
+    });
+    
+    if (visibleInputRef.current) {
+      visibleInputRef.current.value = value;
     }
   };
   
@@ -195,16 +211,43 @@ function AddressForm() {
       });
       
       console.log('Autocomplete initialized successfully on Google input');
+      
+      // Initial focus on the Google input to activate it
+      setTimeout(() => {
+        googleInputRef.current.focus();
+        googleInputRef.current.blur();
+      }, 500);
+      
     } catch (error) {
       console.error('Error initializing Google Places Autocomplete:', error);
       // This error shouldn't affect the main input functionality
     }
   }, [googleApiLoaded, updateFormData]);
   
-  // Style for the Google input (positioned below the main input for debugging)
+  // Focus the Google input when clicking on the main input
+  useEffect(() => {
+    const handleVisibleInputClick = () => {
+      if (googleApiLoaded && googleInputRef.current) {
+        // Focus the Google input to trigger the dropdown
+        googleInputRef.current.focus();
+      }
+    };
+    
+    if (visibleInputRef.current) {
+      visibleInputRef.current.addEventListener('click', handleVisibleInputClick);
+    }
+    
+    return () => {
+      if (visibleInputRef.current) {
+        visibleInputRef.current.removeEventListener('click', handleVisibleInputClick);
+      }
+    };
+  }, [googleApiLoaded]);
+  
+  // Style for the Google input container
   const googleInputContainerStyle = {
-    position: 'relative',
-    top: '80px', // Position 80px below the main input
+    position: 'absolute',
+    top: '80px',
     left: '0',
     width: '75%',
     zIndex: '5'
@@ -220,16 +263,6 @@ function AddressForm() {
     borderRadius: '5px',
     display: 'flex',
     alignItems: 'center'
-  };
-  
-  // Style for Google attribution
-  const googleAttributionStyle = {
-    display: 'block',
-    width: '100%',
-    fontSize: '0.8rem', 
-    color: '#666',
-    padding: '5px 0',
-    textAlign: 'right'
   };
   
   return (
@@ -248,7 +281,13 @@ function AddressForm() {
               className={errorMessage ? 'address-input-invalid' : 'address-input'}
               value={formData.street || ''}
               onChange={handleChange}
-              onFocus={(e) => e.target.placeholder = ''}
+              onFocus={(e) => {
+                e.target.placeholder = '';
+                // Also focus the Google input when focusing the main input
+                if (googleApiLoaded && googleInputRef.current) {
+                  googleInputRef.current.focus();
+                }
+              }}
               onBlur={(e) => e.target.placeholder = 'Street address...'}
               disabled={isLoading}
             />
@@ -261,15 +300,8 @@ function AddressForm() {
                 defaultValue={formData.street || ''}
                 placeholder="Google Places Search..."
                 style={googleInputStyle}
+                onChange={handleGoogleInputChange}
               />
-              <div style={googleAttributionStyle}>
-                Powered by <img 
-                  src="https://developers.google.com/static/maps/documentation/images/google_on_white.png" 
-                  alt="Google" 
-                  height="18"
-                  style={{verticalAlign: 'middle'}}
-                />
-              </div>
             </div>
             
             <button 

@@ -989,8 +989,7 @@
   }
 
 
-
- /* Google Places Autocomplete styles - simplified version */
+/* Google Places Autocomplete styles */
 .pac-container {
   z-index: 9999;
   background-color: white;
@@ -998,12 +997,20 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  margin-top: 5px;
+  border-radius: 5px;
+  overflow: hidden;
 }
 
 .pac-item {
-  padding: 8px 15px;
+  padding: 10px 15px;
   font-size: 1.2rem;
   cursor: pointer;
+  border-top: 1px solid #e6e6e6;
+}
+
+.pac-item:first-child {
+  border-top: none;
 }
 
 .pac-item:hover {
@@ -1013,4 +1020,12 @@
 .pac-item-query {
   font-size: 1.2rem;
   color: #333;
+}
+
+.pac-matched {
+  font-weight: bold;
+}
+
+.pac-icon {
+  margin-right: 7px;
 }
