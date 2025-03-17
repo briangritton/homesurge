@@ -26,13 +26,12 @@ function AddressForm() {
       addressSelectionType: 'Manual'
     });
     
-    // Update Google input to match visible input
+    // Update Google input to match visible input WITHOUT focusing it
     if (googleInputRef.current) {
       googleInputRef.current.value = value;
       
-      // Trigger the autocomplete by focusing and simulating user input
+      // Trigger the autocomplete by simulating user input without focus
       if (googleApiLoaded) {
-        googleInputRef.current.focus();
         const event = new Event('input', { bubbles: true });
         googleInputRef.current.dispatchEvent(event);
       }
@@ -41,21 +40,6 @@ function AddressForm() {
     // Clear error message when user starts typing
     if (errorMessage) {
       setErrorMessage('');
-    }
-  };
-  
-  // Handle directly typing in the Google input
-  const handleGoogleInputChange = (e) => {
-    const value = e.target.value;
-    
-    // Update the main input and form data
-    updateFormData({ 
-      street: value,
-      addressSelectionType: 'Manual'
-    });
-    
-    if (visibleInputRef.current) {
-      visibleInputRef.current.value = value;
     }
   };
   
@@ -95,7 +79,7 @@ function AddressForm() {
     }, 300);
   };
   
-  // Load Google Maps API
+  // Load Google Maps API - using a more robust loading approach
   useEffect(() => {
     // Only run once
     if (googleApiLoaded) return;
@@ -116,7 +100,7 @@ function AddressForm() {
       return;
     }
     
-    // Load the API with a callback
+    // Use a more robust script loading approach
     console.log('Loading Google Maps API...');
     const script = document.createElement('script');
     script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMapsAutocomplete`;
@@ -210,41 +194,18 @@ function AddressForm() {
         }
       });
       
+      // Let's activate the autocomplete without taking focus
+      const event = new Event('input', { bubbles: true });
+      googleInputRef.current.dispatchEvent(event);
+      
       console.log('Autocomplete initialized successfully on Google input');
-      
-      // Initial focus on the Google input to activate it
-      setTimeout(() => {
-        googleInputRef.current.focus();
-        googleInputRef.current.blur();
-      }, 500);
-      
     } catch (error) {
       console.error('Error initializing Google Places Autocomplete:', error);
       // This error shouldn't affect the main input functionality
     }
   }, [googleApiLoaded, updateFormData]);
   
-  // Focus the Google input when clicking on the main input
-  useEffect(() => {
-    const handleVisibleInputClick = () => {
-      if (googleApiLoaded && googleInputRef.current) {
-        // Focus the Google input to trigger the dropdown
-        googleInputRef.current.focus();
-      }
-    };
-    
-    if (visibleInputRef.current) {
-      visibleInputRef.current.addEventListener('click', handleVisibleInputClick);
-    }
-    
-    return () => {
-      if (visibleInputRef.current) {
-        visibleInputRef.current.removeEventListener('click', handleVisibleInputClick);
-      }
-    };
-  }, [googleApiLoaded]);
-  
-  // Style for the Google input container
+  // Styles for the Google input for debugging
   const googleInputContainerStyle = {
     position: 'absolute',
     top: '80px',
@@ -262,7 +223,8 @@ function AddressForm() {
     border: '1px solid #4e4e4e',
     borderRadius: '5px',
     display: 'flex',
-    alignItems: 'center'
+    alignItems: 'center',
+    pointerEvents: 'none' // Prevent direct interaction for now - this is the key change
   };
   
   return (
@@ -281,18 +243,12 @@ function AddressForm() {
               className={errorMessage ? 'address-input-invalid' : 'address-input'}
               value={formData.street || ''}
               onChange={handleChange}
-              onFocus={(e) => {
-                e.target.placeholder = '';
-                // Also focus the Google input when focusing the main input
-                if (googleApiLoaded && googleInputRef.current) {
-                  googleInputRef.current.focus();
-                }
-              }}
+              onFocus={(e) => e.target.placeholder = ''}
               onBlur={(e) => e.target.placeholder = 'Street address...'}
               disabled={isLoading}
             />
             
-            {/* Google Maps input for autocomplete */}
+            {/* Google Maps input for autocomplete - positioned for debugging */}
             <div style={googleInputContainerStyle}>
               <input 
                 ref={googleInputRef}
@@ -300,7 +256,8 @@ function AddressForm() {
                 defaultValue={formData.street || ''}
                 placeholder="Google Places Search..."
                 style={googleInputStyle}
-                onChange={handleGoogleInputChange}
+                tabIndex="-1" // Ensure it can't receive focus via tab
+                aria-hidden="true" // Hide from screen readers
               />
             </div>
             
