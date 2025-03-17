@@ -9,19 +9,27 @@ function AddressForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [googleApiLoaded, setGoogleApiLoaded] = useState(false);
   
-  // Reference to the input
-  const inputRef = useRef(null);
+  // Reference to visible input that user interacts with
+  const visibleInputRef = useRef(null);
+  
+  // Reference to hidden input that Google Maps attaches to
+  const googleInputRef = useRef(null);
   
   // Reference to autocomplete instance
   const autocompleteRef = useRef(null);
   
-  // Handle form input changes
+  // Handle form input changes for the main visible input
   const handleChange = (e) => {
     const value = e.target.value;
     updateFormData({ 
       street: value,
       addressSelectionType: 'Manual'
     });
+    
+    // Update Google input to match visible input
+    if (googleInputRef.current) {
+      googleInputRef.current.value = value;
+    }
     
     // Clear error message when user starts typing
     if (errorMessage) {
@@ -45,7 +53,7 @@ function AddressForm() {
     // Set loading state
     setIsLoading(true);
     
-    // Set minimal data if needed
+    // Set some minimal data if we don't have complete address info
     if (!formData.city || !formData.zip) {
       updateFormData({
         addressSelectionType: 'Manual',
@@ -65,9 +73,9 @@ function AddressForm() {
     }, 300);
   };
   
-  // Load Google Maps API directly
+  // Load Google Maps API
   useEffect(() => {
-    // Only initialize once
+    // Only run once
     if (googleApiLoaded) return;
     
     // Get API key from environment variable
@@ -92,7 +100,10 @@ function AddressForm() {
     script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMapsAutocomplete`;
     script.async = true;
     script.defer = true;
-    script.onerror = () => console.error('Failed to load Google Maps API script');
+    script.onerror = (e) => {
+      console.error('Failed to load Google Maps API script:', e);
+      // Even if Google Maps fails to load, the main input will still work
+    };
     
     document.body.appendChild(script);
     
@@ -102,15 +113,15 @@ function AddressForm() {
     };
   }, [googleApiLoaded]);
   
-  // Initialize autocomplete AFTER input ref is available and API is loaded
+  // Initialize autocomplete after API is loaded
   useEffect(() => {
-    if (!googleApiLoaded || !inputRef.current || autocompleteRef.current) return;
+    if (!googleApiLoaded || !googleInputRef.current || autocompleteRef.current) return;
     
     try {
-      console.log('Initializing autocomplete on visible input');
+      console.log('Initializing autocomplete on Google input');
       
-      // Initialize autocomplete directly on the visible input
-      autocompleteRef.current = new window.google.maps.places.Autocomplete(inputRef.current, {
+      // Initialize autocomplete on the Google input
+      autocompleteRef.current = new window.google.maps.places.Autocomplete(googleInputRef.current, {
         types: ['address'],
         componentRestrictions: { country: 'us' },
         fields: ['address_components', 'formatted_address', 'geometry', 'name']
@@ -165,6 +176,11 @@ function AddressForm() {
             addressSelectionType: 'Google'
           });
           
+          // Update visible input to match selected place
+          if (visibleInputRef.current) {
+            visibleInputRef.current.value = place.formatted_address;
+          }
+          
           // Track the address selection in analytics
           trackAddressSelected('Google');
         } catch (error) {
@@ -172,11 +188,33 @@ function AddressForm() {
         }
       });
       
-      console.log('Autocomplete initialized successfully on visible input');
+      console.log('Autocomplete initialized successfully on Google input');
     } catch (error) {
       console.error('Error initializing Google Places Autocomplete:', error);
+      // This error shouldn't affect the main input functionality
     }
   }, [googleApiLoaded, updateFormData]);
+  
+  // Style for the Google input (positioned below the main input for debugging)
+  const googleInputContainerStyle = {
+    position: 'absolute',
+    top: '80px', // Position 50px below the main input
+    left: '0',
+    width: '75%',
+    zIndex: '5'
+  };
+  
+  const googleInputStyle = {
+    width: '100%',
+    height: '70px',
+    fontSize: '1.5rem',
+    color: '#6d6d6d',
+    padding: '0 25px',
+    border: '1px solid #4e4e4e',
+    borderRadius: '5px',
+    display: 'flex',
+    alignItems: 'center'
+  };
   
   return (
     <div className="hero-section">
@@ -186,9 +224,9 @@ function AddressForm() {
           <div className="hero-subheadline">{formData.dynamicSubHeadline || "Get a Great Cash Offer For Your House and Close Fast!"}</div>
           
           <form className="form-container" onSubmit={handleSubmit}>
-            {/* Visible input with direct Google Places integration */}
+            {/* Visible input that user interacts with */}
             <input
-              ref={inputRef}
+              ref={visibleInputRef}
               type="text"
               placeholder="Street address..."
               className={errorMessage ? 'address-input-invalid' : 'address-input'}
@@ -198,6 +236,17 @@ function AddressForm() {
               onBlur={(e) => e.target.placeholder = 'Street address...'}
               disabled={isLoading}
             />
+            
+            {/* Google Maps input for autocomplete */}
+            <div style={googleInputContainerStyle}>
+              <input 
+                ref={googleInputRef}
+                type="text"
+                defaultValue={formData.street || ''}
+                placeholder="Google Places Search..."
+                style={googleInputStyle}
+              />
+            </div>
             
             <button 
               className="submit-button" 
