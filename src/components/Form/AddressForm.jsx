@@ -9,79 +9,109 @@ function AddressForm() {
 
   const addressInputRef = useRef(null);
 
-  // 1) UseEffect to load script AND init minimal Autocomplete
+  // 1) Dynamically load the script, but if key is invalid => skip binding
   useEffect(() => {
-    // If already loaded, attempt to init immediately
+    // If google is already loaded, attempt init
     if (window.google && window.google.maps && window.google.maps.places) {
-      console.log('Google Maps script is present—initializing autocomplete...');
-      initAutocomplete();
+      console.log('Google already loaded—initializing autocomplete...');
+      safeInitAutocomplete();
       return;
     }
 
-    // Otherwise, if the script tag isn't present, inject it
-    if (!document.querySelector('script[src*="maps.googleapis.com"]')) {
-      console.log('Injecting Google Maps script...');
+    // If not, check if script is present
+    const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
+    if (!existingScript) {
+      // Insert the script
       const script = document.createElement('script');
-      script.src =
-        'https://maps.googleapis.com/maps/api/js?key=YOUR_KEY&libraries=places';
+      // *** IMPORTANT: use your real key here! ***
+      script.src = 'https://maps.googleapis.com/maps/api/js?key=YOUR_KEY&libraries=places';
       script.async = true;
       script.defer = true;
 
-      // Once the script loads, try init
       script.onload = () => {
-        console.log('Google Maps script loaded—initializing autocomplete...');
-        initAutocomplete();
+        console.log('Google Maps script loaded—attempting autocomplete init...');
+        safeInitAutocomplete();
+      };
+
+      script.onerror = () => {
+        console.warn('Google Maps script failed to load—autocomplete disabled.');
       };
 
       document.body.appendChild(script);
     } else {
-      // A script tag exists—poll until it's ready
-      console.log('Google Maps script tag found; waiting for it to load...');
+      console.log('Google Maps script tag found—waiting for it to load...');
+      // Poll until google is ready or we time out
       const intervalId = setInterval(() => {
         if (window.google && window.google.maps && window.google.maps.places) {
           clearInterval(intervalId);
-          console.log('Google Maps ready—initializing autocomplete...');
-          initAutocomplete();
+          console.log('Google is ready—initializing autocomplete...');
+          safeInitAutocomplete();
         }
       }, 500);
+
+      // Clean up if component unmounts
       return () => clearInterval(intervalId);
     }
   }, []);
 
-  // 2) Minimal init function: just create Autocomplete & log place_changed
-  const initAutocomplete = () => {
+  // 2) Only create Autocomplete if Google loaded *and* no error
+  const safeInitAutocomplete = () => {
+    if (!window.google || !window.google.maps || !window.google.maps.places) {
+      console.warn('Google Places not available—autocomplete disabled.');
+      return;
+    }
     if (!addressInputRef.current) {
       console.warn('No input ref found—cannot init autocomplete.');
       return;
     }
-    // Create the Autocomplete instance
-    const autocomplete = new window.google.maps.places.Autocomplete(
-      addressInputRef.current,
-      {
-        types: ['address'],
-        componentRestrictions: { country: 'us' }
-      }
-    );
 
-    // Listen for place changes
-    autocomplete.addListener('place_changed', () => {
-      const place = autocomplete.getPlace();
-      console.log('place_changed event fired. Selected place:', place);
-      // Not doing anything else yet—just logging
-    });
+    try {
+      const autocomplete = new window.google.maps.places.Autocomplete(
+        addressInputRef.current,
+        {
+          types: ['address'],
+          componentRestrictions: { country: 'us' }
+        }
+      );
+      autocomplete.addListener('place_changed', () => {
+        const place = autocomplete.getPlace();
+        // If place is invalid, do nothing
+        if (!place || !place.formatted_address) {
+          console.log('Invalid place selected or no address found.');
+          return;
+        }
+        console.log('Selected place:', place.formatted_address);
+
+        // *** IMPORTANT ***  
+        // We update the DOM input manually here so the user sees the full address
+        addressInputRef.current.value = place.formatted_address;
+
+        // Optionally parse out city, state, zip
+        // For now, just update form data with the chosen address
+        updateFormData({
+          ...formData,
+          street: place.formatted_address,
+          addressSelectionType: 'Google'
+        });
+      });
+      console.log('Autocomplete has been initialized successfully.');
+    } catch (err) {
+      // If the key is invalid or something else breaks
+      console.error('Failed to init Autocomplete:', err);
+    }
   };
 
+  // 3) Standard input change (uncontrolled input)
   const handleManualChange = (e) => {
     if (errorMessage) setErrorMessage('');
-
-    // Keep the formData updated as user types, still "uncontrolled" input
     updateFormData({
       ...formData,
       street: e.target.value,
-      addressSelectionType: 'Manual',
+      addressSelectionType: 'Manual'
     });
   };
 
+  // 4) Submit
   const handleSubmit = (e) => {
     e.preventDefault();
     const typedAddress = addressInputRef.current.value || '';
@@ -97,7 +127,7 @@ function AddressForm() {
     updateFormData({
       ...formData,
       street: typedAddress,
-      addressSelectionType: 'Manual',
+      addressSelectionType: 'Manual'
     });
 
     setTimeout(() => {
@@ -129,6 +159,7 @@ function AddressForm() {
                 errorMessage ? 'address-input-invalid' : 'address-input'
               }
               onChange={handleManualChange}
+              // no disabled to ensure you can always type
             />
 
             <button
@@ -148,6 +179,7 @@ function AddressForm() {
 }
 
 export default AddressForm;
+
 
 
 
