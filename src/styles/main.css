@@ -990,9 +990,9 @@
 
 
 
-  /* Add these styles to your main.css file */
+ 
 
-  * Google Places Autocomplete styles */
+  /* Google Places Autocomplete styles */
   .pac-container {
     z-index: 9999 !important; /* Ensure it appears above all other elements */
     position: absolute !important;
