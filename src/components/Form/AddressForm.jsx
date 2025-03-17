@@ -1,195 +1,199 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import { validateAddress } from '../../utils/validation.js';
-import { trackAddressSelected } from '../../services/analytics';
 
 function AddressForm() {
   const { formData, updateFormData, nextStep } = useFormContext();
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [autocompleteInitialized, setAutocompleteInitialized] = useState(false);
-  
-  // Create a ref for the input element
-  const inputRef = useRef(null);
-  
-  // Safely initialize Google Maps autocomplete
-  const initializeAutocomplete = () => {
-    // Guard clause - make sure input and Google Maps exists
-    if (!inputRef.current || !window.google || !window.google.maps || !window.google.maps.places) {
-      return false;
-    }
-    
-    try {
-      // Create the autocomplete instance
-      const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
-        types: ['address'],
-        componentRestrictions: { country: 'us' }
-      });
-      
-      // Add place_changed listener
-      autocomplete.addListener('place_changed', () => {
-        try {
+
+  // 1) Use a ref for the DOM element. We do NOT store the live text in state.
+  const addressInputRef = useRef(null);
+
+  // 2) Initialize Google Autocomplete once
+  useEffect(() => {
+    let autocomplete;
+    let scriptLoaded = false;
+
+    const initAutocomplete = () => {
+      if (!window.google || !window.google.maps || !window.google.maps.places) {
+        console.log('Google Maps not available - user can still type manually.');
+        return false;
+      }
+
+      try {
+        console.log('Initializing Google Maps Autocomplete...');
+        autocomplete = new window.google.maps.places.Autocomplete(
+          addressInputRef.current,
+          {
+            types: ['address'],
+            componentRestrictions: { country: 'us' }
+          }
+        );
+
+        // When user selects a place from dropdown
+        autocomplete.addListener('place_changed', () => {
           const place = autocomplete.getPlace();
-          
-          // Make sure we have a valid place with geometry
-          if (!place.geometry) {
-            console.log('No geometry for this place');
+          if (!place || !place.formatted_address) {
+            console.log('Invalid place selected.');
             return;
           }
-          
-          // Process address components
+          console.log('Place selected:', place.formatted_address);
+
+          // 3) Manually update the input field's DOM value
+          addressInputRef.current.value = place.formatted_address;
+
+          // Extract city, state, zip from place (if available)
           const addressComponents = {
             city: '',
-            state: 'GA',
+            state: 'GA', // default
             zip: ''
           };
-          
-          if (place.address_components && place.address_components.length > 0) {
-            place.address_components.forEach(component => {
-              const types = component.types;
+          if (place.address_components) {
+            for (const comp of place.address_components) {
+              const types = comp.types;
               if (types.includes('locality')) {
-                addressComponents.city = component.long_name;
+                addressComponents.city = comp.long_name;
               } else if (types.includes('administrative_area_level_1')) {
-                addressComponents.state = component.short_name;
+                addressComponents.state = comp.short_name;
               } else if (types.includes('postal_code')) {
-                addressComponents.zip = component.long_name;
+                addressComponents.zip = comp.long_name;
               }
-            });
+            }
           }
-          
-          // Update form data
+
+          // If geometry is available, store lat/lng
+          const location = place.geometry
+            ? {
+                lat: place.geometry.location.lat(),
+                lng: place.geometry.location.lng()
+              }
+            : null;
+
+          // Update form data with the chosen address details
           updateFormData({
             street: place.formatted_address,
             city: addressComponents.city,
             state: addressComponents.state,
             zip: addressComponents.zip,
             addressSelectionType: 'Google',
-            location: {
-              lat: place.geometry.location.lat(),
-              lng: place.geometry.location.lng()
-            }
+            location
           });
-          
-          // Track the selection
-          trackAddressSelected('Google');
-          
-          // Clear any error message
-          setErrorMessage('');
-        } catch (error) {
-          console.error('Error handling place selection:', error);
-        }
-      });
-      
-      return true;
-    } catch (error) {
-      console.error('Error initializing autocomplete:', error);
-      return false;
+        });
+
+        return true;
+      } catch (error) {
+        console.error('Error initializing Google Maps autocomplete:', error);
+        return false;
+      }
+    };
+
+    // 4) Attempt to init immediately
+    let initialized = initAutocomplete();
+
+    // If Maps not loaded, dynamically load the script
+    if (!initialized) {
+      // Only append script once
+      if (!document.querySelector('script[src*="maps.googleapis.com"]')) {
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyArZ4pBJT_YW6wRVuPI2-AgGL-0hbAdVbI&libraries=places`;
+        script.async = true;
+        script.defer = true;
+        script.onload = () => {
+          scriptLoaded = true;
+          initialized = initAutocomplete();
+        };
+        document.body.appendChild(script);
+      } else {
+        // Script already on the page; poll until available
+        const intervalId = setInterval(() => {
+          if (window.google && window.google.maps && window.google.maps.places) {
+            clearInterval(intervalId);
+            initialized = initAutocomplete();
+          }
+        }, 500);
+        return () => clearInterval(intervalId);
+      }
     }
-  };
-  
-  // Initialize once the component is mounted and input ref is available
-  useEffect(() => {
-    // Don't try to initialize if already done
-    if (autocompleteInitialized) return;
-    
-    // Check if Google Maps API is loaded
-    if (window.google && window.google.maps && window.google.maps.places) {
-      // API already loaded, initialize immediately
-      const success = initializeAutocomplete();
-      setAutocompleteInitialized(success);
-    } else {
-      // Setup a listener for when the API might load
-      const checkGoogleMapsInterval = setInterval(() => {
-        if (window.google && window.google.maps && window.google.maps.places) {
-          clearInterval(checkGoogleMapsInterval);
-          const success = initializeAutocomplete();
-          setAutocompleteInitialized(success);
-        }
-      }, 500);
-      
-      // Clean up interval
-      return () => clearInterval(checkGoogleMapsInterval);
-    }
-  }, [autocompleteInitialized]);
-  
-  // Handle form input changes
-  const handleChange = (e) => {
-    const value = e.target.value;
-    
+  }, [updateFormData]);
+
+  // 5) Handle user keystrokes (so we can record typed addresses in the form data)
+  const handleManualChange = (e) => {
+    const typedValue = e.target.value;
+    if (errorMessage) setErrorMessage('');
+
+    // If the user is typing (rather than selecting from Google):
     updateFormData({
-      street: value,
+      ...formData,
+      street: typedValue,
       addressSelectionType: 'Manual'
     });
-    
-    // Clear error message when user starts typing
-    if (errorMessage) {
-      setErrorMessage('');
-    }
   };
-  
-  // Handle form submission
+
+  // 6) Handle submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    // Validate address
-    if (!validateAddress(formData.street)) {
+
+    // Grab the CURRENT value from the DOM input
+    const typedAddress = addressInputRef.current.value || '';
+
+    if (!validateAddress(typedAddress)) {
       setErrorMessage('Please enter a valid address to check your cash offer');
       return;
     }
-    
-    // Clear error message
+
     setErrorMessage('');
-    
-    // Set loading state
     setIsLoading(true);
-    
-    // Ensure we have the basic address data
+
+    // Ensure formData is up to date
     updateFormData({
-      addressSelectionType: formData.addressSelectionType || 'Manual',
-      city: formData.city || '',
-      zip: formData.zip || '',
-      state: formData.state || 'GA'
+      ...formData,
+      street: typedAddress,
+      addressSelectionType: formData.addressSelectionType || 'Manual'
     });
-    
-    // Move to next step with a slight delay to show loading state
+
+    // Simulate async step, then next step
     setTimeout(() => {
       setIsLoading(false);
       nextStep();
-    }, 300);
+    }, 500);
   };
-  
+
   return (
     <div className="hero-section">
       <div className="hero-middle-container">
         <div className="hero-content fade-in">
-          <div className="hero-headline">{formData.dynamicHeadline || "Sell Your House For Cash Fast!"}</div>
-          <div className="hero-subheadline">{formData.dynamicSubHeadline || "Get a Great Cash Offer For Your House and Close Fast!"}</div>
-          
+          <div className="hero-headline">
+            {formData.dynamicHeadline || 'Sell Your House For Cash Fast!'}
+          </div>
+          <div className="hero-subheadline">
+            {formData.dynamicSubHeadline ||
+              'Get a Great Cash Offer For Your House and Close Fast!'}
+          </div>
+
           <form className="form-container" onSubmit={handleSubmit}>
             <input
-              ref={inputRef}
+              // 7) UNCONTROLLED => defaultValue
+              ref={addressInputRef}
               type="text"
               placeholder="Street address..."
               className={errorMessage ? 'address-input-invalid' : 'address-input'}
-              value={formData.street || ''}
-              onChange={handleChange}
-              onFocus={(e) => e.target.placeholder = ''}
-              onBlur={(e) => e.target.placeholder = 'Street address...'}
-              disabled={isLoading}
+              defaultValue={formData.street || ''}
+              onChange={handleManualChange}
+              // Remove any disabling so user can always type
+              // disabled={isLoading}  (optional)
             />
-            
-            <button 
-              className="submit-button" 
+
+            <button
+              className="submit-button"
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading} // can remove if you want the button always active
             >
               {isLoading ? 'CHECKING...' : 'CHECK OFFER'}
             </button>
           </form>
-          
-          {errorMessage && (
-            <div className="error-message">{errorMessage}</div>
-          )}
+
+          {errorMessage && <div className="error-message">{errorMessage}</div>}
         </div>
       </div>
     </div>

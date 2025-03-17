@@ -13,32 +13,8 @@
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <title>Sell Your House Fast For Cash</title>
     
-    <!-- Google Maps API - Load in a non-blocking way -->
-    <script>
-      // Graceful error handling for Google Maps
-      window.googleMapsCallback = function() {
-        console.log('Google Maps API loaded successfully');
-        window.googleMapsLoaded = true;
-      };
-      
-      window.googleMapsErrorCallback = function() {
-        console.warn('Google Maps API failed to load, but the app will continue to work');
-        window.googleMapsLoaded = false;
-      };
-      
-      // Only try to load Google Maps after the page is fully loaded
-      window.addEventListener('load', function() {
-        // Create script tag dynamically
-        var script = document.createElement('script');
-        script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyArZ4pBJT_YW6wRVuPI2-AgGL-0hbAdVbI&libraries=places&callback=googleMapsCallback';
-        script.async = true;
-        script.defer = true;
-        script.onerror = window.googleMapsErrorCallback;
-        
-        // Add to document
-        document.body.appendChild(script);
-      });
-    </script>
+    <!-- Google Maps integration is now handled in React components -->
+    <!-- No script tag here to avoid initialization conflicts -->
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
