@@ -10,12 +10,17 @@ function AddressForm() {
   // Reference to input
   const inputRef = useRef(null);
   
-  // ADDED: Empty useEffect that just logs something
+  // ADDED: Check if Google Maps API is loaded
   useEffect(() => {
-    console.log('AddressForm mounted, input ref:', inputRef.current);
-    
-    // This useEffect runs once after component mounts
-    // No Google Maps stuff yet, just checking that useEffect works
+    // Check if Google Maps API is available
+    if (window.google && window.google.maps && window.google.maps.places) {
+      console.log('Google Maps API is already loaded');
+    } else {
+      console.log('Google Maps API is not loaded');
+      
+      // We're just checking if Maps is loaded, not loading it yet
+      // No autocomplete initialization yet
+    }
   }, []);
   
   // Handle form input changes
@@ -102,6 +107,5 @@ function AddressForm() {
 }
 
 export default AddressForm;
-
 
 
