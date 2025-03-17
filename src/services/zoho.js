@@ -39,17 +39,21 @@ export async function submitLeadToZoho(formData) {
     console.log("Zoho API full response:", response.data);
     
     if (response.data && response.data.success) {
-      // Check if leadId exists directly in the response
+      // First check if leadId exists directly in the response (our API wrapper should provide this)
       if (response.data.leadId) {
         console.log("Found lead ID in direct response:", response.data.leadId);
         return response.data.leadId;
       }
       
-      // Try to extract from fullResponse if available
-      if (response.data.fullResponse && 
-          response.data.fullResponse.data && 
-          response.data.fullResponse.data.length > 0 &&
-          response.data.fullResponse.data[0].id) {
+      // Look for ID in the fullResponse structure based on the actual response format
+      if (response.data.fullResponse?.data?.[0]?.details?.id) {
+        const extractedId = response.data.fullResponse.data[0].details.id;
+        console.log("Extracted lead ID from fullResponse details:", extractedId);
+        return extractedId;
+      }
+      
+      // Try the original path as fallback
+      if (response.data.fullResponse?.data?.[0]?.id) {
         const extractedId = response.data.fullResponse.data[0].id;
         console.log("Extracted lead ID from fullResponse:", extractedId);
         return extractedId;

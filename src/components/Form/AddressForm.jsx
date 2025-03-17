@@ -1,11 +1,120 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import { validateAddress } from '../../utils/validation.js';
+import { initializeGoogleMapsAutocomplete, lookupPropertyInfo } from '../../services/maps.js';
+import { trackAddressSelected } from '../../services/analytics';
 
 function AddressForm() {
   const { formData, updateFormData, nextStep } = useFormContext();
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingProperty, setIsLoadingProperty] = useState(false);
+  const [googleMapsAvailable, setGoogleMapsAvailable] = useState(false);
+  
+  // Create a ref for the input element
+  const inputRef = useRef(null);
+  
+  // Function to check if Google Maps is available
+  const checkGoogleMapsAvailability = () => {
+    return window.google && window.google.maps && window.google.maps.places;
+  };
+  
+  // Initialize Google Maps autocomplete when component mounts
+  useEffect(() => {
+    // Prevent blocking the input field if Maps isn't available
+    if (!checkGoogleMapsAvailability()) {
+      console.log('Google Maps API not available yet, input field will be usable');
+      
+      // Check if Google Maps loads after a delay
+      const googleMapsCheckInterval = setInterval(() => {
+        if (checkGoogleMapsAvailability()) {
+          clearInterval(googleMapsCheckInterval);
+          setGoogleMapsAvailable(true);
+          
+          // Now safe to initialize autocomplete
+          if (inputRef.current) {
+            try {
+              initializeGoogleMapsAutocomplete(inputRef, handlePlaceSelected);
+              console.log('Google Maps autocomplete initialized');
+            } catch (error) {
+              console.error('Error initializing autocomplete:', error);
+            }
+          }
+        }
+      }, 1000); // Check every second
+      
+      // Clean up interval on component unmount
+      return () => clearInterval(googleMapsCheckInterval);
+    } else {
+      // Maps is already available, initialize autocomplete
+      setGoogleMapsAvailable(true);
+      if (inputRef.current) {
+        try {
+          initializeGoogleMapsAutocomplete(inputRef, handlePlaceSelected);
+          console.log('Google Maps autocomplete initialized immediately');
+        } catch (error) {
+          console.error('Error initializing autocomplete:', error);
+        }
+      }
+    }
+  }, []);
+  
+  // Handle place selection from Google Maps autocomplete
+  const handlePlaceSelected = async (place) => {
+    if (!place || !place.formattedAddress) {
+      console.error('No valid place selected');
+      return;
+    }
+    
+    console.log('Selected place:', place);
+    
+    // Track address selection for analytics
+    trackAddressSelected('Google');
+    
+    // Extract address components
+    const { addressComponents, formattedAddress, location } = place;
+    
+    // Update form data with selected address
+    updateFormData({
+      street: formattedAddress,
+      city: addressComponents.city || '',
+      zip: addressComponents.zip || '',
+      state: addressComponents.state || 'GA',
+      addressSelectionType: 'Google',
+      location: location
+    });
+    
+    // Clear error message
+    setErrorMessage('');
+    
+    // Try to get property information
+    try {
+      setIsLoadingProperty(true);
+      const propertyInfo = await lookupPropertyInfo(formattedAddress);
+      
+      if (propertyInfo) {
+        console.log('Property info retrieved:', propertyInfo);
+        
+        // Update form with property details
+        updateFormData({
+          apiOwnerName: propertyInfo.apiOwnerName || '',
+          apiEstimatedValue: propertyInfo.apiEstimatedValue || 0,
+          apiMaxHomeValue: propertyInfo.apiMaxValue || 0,
+          formattedApiEstimatedValue: propertyInfo.formattedApiEstimatedValue || '$0',
+          bedrooms: propertyInfo.bedrooms || '',
+          bathrooms: propertyInfo.bathrooms || '',
+          finishedSquareFootage: propertyInfo.finishedSquareFootage || 1000,
+          city: propertyInfo.city || addressComponents.city || '',
+          zip: propertyInfo.zip || addressComponents.zip || '',
+          state: propertyInfo.state || addressComponents.state || 'GA'
+        });
+      }
+    } catch (error) {
+      console.error('Error retrieving property information:', error);
+    } finally {
+      setIsLoadingProperty(false);
+    }
+  };
   
   // Handle form input changes
   const handleChange = (e) => {
@@ -23,7 +132,7 @@ function AddressForm() {
   };
   
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Validate address
@@ -35,27 +144,58 @@ function AddressForm() {
     // Clear error message
     setErrorMessage('');
     
-    // Set some minimal data
-    updateFormData({
-      addressSelectionType: 'Manual',
-      city: '',
-      zip: '',
-      state: 'GA'
-    });
+    // Set loading state
+    setIsLoading(true);
     
-    // Proceed to next step
-    nextStep();
+    try {
+      // If address was manually entered, try to get property information
+      if (formData.addressSelectionType === 'Manual') {
+        try {
+          const propertyInfo = await lookupPropertyInfo(formData.street);
+          
+          if (propertyInfo) {
+            console.log('Property info retrieved for manual address:', propertyInfo);
+            
+            // Update form with property details
+            updateFormData({
+              apiOwnerName: propertyInfo.apiOwnerName || '',
+              apiEstimatedValue: propertyInfo.apiEstimatedValue || 0,
+              apiMaxHomeValue: propertyInfo.apiMaxValue || 0,
+              formattedApiEstimatedValue: propertyInfo.formattedApiEstimatedValue || '$0',
+              bedrooms: propertyInfo.bedrooms || '',
+              bathrooms: propertyInfo.bathrooms || '',
+              finishedSquareFootage: propertyInfo.finishedSquareFootage || 1000,
+              city: propertyInfo.city || '',
+              zip: propertyInfo.zip || '',
+              state: propertyInfo.state || 'GA'
+            });
+          }
+        } catch (error) {
+          console.error('Error retrieving property information for manual address:', error);
+          // Continue anyway, even if property lookup fails
+        }
+      }
+      
+      // Proceed to next step regardless of Google Maps integration status
+      nextStep();
+    } catch (error) {
+      console.error('Error during form submission:', error);
+      setErrorMessage('There was an error processing your request. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   return (
     <div className="hero-section">
       <div className="hero-middle-container">
         <div className="hero-content fade-in">
-          <div className="hero-headline">Sell Your House For Cash Fast!</div>
-          <div className="hero-subheadline">Get a Great Cash Offer For Your House and Close Fast!</div>
+          <div className="hero-headline">{formData.dynamicHeadline || "Sell Your House For Cash Fast!"}</div>
+          <div className="hero-subheadline">{formData.dynamicSubHeadline || "Get a Great Cash Offer For Your House and Close Fast!"}</div>
           
           <form className="form-container" onSubmit={handleSubmit}>
             <input
+              ref={inputRef}
               type="text"
               placeholder="Street address..."
               className={errorMessage ? 'address-input-invalid' : 'address-input'}
@@ -77,6 +217,23 @@ function AddressForm() {
           
           {errorMessage && (
             <div className="error-message">{errorMessage}</div>
+          )}
+          
+          {isLoadingProperty && (
+            <div className="info-message" style={{ marginTop: '10px', color: '#3490d1' }}>
+              Retrieving property information...
+            </div>
+          )}
+          
+          {!googleMapsAvailable && (
+            <div className="info-message" style={{ 
+              marginTop: '10px', 
+              fontSize: '0.8rem', 
+              color: '#666',
+              fontStyle: 'italic'
+            }}>
+              Address suggestions may be limited
+            </div>
           )}
         </div>
       </div>
