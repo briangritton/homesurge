@@ -29,6 +29,12 @@ function AddressForm() {
     // Update Google input to match visible input
     if (googleInputRef.current) {
       googleInputRef.current.value = value;
+      
+      // Trigger the autocomplete by simulating user input
+      if (googleApiLoaded) {
+        const event = new Event('input', { bubbles: true });
+        googleInputRef.current.dispatchEvent(event);
+      }
     }
     
     // Clear error message when user starts typing
@@ -197,8 +203,8 @@ function AddressForm() {
   
   // Style for the Google input (positioned below the main input for debugging)
   const googleInputContainerStyle = {
-    position: 'absolute',
-    top: '80px', // Position 50px below the main input
+    position: 'relative',
+    top: '80px', // Position 80px below the main input
     left: '0',
     width: '75%',
     zIndex: '5'
@@ -214,6 +220,16 @@ function AddressForm() {
     borderRadius: '5px',
     display: 'flex',
     alignItems: 'center'
+  };
+  
+  // Style for Google attribution
+  const googleAttributionStyle = {
+    display: 'block',
+    width: '100%',
+    fontSize: '0.8rem', 
+    color: '#666',
+    padding: '5px 0',
+    textAlign: 'right'
   };
   
   return (
@@ -246,6 +262,14 @@ function AddressForm() {
                 placeholder="Google Places Search..."
                 style={googleInputStyle}
               />
+              <div style={googleAttributionStyle}>
+                Powered by <img 
+                  src="https://developers.google.com/static/maps/documentation/images/google_on_white.png" 
+                  alt="Google" 
+                  height="18"
+                  style={{verticalAlign: 'middle'}}
+                />
+              </div>
             </div>
             
             <button 
