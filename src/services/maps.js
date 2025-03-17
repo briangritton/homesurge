@@ -94,7 +94,7 @@ export async function lookupPropertyInfo(address) {
   
   try {
     // Use environment variable for API key if available
-    const apiKey = process.env.REACT_APP_MELISSA_API_KEY || 'TyXpKLplL6R0lDTHV7B8Bb**nSAcwXpxhQ0PC2lXxuDAZ-**';
+    const apiKey = process.env.REACT_APP_MELISSA_API_KEY || "TyXpKLplL6R0lDTHV7B8Bb**nSAcwXpxhQ0PC2lXxuDAZ-**";
     const encodedAddress = encodeURIComponent(address);
     const url = `https://property.melissadata.net/v4/WEB/LookupProperty?id=${apiKey}&format=json&cols=GrpAll&opt=desc:on&ff=${encodedAddress}`;
     
