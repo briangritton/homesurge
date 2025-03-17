@@ -182,9 +182,11 @@ module.exports = async (req, res) => {
         );
         
         if (response.data && response.data.data && response.data.data.length > 0) {
+          // Extract the lead ID from the correct location in the response
+          const leadId = response.data.data[0].details?.id || response.data.data[0].id;
           return res.status(200).json({ 
             success: true, 
-            leadId: response.data.data[0].id,  // FIX: Include leadId in the response
+            leadId: leadId,  // Return the lead ID properly
             fullResponse: debug ? response.data : undefined
           });
         } else {
@@ -287,9 +289,11 @@ module.exports = async (req, res) => {
         );
         
         if (response.data && response.data.data && response.data.data.length > 0) {
+          // Extract the lead ID from the correct location in the response
+          const leadId = response.data.data[0].details?.id || response.data.data[0].id;
           return res.status(200).json({ 
             success: true, 
-            leadId: response.data.data[0].id,  // FIX: Include leadId in the response
+            leadId: leadId,  // Return the lead ID properly
             fullResponse: debug ? response.data : undefined,
             attemptedPayload: debug ? payload : undefined
           });
