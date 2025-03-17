@@ -7,8 +7,21 @@ function AddressForm() {
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
-  // Reference to the input field
+  // Reference to input
   const inputRef = useRef(null);
+  
+  // ADDED: Check if Google Maps API is loaded
+  useEffect(() => {
+    // Check if Google Maps API is available
+    if (window.google && window.google.maps && window.google.maps.places) {
+      console.log('Google Maps API is already loaded');
+    } else {
+      console.log('Google Maps API is not loaded');
+      
+      // We're just checking if Maps is loaded, not loading it yet
+      // No autocomplete initialization yet
+    }
+  }, []);
   
   // Handle form input changes
   const handleChange = (e) => {
@@ -55,90 +68,6 @@ function AddressForm() {
     }, 300);
   };
   
-  // Initialize Google Maps autocomplete after component mounts
-  // This runs once after the component is fully rendered
-  useEffect(() => {
-    // Only run if input ref exists
-    if (!inputRef.current) return;
-    
-    // Load Google Maps API if not already loaded
-    if (!window.google?.maps?.places) {
-      // Create script element to load Google Maps
-      const script = document.createElement('script');
-      script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyArZ4pBJT_YW6wRVuPI2-AgGL-0hbAdVbI&libraries=places';
-      script.async = true;
-      
-      // We'll try to initialize autocomplete after script loads
-      script.onload = initAutocomplete;
-      
-      // Append script to body
-      document.body.appendChild(script);
-    } else {
-      // Google Maps already loaded, initialize autocomplete
-      initAutocomplete();
-    }
-    
-    // Function to initialize autocomplete
-    function initAutocomplete() {
-      // Guard clause - make sure Google Maps API is available
-      if (!window.google?.maps?.places) {
-        console.log('Google Maps Places API not available');
-        return;
-      }
-      
-      try {
-        // Create autocomplete instance
-        const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
-          types: ['address'],
-          componentRestrictions: { country: 'us' }
-        });
-        
-        // Add place changed listener
-        autocomplete.addListener('place_changed', () => {
-          const place = autocomplete.getPlace();
-          
-          if (!place.formatted_address) {
-            console.log('No formatted address available');
-            return;
-          }
-          
-          // Extract address components
-          const addressComponents = {
-            city: '',
-            state: 'GA',
-            zip: ''
-          };
-          
-          place.address_components?.forEach(component => {
-            const types = component.types;
-            
-            if (types.includes('locality')) {
-              addressComponents.city = component.long_name;
-            } else if (types.includes('administrative_area_level_1')) {
-              addressComponents.state = component.short_name;
-            } else if (types.includes('postal_code')) {
-              addressComponents.zip = component.long_name;
-            }
-          });
-          
-          // Update form data with selected place
-          updateFormData({
-            street: place.formatted_address,
-            city: addressComponents.city,
-            state: addressComponents.state,
-            zip: addressComponents.zip,
-            addressSelectionType: 'Google'
-          });
-        });
-      } catch (error) {
-        // Log error but allow form to continue working
-        console.error('Error initializing Google Maps autocomplete:', error);
-      }
-    }
-    
-    // No cleanup needed - autocomplete can remain attached
-  }, [updateFormData]);
-  
   return (
     <div className="hero-section">
       <div className="hero-middle-container">
@@ -178,6 +107,4 @@ function AddressForm() {
 }
 
 export default AddressForm;
-
-
 
