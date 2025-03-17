@@ -1,18 +1,25 @@
 import axios from 'axios';
 
 /**
- * Initialize Google Maps autocomplete on an input element
+ * Initialize Google Maps autocomplete on an input element with error handling
  * @param {HTMLInputElement} inputRef - The input element reference
  * @param {Function} onPlaceSelected - Callback function when a place is selected
  * @returns {Function} - Cleanup function to remove event listeners
  */
 export function initializeGoogleMapsAutocomplete(inputRef, onPlaceSelected) {
-  if (!inputRef.current || !window.google || !window.google.maps || !window.google.maps.places) {
-    console.error('Google Maps API not loaded or input ref not available');
+  // Guard against missing dependencies
+  if (!inputRef || !inputRef.current) {
+    console.error('Input reference is invalid');
+    return () => {};
+  }
+  
+  if (!window.google || !window.google.maps || !window.google.maps.places) {
+    console.error('Google Maps API not loaded');
     return () => {};
   }
 
   try {
+    // Create the autocomplete instance with error handling
     const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
       types: ['address'],
       componentRestrictions: { country: 'us' }, // Restrict to US addresses
@@ -23,8 +30,9 @@ export function initializeGoogleMapsAutocomplete(inputRef, onPlaceSelected) {
       try {
         const place = autocomplete.getPlace();
         
-        if (!place.geometry) {
-          console.error('Place has no geometry');
+        // Validate that place has geometry
+        if (!place || !place.geometry) {
+          console.warn('Place has no geometry or is invalid');
           return;
         }
 
@@ -66,13 +74,18 @@ export function initializeGoogleMapsAutocomplete(inputRef, onPlaceSelected) {
         });
       } catch (error) {
         console.error('Error in place selection:', error);
+        // Don't block the user from continuing even if there's an error
       }
     });
 
     // Return cleanup function
     return () => {
-      if (window.google && window.google.maps) {
-        window.google.maps.event.removeListener(listener);
+      try {
+        if (window.google && window.google.maps) {
+          window.google.maps.event.removeListener(listener);
+        }
+      } catch (error) {
+        console.error('Error cleaning up Google Maps listener:', error);
       }
     };
   } catch (error) {
@@ -82,13 +95,13 @@ export function initializeGoogleMapsAutocomplete(inputRef, onPlaceSelected) {
 }
 
 /**
- * Lookup property information using an address
+ * Lookup property information using an address with better error handling
  * @param {string} address - The property address
- * @returns {Promise<Object>} - Property information
+ * @returns {Promise<Object|null>} - Property information or null if not found/error
  */
 export async function lookupPropertyInfo(address) {
   if (!address) {
-    console.error('No address provided for property lookup');
+    console.warn('No address provided for property lookup');
     return null;
   }
   
@@ -99,7 +112,9 @@ export async function lookupPropertyInfo(address) {
     const url = `https://property.melissadata.net/v4/WEB/LookupProperty?id=${apiKey}&format=json&cols=GrpAll&opt=desc:on&ff=${encodedAddress}`;
     
     console.log(`Looking up property data for: ${address}`);
-    const { data } = await axios.get(url);
+    
+    // Add timeout to prevent long hangs
+    const { data } = await axios.get(url, { timeout: 10000 });
     
     console.log('Property lookup response:', data);
     
@@ -164,6 +179,7 @@ export async function lookupPropertyInfo(address) {
     };
   } catch (error) {
     console.error('Error looking up property:', error);
+    // Return null instead of throwing, so the app continues to work
     return null;
   }
 }

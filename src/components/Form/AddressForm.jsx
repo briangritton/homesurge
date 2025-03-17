@@ -9,36 +9,54 @@ function AddressForm() {
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingProperty, setIsLoadingProperty] = useState(false);
+  const [googleMapsAvailable, setGoogleMapsAvailable] = useState(false);
   
   // Create a ref for the input element
   const inputRef = useRef(null);
   
+  // Function to check if Google Maps is available
+  const checkGoogleMapsAvailability = () => {
+    return window.google && window.google.maps && window.google.maps.places;
+  };
+  
   // Initialize Google Maps autocomplete when component mounts
   useEffect(() => {
-    let cleanupFunc = () => {};
-    
-    // Only initialize if Google Maps is loaded
-    if (window.google && window.google.maps && inputRef.current) {
-      cleanupFunc = initializeGoogleMapsAutocomplete(inputRef, handlePlaceSelected);
-    } else {
-      // Add event listener for Google Maps script load
-      const handleGoogleMapsLoaded = () => {
-        if (window.google && window.google.maps && inputRef.current) {
-          cleanupFunc = initializeGoogleMapsAutocomplete(inputRef, handlePlaceSelected);
+    // Prevent blocking the input field if Maps isn't available
+    if (!checkGoogleMapsAvailability()) {
+      console.log('Google Maps API not available yet, input field will be usable');
+      
+      // Check if Google Maps loads after a delay
+      const googleMapsCheckInterval = setInterval(() => {
+        if (checkGoogleMapsAvailability()) {
+          clearInterval(googleMapsCheckInterval);
+          setGoogleMapsAvailable(true);
+          
+          // Now safe to initialize autocomplete
+          if (inputRef.current) {
+            try {
+              initializeGoogleMapsAutocomplete(inputRef, handlePlaceSelected);
+              console.log('Google Maps autocomplete initialized');
+            } catch (error) {
+              console.error('Error initializing autocomplete:', error);
+            }
+          }
         }
-      };
+      }, 1000); // Check every second
       
-      // Check if script is already loaded
-      if (document.querySelector('script[src*="maps.googleapis.com/maps/api/js"]')) {
-        window.addEventListener('load', handleGoogleMapsLoaded);
+      // Clean up interval on component unmount
+      return () => clearInterval(googleMapsCheckInterval);
+    } else {
+      // Maps is already available, initialize autocomplete
+      setGoogleMapsAvailable(true);
+      if (inputRef.current) {
+        try {
+          initializeGoogleMapsAutocomplete(inputRef, handlePlaceSelected);
+          console.log('Google Maps autocomplete initialized immediately');
+        } catch (error) {
+          console.error('Error initializing autocomplete:', error);
+        }
       }
-      
-      return () => {
-        window.removeEventListener('load', handleGoogleMapsLoaded);
-      };
     }
-    
-    return cleanupFunc;
   }, []);
   
   // Handle place selection from Google Maps autocomplete
@@ -154,10 +172,11 @@ function AddressForm() {
           }
         } catch (error) {
           console.error('Error retrieving property information for manual address:', error);
+          // Continue anyway, even if property lookup fails
         }
       }
       
-      // Proceed to next step
+      // Proceed to next step regardless of Google Maps integration status
       nextStep();
     } catch (error) {
       console.error('Error during form submission:', error);
@@ -184,13 +203,13 @@ function AddressForm() {
               onChange={handleChange}
               onFocus={(e) => e.target.placeholder = ''}
               onBlur={(e) => e.target.placeholder = 'Street address...'}
-              disabled={isLoading || isLoadingProperty}
+              disabled={isLoading}
             />
             
             <button 
               className="submit-button" 
               type="submit"
-              disabled={isLoading || isLoadingProperty}
+              disabled={isLoading}
             >
               {isLoading ? 'CHECKING...' : 'CHECK OFFER'}
             </button>
@@ -198,6 +217,23 @@ function AddressForm() {
           
           {errorMessage && (
             <div className="error-message">{errorMessage}</div>
+          )}
+          
+          {isLoadingProperty && (
+            <div className="info-message" style={{ marginTop: '10px', color: '#3490d1' }}>
+              Retrieving property information...
+            </div>
+          )}
+          
+          {!googleMapsAvailable && (
+            <div className="info-message" style={{ 
+              marginTop: '10px', 
+              fontSize: '0.8rem', 
+              color: '#666',
+              fontStyle: 'italic'
+            }}>
+              Address suggestions may be limited
+            </div>
           )}
         </div>
       </div>
