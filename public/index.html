@@ -13,25 +13,31 @@
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <title>Sell Your House Fast For Cash</title>
     
-    <!-- Google Maps API with error handling -->
+    <!-- Google Maps API - Load in a non-blocking way -->
     <script>
-      // Error handler for Google Maps API loading failure
-      function handleGoogleMapsError() {
-        console.warn('Google Maps API failed to load. Address autocomplete may not work.');
-        window.googleMapsLoaded = false;
-      }
-      
-      // Success handler for Google Maps API
-      function handleGoogleMapsSuccess() {
+      // Graceful error handling for Google Maps
+      window.googleMapsCallback = function() {
         console.log('Google Maps API loaded successfully');
         window.googleMapsLoaded = true;
-      }
-    </script>
-    <script 
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyArZ4pBJT_YW6wRVuPI2-AgGL-0hbAdVbI&libraries=places&callback=handleGoogleMapsSuccess" 
-      async 
-      defer
-      onerror="handleGoogleMapsError()">
+      };
+      
+      window.googleMapsErrorCallback = function() {
+        console.warn('Google Maps API failed to load, but the app will continue to work');
+        window.googleMapsLoaded = false;
+      };
+      
+      // Only try to load Google Maps after the page is fully loaded
+      window.addEventListener('load', function() {
+        // Create script tag dynamically
+        var script = document.createElement('script');
+        script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyArZ4pBJT_YW6wRVuPI2-AgGL-0hbAdVbI&libraries=places&callback=googleMapsCallback';
+        script.async = true;
+        script.defer = true;
+        script.onerror = window.googleMapsErrorCallback;
+        
+        // Add to document
+        document.body.appendChild(script);
+      });
     </script>
   </head>
   <body>
