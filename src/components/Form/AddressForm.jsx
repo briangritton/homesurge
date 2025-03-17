@@ -10,15 +10,27 @@ function AddressForm() {
   // Reference to input
   const inputRef = useRef(null);
   
-  // ADDED: Check if Google Maps API is loaded
+  // ADDED: Load Google Maps API if not already loaded
   useEffect(() => {
     // Check if Google Maps API is available
     if (window.google && window.google.maps && window.google.maps.places) {
       console.log('Google Maps API is already loaded');
     } else {
-      console.log('Google Maps API is not loaded');
+      console.log('Google Maps API is not loaded, adding script');
       
-      // We're just checking if Maps is loaded, not loading it yet
+      // Create script element
+      const script = document.createElement('script');
+      script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyArZ4pBJT_YW6wRVuPI2-AgGL-0hbAdVbI&libraries=places';
+      script.async = true;
+      script.defer = true;
+      
+      // Add callbacks for script loading
+      script.onload = () => console.log('Google Maps API loaded successfully');
+      script.onerror = () => console.error('Failed to load Google Maps API');
+      
+      // Append script to body
+      document.body.appendChild(script);
+      
       // No autocomplete initialization yet
     }
   }, []);
@@ -107,4 +119,3 @@ function AddressForm() {
 }
 
 export default AddressForm;
-
