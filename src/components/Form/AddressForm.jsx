@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import { validateAddress } from '../../utils/validation.js';
 
@@ -7,8 +7,16 @@ function AddressForm() {
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
-  // ADDED: Reference to input, but don't do anything with it yet
+  // Reference to input
   const inputRef = useRef(null);
+  
+  // ADDED: Empty useEffect that just logs something
+  useEffect(() => {
+    console.log('AddressForm mounted, input ref:', inputRef.current);
+    
+    // This useEffect runs once after component mounts
+    // No Google Maps stuff yet, just checking that useEffect works
+  }, []);
   
   // Handle form input changes
   const handleChange = (e) => {
@@ -64,7 +72,7 @@ function AddressForm() {
           
           <form className="form-container" onSubmit={handleSubmit}>
             <input
-              ref={inputRef} // ADDED: Ref to input element
+              ref={inputRef}
               type="text"
               placeholder="Street address..."
               className={errorMessage ? 'address-input-invalid' : 'address-input'}
