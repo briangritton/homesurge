@@ -7,11 +7,11 @@ function AddressForm() {
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
-  // Reference to input
-  const inputRef = useRef(null);
+  // Reference to visible input that user interacts with
+  const visibleInputRef = useRef(null);
   
-  // State to track if autocomplete is initialized
-  const [autocompleteInitialized, setAutocompleteInitialized] = useState(false);
+  // Reference to hidden input that Google Maps attaches to
+  const hiddenInputRef = useRef(null);
   
   // Handle form input changes
   const handleChange = (e) => {
@@ -20,6 +20,11 @@ function AddressForm() {
       street: value,
       addressSelectionType: 'Manual'
     });
+    
+    // Update hidden input to match visible input
+    if (hiddenInputRef.current) {
+      hiddenInputRef.current.value = value;
+    }
     
     // Clear error message when user starts typing
     if (errorMessage) {
@@ -58,161 +63,95 @@ function AddressForm() {
     }, 300);
   };
   
-  // Initialize Google Maps autocomplete ONLY AFTER component is fully mounted
-  // and we check that it's safe to do so
+  // Load Google Maps and initialize autocomplete on the hidden input
   useEffect(() => {
-    // Skip if already initialized
-    if (autocompleteInitialized) {
-      return;
-    }
+    // Only run once and only if we have the hidden input
+    if (!hiddenInputRef.current) return;
     
-    // Skip if no input ref
-    if (!inputRef.current) {
-      return;
-    }
-    
-    // Wait a bit to ensure React's control of the input is fully established
-    const timeoutId = setTimeout(() => {
-      // Function to safely initialize autocomplete
-      const initializeAutocompleteDelayed = () => {
-        // Safety check - make sure Google Maps API is available
-        if (!window.google || !window.google.maps || !window.google.maps.places) {
-          console.log('Google Maps API not available - skipping autocomplete');
-          return false;
-        }
+    // Try to load Google Maps API
+    try {
+      // Create script element if not already present
+      if (!document.querySelector('script[src*="maps.googleapis.com"]')) {
+        const script = document.createElement('script');
+        script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyArZ4pBJT_YW6wRVuPI2-AgGL-0hbAdVbI&libraries=places';
+        script.async = true;
+        script.defer = true;
         
-        try {
-          // Final check to make sure the input is still in DOM
-          if (!inputRef.current || !document.body.contains(inputRef.current)) {
-            console.log('Input element no longer in DOM');
-            return false;
-          }
-          
-          console.log('Initializing Google Maps autocomplete');
-          
-          // Create autocomplete instance with careful error handling
-          const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
-            types: ['address'],
-            componentRestrictions: { country: 'us' },
-            fields: ['address_components', 'formatted_address', 'geometry'] // limit fields
-          });
-          
-          // Listen for place selection
-          const listener = autocomplete.addListener('place_changed', () => {
-            try {
-              const place = autocomplete.getPlace();
-              
-              // Check if we have a valid place with address
-              if (!place || !place.formatted_address) {
-                console.log('Invalid place selected');
-                return;
-              }
-              
-              console.log('Selected place:', place.formatted_address);
-              
-              // Extract address components
-              const addressComponents = {
-                city: '',
-                state: 'GA',
-                zip: ''
-              };
-              
-              place.address_components?.forEach(component => {
-                const types = component.types;
-                
-                if (types.includes('locality')) {
-                  addressComponents.city = component.long_name;
-                } else if (types.includes('administrative_area_level_1')) {
-                  addressComponents.state = component.short_name;
-                } else if (types.includes('postal_code')) {
-                  addressComponents.zip = component.long_name;
-                }
-              });
-              
-              // Get location if available
-              const location = place.geometry?.location ? {
-                lat: place.geometry.location.lat(),
-                lng: place.geometry.location.lng()
-              } : null;
-              
-              // Update form data with the selected place
-              updateFormData({
-                street: place.formatted_address,
-                city: addressComponents.city,
-                state: addressComponents.state,
-                zip: addressComponents.zip,
-                addressSelectionType: 'Google',
-                location: location
-              });
-            } catch (error) {
-              console.error('Error handling place selection:', error);
-            }
-          });
-          
-          // Store cleanup info for unmount
-          window.googleMapsAutocompleteListener = listener;
-          window.googleMapsAutocomplete = autocomplete;
-          
-          return true;
-        } catch (error) {
-          console.error('Error initializing Google Maps autocomplete:', error);
-          return false;
-        }
-      };
-      
-      // Check if Google Maps is loaded
-      if (window.google && window.google.maps && window.google.maps.places) {
-        const success = initializeAutocompleteDelayed();
-        setAutocompleteInitialized(success);
-      } else {
-        // Attempt to load Google Maps API
-        if (!document.querySelector('script[src*="maps.googleapis.com"]')) {
-          console.log('Loading Google Maps API script');
-          
-          try {
-            const script = document.createElement('script');
-            script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyArZ4pBJT_YW6wRVuPI2-AgGL-0hbAdVbI&libraries=places';
-            script.async = true;
-            script.defer = true;
-            
-            // When script loads, initialize autocomplete
-            script.onload = () => {
-              console.log('Google Maps API loaded successfully');
-              const success = initializeAutocompleteDelayed();
-              setAutocompleteInitialized(success);
-            };
-            
-            // Handle loading errors gracefully
-            script.onerror = () => {
-              console.error('Failed to load Google Maps API');
-              setAutocompleteInitialized(false);
-            };
-            
-            // Add script to page
-            document.body.appendChild(script);
-          } catch (error) {
-            console.error('Error adding Google Maps script:', error);
-          }
-        }
+        // Initialize autocomplete when script loads
+        script.onload = initializeAutocomplete;
+        
+        // Add script to page
+        document.body.appendChild(script);
+      } else if (window.google && window.google.maps && window.google.maps.places) {
+        // Script already loaded, initialize autocomplete
+        initializeAutocomplete();
       }
-    }, 500); // 500ms delay
+    } catch (error) {
+      console.error('Error loading Google Maps:', error);
+    }
     
-    // Cleanup
-    return () => {
-      clearTimeout(timeoutId);
-      
-      // Clean up Google Maps listener if it exists
-      if (window.google && window.google.maps && window.googleMapsAutocompleteListener) {
-        try {
-          window.google.maps.event.removeListener(window.googleMapsAutocompleteListener);
-          delete window.googleMapsAutocompleteListener;
-          delete window.googleMapsAutocomplete;
-        } catch (error) {
-          console.error('Error cleaning up Google Maps listener:', error);
-        }
+    // Function to initialize autocomplete on the hidden input
+    function initializeAutocomplete() {
+      if (!window.google || !window.google.maps || !window.google.maps.places) {
+        console.log('Google Maps API not available');
+        return;
       }
-    };
-  }, [formData.street, autocompleteInitialized, updateFormData]);
+      
+      try {
+        // Create autocomplete instance on the hidden input
+        const autocomplete = new window.google.maps.places.Autocomplete(hiddenInputRef.current, {
+          types: ['address'],
+          componentRestrictions: { country: 'us' }
+        });
+        
+        // Add event listener for place selection
+        autocomplete.addListener('place_changed', () => {
+          try {
+            const place = autocomplete.getPlace();
+            
+            if (!place || !place.formatted_address) return;
+            
+            // Extract address components
+            const addressComponents = {
+              city: '',
+              state: 'GA',
+              zip: ''
+            };
+            
+            place.address_components?.forEach(component => {
+              const types = component.types;
+              
+              if (types.includes('locality')) {
+                addressComponents.city = component.long_name;
+              } else if (types.includes('administrative_area_level_1')) {
+                addressComponents.state = component.short_name;
+              } else if (types.includes('postal_code')) {
+                addressComponents.zip = component.long_name;
+              }
+            });
+            
+            // Update form data with selected place
+            updateFormData({
+              street: place.formatted_address,
+              city: addressComponents.city,
+              state: addressComponents.state,
+              zip: addressComponents.zip,
+              addressSelectionType: 'Google'
+            });
+            
+            // Update visible input to match the selected place
+            if (visibleInputRef.current) {
+              visibleInputRef.current.value = place.formatted_address;
+            }
+          } catch (error) {
+            console.error('Error handling place selection:', error);
+          }
+        });
+      } catch (error) {
+        console.error('Error initializing autocomplete:', error);
+      }
+    }
+  }, [updateFormData]);
   
   return (
     <div className="hero-section">
@@ -222,8 +161,9 @@ function AddressForm() {
           <div className="hero-subheadline">{formData.dynamicSubHeadline || "Get a Great Cash Offer For Your House and Close Fast!"}</div>
           
           <form className="form-container" onSubmit={handleSubmit}>
+            {/* Visible input that user interacts with */}
             <input
-              ref={inputRef}
+              ref={visibleInputRef}
               type="text"
               placeholder="Street address..."
               className={errorMessage ? 'address-input-invalid' : 'address-input'}
@@ -233,6 +173,15 @@ function AddressForm() {
               onBlur={(e) => e.target.placeholder = 'Street address...'}
               disabled={isLoading}
             />
+            
+            {/* Hidden input for Google Maps autocomplete */}
+            <div style={{ height: 0, overflow: 'hidden', position: 'absolute', visibility: 'hidden' }}>
+              <input 
+                ref={hiddenInputRef}
+                type="text"
+                defaultValue={formData.street || ''}
+              />
+            </div>
             
             <button 
               className="submit-button" 
