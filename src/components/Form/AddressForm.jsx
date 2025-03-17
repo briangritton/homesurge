@@ -10,11 +10,87 @@ function AddressForm() {
   // Reference to input
   const inputRef = useRef(null);
   
-  // ADDED: Load Google Maps API if not already loaded
+  // UPDATED: Load Google Maps and initialize autocomplete
   useEffect(() => {
+    // Function to initialize autocomplete
+    function initializeAutocomplete() {
+      if (!inputRef.current) {
+        console.log('Input element not ready yet');
+        return;
+      }
+      
+      if (!window.google || !window.google.maps || !window.google.maps.places) {
+        console.log('Google Maps API not ready yet');
+        return;
+      }
+      
+      try {
+        console.log('Initializing Google Maps autocomplete');
+        
+        // Create the autocomplete instance
+        const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
+          types: ['address'],
+          componentRestrictions: { country: 'us' }
+        });
+        
+        // Add place_changed listener
+        autocomplete.addListener('place_changed', () => {
+          console.log('Place selected');
+          
+          try {
+            const place = autocomplete.getPlace();
+            
+            if (!place.formatted_address) {
+              console.log('No address found in the selected place');
+              return;
+            }
+            
+            console.log('Selected address:', place.formatted_address);
+            
+            // Extract address components
+            const addressComponents = {
+              city: '',
+              state: 'GA',
+              zip: ''
+            };
+            
+            if (place.address_components) {
+              place.address_components.forEach(component => {
+                const types = component.types;
+                
+                if (types.includes('locality')) {
+                  addressComponents.city = component.long_name;
+                } else if (types.includes('administrative_area_level_1')) {
+                  addressComponents.state = component.short_name;
+                } else if (types.includes('postal_code')) {
+                  addressComponents.zip = component.long_name;
+                }
+              });
+            }
+            
+            // Update form data with the selected place
+            updateFormData({
+              street: place.formatted_address,
+              city: addressComponents.city,
+              state: addressComponents.state,
+              zip: addressComponents.zip,
+              addressSelectionType: 'Google'
+            });
+          } catch (error) {
+            console.error('Error handling place selection:', error);
+          }
+        });
+        
+        console.log('Autocomplete initialized successfully');
+      } catch (error) {
+        console.error('Error initializing Google Maps autocomplete:', error);
+      }
+    }
+    
     // Check if Google Maps API is available
     if (window.google && window.google.maps && window.google.maps.places) {
       console.log('Google Maps API is already loaded');
+      initializeAutocomplete();
     } else {
       console.log('Google Maps API is not loaded, adding script');
       
@@ -25,15 +101,16 @@ function AddressForm() {
       script.defer = true;
       
       // Add callbacks for script loading
-      script.onload = () => console.log('Google Maps API loaded successfully');
+      script.onload = () => {
+        console.log('Google Maps API loaded successfully');
+        initializeAutocomplete();
+      };
       script.onerror = () => console.error('Failed to load Google Maps API');
       
       // Append script to body
       document.body.appendChild(script);
-      
-      // No autocomplete initialization yet
     }
-  }, []);
+  }, [updateFormData]);
   
   // Handle form input changes
   const handleChange = (e) => {
