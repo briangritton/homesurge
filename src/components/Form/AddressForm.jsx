@@ -1,124 +1,120 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import { validateAddress } from '../../utils/validation.js';
-import { initializeGoogleMapsAutocomplete, lookupPropertyInfo } from '../../services/maps.js';
 import { trackAddressSelected } from '../../services/analytics';
 
 function AddressForm() {
   const { formData, updateFormData, nextStep } = useFormContext();
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingProperty, setIsLoadingProperty] = useState(false);
-  const [googleMapsAvailable, setGoogleMapsAvailable] = useState(false);
+  const [autocompleteInitialized, setAutocompleteInitialized] = useState(false);
   
   // Create a ref for the input element
   const inputRef = useRef(null);
   
-  // Function to check if Google Maps is available
-  const checkGoogleMapsAvailability = () => {
-    return window.google && window.google.maps && window.google.maps.places;
-  };
-  
-  // Initialize Google Maps autocomplete when component mounts
-  useEffect(() => {
-    // Prevent blocking the input field if Maps isn't available
-    if (!checkGoogleMapsAvailability()) {
-      console.log('Google Maps API not available yet, input field will be usable');
-      
-      // Check if Google Maps loads after a delay
-      const googleMapsCheckInterval = setInterval(() => {
-        if (checkGoogleMapsAvailability()) {
-          clearInterval(googleMapsCheckInterval);
-          setGoogleMapsAvailable(true);
-          
-          // Now safe to initialize autocomplete
-          if (inputRef.current) {
-            try {
-              initializeGoogleMapsAutocomplete(inputRef, handlePlaceSelected);
-              console.log('Google Maps autocomplete initialized');
-            } catch (error) {
-              console.error('Error initializing autocomplete:', error);
-            }
-          }
-        }
-      }, 1000); // Check every second
-      
-      // Clean up interval on component unmount
-      return () => clearInterval(googleMapsCheckInterval);
-    } else {
-      // Maps is already available, initialize autocomplete
-      setGoogleMapsAvailable(true);
-      if (inputRef.current) {
-        try {
-          initializeGoogleMapsAutocomplete(inputRef, handlePlaceSelected);
-          console.log('Google Maps autocomplete initialized immediately');
-        } catch (error) {
-          console.error('Error initializing autocomplete:', error);
-        }
-      }
-    }
-  }, []);
-  
-  // Handle place selection from Google Maps autocomplete
-  const handlePlaceSelected = async (place) => {
-    if (!place || !place.formattedAddress) {
-      console.error('No valid place selected');
-      return;
+  // Safely initialize Google Maps autocomplete
+  const initializeAutocomplete = () => {
+    // Guard clause - make sure input and Google Maps exists
+    if (!inputRef.current || !window.google || !window.google.maps || !window.google.maps.places) {
+      return false;
     }
     
-    console.log('Selected place:', place);
-    
-    // Track address selection for analytics
-    trackAddressSelected('Google');
-    
-    // Extract address components
-    const { addressComponents, formattedAddress, location } = place;
-    
-    // Update form data with selected address
-    updateFormData({
-      street: formattedAddress,
-      city: addressComponents.city || '',
-      zip: addressComponents.zip || '',
-      state: addressComponents.state || 'GA',
-      addressSelectionType: 'Google',
-      location: location
-    });
-    
-    // Clear error message
-    setErrorMessage('');
-    
-    // Try to get property information
     try {
-      setIsLoadingProperty(true);
-      const propertyInfo = await lookupPropertyInfo(formattedAddress);
+      // Create the autocomplete instance
+      const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
+        types: ['address'],
+        componentRestrictions: { country: 'us' }
+      });
       
-      if (propertyInfo) {
-        console.log('Property info retrieved:', propertyInfo);
-        
-        // Update form with property details
-        updateFormData({
-          apiOwnerName: propertyInfo.apiOwnerName || '',
-          apiEstimatedValue: propertyInfo.apiEstimatedValue || 0,
-          apiMaxHomeValue: propertyInfo.apiMaxValue || 0,
-          formattedApiEstimatedValue: propertyInfo.formattedApiEstimatedValue || '$0',
-          bedrooms: propertyInfo.bedrooms || '',
-          bathrooms: propertyInfo.bathrooms || '',
-          finishedSquareFootage: propertyInfo.finishedSquareFootage || 1000,
-          city: propertyInfo.city || addressComponents.city || '',
-          zip: propertyInfo.zip || addressComponents.zip || '',
-          state: propertyInfo.state || addressComponents.state || 'GA'
-        });
-      }
+      // Add place_changed listener
+      autocomplete.addListener('place_changed', () => {
+        try {
+          const place = autocomplete.getPlace();
+          
+          // Make sure we have a valid place with geometry
+          if (!place.geometry) {
+            console.log('No geometry for this place');
+            return;
+          }
+          
+          // Process address components
+          const addressComponents = {
+            city: '',
+            state: 'GA',
+            zip: ''
+          };
+          
+          if (place.address_components && place.address_components.length > 0) {
+            place.address_components.forEach(component => {
+              const types = component.types;
+              if (types.includes('locality')) {
+                addressComponents.city = component.long_name;
+              } else if (types.includes('administrative_area_level_1')) {
+                addressComponents.state = component.short_name;
+              } else if (types.includes('postal_code')) {
+                addressComponents.zip = component.long_name;
+              }
+            });
+          }
+          
+          // Update form data
+          updateFormData({
+            street: place.formatted_address,
+            city: addressComponents.city,
+            state: addressComponents.state,
+            zip: addressComponents.zip,
+            addressSelectionType: 'Google',
+            location: {
+              lat: place.geometry.location.lat(),
+              lng: place.geometry.location.lng()
+            }
+          });
+          
+          // Track the selection
+          trackAddressSelected('Google');
+          
+          // Clear any error message
+          setErrorMessage('');
+        } catch (error) {
+          console.error('Error handling place selection:', error);
+        }
+      });
+      
+      return true;
     } catch (error) {
-      console.error('Error retrieving property information:', error);
-    } finally {
-      setIsLoadingProperty(false);
+      console.error('Error initializing autocomplete:', error);
+      return false;
     }
   };
+  
+  // Initialize once the component is mounted and input ref is available
+  useEffect(() => {
+    // Don't try to initialize if already done
+    if (autocompleteInitialized) return;
+    
+    // Check if Google Maps API is loaded
+    if (window.google && window.google.maps && window.google.maps.places) {
+      // API already loaded, initialize immediately
+      const success = initializeAutocomplete();
+      setAutocompleteInitialized(success);
+    } else {
+      // Setup a listener for when the API might load
+      const checkGoogleMapsInterval = setInterval(() => {
+        if (window.google && window.google.maps && window.google.maps.places) {
+          clearInterval(checkGoogleMapsInterval);
+          const success = initializeAutocomplete();
+          setAutocompleteInitialized(success);
+        }
+      }, 500);
+      
+      // Clean up interval
+      return () => clearInterval(checkGoogleMapsInterval);
+    }
+  }, [autocompleteInitialized]);
   
   // Handle form input changes
   const handleChange = (e) => {
-    let value = e.target.value;
+    const value = e.target.value;
     
     updateFormData({
       street: value,
@@ -132,7 +128,7 @@ function AddressForm() {
   };
   
   // Handle form submission
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     
     // Validate address
@@ -147,43 +143,19 @@ function AddressForm() {
     // Set loading state
     setIsLoading(true);
     
-    try {
-      // If address was manually entered, try to get property information
-      if (formData.addressSelectionType === 'Manual') {
-        try {
-          const propertyInfo = await lookupPropertyInfo(formData.street);
-          
-          if (propertyInfo) {
-            console.log('Property info retrieved for manual address:', propertyInfo);
-            
-            // Update form with property details
-            updateFormData({
-              apiOwnerName: propertyInfo.apiOwnerName || '',
-              apiEstimatedValue: propertyInfo.apiEstimatedValue || 0,
-              apiMaxHomeValue: propertyInfo.apiMaxValue || 0,
-              formattedApiEstimatedValue: propertyInfo.formattedApiEstimatedValue || '$0',
-              bedrooms: propertyInfo.bedrooms || '',
-              bathrooms: propertyInfo.bathrooms || '',
-              finishedSquareFootage: propertyInfo.finishedSquareFootage || 1000,
-              city: propertyInfo.city || '',
-              zip: propertyInfo.zip || '',
-              state: propertyInfo.state || 'GA'
-            });
-          }
-        } catch (error) {
-          console.error('Error retrieving property information for manual address:', error);
-          // Continue anyway, even if property lookup fails
-        }
-      }
-      
-      // Proceed to next step regardless of Google Maps integration status
-      nextStep();
-    } catch (error) {
-      console.error('Error during form submission:', error);
-      setErrorMessage('There was an error processing your request. Please try again.');
-    } finally {
+    // Ensure we have the basic address data
+    updateFormData({
+      addressSelectionType: formData.addressSelectionType || 'Manual',
+      city: formData.city || '',
+      zip: formData.zip || '',
+      state: formData.state || 'GA'
+    });
+    
+    // Move to next step with a slight delay to show loading state
+    setTimeout(() => {
       setIsLoading(false);
-    }
+      nextStep();
+    }, 300);
   };
   
   return (
@@ -217,23 +189,6 @@ function AddressForm() {
           
           {errorMessage && (
             <div className="error-message">{errorMessage}</div>
-          )}
-          
-          {isLoadingProperty && (
-            <div className="info-message" style={{ marginTop: '10px', color: '#3490d1' }}>
-              Retrieving property information...
-            </div>
-          )}
-          
-          {!googleMapsAvailable && (
-            <div className="info-message" style={{ 
-              marginTop: '10px', 
-              fontSize: '0.8rem', 
-              color: '#666',
-              fontStyle: 'italic'
-            }}>
-              Address suggestions may be limited
-            </div>
           )}
         </div>
       </div>
