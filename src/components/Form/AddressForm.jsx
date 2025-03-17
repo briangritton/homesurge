@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import { validateAddress } from '../../utils/validation.js';
 
@@ -7,26 +7,48 @@ function AddressForm() {
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // We'll keep a ref to read the final value on submit
   const addressInputRef = useRef(null);
 
-  // Handle keystrokes in an uncontrolled input
+  // 1) Only load the Google script if it’s not already on the page
+  useEffect(() => {
+    // Check if google or places is already loaded
+    if (window.google && window.google.maps && window.google.maps.places) {
+      console.log('Google Maps script is already present.');
+      return;
+    }
+
+    // If not, check if there's a script tag
+    if (!document.querySelector('script[src*="maps.googleapis.com"]')) {
+      console.log('Injecting Google Maps script...');
+      const script = document.createElement('script');
+      script.src =
+        'https://maps.googleapis.com/maps/api/js?key=YOUR_KEY&libraries=places';
+      script.async = true;
+      script.defer = true;
+
+      // Just for debugging if needed
+      script.onload = () => {
+        console.log('Google Maps script loaded.');
+        // IMPORTANT: We are NOT attaching autocomplete here yet
+      };
+
+      document.body.appendChild(script);
+    } else {
+      console.log('Google Maps script tag found; waiting for it to load...');
+    }
+  }, []);
+
   const handleManualChange = (e) => {
-    // If there's an error showing, clear it as soon as the user types
     if (errorMessage) setErrorMessage('');
 
-    // For debugging, you could log the typed value
-    console.log('User is typing:', e.target.value);
-
-    // Keep the formData updated as user types (optional)
+    // Keep the formData updated as user types
     updateFormData({
       ...formData,
       street: e.target.value,
-      addressSelectionType: 'Manual'
+      addressSelectionType: 'Manual',
     });
   };
 
-  // Handle submission
   const handleSubmit = (e) => {
     e.preventDefault();
     const typedAddress = addressInputRef.current.value || '';
@@ -36,18 +58,15 @@ function AddressForm() {
       return;
     }
 
-    // Clear error and set loading
     setErrorMessage('');
     setIsLoading(true);
 
-    // Ensure we’ve stored the final typed address
     updateFormData({
       ...formData,
       street: typedAddress,
       addressSelectionType: 'Manual',
     });
 
-    // Simulate an async step, then proceed
     setTimeout(() => {
       setIsLoading(false);
       nextStep();
@@ -70,22 +89,16 @@ function AddressForm() {
             <input
               ref={addressInputRef}
               type="text"
-              autoComplete="off"               // <--- Turn off browser autofill
-              defaultValue={formData.street}    // <--- Uncontrolled input
+              autoComplete="off"
+              defaultValue={formData.street}
               placeholder="Street address..."
               className={
                 errorMessage ? 'address-input-invalid' : 'address-input'
               }
               onChange={handleManualChange}
-              // Remove disabled to confirm no locking
-              // disabled={isLoading} // Optionally re-add if needed
             />
 
-            <button
-              className="submit-button"
-              type="submit"
-              disabled={isLoading}
-            >
+            <button className="submit-button" type="submit" disabled={isLoading}>
               {isLoading ? 'CHECKING...' : 'CHECK OFFER'}
             </button>
           </form>
@@ -98,4 +111,5 @@ function AddressForm() {
 }
 
 export default AddressForm;
+
 
