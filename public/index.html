@@ -12,6 +12,45 @@
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <title>Sell Your House Fast For Cash</title>
+    
+    <!-- Non-blocking Google Maps loading script -->
+    <script>
+      // Set a flag indicating Google Maps isn't loaded yet
+      window.googleMapsLoaded = false;
+      
+      // Function to load Google Maps script
+      function loadGoogleMaps() {
+        // Only load if not already loaded
+        if (window.googleMapsLoaded) return;
+        
+        // Create script element
+        const script = document.createElement('script');
+        script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyArZ4pBJT_YW6wRVuPI2-AgGL-0hbAdVbI&libraries=places';
+        script.async = true;
+        script.defer = true;
+        
+        // Handle successful load
+        script.onload = function() {
+          console.log('Google Maps loaded successfully');
+          window.googleMapsLoaded = true;
+        };
+        
+        // Handle loading error
+        script.onerror = function() {
+          console.warn('Failed to load Google Maps, but the app will continue to work');
+          window.googleMapsLoaded = false;
+        };
+        
+        // Add to document
+        document.body.appendChild(script);
+      }
+      
+      // Load Maps after page is fully loaded
+      window.addEventListener('load', function() {
+        // Delay loading Maps to ensure React app is initialized first
+        setTimeout(loadGoogleMaps, 1500);
+      });
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
