@@ -18,6 +18,9 @@ function AddressForm() {
   // Reference to session token
   const sessionTokenRef = useRef(null);
   
+  // Reference to the form element
+  const formRef = useRef(null);
+  
   // Generate a session token for Google Places API
   const generateSessionToken = () => {
     if (!window.google || !window.google.maps || !window.google.maps.places) {
@@ -47,7 +50,7 @@ function AddressForm() {
     // Validate address
     if (!validateAddress(formData.street)) {
       setErrorMessage('Please enter a valid address to check your cash offer');
-      return;
+      return false;
     }
     
     // Clear error message
@@ -74,6 +77,8 @@ function AddressForm() {
       setIsLoading(false);
       nextStep();
     }, 300);
+    
+    return true;
   };
   
   // Load Google Maps API
@@ -190,6 +195,11 @@ function AddressForm() {
             addressSelectionType: 'Google'
           });
           
+          // Ensure inputRef has the correct value
+          if (inputRef.current) {
+            inputRef.current.value = place.formatted_address;
+          }
+          
           // After a place is selected, we're done with this session token
           // Create a new one for the next autocomplete session
           sessionTokenRef.current = generateSessionToken();
@@ -197,8 +207,23 @@ function AddressForm() {
           // Track the address selection in analytics
           trackAddressSelected('Google');
           
+          // Clear any error messages
+          setErrorMessage('');
+          
           // Automatically submit the form after selecting an address
-          setTimeout(() => handleSubmit(), 100);
+          // Using setTimeout to ensure React has updated the state
+          setTimeout(() => {
+            // Use a direct click on the submit button for most reliable behavior
+            const submitButton = document.querySelector('.submit-button');
+            if (submitButton) {
+              submitButton.click();
+            } else {
+              // Fallback to programmatic form submission
+              if (formRef.current) {
+                formRef.current.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+              }
+            }
+          }, 200);
         } catch (error) {
           console.error('Error handling place selection:', error);
         }
@@ -253,7 +278,7 @@ function AddressForm() {
           <div className="hero-headline">{formData.dynamicHeadline || "Sell Your House For Cash Fast!"}</div>
           <div className="hero-subheadline">{formData.dynamicSubHeadline || "Get a Great Cash Offer For Your House and Close Fast!"}</div>
           
-          <form className="form-container" onSubmit={handleSubmit}>
+          <form ref={formRef} className="form-container" onSubmit={handleSubmit}>
             {/* Input with direct Google Places autocomplete */}
             <input
               ref={inputRef}
