@@ -178,7 +178,7 @@ function AddressForm() {
     
     // Get API key from environment variable
 // New code (no fallback)
-const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+const apiKey = "AIzaSyAVFFu1WoxN5ghygdz0JJYV9pJgSp08y8I";
 
 // Optional: throw an error if the env variable isn’t set
 if (!apiKey) {
