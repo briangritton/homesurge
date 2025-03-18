@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import { validateAddress } from '../../utils/validation.js';
 import { trackAddressSelected } from '../../services/analytics';
+//
 
 function AddressForm() {
   const { formData, updateFormData, nextStep } = useFormContext();
@@ -26,10 +27,21 @@ function AddressForm() {
   // Reference to autocomplete instance
   const autocompleteRef = useRef(null);
   
+  // Reference to session token
+  const sessionTokenRef = useRef(null);
+  
   // Add debug message to console and state
   const addDebugInfo = (key, value) => {
     console.log(`DEBUG [${key}]:`, value);
     setDebugInfo(prev => ({ ...prev, [key]: value }));
+  };
+  
+  // Generate a session token for Google Places API
+  const generateSessionToken = () => {
+    if (!window.google || !window.google.maps || !window.google.maps.places) {
+      return null;
+    }
+    return new window.google.maps.places.AutocompleteSessionToken();
   };
   
   // Handle form input changes for the main visible input
@@ -47,32 +59,49 @@ function AddressForm() {
       addDebugInfo('lastInputValue', value);
       
       // Trigger the autocomplete by simulating user input
-      if (googleApiLoaded && autocompleteRef.current) {
+      if (googleApiLoaded && window.google && window.google.maps && window.google.maps.places) {
         try {
           addDebugInfo('dropdownRequested', true);
           
-          // Show details about autocomplete session
-          if (autocompleteRef.current && typeof autocompleteRef.current.getPlace === 'function') {
-            const sessionToken = autocompleteRef.current.gm_accessors_ && 
-                                 autocompleteRef.current.gm_accessors_.place && 
-                                 autocompleteRef.current.gm_accessors_.place.Lc && 
-                                 autocompleteRef.current.gm_accessors_.place.Lc.sessionToken;
+          // Try using the AutocompleteService directly for more control
+          if (value.length > 2) { // Only search after 2+ characters
+            const service = new window.google.maps.places.AutocompleteService();
             
-            addDebugInfo('sessionToken', sessionToken ? 'Valid' : 'Missing');
+            if (!sessionTokenRef.current) {
+              sessionTokenRef.current = generateSessionToken();
+              addDebugInfo('sessionTokenCreated', true);
+            }
+            
+            service.getPlacePredictions({
+              input: value,
+              sessionToken: sessionTokenRef.current,
+              componentRestrictions: { country: 'us' },
+              types: ['address']
+            }, (predictions, status) => {
+              addDebugInfo('predictionStatus', status);
+              addDebugInfo('predictions', predictions ? predictions.length : 0);
+              
+              if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
+                // We have predictions - now we need to display them
+                // But the built-in autocomplete handles this for us
+                
+                // Ensure the dropdown is visible (this helps with some display issues)
+                const pacContainer = document.querySelector('.pac-container');
+                if (pacContainer) {
+                  pacContainer.style.display = 'block';
+                  pacContainer.style.visibility = 'visible';
+                  pacContainer.style.zIndex = '9999';
+                  
+                  addDebugInfo('pacContainerFound', true);
+                  addDebugInfo('pacItemsCount', pacContainer.querySelectorAll('.pac-item').length);
+                }
+              }
+            });
           }
           
-          // Explicitly dispatch events that Google's autocomplete listens for
+          // Also trigger the standard autocomplete event for the input field
           const event = new Event('input', { bubbles: true });
           googleInputRef.current.dispatchEvent(event);
-          
-          // Look for pac-container after a small delay
-          setTimeout(() => {
-            const pacContainer = document.querySelector('.pac-container');
-            const pacItemsCount = pacContainer ? pacContainer.querySelectorAll('.pac-item').length : 0;
-            
-            addDebugInfo('pacContainerFound', !!pacContainer);
-            addDebugInfo('pacItemsCount', pacItemsCount);
-          }, 300);
         } catch (error) {
           console.error('Error triggering autocomplete:', error);
           addDebugInfo('error', error.message);
@@ -127,33 +156,34 @@ function AddressForm() {
   
   // Test autocomplete manually
   const testAutocomplete = () => {
-    if (!googleApiLoaded || !googleInputRef.current || !autocompleteRef.current) {
-      addDebugInfo('testResult', 'Cannot test - API or autocomplete not ready');
+    if (!googleApiLoaded) {
+      addDebugInfo('testResult', 'Cannot test - API not loaded');
       return;
     }
     
     try {
       addDebugInfo('testingAutocomplete', true);
       
-      // Try to access some internal properties
-      const hasSessionToken = autocompleteRef.current.gm_accessors_ && 
-                             autocompleteRef.current.gm_accessors_.place && 
-                             autocompleteRef.current.gm_accessors_.place.Lc && 
-                             autocompleteRef.current.gm_accessors_.place.Lc.sessionToken;
+      // Create a fresh session token for this test
+      const testSessionToken = generateSessionToken();
+      addDebugInfo('testSessionToken', testSessionToken ? 'Created' : 'Failed');
       
       // Check if Google Service responds to a test prediction
       if (window.google && window.google.maps && window.google.maps.places && window.google.maps.places.AutocompleteService) {
         const service = new window.google.maps.places.AutocompleteService();
         
-        // Request predictions
+        // Request predictions using the direct service
         service.getPlacePredictions({
-          input: '123 Main',
+          input: '123 Main Street, Atlanta, GA',
+          sessionToken: testSessionToken,
           componentRestrictions: { country: 'us' },
           types: ['address']
         }, (predictions, status) => {
+          addDebugInfo('testStatus', status);
+          
           if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
             addDebugInfo('testResult', 'Success! Predictions received');
-            addDebugInfo('predictions', predictions.map(p => p.description).join(', '));
+            addDebugInfo('testPredictions', predictions.map(p => p.description).join(', '));
           } else {
             addDebugInfo('testResult', `Failed: ${status}`);
           }
@@ -161,11 +191,6 @@ function AddressForm() {
       } else {
         addDebugInfo('testResult', 'AutocompleteService not available');
       }
-      
-      // Look for pac-container
-      const pacContainer = document.querySelector('.pac-container');
-      addDebugInfo('pacContainerExists', !!pacContainer);
-      
     } catch (error) {
       addDebugInfo('testError', error.message);
     }
@@ -177,13 +202,8 @@ function AddressForm() {
     if (googleApiLoaded) return;
     
     // Get API key from environment variable
-// New code (no fallback)
-const apiKey = "AIzaSyAVFFu1WoxN5ghygdz0JJYV9pJgSp08y8I";
-
-// Optional: throw an error if the env variable isn’t set
-if (!apiKey) {
-  throw new Error('Missing REACT_APP_GOOGLE_MAPS_API_KEY environment variable.');
-}    
+    const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY || "AIzaSyArZ4pBJT_YW6wRVuPI2-AgGL-0hbAdVbI";
+    
     // Define a callback function for when the API loads
     window.initGoogleMapsAutocomplete = () => {
       console.log('Google Maps API loaded successfully via callback');
@@ -198,6 +218,12 @@ if (!apiKey) {
       addDebugInfo('hasPlacesAPI', hasPlaces);
       addDebugInfo('hasAutocompleteClass', hasAutocomplete);
       addDebugInfo('hasAutocompleteService', hasAutocompleteService);
+      
+      // Create a session token right away
+      if (hasPlaces && window.google.maps.places.AutocompleteSessionToken) {
+        sessionTokenRef.current = new window.google.maps.places.AutocompleteSessionToken();
+        addDebugInfo('initialSessionToken', 'Created');
+      }
     };
     
     // Define an error handler for the API
@@ -217,6 +243,12 @@ if (!apiKey) {
     // Load the API with a callback
     console.log('Loading Google Maps API with key:', apiKey);
     addDebugInfo('apiKeyUsed', apiKey.substring(0, 8) + '...');
+    
+    // Clean up any existing Google Maps scripts
+    const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
+    if (existingScript) {
+      existingScript.parentNode.removeChild(existingScript);
+    }
     
     const script = document.createElement('script');
     script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMapsAutocomplete`;
@@ -244,18 +276,26 @@ if (!apiKey) {
       console.log('Initializing autocomplete on Google input');
       addDebugInfo('initializingAutocomplete', true);
       
-      // Initialize autocomplete on the Google input
+      // If we don't have a session token yet, create one
+      if (!sessionTokenRef.current && window.google.maps.places.AutocompleteSessionToken) {
+        sessionTokenRef.current = new window.google.maps.places.AutocompleteSessionToken();
+        addDebugInfo('sessionTokenCreated', true);
+      }
+      
+      // Initialize autocomplete on the Google input with the session token
       autocompleteRef.current = new window.google.maps.places.Autocomplete(googleInputRef.current, {
         types: ['address'],
         componentRestrictions: { country: 'us' },
-        fields: ['address_components', 'formatted_address', 'geometry', 'name']
+        fields: ['address_components', 'formatted_address', 'geometry', 'name'],
+        sessionToken: sessionTokenRef.current
       });
       
       addDebugInfo('autocompleteInitialized', true);
       addDebugInfo('autocompleteOptions', {
         types: ['address'],
         countryRestriction: 'us',
-        fields: ['address_components', 'formatted_address', 'geometry', 'name']
+        fields: ['address_components', 'formatted_address', 'geometry', 'name'],
+        sessionToken: sessionTokenRef.current ? 'Yes' : 'No'
       });
       
       // Add listener for place selection
@@ -314,6 +354,11 @@ if (!apiKey) {
             visibleInputRef.current.value = place.formatted_address;
           }
           
+          // After a place is selected, we're done with this session token
+          // Create a new one for the next autocomplete session
+          sessionTokenRef.current = generateSessionToken();
+          addDebugInfo('newSessionTokenAfterSelection', 'Created');
+          
           // Track the address selection in analytics
           trackAddressSelected('Google');
         } catch (error) {
@@ -323,27 +368,6 @@ if (!apiKey) {
       });
       
       console.log('Autocomplete initialized successfully on Google input');
-      
-      // Try to directly use AutocompleteService as a test
-      if (window.google.maps.places.AutocompleteService) {
-        try {
-          const service = new window.google.maps.places.AutocompleteService();
-          service.getPlacePredictions({
-            input: '123 Main Street',
-            componentRestrictions: { country: 'us' },
-            types: ['address']
-          }, (predictions, status) => {
-            if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-              addDebugInfo('apiTestSuccessful', true);
-              addDebugInfo('testPredictionsCount', predictions.length);
-            } else {
-              addDebugInfo('apiTestFailed', status);
-            }
-          });
-        } catch (e) {
-          addDebugInfo('serviceTestError', e.message);
-        }
-      }
     } catch (error) {
       console.error('Error initializing Google Places Autocomplete:', error);
       addDebugInfo('initializationError', error.message);
