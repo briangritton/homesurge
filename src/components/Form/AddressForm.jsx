@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import { validateAddress } from '../../utils/validation.js';
 import { trackAddressSelected } from '../../services/analytics';
-import { lookupPropertyInfo } from '../../services/maps.js';
+import { lookupPropertyInfo } from '../../utils/maps.js';
 import axios from 'axios';
 
 function AddressForm() {
@@ -69,6 +69,56 @@ function AddressForm() {
     }
   };
   
+  // Handle keydown events for the address input
+  const handleKeyDown = async (e) => {
+    // If user presses Enter key and we have a first suggestion
+    if (e.key === 'Enter' && firstSuggestion) {
+      e.preventDefault(); // Prevent form submission
+      
+      // Use the first suggestion
+      await useFirstSuggestion();
+      
+      // Then submit the form
+      setTimeout(() => {
+        const submitButton = document.querySelector('.submit-button');
+        if (submitButton) {
+          submitButton.click();
+        }
+      }, 200);
+    }
+  };
+  
+  // Use the first suggestion from Google Places
+  const useFirstSuggestion = async () => {
+    if (!firstSuggestion) return false;
+    
+    try {
+      console.log('Using first suggestion:', firstSuggestion.description);
+      
+      // Update the input field with the suggestion text immediately
+      if (inputRef.current) {
+        inputRef.current.value = firstSuggestion.description;
+      }
+      
+      // Update form data with the suggestion text
+      updateFormData({
+        street: firstSuggestion.description,
+        addressSelectionType: 'Google'
+      });
+      
+      // Get full place details for the suggestion
+      const placeDetails = await getPlaceDetails(firstSuggestion.place_id);
+      
+      // Process the selected address
+      await processAddressSelection(placeDetails);
+      
+      return true;
+    } catch (error) {
+      console.error('Error using first suggestion:', error);
+      return false;
+    }
+  };
+  
   // Get place details for a prediction
   const getPlaceDetails = async (placeId) => {
     return new Promise((resolve, reject) => {
@@ -108,6 +158,9 @@ function AddressForm() {
           apiEstimatedValue: propertyData.apiEstimatedValue,
           apiMaxHomeValue: propertyData.apiMaxValue,
           formattedApiEstimatedValue: propertyData.formattedApiEstimatedValue,
+          apiEquity: propertyData.apiEquity || 0,
+          apiPercentage: propertyData.apiPercentage || 0,
+          propertyRecord: propertyData.propertyRecord,
           bedrooms: propertyData.bedrooms,
           bathrooms: propertyData.bathrooms,
           finishedSquareFootage: propertyData.finishedSquareFootage,
@@ -205,13 +258,7 @@ function AddressForm() {
       // If user hasn't selected an address but has typed enough, try to use first suggestion
       if (firstSuggestion && formData.street && formData.street.length > 5 && !formData.city) {
         try {
-          console.log('Using first suggestion:', firstSuggestion.description);
-          
-          // Get full place details for the suggestion
-          const placeDetails = await getPlaceDetails(firstSuggestion.place_id);
-          
-          // Process the selected address
-          await processAddressSelection(placeDetails);
+          await useFirstSuggestion();
         } catch (error) {
           console.error('Error using first suggestion:', error);
           // Continue with normal submission even if this fails
@@ -409,6 +456,18 @@ function AddressForm() {
     };
   }, [googleApiLoaded]);
   
+  // Style for the home value display
+  const homeValueStyle = {
+    marginTop: '10px',
+    padding: '8px 15px',
+    backgroundColor: '#f9f9f9',
+    borderRadius: '5px',
+    textAlign: 'center',
+    fontSize: '1.2rem',
+    color: '#333',
+    border: '1px solid #ddd'
+  };
+  
   return (
     <div className="hero-section">
       <div className="hero-middle-container">
@@ -425,6 +484,7 @@ function AddressForm() {
               className={errorMessage ? 'address-input-invalid' : 'address-input'}
               value={formData.street || ''}
               onChange={handleChange}
+              onKeyDown={handleKeyDown}
               onFocus={(e) => e.target.placeholder = ''}
               onBlur={(e) => e.target.placeholder = 'Street address...'}
               disabled={isLoading}
@@ -441,6 +501,13 @@ function AddressForm() {
           
           {errorMessage && (
             <div className="error-message">{errorMessage}</div>
+          )}
+          
+          {/* Display estimated home value if available */}
+          {formData.formattedApiEstimatedValue && formData.formattedApiEstimatedValue !== '$0' && (
+            <div style={homeValueStyle}>
+              Estimated Home Value: {formData.formattedApiEstimatedValue}
+            </div>
           )}
         </div>
       </div>
