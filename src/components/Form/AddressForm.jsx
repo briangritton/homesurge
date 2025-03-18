@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import { validateAddress } from '../../utils/validation.js';
 import { trackAddressSelected } from '../../services/analytics';
-import { lookupPropertyInfo } from '../../utils/maps.js';
+import { lookupPropertyInfo } from '../../services/maps.js';
 import axios from 'axios';
 
 function AddressForm() {
