@@ -27,22 +27,16 @@ function AddressForm() {
       addressSelectionType: 'Manual'
     });
     
-    // Update Google input to match visible input (but only if API is working)
-    if (googleInputRef.current && apiStatus === 'success') {
+    // Update Google input to match visible input
+    if (googleInputRef.current) {
       googleInputRef.current.value = value;
       
       // Try to trigger the autocomplete
       try {
         const event = new Event('input', { bubbles: true });
         googleInputRef.current.dispatchEvent(event);
-        googleInputRef.current.focus();
         
-        // Return focus to main input after a brief delay
-        setTimeout(() => {
-          if (visibleInputRef.current) {
-            visibleInputRef.current.focus();
-          }
-        }, 10);
+        // Don't steal focus from the main input
       } catch (error) {
         console.error('Error triggering autocomplete:', error);
       }
@@ -197,9 +191,9 @@ function AddressForm() {
     };
   }, [googleApiLoaded]);
   
-  // Initialize autocomplete after API is loaded and confirmed working
+  // Initialize autocomplete after API is loaded
   useEffect(() => {
-    if (apiStatus !== 'success' || !googleInputRef.current || autocompleteRef.current) return;
+    if (!googleApiLoaded || !googleInputRef.current || autocompleteRef.current) return;
     
     try {
       console.log('Initializing autocomplete on Google input');
@@ -278,19 +272,15 @@ function AddressForm() {
       console.error('Error initializing Google Places Autocomplete:', error);
       setApiStatus('failed');
     }
-  }, [apiStatus, updateFormData]);
+  }, [googleApiLoaded, updateFormData]);
   
-  // Based on API status, determine whether to show the Google input
-  const showGoogleInput = apiStatus === 'success';
-  
-  // Styles for the Google input
+  // Styles for the Google input - ALWAYS VISIBLE for debugging
   const googleInputContainerStyle = {
     position: 'absolute',
-    top: showGoogleInput ? '80px' : '-9999px', // Show for debugging if working, hide if not
+    top: '80px', // Always 80px below for debugging
     left: '0',
     width: '75%',
-    zIndex: '5',
-    display: showGoogleInput ? 'block' : 'none'
+    zIndex: '5'
   };
   
   const googleInputStyle = {
@@ -353,28 +343,31 @@ function AddressForm() {
               disabled={isLoading}
             />
             
-            {/* Google Maps input for autocomplete - only shown if API is working */}
-            {showGoogleInput && (
-              <div style={googleInputContainerStyle}>
-                <input 
-                  ref={googleInputRef}
-                  type="text"
-                  defaultValue={formData.street || ''}
-                  placeholder="Google Places Search..."
-                  style={googleInputStyle}
+            {/* Google Maps input for autocomplete - ALWAYS shown for debugging */}
+            <div style={googleInputContainerStyle}>
+              <input 
+                ref={googleInputRef}
+                type="text"
+                defaultValue={formData.street || ''}
+                placeholder="Google Places Search..."
+                style={googleInputStyle}
+              />
+              
+              {/* Always show Google attribution */}
+              <div style={googleAttributionStyle}>
+                Powered by <img 
+                  src="https://developers.google.com/static/maps/documentation/images/google_on_white.png" 
+                  alt="Google" 
+                  height="18"
+                  style={{verticalAlign: 'middle'}}
                 />
-                
-                {/* Always show Google attribution */}
-                <div style={googleAttributionStyle}>
-                  Powered by <img 
-                    src="https://developers.google.com/static/maps/documentation/images/google_on_white.png" 
-                    alt="Google" 
-                    height="18"
-                    style={{verticalAlign: 'middle'}}
-                  />
-                </div>
               </div>
-            )}
+              
+              {/* Display API status */}
+              <div style={{fontSize: '12px', marginTop: '5px'}}>
+                Status: {apiStatus}
+              </div>
+            </div>
             
             <button 
               className="submit-button" 
