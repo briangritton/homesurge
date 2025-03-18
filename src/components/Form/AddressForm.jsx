@@ -178,7 +178,7 @@ function AddressForm() {
     
     // Get API key from environment variable
 // New code (no fallback)
-const apiKey = "AIzaSyDw28CT6Q1FTSx3wyY1gIRXcLDciES8_vg";
+const apiKey = "AIzaSyAVFFu1WoxN5ghygdz0JJYV9pJgSp08y8I";
 
 // Optional: throw an error if the env variable isn’t set
 if (!apiKey) {
