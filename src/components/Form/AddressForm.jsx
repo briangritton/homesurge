@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import { validateAddress } from '../../utils/validation.js';
 import { trackAddressSelected } from '../../services/analytics';
-//
 
 function AddressForm() {
   const { formData, updateFormData, nextStep } = useFormContext();
