@@ -12,25 +12,17 @@ function AddressForm() {
     apiLoaded: false,
     autocompleteInitialized: false,
     lastInputValue: '',
-    dropdownRequested: false,
-    pacContainerFound: false,
     predictions: []
   });
   
-  // Reference to visible input that user interacts with
-  const visibleInputRef = useRef(null);
-  
-  // Reference to Google input that Google Maps attaches to
-  const googleInputRef = useRef(null);
+  // Reference to the main input
+  const inputRef = useRef(null);
   
   // Reference to autocomplete instance
   const autocompleteRef = useRef(null);
   
   // Reference to session token
   const sessionTokenRef = useRef(null);
-  
-  // Track which input field has focus
-  const [focusedField, setFocusedField] = useState(null);
   
   // Add debug message to console and state
   const addDebugInfo = (key, value) => {
@@ -46,27 +38,8 @@ function AddressForm() {
     return new window.google.maps.places.AutocompleteSessionToken();
   };
   
-  // Position pac-container below the visible input field
-  const positionPacContainer = () => {
-    setTimeout(() => {
-      const pacContainer = document.querySelector('.pac-container');
-      if (pacContainer && visibleInputRef.current) {
-        const rect = visibleInputRef.current.getBoundingClientRect();
-        pacContainer.style.position = 'absolute';
-        pacContainer.style.top = `${rect.bottom + window.scrollY}px`;
-        pacContainer.style.left = `${rect.left + window.scrollX}px`;
-        pacContainer.style.width = `${rect.width}px`;
-        pacContainer.style.display = 'block';
-        pacContainer.style.visibility = 'visible';
-        pacContainer.style.zIndex = '9999';
-        
-        addDebugInfo('pacContainerRepositioned', true);
-      }
-    }, 100);
-  };
-  
-  // Handle form input changes for the main visible input
-  const handleVisibleInputChange = (e) => {
+  // Handle form input changes
+  const handleChange = (e) => {
     const value = e.target.value;
     updateFormData({ 
       street: value,
@@ -74,65 +47,11 @@ function AddressForm() {
     });
     
     addDebugInfo('lastInputValue', value);
-    
-    // Update Google input to match visible input
-    if (googleInputRef.current) {
-      googleInputRef.current.value = value;
-      
-      // Trigger autocomplete on the Google input
-      if (googleApiLoaded) {
-        try {
-          // Programmatically trigger input event on Google field
-          const event = new Event('input', { bubbles: true });
-          googleInputRef.current.dispatchEvent(event);
-          
-          // Focus the Google input briefly to show predictions, then return focus
-          const currentFocus = document.activeElement;
-          googleInputRef.current.focus();
-          
-          // After a brief delay, return focus to the original field
-          setTimeout(() => {
-            if (currentFocus && currentFocus !== googleInputRef.current) {
-              currentFocus.focus();
-            }
-            
-            // Then position the dropdown below the visible input
-            positionPacContainer();
-          }, 100);
-          
-          addDebugInfo('dropdownRequested', true);
-        } catch (error) {
-          console.error('Error triggering autocomplete:', error);
-          addDebugInfo('error', error.message);
-        }
-      }
-    }
     
     // Clear error message when user starts typing
     if (errorMessage) {
       setErrorMessage('');
     }
-  };
-  
-  // Handle Google input changes (when user types directly in it)
-  const handleGoogleInputChange = (e) => {
-    const value = e.target.value;
-    
-    // Update the main input and form data
-    updateFormData({ 
-      street: value,
-      addressSelectionType: 'Manual'
-    });
-    
-    // Sync with visible input
-    if (visibleInputRef.current) {
-      visibleInputRef.current.value = value;
-    }
-    
-    addDebugInfo('lastInputValue', value);
-    
-    // Position the dropdown
-    positionPacContainer();
   };
   
   // Handle form submission
@@ -172,35 +91,6 @@ function AddressForm() {
       setIsLoading(false);
       nextStep();
     }, 300);
-  };
-  
-  // Track focus events
-  const handleFocus = (field) => {
-    setFocusedField(field);
-    addDebugInfo('focusedField', field);
-    
-    if (field === 'google') {
-      // When Google field gets focus, no additional actions needed since
-      // it will naturally show the dropdown
-    } else if (field === 'visible') {
-      // When visible field gets focus, we need to make the dropdown appear
-      // below it by briefly focusing the Google field then returning focus
-      if (googleApiLoaded && googleInputRef.current) {
-        setTimeout(() => {
-          const val = visibleInputRef.current ? visibleInputRef.current.value : '';
-          if (val.length > 2) {
-            // Only show predictions for inputs with 3+ characters
-            googleInputRef.current.focus();
-            setTimeout(() => {
-              if (visibleInputRef.current) {
-                visibleInputRef.current.focus();
-                positionPacContainer();
-              }
-            }, 100);
-          }
-        }, 300);
-      }
-    }
   };
   
   // Test autocomplete manually
@@ -319,10 +209,10 @@ function AddressForm() {
   
   // Initialize autocomplete after API is loaded
   useEffect(() => {
-    if (!googleApiLoaded || !googleInputRef.current || autocompleteRef.current) return;
+    if (!googleApiLoaded || !inputRef.current || autocompleteRef.current) return;
     
     try {
-      console.log('Initializing autocomplete on Google input');
+      console.log('Initializing autocomplete on input');
       addDebugInfo('initializingAutocomplete', true);
       
       // If we don't have a session token yet, create one
@@ -331,8 +221,8 @@ function AddressForm() {
         addDebugInfo('sessionTokenCreated', true);
       }
       
-      // Initialize autocomplete on the Google input with the session token
-      autocompleteRef.current = new window.google.maps.places.Autocomplete(googleInputRef.current, {
+      // Initialize autocomplete directly on the input with the session token
+      autocompleteRef.current = new window.google.maps.places.Autocomplete(inputRef.current, {
         types: ['address'],
         componentRestrictions: { country: 'us' },
         fields: ['address_components', 'formatted_address', 'geometry', 'name'],
@@ -340,12 +230,6 @@ function AddressForm() {
       });
       
       addDebugInfo('autocompleteInitialized', true);
-      addDebugInfo('autocompleteOptions', {
-        types: ['address'],
-        countryRestriction: 'us',
-        fields: ['address_components', 'formatted_address', 'geometry', 'name'],
-        sessionToken: sessionTokenRef.current ? 'Yes' : 'No'
-      });
       
       // Add listener for place selection
       autocompleteRef.current.addListener('place_changed', () => {
@@ -398,16 +282,6 @@ function AddressForm() {
             addressSelectionType: 'Google'
           });
           
-          // Update visible input to match selected place
-          if (visibleInputRef.current) {
-            visibleInputRef.current.value = place.formatted_address;
-            
-            // Focus visible input if it was originally focused
-            if (focusedField === 'visible') {
-              visibleInputRef.current.focus();
-            }
-          }
-          
           // After a place is selected, we're done with this session token
           // Create a new one for the next autocomplete session
           sessionTokenRef.current = generateSessionToken();
@@ -421,120 +295,58 @@ function AddressForm() {
         }
       });
       
-      console.log('Autocomplete initialized successfully on Google input');
+      // Style the autocomplete dropdown to match your design
+      const pacContainer = document.querySelector('.pac-container');
+      if (pacContainer) {
+        pacContainer.style.zIndex = '9999';
+        pacContainer.style.marginTop = '0';
+        pacContainer.style.width = 'auto';
+      }
+      
+      console.log('Autocomplete initialized successfully on input');
     } catch (error) {
       console.error('Error initializing Google Places Autocomplete:', error);
       addDebugInfo('initializationError', error.message);
     }
   }, [googleApiLoaded, updateFormData]);
   
-  // Observe for dropdown to debug its appearance
+  // Add additional CSS to fix autocomplete dropdown styling
   useEffect(() => {
     if (!googleApiLoaded) return;
     
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        if (mutation.addedNodes.length) {
-          const pacContainer = document.querySelector('.pac-container');
-          if (pacContainer) {
-            addDebugInfo('pacContainerDetected', true);
-            addDebugInfo('pacContainerItems', pacContainer.querySelectorAll('.pac-item').length);
-            
-            // If visible input is focused, reposition the dropdown below it
-            if (focusedField === 'visible') {
-              positionPacContainer();
-            }
-          }
-        }
+    // Create a style element for the pac-container
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+      .pac-container {
+        z-index: 9999 !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        border: 1px solid #ccc;
+        border-top: none;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", sans-serif;
       }
-    });
+      .pac-item {
+        padding: 8px 15px;
+        font-size: 1.2rem;
+        cursor: pointer !important;
+      }
+      .pac-item:hover {
+        background-color: #f5f5f5;
+      }
+      .pac-item-query {
+        font-size: 1.2rem;
+        color: #333;
+      }
+      .pac-matched {
+        font-weight: bold;
+      }
+    `;
     
-    observer.observe(document.body, { childList: true, subtree: true });
+    document.head.appendChild(styleElement);
     
     return () => {
-      observer.disconnect();
+      document.head.removeChild(styleElement);
     };
-  }, [googleApiLoaded, focusedField]);
-  
-  // Add click event handlers to pac-items for both inputs
-  useEffect(() => {
-    if (!googleApiLoaded) return;
-    
-    const handlePacItemClick = (e) => {
-      const pacItem = e.target.closest('.pac-item');
-      if (pacItem) {
-        // If a pac-item was clicked, simulate selecting it by reconstructing the address
-        // and sending it to the Google input
-        const mainText = pacItem.querySelector('.pac-item-query')?.textContent || '';
-        const secondaryText = pacItem.querySelector('.pac-item-query').nextSibling?.textContent || '';
-        const address = mainText + (secondaryText ? secondaryText : '');
-        
-        // Set the Google input value and trigger place selection
-        if (googleInputRef.current && address) {
-          googleInputRef.current.value = address;
-          
-          // Simulate pressing Enter to select this item
-          const enterEvent = new KeyboardEvent('keydown', {
-            key: 'Enter',
-            code: 'Enter',
-            keyCode: 13,
-            which: 13,
-            bubbles: true
-          });
-          googleInputRef.current.dispatchEvent(enterEvent);
-          
-          // Return focus to the appropriate input
-          setTimeout(() => {
-            if (focusedField === 'visible' && visibleInputRef.current) {
-              visibleInputRef.current.focus();
-            } else if (focusedField === 'google' && googleInputRef.current) {
-              googleInputRef.current.focus();
-            }
-          }, 100);
-        }
-        
-        addDebugInfo('pacItemClicked', true);
-      }
-    };
-    
-    // Add global click listener for pac-items
-    document.body.addEventListener('click', handlePacItemClick);
-    
-    return () => {
-      document.body.removeEventListener('click', handlePacItemClick);
-    };
-  }, [googleApiLoaded, focusedField]);
-  
-  // Styles for the Google input - always visible for debugging
-  const googleInputContainerStyle = {
-    position: 'absolute',
-    top: '80px', // For debugging, positioned below the main input
-    left: '0',
-    width: '75%',
-    zIndex: '5'
-  };
-  
-  const googleInputStyle = {
-    width: '100%',
-    height: '70px',
-    fontSize: '1.5rem',
-    color: '#6d6d6d',
-    padding: '0 25px',
-    border: '1px solid #4e4e4e',
-    borderRadius: '5px',
-    display: 'flex',
-    alignItems: 'center'
-  };
-  
-  // Style for Google attribution
-  const googleAttributionStyle = {
-    display: 'block',
-    width: '100%',
-    fontSize: '0.8rem', 
-    color: '#666',
-    padding: '5px 0',
-    textAlign: 'right'
-  };
+  }, [googleApiLoaded]);
   
   // Debug panel style
   const debugPanelStyle = {
@@ -560,55 +372,18 @@ function AddressForm() {
           <div className="hero-subheadline">{formData.dynamicSubHeadline || "Get a Great Cash Offer For Your House and Close Fast!"}</div>
           
           <form className="form-container" onSubmit={handleSubmit}>
-            {/* Visible input that user interacts with */}
+            {/* Input with direct Google Places autocomplete */}
             <input
-              ref={visibleInputRef}
+              ref={inputRef}
               type="text"
               placeholder="Street address..."
               className={errorMessage ? 'address-input-invalid' : 'address-input'}
               value={formData.street || ''}
-              onChange={handleVisibleInputChange}
-              onFocus={() => handleFocus('visible')}
-              onBlur={() => setTimeout(() => setFocusedField(null), 200)}
+              onChange={handleChange}
+              onFocus={(e) => e.target.placeholder = ''}
+              onBlur={(e) => e.target.placeholder = 'Street address...'}
               disabled={isLoading}
             />
-            
-            {/* Google Maps input for autocomplete */}
-            <div style={googleInputContainerStyle}>
-              <input 
-                ref={googleInputRef}
-                type="text"
-                defaultValue={formData.street || ''}
-                placeholder="Google Places Search..."
-                style={googleInputStyle}
-                onChange={handleGoogleInputChange}
-                onFocus={() => handleFocus('google')}
-                onBlur={() => setTimeout(() => setFocusedField(null), 200)}
-              />
-              
-              {/* Google attribution */}
-              <div style={googleAttributionStyle}>
-                Powered by <img 
-                  src="https://developers.google.com/static/maps/documentation/images/google_on_white.png" 
-                  alt="Google" 
-                  height="18"
-                  style={{verticalAlign: 'middle'}}
-                />
-              </div>
-              
-              {/* Testing button */}
-              <button 
-                type="button" 
-                onClick={testAutocomplete}
-                style={{
-                  padding: '5px',
-                  fontSize: '12px',
-                  marginTop: '5px'
-                }}
-              >
-                Test Autocomplete
-              </button>
-            </div>
             
             <button 
               className="submit-button" 
@@ -623,17 +398,30 @@ function AddressForm() {
             <div className="error-message">{errorMessage}</div>
           )}
           
+          {/* Test button for debugging */}
+          <button 
+            type="button" 
+            onClick={testAutocomplete}
+            style={{
+              position: 'fixed',
+              bottom: '220px',
+              right: '10px',
+              padding: '5px',
+              fontSize: '12px',
+              zIndex: 9999
+            }}
+          >
+            Test Autocomplete
+          </button>
+          
           {/* Debug panel */}
           <div style={debugPanelStyle}>
             <h4 style={{margin: '0 0 5px 0'}}>Debug Info</h4>
             <div>API Loaded: {debugInfo.apiLoaded ? 'Yes' : 'No'}</div>
             <div>Autocomplete Init: {debugInfo.autocompleteInitialized ? 'Yes' : 'No'}</div>
-            <div>Dropdown Requested: {debugInfo.dropdownRequested ? 'Yes' : 'No'}</div>
-            <div>PAC Container: {debugInfo.pacContainerFound ? 'Found' : 'Missing'}</div>
-            <div>Focused Field: {focusedField || 'None'}</div>
             <div>Last Input: {debugInfo.lastInputValue}</div>
             {Object.entries(debugInfo)
-              .filter(([key]) => !['apiLoaded', 'autocompleteInitialized', 'dropdownRequested', 'pacContainerFound', 'lastInputValue'].includes(key))
+              .filter(([key]) => !['apiLoaded', 'autocompleteInitialized', 'lastInputValue'].includes(key))
               .map(([key, value]) => (
                 <div key={key}>{key}: {typeof value === 'object' ? JSON.stringify(value) : String(value)}</div>
               ))
