@@ -8,6 +8,7 @@ function AddressForm() {
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [googleApiLoaded, setGoogleApiLoaded] = useState(false);
+  const [apiStatus, setApiStatus] = useState('initializing'); // 'initializing', 'failed', 'success'
   
   // Reference to visible input that user interacts with
   const visibleInputRef = useRef(null);
@@ -26,14 +27,24 @@ function AddressForm() {
       addressSelectionType: 'Manual'
     });
     
-    // Update Google input to match visible input WITHOUT focusing it
-    if (googleInputRef.current) {
+    // Update Google input to match visible input (but only if API is working)
+    if (googleInputRef.current && apiStatus === 'success') {
       googleInputRef.current.value = value;
       
-      // Trigger the autocomplete by simulating user input without focus
-      if (googleApiLoaded) {
+      // Try to trigger the autocomplete
+      try {
         const event = new Event('input', { bubbles: true });
         googleInputRef.current.dispatchEvent(event);
+        googleInputRef.current.focus();
+        
+        // Return focus to main input after a brief delay
+        setTimeout(() => {
+          if (visibleInputRef.current) {
+            visibleInputRef.current.focus();
+          }
+        }, 10);
+      } catch (error) {
+        console.error('Error triggering autocomplete:', error);
       }
     }
     
@@ -79,7 +90,7 @@ function AddressForm() {
     }, 300);
   };
   
-  // Load Google Maps API - using a more robust loading approach
+  // Load Google Maps API with timeout and error handling
   useEffect(() => {
     // Only run once
     if (googleApiLoaded) return;
@@ -87,41 +98,108 @@ function AddressForm() {
     // Get API key from environment variable
     const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY || "AIzaSyArZ4pBJT_YW6wRVuPI2-AgGL-0hbAdVbI";
     
+    let apiLoadTimeout;
+    let scriptAdded = false;
+    
+    // Set a timeout for API loading
+    apiLoadTimeout = setTimeout(() => {
+      if (!googleApiLoaded) {
+        console.warn('Google Maps API loading timed out after 5 seconds');
+        setApiStatus('failed');
+      }
+    }, 5000);
+    
     // Define a callback function for when the API loads
     window.initGoogleMapsAutocomplete = () => {
-      console.log('Google Maps API loaded successfully via callback');
+      console.log('Google Maps API loaded successfully');
       setGoogleApiLoaded(true);
+      
+      // Test if the API is actually working by trying to create a service
+      if (window.google && window.google.maps && window.google.maps.places) {
+        try {
+          const service = new window.google.maps.places.AutocompleteService();
+          
+          // Test a simple prediction request
+          service.getPlacePredictions({
+            input: '123 Main Street',
+            componentRestrictions: { country: 'us' },
+            types: ['address']
+          }, (predictions, status) => {
+            if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
+              // API is working correctly
+              console.log('Google Places API test successful');
+              setApiStatus('success');
+            } else {
+              // API returned a response but no results or an error
+              console.warn('Google Places API test failed:', status);
+              setApiStatus('failed');
+            }
+            
+            // Clear the timeout
+            clearTimeout(apiLoadTimeout);
+          });
+        } catch (error) {
+          // Error in creating service or making request
+          console.error('Error testing Google Places API:', error);
+          setApiStatus('failed');
+          clearTimeout(apiLoadTimeout);
+        }
+      } else {
+        // Places API not available
+        console.warn('Google Places API not available');
+        setApiStatus('failed');
+        clearTimeout(apiLoadTimeout);
+      }
+    };
+    
+    // Define an error handler for the API
+    window.gm_authFailure = () => {
+      console.error('Google Maps API authentication failure');
+      setApiStatus('failed');
+      clearTimeout(apiLoadTimeout);
     };
     
     // Check if API is already loaded
     if (window.google && window.google.maps && window.google.maps.places) {
-      console.log('Google Maps API already loaded');
-      setGoogleApiLoaded(true);
+      window.initGoogleMapsAutocomplete();
       return;
     }
     
-    // Use a more robust script loading approach
-    console.log('Loading Google Maps API...');
-    const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMapsAutocomplete`;
-    script.async = true;
-    script.defer = true;
-    script.onerror = (e) => {
-      console.error('Failed to load Google Maps API script:', e);
-      // Even if Google Maps fails to load, the main input will still work
-    };
+    // Load the API with a callback
+    console.log('Loading Google Maps API with key:', apiKey);
     
-    document.body.appendChild(script);
+    try {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMapsAutocomplete`;
+      script.async = true;
+      script.defer = true;
+      script.onerror = (e) => {
+        console.error('Failed to load Google Maps API script:', e);
+        setApiStatus('failed');
+        clearTimeout(apiLoadTimeout);
+      };
+      
+      document.body.appendChild(script);
+      scriptAdded = true;
+    } catch (error) {
+      console.error('Error adding Google Maps script to document:', error);
+      setApiStatus('failed');
+      clearTimeout(apiLoadTimeout);
+    }
     
     return () => {
-      // Cleanup function to remove the global callback
-      delete window.initGoogleMapsAutocomplete;
+      // Cleanup function to remove the global callbacks and timeout
+      clearTimeout(apiLoadTimeout);
+      if (scriptAdded) {
+        delete window.initGoogleMapsAutocomplete;
+        delete window.gm_authFailure;
+      }
     };
   }, [googleApiLoaded]);
   
-  // Initialize autocomplete after API is loaded
+  // Initialize autocomplete after API is loaded and confirmed working
   useEffect(() => {
-    if (!googleApiLoaded || !googleInputRef.current || autocompleteRef.current) return;
+    if (apiStatus !== 'success' || !googleInputRef.current || autocompleteRef.current) return;
     
     try {
       console.log('Initializing autocomplete on Google input');
@@ -185,6 +263,7 @@ function AddressForm() {
           // Update visible input to match selected place
           if (visibleInputRef.current) {
             visibleInputRef.current.value = place.formatted_address;
+            visibleInputRef.current.focus();
           }
           
           // Track the address selection in analytics
@@ -194,24 +273,24 @@ function AddressForm() {
         }
       });
       
-      // Let's activate the autocomplete without taking focus
-      const event = new Event('input', { bubbles: true });
-      googleInputRef.current.dispatchEvent(event);
-      
       console.log('Autocomplete initialized successfully on Google input');
     } catch (error) {
       console.error('Error initializing Google Places Autocomplete:', error);
-      // This error shouldn't affect the main input functionality
+      setApiStatus('failed');
     }
-  }, [googleApiLoaded, updateFormData]);
+  }, [apiStatus, updateFormData]);
   
-  // Styles for the Google input for debugging
+  // Based on API status, determine whether to show the Google input
+  const showGoogleInput = apiStatus === 'success';
+  
+  // Styles for the Google input
   const googleInputContainerStyle = {
     position: 'absolute',
-    top: '80px',
+    top: showGoogleInput ? '80px' : '-9999px', // Show for debugging if working, hide if not
     left: '0',
     width: '75%',
-    zIndex: '5'
+    zIndex: '5',
+    display: showGoogleInput ? 'block' : 'none'
   };
   
   const googleInputStyle = {
@@ -223,8 +302,34 @@ function AddressForm() {
     border: '1px solid #4e4e4e',
     borderRadius: '5px',
     display: 'flex',
-    alignItems: 'center',
-    pointerEvents: 'none' // Prevent direct interaction for now - this is the key change
+    alignItems: 'center'
+  };
+  
+  // Style for Google attribution
+  const googleAttributionStyle = {
+    display: 'block',
+    width: '100%',
+    fontSize: '0.8rem', 
+    color: '#666',
+    padding: '5px 0',
+    textAlign: 'right'
+  };
+  
+  // Status indicator style
+  const statusStyle = {
+    position: 'fixed',
+    bottom: '10px',
+    right: '10px',
+    padding: '5px 10px',
+    borderRadius: '5px',
+    fontSize: '12px',
+    fontWeight: 'bold',
+    backgroundColor: apiStatus === 'success' ? '#d4edda' : 
+                     apiStatus === 'failed' ? '#f8d7da' : '#cce5ff',
+    color: apiStatus === 'success' ? '#155724' : 
+           apiStatus === 'failed' ? '#721c24' : '#004085',
+    opacity: 0.8,
+    zIndex: 9999
   };
   
   return (
@@ -248,18 +353,28 @@ function AddressForm() {
               disabled={isLoading}
             />
             
-            {/* Google Maps input for autocomplete - positioned for debugging */}
-            <div style={googleInputContainerStyle}>
-              <input 
-                ref={googleInputRef}
-                type="text"
-                defaultValue={formData.street || ''}
-                placeholder="Google Places Search..."
-                style={googleInputStyle}
-                tabIndex="-1" // Ensure it can't receive focus via tab
-                aria-hidden="true" // Hide from screen readers
-              />
-            </div>
+            {/* Google Maps input for autocomplete - only shown if API is working */}
+            {showGoogleInput && (
+              <div style={googleInputContainerStyle}>
+                <input 
+                  ref={googleInputRef}
+                  type="text"
+                  defaultValue={formData.street || ''}
+                  placeholder="Google Places Search..."
+                  style={googleInputStyle}
+                />
+                
+                {/* Always show Google attribution */}
+                <div style={googleAttributionStyle}>
+                  Powered by <img 
+                    src="https://developers.google.com/static/maps/documentation/images/google_on_white.png" 
+                    alt="Google" 
+                    height="18"
+                    style={{verticalAlign: 'middle'}}
+                  />
+                </div>
+              </div>
+            )}
             
             <button 
               className="submit-button" 
@@ -273,6 +388,13 @@ function AddressForm() {
           {errorMessage && (
             <div className="error-message">{errorMessage}</div>
           )}
+          
+          {/* API status indicator */}
+          <div style={statusStyle}>
+            {apiStatus === 'initializing' && 'Initializing Google Places...'}
+            {apiStatus === 'success' && 'Google Places ready'}
+            {apiStatus === 'failed' && 'Using manual address input'}
+          </div>
         </div>
       </div>
     </div>
