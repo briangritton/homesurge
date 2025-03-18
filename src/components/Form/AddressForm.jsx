@@ -8,7 +8,14 @@ function AddressForm() {
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [googleApiLoaded, setGoogleApiLoaded] = useState(false);
-  const [apiStatus, setApiStatus] = useState('initializing'); // 'initializing', 'failed', 'success'
+  const [debugInfo, setDebugInfo] = useState({
+    apiLoaded: false,
+    autocompleteInitialized: false,
+    lastInputValue: '',
+    dropdownRequested: false,
+    pacContainerFound: false,
+    predictions: []
+  });
   
   // Reference to visible input that user interacts with
   const visibleInputRef = useRef(null);
@@ -18,6 +25,12 @@ function AddressForm() {
   
   // Reference to autocomplete instance
   const autocompleteRef = useRef(null);
+  
+  // Add debug message to console and state
+  const addDebugInfo = (key, value) => {
+    console.log(`DEBUG [${key}]:`, value);
+    setDebugInfo(prev => ({ ...prev, [key]: value }));
+  };
   
   // Handle form input changes for the main visible input
   const handleChange = (e) => {
@@ -31,14 +44,39 @@ function AddressForm() {
     if (googleInputRef.current) {
       googleInputRef.current.value = value;
       
-      // Try to trigger the autocomplete
-      try {
-        const event = new Event('input', { bubbles: true });
-        googleInputRef.current.dispatchEvent(event);
-        
-        // Don't steal focus from the main input
-      } catch (error) {
-        console.error('Error triggering autocomplete:', error);
+      addDebugInfo('lastInputValue', value);
+      
+      // Trigger the autocomplete by simulating user input
+      if (googleApiLoaded && autocompleteRef.current) {
+        try {
+          addDebugInfo('dropdownRequested', true);
+          
+          // Show details about autocomplete session
+          if (autocompleteRef.current && typeof autocompleteRef.current.getPlace === 'function') {
+            const sessionToken = autocompleteRef.current.gm_accessors_ && 
+                                 autocompleteRef.current.gm_accessors_.place && 
+                                 autocompleteRef.current.gm_accessors_.place.Lc && 
+                                 autocompleteRef.current.gm_accessors_.place.Lc.sessionToken;
+            
+            addDebugInfo('sessionToken', sessionToken ? 'Valid' : 'Missing');
+          }
+          
+          // Explicitly dispatch events that Google's autocomplete listens for
+          const event = new Event('input', { bubbles: true });
+          googleInputRef.current.dispatchEvent(event);
+          
+          // Look for pac-container after a small delay
+          setTimeout(() => {
+            const pacContainer = document.querySelector('.pac-container');
+            const pacItemsCount = pacContainer ? pacContainer.querySelectorAll('.pac-item').length : 0;
+            
+            addDebugInfo('pacContainerFound', !!pacContainer);
+            addDebugInfo('pacItemsCount', pacItemsCount);
+          }, 300);
+        } catch (error) {
+          console.error('Error triggering autocomplete:', error);
+          addDebugInfo('error', error.message);
+        }
       }
     }
     
@@ -51,6 +89,9 @@ function AddressForm() {
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Log debug info
+    console.log('Debug info at submission:', debugInfo);
     
     // Validate address
     if (!validateAddress(formData.street)) {
@@ -84,7 +125,53 @@ function AddressForm() {
     }, 300);
   };
   
-  // Load Google Maps API with timeout and error handling
+  // Test autocomplete manually
+  const testAutocomplete = () => {
+    if (!googleApiLoaded || !googleInputRef.current || !autocompleteRef.current) {
+      addDebugInfo('testResult', 'Cannot test - API or autocomplete not ready');
+      return;
+    }
+    
+    try {
+      addDebugInfo('testingAutocomplete', true);
+      
+      // Try to access some internal properties
+      const hasSessionToken = autocompleteRef.current.gm_accessors_ && 
+                             autocompleteRef.current.gm_accessors_.place && 
+                             autocompleteRef.current.gm_accessors_.place.Lc && 
+                             autocompleteRef.current.gm_accessors_.place.Lc.sessionToken;
+      
+      // Check if Google Service responds to a test prediction
+      if (window.google && window.google.maps && window.google.maps.places && window.google.maps.places.AutocompleteService) {
+        const service = new window.google.maps.places.AutocompleteService();
+        
+        // Request predictions
+        service.getPlacePredictions({
+          input: '123 Main',
+          componentRestrictions: { country: 'us' },
+          types: ['address']
+        }, (predictions, status) => {
+          if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
+            addDebugInfo('testResult', 'Success! Predictions received');
+            addDebugInfo('predictions', predictions.map(p => p.description).join(', '));
+          } else {
+            addDebugInfo('testResult', `Failed: ${status}`);
+          }
+        });
+      } else {
+        addDebugInfo('testResult', 'AutocompleteService not available');
+      }
+      
+      // Look for pac-container
+      const pacContainer = document.querySelector('.pac-container');
+      addDebugInfo('pacContainerExists', !!pacContainer);
+      
+    } catch (error) {
+      addDebugInfo('testError', error.message);
+    }
+  };
+  
+  // Load Google Maps API
   useEffect(() => {
     // Only run once
     if (googleApiLoaded) return;
@@ -92,102 +179,55 @@ function AddressForm() {
     // Get API key from environment variable
     const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY || "AIzaSyArZ4pBJT_YW6wRVuPI2-AgGL-0hbAdVbI";
     
-    let apiLoadTimeout;
-    let scriptAdded = false;
-    
-    // Set a timeout for API loading
-    apiLoadTimeout = setTimeout(() => {
-      if (!googleApiLoaded) {
-        console.warn('Google Maps API loading timed out after 5 seconds');
-        setApiStatus('failed');
-      }
-    }, 5000);
-    
     // Define a callback function for when the API loads
     window.initGoogleMapsAutocomplete = () => {
-      console.log('Google Maps API loaded successfully');
+      console.log('Google Maps API loaded successfully via callback');
       setGoogleApiLoaded(true);
+      addDebugInfo('apiLoaded', true);
       
-      // Test if the API is actually working by trying to create a service
-      if (window.google && window.google.maps && window.google.maps.places) {
-        try {
-          const service = new window.google.maps.places.AutocompleteService();
-          
-          // Test a simple prediction request
-          service.getPlacePredictions({
-            input: '123 Main Street',
-            componentRestrictions: { country: 'us' },
-            types: ['address']
-          }, (predictions, status) => {
-            if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
-              // API is working correctly
-              console.log('Google Places API test successful');
-              setApiStatus('success');
-            } else {
-              // API returned a response but no results or an error
-              console.warn('Google Places API test failed:', status);
-              setApiStatus('failed');
-            }
-            
-            // Clear the timeout
-            clearTimeout(apiLoadTimeout);
-          });
-        } catch (error) {
-          // Error in creating service or making request
-          console.error('Error testing Google Places API:', error);
-          setApiStatus('failed');
-          clearTimeout(apiLoadTimeout);
-        }
-      } else {
-        // Places API not available
-        console.warn('Google Places API not available');
-        setApiStatus('failed');
-        clearTimeout(apiLoadTimeout);
-      }
+      // Test if all expected Google APIs are available
+      const hasPlaces = window.google && window.google.maps && window.google.maps.places;
+      const hasAutocomplete = hasPlaces && window.google.maps.places.Autocomplete;
+      const hasAutocompleteService = hasPlaces && window.google.maps.places.AutocompleteService;
+      
+      addDebugInfo('hasPlacesAPI', hasPlaces);
+      addDebugInfo('hasAutocompleteClass', hasAutocomplete);
+      addDebugInfo('hasAutocompleteService', hasAutocompleteService);
     };
     
     // Define an error handler for the API
     window.gm_authFailure = () => {
       console.error('Google Maps API authentication failure');
-      setApiStatus('failed');
-      clearTimeout(apiLoadTimeout);
+      addDebugInfo('apiAuthError', true);
     };
     
     // Check if API is already loaded
     if (window.google && window.google.maps && window.google.maps.places) {
-      window.initGoogleMapsAutocomplete();
+      console.log('Google Maps API already loaded');
+      setGoogleApiLoaded(true);
+      addDebugInfo('apiLoaded', true);
       return;
     }
     
     // Load the API with a callback
     console.log('Loading Google Maps API with key:', apiKey);
+    addDebugInfo('apiKeyUsed', apiKey.substring(0, 8) + '...');
     
-    try {
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMapsAutocomplete`;
-      script.async = true;
-      script.defer = true;
-      script.onerror = (e) => {
-        console.error('Failed to load Google Maps API script:', e);
-        setApiStatus('failed');
-        clearTimeout(apiLoadTimeout);
-      };
-      
-      document.body.appendChild(script);
-      scriptAdded = true;
-    } catch (error) {
-      console.error('Error adding Google Maps script to document:', error);
-      setApiStatus('failed');
-      clearTimeout(apiLoadTimeout);
-    }
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMapsAutocomplete`;
+    script.async = true;
+    script.defer = true;
+    script.onerror = (e) => {
+      console.error('Failed to load Google Maps API script:', e);
+      addDebugInfo('scriptLoadError', true);
+    };
+    
+    document.body.appendChild(script);
     
     return () => {
-      // Cleanup function to remove the global callbacks and timeout
-      clearTimeout(apiLoadTimeout);
-      if (scriptAdded) {
-        delete window.initGoogleMapsAutocomplete;
-        delete window.gm_authFailure;
-      }
+      // Cleanup function to remove the global callbacks
+      delete window.initGoogleMapsAutocomplete;
+      delete window.gm_authFailure;
     };
   }, [googleApiLoaded]);
   
@@ -197,6 +237,7 @@ function AddressForm() {
     
     try {
       console.log('Initializing autocomplete on Google input');
+      addDebugInfo('initializingAutocomplete', true);
       
       // Initialize autocomplete on the Google input
       autocompleteRef.current = new window.google.maps.places.Autocomplete(googleInputRef.current, {
@@ -205,10 +246,19 @@ function AddressForm() {
         fields: ['address_components', 'formatted_address', 'geometry', 'name']
       });
       
+      addDebugInfo('autocompleteInitialized', true);
+      addDebugInfo('autocompleteOptions', {
+        types: ['address'],
+        countryRestriction: 'us',
+        fields: ['address_components', 'formatted_address', 'geometry', 'name']
+      });
+      
       // Add listener for place selection
       autocompleteRef.current.addListener('place_changed', () => {
         try {
           const place = autocompleteRef.current.getPlace();
+          
+          addDebugInfo('placeSelected', place ? place.formatted_address : 'No place data');
           
           if (!place || !place.formatted_address) {
             console.warn('No place data available');
@@ -257,27 +307,86 @@ function AddressForm() {
           // Update visible input to match selected place
           if (visibleInputRef.current) {
             visibleInputRef.current.value = place.formatted_address;
-            visibleInputRef.current.focus();
           }
           
           // Track the address selection in analytics
           trackAddressSelected('Google');
         } catch (error) {
           console.error('Error handling place selection:', error);
+          addDebugInfo('placeSelectionError', error.message);
         }
       });
       
       console.log('Autocomplete initialized successfully on Google input');
+      
+      // Try to directly use AutocompleteService as a test
+      if (window.google.maps.places.AutocompleteService) {
+        try {
+          const service = new window.google.maps.places.AutocompleteService();
+          service.getPlacePredictions({
+            input: '123 Main Street',
+            componentRestrictions: { country: 'us' },
+            types: ['address']
+          }, (predictions, status) => {
+            if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+              addDebugInfo('apiTestSuccessful', true);
+              addDebugInfo('testPredictionsCount', predictions.length);
+            } else {
+              addDebugInfo('apiTestFailed', status);
+            }
+          });
+        } catch (e) {
+          addDebugInfo('serviceTestError', e.message);
+        }
+      }
     } catch (error) {
       console.error('Error initializing Google Places Autocomplete:', error);
-      setApiStatus('failed');
+      addDebugInfo('initializationError', error.message);
     }
   }, [googleApiLoaded, updateFormData]);
   
-  // Styles for the Google input - ALWAYS VISIBLE for debugging
+  // Observe for dropdown to debug its appearance
+  useEffect(() => {
+    if (!googleApiLoaded) return;
+    
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.addedNodes.length) {
+          const pacContainer = document.querySelector('.pac-container');
+          if (pacContainer) {
+            addDebugInfo('pacContainerDetected', true);
+            addDebugInfo('pacContainerItems', pacContainer.querySelectorAll('.pac-item').length);
+            
+            // Log the position of the container
+            const rect = pacContainer.getBoundingClientRect();
+            addDebugInfo('pacContainerPosition', {
+              top: rect.top,
+              left: rect.left,
+              width: rect.width,
+              height: rect.height,
+              visible: rect.height > 0
+            });
+            
+            // Ensure it's visible
+            pacContainer.style.display = 'block';
+            pacContainer.style.visibility = 'visible';
+            pacContainer.style.zIndex = '9999';
+          }
+        }
+      }
+    });
+    
+    observer.observe(document.body, { childList: true, subtree: true });
+    
+    return () => {
+      observer.disconnect();
+    };
+  }, [googleApiLoaded]);
+  
+  // Styles for the Google input - always visible for debugging
   const googleInputContainerStyle = {
     position: 'absolute',
-    top: '80px', // Always 80px below for debugging
+    top: '80px', // For debugging, positioned below the main input
     left: '0',
     width: '75%',
     zIndex: '5'
@@ -305,21 +414,20 @@ function AddressForm() {
     textAlign: 'right'
   };
   
-  // Status indicator style
-  const statusStyle = {
+  // Debug panel style
+  const debugPanelStyle = {
     position: 'fixed',
     bottom: '10px',
     right: '10px',
-    padding: '5px 10px',
+    backgroundColor: '#f1f1f1',
+    padding: '10px',
     borderRadius: '5px',
+    maxWidth: '300px',
+    maxHeight: '200px',
+    overflow: 'auto',
+    zIndex: '9999',
     fontSize: '12px',
-    fontWeight: 'bold',
-    backgroundColor: apiStatus === 'success' ? '#d4edda' : 
-                     apiStatus === 'failed' ? '#f8d7da' : '#cce5ff',
-    color: apiStatus === 'success' ? '#155724' : 
-           apiStatus === 'failed' ? '#721c24' : '#004085',
-    opacity: 0.8,
-    zIndex: 9999
+    opacity: '0.9'
   };
   
   return (
@@ -343,7 +451,7 @@ function AddressForm() {
               disabled={isLoading}
             />
             
-            {/* Google Maps input for autocomplete - ALWAYS shown for debugging */}
+            {/* Google Maps input for autocomplete */}
             <div style={googleInputContainerStyle}>
               <input 
                 ref={googleInputRef}
@@ -353,7 +461,7 @@ function AddressForm() {
                 style={googleInputStyle}
               />
               
-              {/* Always show Google attribution */}
+              {/* Google attribution */}
               <div style={googleAttributionStyle}>
                 Powered by <img 
                   src="https://developers.google.com/static/maps/documentation/images/google_on_white.png" 
@@ -363,10 +471,18 @@ function AddressForm() {
                 />
               </div>
               
-              {/* Display API status */}
-              <div style={{fontSize: '12px', marginTop: '5px'}}>
-                Status: {apiStatus}
-              </div>
+              {/* Testing button */}
+              <button 
+                type="button" 
+                onClick={testAutocomplete}
+                style={{
+                  padding: '5px',
+                  fontSize: '12px',
+                  marginTop: '5px'
+                }}
+              >
+                Test Autocomplete
+              </button>
             </div>
             
             <button 
@@ -382,11 +498,20 @@ function AddressForm() {
             <div className="error-message">{errorMessage}</div>
           )}
           
-          {/* API status indicator */}
-          <div style={statusStyle}>
-            {apiStatus === 'initializing' && 'Initializing Google Places...'}
-            {apiStatus === 'success' && 'Google Places ready'}
-            {apiStatus === 'failed' && 'Using manual address input'}
+          {/* Debug panel */}
+          <div style={debugPanelStyle}>
+            <h4 style={{margin: '0 0 5px 0'}}>Debug Info</h4>
+            <div>API Loaded: {debugInfo.apiLoaded ? 'Yes' : 'No'}</div>
+            <div>Autocomplete Init: {debugInfo.autocompleteInitialized ? 'Yes' : 'No'}</div>
+            <div>Dropdown Requested: {debugInfo.dropdownRequested ? 'Yes' : 'No'}</div>
+            <div>PAC Container: {debugInfo.pacContainerFound ? 'Found' : 'Missing'}</div>
+            <div>Last Input: {debugInfo.lastInputValue}</div>
+            {Object.entries(debugInfo)
+              .filter(([key]) => !['apiLoaded', 'autocompleteInitialized', 'dropdownRequested', 'pacContainerFound', 'lastInputValue'].includes(key))
+              .map(([key, value]) => (
+                <div key={key}>{key}: {typeof value === 'object' ? JSON.stringify(value) : String(value)}</div>
+              ))
+            }
           </div>
         </div>
       </div>
