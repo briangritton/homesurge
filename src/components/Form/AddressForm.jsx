@@ -177,8 +177,13 @@ function AddressForm() {
     if (googleApiLoaded) return;
     
     // Get API key from environment variable
-    const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY || "AIzaSyArZ4pBJT_YW6wRVuPI2-AgGL-0hbAdVbI";
-    
+// New code (no fallback)
+const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+
+// Optional: throw an error if the env variable isn’t set
+if (!apiKey) {
+  throw new Error('Missing REACT_APP_GOOGLE_MAPS_API_KEY environment variable.');
+}    
     // Define a callback function for when the API loads
     window.initGoogleMapsAutocomplete = () => {
       console.log('Google Maps API loaded successfully via callback');
