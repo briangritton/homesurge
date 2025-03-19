@@ -16,7 +16,7 @@ function PersonalInfoForm() {
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   
-  // Scroll to top when component mounts
+  // Scroll to top when component mounts s
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
