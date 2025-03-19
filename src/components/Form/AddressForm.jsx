@@ -167,7 +167,7 @@ function AddressForm() {
   const processAddressSelection = async (place) => {
     if (!place || !place.formatted_address) {
       console.warn('No place data available');
-      return;
+      return false;
     }
     
     // Extract address components
@@ -223,9 +223,9 @@ function AddressForm() {
     setErrorMessage('');
     
     // Fetch property data from Melissa API
-    await fetchPropertyData(place.formatted_address);
+    const propertyData = await fetchPropertyData(place.formatted_address);
     
-    return true;
+    return propertyData != null;
   };
   
   // Handle form submission
@@ -239,6 +239,8 @@ function AddressForm() {
     setIsLoading(true);
     
     try {
+      let propertyDataRetrieved = false;
+      
       // If user has entered at least 2 characters and there's a suggestion available
       if (firstSuggestion && formData.street && formData.street.length >= 2) {
         try {
@@ -247,8 +249,11 @@ function AddressForm() {
           // Get full place details for the suggestion
           const placeDetails = await getPlaceDetails(firstSuggestion.place_id);
           
-          // Process the selected address
-          await processAddressSelection(placeDetails);
+          // Process the selected address AND WAIT FOR IT TO COMPLETE
+          propertyDataRetrieved = await processAddressSelection(placeDetails);
+          
+          // Add a small delay to ensure form data is updated
+          await new Promise(resolve => setTimeout(resolve, 300));
         } catch (error) {
           console.error('Error using first suggestion:', error);
           // Continue with normal submission even if this fails
@@ -266,8 +271,11 @@ function AddressForm() {
       setErrorMessage('');
       
       // If we haven't fetched property data yet, do it now
-      if (!formData.apiEstimatedValue && formData.street) {
-        await fetchPropertyData(formData.street);
+      if (!propertyDataRetrieved && !formData.apiEstimatedValue && formData.street) {
+        propertyDataRetrieved = await fetchPropertyData(formData.street) != null;
+        
+        // Add a small delay to ensure form data is updated
+        await new Promise(resolve => setTimeout(resolve, 300));
       }
       
       // Set some minimal data if we don't have complete address info
@@ -278,6 +286,11 @@ function AddressForm() {
           zip: formData.zip || '',
           state: formData.state || 'GA'
         });
+      }
+      
+      // Check if we have property data before proceeding
+      if (!formData.apiEstimatedValue || formData.apiEstimatedValue === 0) {
+        console.log('Warning: No property value available before proceeding to next step');
       }
       
       // Track address submission
