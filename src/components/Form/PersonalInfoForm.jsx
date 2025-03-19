@@ -218,6 +218,24 @@ function PersonalInfoForm() {
     border: '1px solid #ccc'
   };
   
+  // Format property value if needed
+  const getFormattedPropertyValue = () => {
+    if (formData.formattedApiEstimatedValue && formData.formattedApiEstimatedValue !== '$0') {
+      return formData.formattedApiEstimatedValue;
+    } else if (formData.apiEstimatedValue && formData.apiEstimatedValue > 0) {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(formData.apiEstimatedValue);
+    }
+    return null;
+  };
+  
+  // Get the formatted value
+  const formattedValue = getFormattedPropertyValue();
+  
   return (
     <div className="hero-section">
       <div className="hero-middle-container">
@@ -230,9 +248,9 @@ function PersonalInfoForm() {
             {formData.street}
           </div>
           
-          {formData.formattedApiEstimatedValue && formData.formattedApiEstimatedValue !== '$0' && (
+          {formattedValue && (
             <div className="hero-property-estimate">
-              Estimated Value: {formData.formattedApiEstimatedValue}
+              Estimated Value: {formattedValue}
             </div>
           )}
           
