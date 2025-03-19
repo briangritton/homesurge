@@ -27,6 +27,10 @@ export async function submitLeadToZoho(formData) {
       apiMaxHomeValue: formData.apiMaxHomeValue?.toString() || '0',
       formattedApiEstimatedValue: formData.formattedApiEstimatedValue || '$0',
       
+      // New equity data
+      apiEquity: formData.apiEquity?.toString() || '0',
+      apiPercentage: formData.apiPercentage?.toString() || '0',
+      
       // Location data
       location: formData.location ? JSON.stringify(formData.location) : '',
       
@@ -34,10 +38,6 @@ export async function submitLeadToZoho(formData) {
       bedrooms: formData.bedrooms?.toString() || '',
       bathrooms: formData.bathrooms?.toString() || '',
       finishedSquareFootage: formData.finishedSquareFootage?.toString() || '',
-      
-      // Equity calculations
-      apiEquity: formData.apiEquity?.toString() || '0',
-      apiPercentage: formData.apiPercentage?.toString() || '0',
       
       // Tracking parameters
       trafficSource: formData.trafficSource || 'Direct',
@@ -50,7 +50,13 @@ export async function submitLeadToZoho(formData) {
       addressSelectionType: formData.addressSelectionType || 'Manual'
     };
     
-    console.log("Submitting lead to Zoho with property data:", preparedData);
+    console.log("Submitting lead to Zoho with property data:", {
+      apiOwnerName: preparedData.apiOwnerName,
+      apiEstimatedValue: preparedData.apiEstimatedValue,
+      apiMaxHomeValue: preparedData.apiMaxHomeValue,
+      apiEquity: preparedData.apiEquity,
+      apiPercentage: preparedData.apiPercentage
+    });
     
     // Set debug flag to get more info from API
     const response = await axios.post('/api/zoho', {
@@ -151,7 +157,13 @@ export async function updateLeadInZoho(leadId, formData) {
       qualifyingQuestionStep: formData.qualifyingQuestionStep?.toString() || '1'
     };
     
-    console.log("Updating lead in Zoho:", { leadId, data: updateData });
+    console.log("Updating lead in Zoho:", { 
+      leadId, 
+      data: {
+        apiEquity: updateData.apiEquity,
+        apiPercentage: updateData.apiPercentage
+      } 
+    });
     
     // Add debug flag to get more info from API
     const response = await axios.post('/api/zoho', {

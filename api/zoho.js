@@ -234,6 +234,8 @@ module.exports = async (req, res) => {
             apiMaxHomeValue: formData.apiMaxHomeValue?.toString() || "0", 
             apiHomeValue: formData.apiEstimatedValue?.toString() || "0",
             apiEstimatedValue: formData.apiEstimatedValue?.toString() || "0",
+            
+            // New equity fields
             apiEquity: formData.apiEquity?.toString() || "0",
             apiPercentage: formData.apiPercentage?.toString() || "0",
             
@@ -283,7 +285,9 @@ module.exports = async (req, res) => {
           apiOwnerName: formData.apiOwnerName,
           apiEstimatedValue: formData.apiEstimatedValue,
           apiMaxHomeValue: formData.apiMaxHomeValue,
-          apiHomeValue: formData.apiEstimatedValue
+          apiHomeValue: formData.apiEstimatedValue,
+          apiEquity: formData.apiEquity,
+          apiPercentage: formData.apiPercentage
         }, null, 2)
       );
       
@@ -346,6 +350,8 @@ module.exports = async (req, res) => {
             apiMaxHomeValue: formData.apiMaxHomeValue?.toString() || "", 
             apiHomeValue: formData.apiEstimatedValue?.toString() || "",
             apiEstimatedValue: formData.apiEstimatedValue?.toString() || "",
+            
+            // Equity fields
             apiEquity: formData.apiEquity?.toString() || "",
             apiPercentage: formData.apiPercentage?.toString() || "",
             

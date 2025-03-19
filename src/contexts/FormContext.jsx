@@ -54,6 +54,9 @@ const initialFormState = {
   apiEstimatedValue: 0,
   apiMaxHomeValue: 0,
   formattedApiEstimatedValue: '',
+  apiEquity: 0,
+  apiPercentage: 0, 
+  mortgageAmount: 0,
   propertyRecord: null
 };
 
@@ -131,10 +134,13 @@ export function FormProvider({ children }) {
     setFormData(prev => ({ ...prev, ...updates }));
     
     // If there are important property data updates, store them
-    if (updates.propertyRecord || updates.apiEstimatedValue || updates.apiOwnerName) {
+    if (updates.propertyRecord || updates.apiEstimatedValue || updates.apiOwnerName || 
+        updates.apiEquity || updates.apiPercentage) {
       console.log("Storing property data updates in localStorage:", {
         apiOwnerName: updates.apiOwnerName,
         apiEstimatedValue: updates.apiEstimatedValue,
+        apiEquity: updates.apiEquity,
+        apiPercentage: updates.apiPercentage,
         propertyRecord: updates.propertyRecord ? "Available" : "Not available"
       });
     }
@@ -170,6 +176,8 @@ export function FormProvider({ children }) {
       apiEstimatedValue: formData.apiEstimatedValue,
       apiMaxHomeValue: formData.apiMaxHomeValue,
       formattedApiEstimatedValue: formData.formattedApiEstimatedValue,
+      apiEquity: formData.apiEquity,
+      apiPercentage: formData.apiPercentage,
       propertyRecord: formData.propertyRecord ? 'Available' : 'Not available'
     });
     
@@ -254,11 +262,13 @@ export function FormProvider({ children }) {
       console.log("Updating lead in Zoho:", leadId, formData);
       
       // Log property data being sent in update
-      if (formData.apiEstimatedValue || formData.apiOwnerName) {
+      if (formData.apiEstimatedValue || formData.apiOwnerName || formData.apiEquity) {
         console.log("Including property data in update:", {
           apiOwnerName: formData.apiOwnerName,
           apiEstimatedValue: formData.apiEstimatedValue,
-          apiMaxHomeValue: formData.apiMaxHomeValue
+          apiMaxHomeValue: formData.apiMaxHomeValue,
+          apiEquity: formData.apiEquity,
+          apiPercentage: formData.apiPercentage
         });
       }
       

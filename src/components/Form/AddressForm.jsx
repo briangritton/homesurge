@@ -126,12 +126,15 @@ function AddressForm() {
           }).format(estimatedValue);
         }
         
-        // Update form data with property information
+        // Update form data with property information including equity fields
         updateFormData({
           apiOwnerName: propertyData.apiOwnerName || '',
           apiEstimatedValue: propertyData.apiEstimatedValue || 0,
           apiMaxHomeValue: propertyData.apiMaxValue || 0,
+          apiEquity: propertyData.apiEquity || 0,
+          apiPercentage: propertyData.apiPercentage || 0,
           formattedApiEstimatedValue: formattedValue,
+          mortgageAmount: propertyData.mortgageAmount || 0,
           bedrooms: propertyData.bedrooms || '',
           bathrooms: propertyData.bathrooms || '',
           finishedSquareFootage: propertyData.finishedSquareFootage || 1000,
@@ -143,7 +146,12 @@ function AddressForm() {
           propertyRecord: propertyData.propertyRecord,
         });
         
-        console.log('Form data updated with property info, estimated value:', formattedValue);
+        console.log('Form data updated with property info:', {
+          estimatedValue: formattedValue,
+          apiEquity: propertyData.apiEquity,
+          apiPercentage: propertyData.apiPercentage
+        });
+        
         return propertyData;
       } else {
         console.log('No property data found for address:', address);
@@ -282,6 +290,8 @@ function AddressForm() {
           apiOwnerName: formData.apiOwnerName,
           apiEstimatedValue: formData.apiEstimatedValue,
           apiMaxHomeValue: formData.apiMaxHomeValue,
+          apiEquity: formData.apiEquity,
+          apiPercentage: formData.apiPercentage,
           formattedValue: formData.formattedApiEstimatedValue,
           propertyRecord: formData.propertyRecord ? 'Available' : 'Not Available'
         }
