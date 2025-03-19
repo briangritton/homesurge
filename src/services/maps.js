@@ -114,9 +114,10 @@ export async function lookupPropertyInfo(address) {
     console.log(`Looking up property data for: ${address}`);
     
     // Add timeout to prevent long hangs
-    const { data } = await axios.get(url, { timeout: 10000 });
+    const { data } = await axios.get(url, { timeout: 15000 });
     
-    console.log('Property lookup response:', data);
+    // Log the first part of the response to avoid overwhelming the console
+    console.log('Property lookup response received, TotalRecords:', data.TotalRecords);
     
     if (!data.Records || data.Records.length === 0) {
       console.log('No property records found');
@@ -126,10 +127,49 @@ export async function lookupPropertyInfo(address) {
     // Get the first record
     const record = data.Records[0];
     
+    // Enhanced logging: Log the full record to console for analysis
+    console.log('========== FULL MELISSA API RECORD ==========');
+    console.log(JSON.stringify(record, null, 2));
+    console.log('============================================');
+    
+    // Log key categories of data
+    if (record.EstimatedValue) {
+      console.log('EstimatedValue data:', record.EstimatedValue);
+    }
+    
+    if (record.CurrentDeed) {
+      console.log('CurrentDeed data:', record.CurrentDeed);
+    }
+    
+    if (record.PrimaryOwner) {
+      console.log('PrimaryOwner data:', record.PrimaryOwner);
+    }
+    
     // Extract relevant information with safe defaults
     const apiOwnerName = record.PrimaryOwner?.Name1Full || '';
     const apiMaxValue = record.EstimatedValue?.EstimatedMaxValue || 0;
     const apiEstimatedValue = record.EstimatedValue?.EstimatedValue || 0;
+    
+    // Get mortgage amount if available
+    const mortgageAmount = parseInt(record.CurrentDeed?.MortgageAmount || 0, 10);
+    
+    // Calculate equity (property value minus mortgage)
+    let apiEquity = 0;
+    if (apiEstimatedValue > 0 && mortgageAmount > 0) {
+      apiEquity = Math.max(0, apiEstimatedValue - mortgageAmount);
+      console.log(`Calculating equity: ${apiEstimatedValue} - ${mortgageAmount} = ${apiEquity}`);
+    } else if (apiEstimatedValue > 0) {
+      // If we have a property value but no mortgage, assume 100% equity
+      apiEquity = apiEstimatedValue;
+      console.log(`No mortgage data, assuming full equity: ${apiEquity}`);
+    }
+    
+    // Calculate equity percentage
+    let apiPercentage = 0;
+    if (apiEstimatedValue > 0 && apiEquity > 0) {
+      apiPercentage = Math.round((apiEquity / apiEstimatedValue) * 100);
+      console.log(`Calculating equity percentage: (${apiEquity} / ${apiEstimatedValue}) * 100 = ${apiPercentage}%`);
+    }
     
     // Format currency values
     const formattedApiMaxValue = new Intl.NumberFormat('en-US', {
@@ -146,30 +186,48 @@ export async function lookupPropertyInfo(address) {
       maximumFractionDigits: 0
     }).format(apiEstimatedValue);
     
+    const formattedApiEquity = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(apiEquity);
+    
+    console.log('Formatted estimated value:', formattedApiEstimatedValue);
+    console.log('Formatted equity:', formattedApiEquity);
+    console.log('Equity percentage:', `${apiPercentage}%`);
+    
     // Get additional property details with safe defaults
     let bedrooms = '';
     let bathrooms = '';
     let squareFootage = 1000;
     
-    if (record.BuildingData) {
-      bedrooms = record.BuildingData.BedroomCount || '';
-      bathrooms = record.BuildingData.BathroomCount || '';
-      squareFootage = record.BuildingData.AreaBuilding || 1000;
+    if (record.IntRoomInfo) {
+      bedrooms = record.IntRoomInfo.BedroomsCount || '';
+      bathrooms = record.IntRoomInfo.BathCount || '';
+    }
+    
+    if (record.PropertySize) {
+      squareFootage = record.PropertySize.AreaBuilding || 1000;
     }
     
     // Get address components with safe defaults
-    const city = record.AddressData?.City || '';
-    const zip = record.AddressData?.PostalCode || '';
-    const state = record.AddressData?.State || 'GA';
+    const city = record.PropertyAddress?.City || '';
+    const zip = record.PropertyAddress?.Zip?.split('-')[0] || '';
+    const state = record.PropertyAddress?.State || 'GA';
     
     // Create result object with all the needed data
-    return {
+    const result = {
       propertyRecord: record,
       apiOwnerName,
       apiMaxValue,
       apiEstimatedValue,
+      mortgageAmount,
+      apiEquity,
+      apiPercentage,
       formattedApiMaxValue,
       formattedApiEstimatedValue,
+      formattedApiEquity,
       bedrooms,
       bathrooms,
       finishedSquareFootage: squareFootage,
@@ -177,8 +235,18 @@ export async function lookupPropertyInfo(address) {
       zip,
       state
     };
+    
+    console.log('Returning property data with estimated value:', result.formattedApiEstimatedValue);
+    return result;
   } catch (error) {
     console.error('Error looking up property:', error);
+    if (error.response) {
+      console.error('API response error:', error.response.status, error.response.data);
+    } else if (error.request) {
+      console.error('No response received from API');
+    } else {
+      console.error('Error message:', error.message);
+    }
     // Return null instead of throwing, so the app continues to work
     return null;
   }

@@ -218,9 +218,9 @@ module.exports = async (req, res) => {
             Description: `Property: ${formData.street}`,
             
             // Property details - using exact field names from Zoho
-            isPropertyOwner: formData.isPropertyOwner,
-            needRepairs: formData.needsRepairs, // Note: matches Zoho field name (no "s")
-            workingWithAgent: formData.workingWithAgent,
+            isPropertyOwner: formData.isPropertyOwner || "true",
+            needRepairs: formData.needsRepairs || "false", // Note: matches Zoho field name (no "s")
+            workingWithAgent: formData.workingWithAgent || "false",
             homeType: formData.homeType || "",
             remainingMortgage: formData.remainingMortgage?.toString() || "0",
             finishedSquareFootage: formData.finishedSquareFootage?.toString() || "0",
@@ -228,6 +228,16 @@ module.exports = async (req, res) => {
             // Make sure both potential field names are included
             howSoonSell: formData.howSoonSell || "",
             "How soon do you want to sell?": formData.howSoonSell || "",
+            
+            // IMPORTANT: Melissa API data fields
+            apiOwnerName: formData.apiOwnerName || "",
+            apiMaxHomeValue: formData.apiMaxHomeValue?.toString() || "0", 
+            apiHomeValue: formData.apiEstimatedValue?.toString() || "0",
+            apiEstimatedValue: formData.apiEstimatedValue?.toString() || "0",
+            
+            // New equity fields
+            apiEquity: formData.apiEquity?.toString() || "0",
+            apiPercentage: formData.apiPercentage?.toString() || "0",
             
             // Additional property fields
             bedrooms: formData.bedrooms?.toString() || "",
@@ -252,19 +262,15 @@ module.exports = async (req, res) => {
             campaignName: formData.campaignName || "",
             adgroupName: formData.adgroupName || "",
             device: formData.device || "",
+            keyword: formData.keyword || "",
+            gclid: formData.gclid || "",
+            url: formData.url || "",
             
             // Dynamic content
             dynamicHeadline: formData.dynamicHeadline || "",
             dynamicSubHeadline: formData.dynamicSubHeadline || "",
             thankYouHeadline: formData.thankYouHeadline || "",
             thankYouSubHeadline: formData.thankYouSubHeadline || "",
-            
-            // Property valuation
-            apiMaxHomeValue: formData.apiMaxHomeValue?.toString() || "",
-            apiHomeValue: formData.apiEstimatedValue?.toString() || "",
-            apiOwnerName: formData.apiOwnerName || "",
-            apiEquity: formData.apiEquity?.toString() || "0",
-            apiPercentage: formData.apiPercentage?.toString() || "0",
             
             // Metadata
             addressSelectionType: formData.addressSelectionType || "Manual",
@@ -274,7 +280,16 @@ module.exports = async (req, res) => {
         ]
       };
       
-      console.log("Creating lead with payload:", JSON.stringify(payload, null, 2));
+      console.log("Creating lead with property data fields:", 
+        JSON.stringify({
+          apiOwnerName: formData.apiOwnerName,
+          apiEstimatedValue: formData.apiEstimatedValue,
+          apiMaxHomeValue: formData.apiMaxHomeValue,
+          apiHomeValue: formData.apiEstimatedValue,
+          apiEquity: formData.apiEquity,
+          apiPercentage: formData.apiPercentage
+        }, null, 2)
+      );
       
       try {
         const response = await axios.post(
@@ -320,15 +335,25 @@ module.exports = async (req, res) => {
             id: leadId,
             
             // Property details - using exact field names from Zoho
-            isPropertyOwner: formData.isPropertyOwner,
-            needRepairs: formData.needsRepairs, // Matches Zoho field name (no "s")
-            workingWithAgent: formData.workingWithAgent,
+            isPropertyOwner: formData.isPropertyOwner || "",
+            needRepairs: formData.needsRepairs || "", // Matches Zoho field name (no "s")
+            workingWithAgent: formData.workingWithAgent || "",
             homeType: formData.homeType || "",
-            remainingMortgage: formData.remainingMortgage?.toString() || "0",
-            finishedSquareFootage: formData.finishedSquareFootage?.toString() || "0",
-            basementSquareFootage: formData.basementSquareFootage?.toString() || "0",
+            remainingMortgage: formData.remainingMortgage?.toString() || "",
+            finishedSquareFootage: formData.finishedSquareFootage?.toString() || "",
+            basementSquareFootage: formData.basementSquareFootage?.toString() || "",
             howSoonSell: formData.howSoonSell || "",
             "How soon do you want to sell?": formData.howSoonSell || "",
+            
+            // IMPORTANT: Melissa API data fields (in case they weren't in initial creation)
+            apiOwnerName: formData.apiOwnerName || "",
+            apiMaxHomeValue: formData.apiMaxHomeValue?.toString() || "", 
+            apiHomeValue: formData.apiEstimatedValue?.toString() || "",
+            apiEstimatedValue: formData.apiEstimatedValue?.toString() || "",
+            
+            // Equity fields
+            apiEquity: formData.apiEquity?.toString() || "",
+            apiPercentage: formData.apiPercentage?.toString() || "",
             
             // Additional property fields
             bedrooms: formData.bedrooms?.toString() || "",

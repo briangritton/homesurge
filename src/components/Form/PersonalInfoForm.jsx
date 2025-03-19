@@ -230,6 +230,12 @@ function PersonalInfoForm() {
             {formData.street}
           </div>
           
+          {formData.formattedApiEstimatedValue && formData.formattedApiEstimatedValue !== '$0' && (
+            <div className="hero-property-estimate">
+              Estimated Value: {formData.formattedApiEstimatedValue}
+            </div>
+          )}
+          
           {/* Google Map */}
           <div 
             ref={mapContainerRef}

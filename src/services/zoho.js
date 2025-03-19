@@ -8,26 +8,55 @@ import axios from 'axios';
  */
 export async function submitLeadToZoho(formData) {
   try {
-    // Ensure all required fields are present in a simplified manner
+    // Include all relevant property data from Melissa API
     const preparedData = {
+      // Basic user info
       name: formData.name || '',
       phone: formData.phone || '',
       email: formData.email || '',
+      
+      // Address info
       street: formData.street || '',
       city: formData.city || '',
       zip: formData.zip || '',
       state: formData.state || 'GA',
-      // Include tracking parameters
+      
+      // Property data from Melissa API
+      apiOwnerName: formData.apiOwnerName || '',
+      apiEstimatedValue: formData.apiEstimatedValue?.toString() || '0',
+      apiMaxHomeValue: formData.apiMaxHomeValue?.toString() || '0',
+      formattedApiEstimatedValue: formData.formattedApiEstimatedValue || '$0',
+      
+      // New equity data
+      apiEquity: formData.apiEquity?.toString() || '0',
+      apiPercentage: formData.apiPercentage?.toString() || '0',
+      
+      // Location data
+      location: formData.location ? JSON.stringify(formData.location) : '',
+      
+      // Additional property details
+      bedrooms: formData.bedrooms?.toString() || '',
+      bathrooms: formData.bathrooms?.toString() || '',
+      finishedSquareFootage: formData.finishedSquareFootage?.toString() || '',
+      
+      // Tracking parameters
       trafficSource: formData.trafficSource || 'Direct',
       url: formData.url || '',
       gclid: formData.gclid || '',
       device: formData.device || '',
       campaignName: formData.campaignName || '',
       adgroupName: formData.adgroupName || '',
-      keyword: formData.keyword || ''
+      keyword: formData.keyword || '',
+      addressSelectionType: formData.addressSelectionType || 'Manual'
     };
     
-    console.log("Submitting lead to Zoho:", preparedData);
+    console.log("Submitting lead to Zoho with property data:", {
+      apiOwnerName: preparedData.apiOwnerName,
+      apiEstimatedValue: preparedData.apiEstimatedValue,
+      apiMaxHomeValue: preparedData.apiMaxHomeValue,
+      apiEquity: preparedData.apiEquity,
+      apiPercentage: preparedData.apiPercentage
+    });
     
     // Set debug flag to get more info from API
     const response = await axios.post('/api/zoho', {
@@ -111,6 +140,14 @@ export async function updateLeadInZoho(leadId, formData) {
       howSoonSell: formData.howSoonSell || 'ASAP',
       "How soon do you want to sell?": formData.howSoonSell || 'ASAP',
       
+      // Property data from Melissa API (in case it wasn't sent in initial creation)
+      apiOwnerName: formData.apiOwnerName || '',
+      apiEstimatedValue: formData.apiEstimatedValue?.toString() || '0',
+      apiMaxHomeValue: formData.apiMaxHomeValue?.toString() || '0',
+      apiHomeValue: formData.apiEstimatedValue?.toString() || '0',
+      apiEquity: formData.apiEquity?.toString() || '0',
+      apiPercentage: formData.apiPercentage?.toString() || '0',
+      
       // Appointment information
       wantToSetAppointment: formData.wantToSetAppointment || 'false',
       selectedAppointmentDate: formData.selectedAppointmentDate || '',
@@ -120,7 +157,13 @@ export async function updateLeadInZoho(leadId, formData) {
       qualifyingQuestionStep: formData.qualifyingQuestionStep?.toString() || '1'
     };
     
-    console.log("Updating lead in Zoho:", { leadId, data: updateData });
+    console.log("Updating lead in Zoho:", { 
+      leadId, 
+      data: {
+        apiEquity: updateData.apiEquity,
+        apiPercentage: updateData.apiPercentage
+      } 
+    });
     
     // Add debug flag to get more info from API
     const response = await axios.post('/api/zoho', {
