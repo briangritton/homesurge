@@ -1029,3 +1029,36 @@
 .pac-icon {
   margin-right: 7px;
 }
+
+
+/* Added CSS for hero-property-estimate */
+.hero-1-api-address {
+  font-size: 1.5rem;
+  margin-left: 4px;
+}
+
+.hero-property-estimate {
+  margin-top: 10px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #3490d1;
+  padding: 10px;
+  background-color: rgba(52, 144, 209, 0.1);
+  border-radius: 5px;
+  display: inline-block;
+}
+
+/* Media queries for property estimate display */
+@media only screen and (max-width: 768px) {
+  .hero-property-estimate {
+    font-size: 1.3rem;
+    padding: 8px;
+  }
+}
+
+@media only screen and (max-width: 560px) {
+  .hero-property-estimate {
+    font-size: 1.1rem;
+    padding: 6px;
+  }
+}

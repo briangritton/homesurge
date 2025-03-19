@@ -114,9 +114,10 @@ export async function lookupPropertyInfo(address) {
     console.log(`Looking up property data for: ${address}`);
     
     // Add timeout to prevent long hangs
-    const { data } = await axios.get(url, { timeout: 10000 });
+    const { data } = await axios.get(url, { timeout: 15000 });
     
-    console.log('Property lookup response:', data);
+    // Log the first part of the response to avoid overwhelming the console
+    console.log('Property lookup response received, TotalRecords:', data.TotalRecords);
     
     if (!data.Records || data.Records.length === 0) {
       console.log('No property records found');
@@ -125,6 +126,13 @@ export async function lookupPropertyInfo(address) {
     
     // Get the first record
     const record = data.Records[0];
+    
+    // Log key property values for debugging
+    if (record.EstimatedValue) {
+      console.log('Property estimated value:', record.EstimatedValue.EstimatedValue);
+    } else {
+      console.log('No estimated value found in property data');
+    }
     
     // Extract relevant information with safe defaults
     const apiOwnerName = record.PrimaryOwner?.Name1Full || '';
@@ -146,6 +154,8 @@ export async function lookupPropertyInfo(address) {
       maximumFractionDigits: 0
     }).format(apiEstimatedValue);
     
+    console.log('Formatted estimated value:', formattedApiEstimatedValue);
+    
     // Get additional property details with safe defaults
     let bedrooms = '';
     let bathrooms = '';
@@ -163,7 +173,7 @@ export async function lookupPropertyInfo(address) {
     const state = record.AddressData?.State || 'GA';
     
     // Create result object with all the needed data
-    return {
+    const result = {
       propertyRecord: record,
       apiOwnerName,
       apiMaxValue,
@@ -177,8 +187,18 @@ export async function lookupPropertyInfo(address) {
       zip,
       state
     };
+    
+    console.log('Returning property data with estimated value:', result.formattedApiEstimatedValue);
+    return result;
   } catch (error) {
     console.error('Error looking up property:', error);
+    if (error.response) {
+      console.error('API response error:', error.response.status, error.response.data);
+    } else if (error.request) {
+      console.error('No response received from API');
+    } else {
+      console.error('Error message:', error.message);
+    }
     // Return null instead of throwing, so the app continues to work
     return null;
   }
