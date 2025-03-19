@@ -274,9 +274,16 @@ function QualifyingForm() {
                 onClick={(e) => {
                   // Make sure this properly updates the value and triggers a save
                   const repairValue = e.target.value;
+                  // Log the exact value we're sending to ensure it's correct
                   console.log("Setting needsRepairs to:", repairValue);
+                  // Ensure needsRepairs is set as a string 'true' or 'false' for consistency
                   handleValueUpdate('needsRepairs', repairValue);
                   setSelectedOptionLR('left');
+                  
+                  // Debugging: Add additional log to confirm update in form data
+                  setTimeout(() => {
+                    console.log("Form data needsRepairs after update:", formData.needsRepairs);
+                  }, 100);
                 }}
               >
                 No
@@ -289,8 +296,14 @@ function QualifyingForm() {
                   // Make sure this properly updates the value and triggers a save
                   const repairValue = e.target.value;
                   console.log("Setting needsRepairs to:", repairValue);
+                  // Ensure needsRepairs is set as a string 'true' or 'false' for consistency
                   handleValueUpdate('needsRepairs', repairValue);
                   setSelectedOptionLR('right');
+                  
+                  // Debugging: Add additional log to confirm update in form data
+                  setTimeout(() => {
+                    console.log("Form data needsRepairs after update:", formData.needsRepairs);
+                  }, 100);
                 }}
               >
                 Yes
@@ -572,13 +585,40 @@ function QualifyingForm() {
                       updateFormData({ selectedAppointmentTime: appointmentTime });
                       setDropdownOpen(false);
                       
-                      // Start background update to Zoho and proceed to completion
-                      updateLead().then(() => console.log('Appointment time saved'));
+                      // Add debugging to verify the update took effect
+                      console.log("Current appointment data:", {
+                        date: formData.selectedAppointmentDate,
+                        time: appointmentTime,
+                        wantToSetAppointment: formData.wantToSetAppointment
+                      });
                       
-                      // Add a delay to ensure the form data is updated
+                      // Do a more explicit update to ensure values are set before completing
+                      const updatedFormData = {
+                        selectedAppointmentTime: appointmentTime,
+                        wantToSetAppointment: 'true' // Ensure this is explicitly set to 'true'
+                      };
+                      
+                      // Update form data and wait for it to finish
+                      updateFormData(updatedFormData);
+                      
+                      // Wait a moment to ensure data is updated, then do explicit Zoho update
                       setTimeout(() => {
-                        // Move to completion
-                        completeForm();
+                        console.log("Updated appointment data before Zoho save:", {
+                          time: formData.selectedAppointmentTime, 
+                          date: formData.selectedAppointmentDate,
+                          wantApp: formData.wantToSetAppointment
+                        });
+                        
+                        // Start background update to Zoho with explicit form data
+                        updateLead().then(success => {
+                          console.log('Appointment time saved to Zoho:', success ? 'Success' : 'Failed');
+                          // Move to completion after the update
+                          completeForm();
+                        }).catch(err => {
+                          console.error('Error saving appointment:', err);
+                          // Still move forward even if there's an error
+                          completeForm();
+                        });
                       }, 300);
                     }}
                   >

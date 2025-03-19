@@ -219,7 +219,8 @@ module.exports = async (req, res) => {
             
             // Property details - using exact field names from Zoho
             isPropertyOwner: formData.isPropertyOwner || "true",
-            needsRepairs: formData.needsRepairs || "false", // Note: matches Zoho field name (no "s")
+            // IMPORTANT: Make sure this is explicitly defined as a string
+            needsRepairs: formData.needsRepairs ? formData.needsRepairs.toString() : "false",
             workingWithAgent: formData.workingWithAgent || "false",
             homeType: formData.homeType || "",
             remainingMortgage: formData.remainingMortgage?.toString() || "0",
@@ -239,10 +240,13 @@ module.exports = async (req, res) => {
             apiEquity: formData.apiEquity?.toString() || "0",
             apiPercentage: formData.apiPercentage?.toString() || "0",
             
-            // Appointment information
-            wantToSetAppointment: formData.wantToSetAppointment || "false",
+            // Appointment information - make sure these are explicitly set with string values
+            wantToSetAppointment: formData.wantToSetAppointment ? formData.wantToSetAppointment.toString() : "false",
             selectedAppointmentDate: formData.selectedAppointmentDate || "",
             selectedAppointmentTime: formData.selectedAppointmentTime || "",
+            // Add alternative field names that Zoho might be expecting
+            AppointmentDate: formData.selectedAppointmentDate || "",
+            AppointmentTime: formData.selectedAppointmentTime || "",
             
             // Additional property fields
             bedrooms: formData.bedrooms?.toString() || "",
@@ -340,7 +344,8 @@ module.exports = async (req, res) => {
             
             // Property details - using exact field names from Zoho
             isPropertyOwner: formData.isPropertyOwner || "",
-            needsRepairs: formData.needsRepairs || "", // Matches Zoho field name (no "s")
+            // IMPORTANT: Make sure needsRepairs is explicitly set as a string
+            needsRepairs: formData.needsRepairs ? formData.needsRepairs.toString() : "", 
             workingWithAgent: formData.workingWithAgent || "",
             homeType: formData.homeType || "",
             remainingMortgage: formData.remainingMortgage?.toString() || "",
@@ -359,10 +364,13 @@ module.exports = async (req, res) => {
             apiEquity: formData.apiEquity?.toString() || "",
             apiPercentage: formData.apiPercentage?.toString() || "",
             
-            // Appointment information - make sure these are included
-            wantToSetAppointment: formData.wantToSetAppointment || "",
+            // Appointment information - make sure these are explicitly set as strings
+            wantToSetAppointment: formData.wantToSetAppointment ? formData.wantToSetAppointment.toString() : "",
             selectedAppointmentDate: formData.selectedAppointmentDate || "",
             selectedAppointmentTime: formData.selectedAppointmentTime || "",
+            // Add alternative field names that Zoho might be expecting
+            AppointmentDate: formData.selectedAppointmentDate || "",
+            AppointmentTime: formData.selectedAppointmentTime || "",
             
             // Additional property fields
             bedrooms: formData.bedrooms?.toString() || "",
