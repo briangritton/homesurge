@@ -31,8 +31,16 @@ function QualifyingForm() {
     }
   }, [leadId, saveAttempted]);
   
-  // Update toggle button styles based on selection
+  // Initialize button states based on existing data
   useEffect(() => {
+    // Set the selected option for property repairs
+    if (formData.needsRepairs === 'true') {
+      setSelectedOptionLR('right');
+    } else {
+      setSelectedOptionLR('left');
+    }
+    
+    // Update toggle button styles based on selection
     if (toggleLeftRef.current && toggleRightRef.current) {
       if (selectedOptionLR === 'left') {
         toggleLeftRef.current.className = 'qualifying-toggle-selected-left';
@@ -42,7 +50,7 @@ function QualifyingForm() {
         toggleRightRef.current.className = 'qualifying-toggle-selected-right';
       }
     }
-  }, [selectedOptionLR]);
+  }, [selectedOptionLR, formData.needsRepairs]);
   
   // Scroll to top when step changes
   useEffect(() => {
@@ -139,6 +147,9 @@ function QualifyingForm() {
     setQualifyingStep(nextQuestionStep);
     updateFormData({ qualifyingQuestionStep: nextQuestionStep });
     
+    // Log the update for debugging
+    console.log(`Updating ${fieldName} = ${value}`);
+    
     // Then start the background update to Zoho
     setTimeout(() => {
       console.log(`Background update to Zoho with ${fieldName} = ${value}`);
@@ -158,6 +169,14 @@ function QualifyingForm() {
   const completeForm = () => {
     // Update lead in Zoho one final time
     console.log('Finalizing lead data with qualifying form answers');
+    
+    // Ensure all form data is properly set before finalizing
+    console.log('Final form data before completion:', {
+      needsRepairs: formData.needsRepairs,
+      wantToSetAppointment: formData.wantToSetAppointment,
+      selectedAppointmentDate: formData.selectedAppointmentDate,
+      selectedAppointmentTime: formData.selectedAppointmentTime
+    });
     
     // Initiate Zoho update in the background
     updateLead().then(() => {
@@ -241,6 +260,7 @@ function QualifyingForm() {
         
       case 2:
         // Repairs needed question
+        // IMPORTANT: This is where needsRepairs is set
         return (
           <div className="qualifying-option-column">
             <div className="qualifying-question">
@@ -252,7 +272,10 @@ function QualifyingForm() {
                 ref={toggleLeftRef}
                 value="false"
                 onClick={(e) => {
-                  handleValueUpdate('needsRepairs', e.target.value);
+                  // Make sure this properly updates the value and triggers a save
+                  const repairValue = e.target.value;
+                  console.log("Setting needsRepairs to:", repairValue);
+                  handleValueUpdate('needsRepairs', repairValue);
                   setSelectedOptionLR('left');
                 }}
               >
@@ -263,7 +286,10 @@ function QualifyingForm() {
                 ref={toggleRightRef}
                 value="true"
                 onClick={(e) => {
-                  handleValueUpdate('needsRepairs', e.target.value);
+                  // Make sure this properly updates the value and triggers a save
+                  const repairValue = e.target.value;
+                  console.log("Setting needsRepairs to:", repairValue);
+                  handleValueUpdate('needsRepairs', repairValue);
                   setSelectedOptionLR('right');
                 }}
               >
@@ -541,14 +567,19 @@ function QualifyingForm() {
                     key={index}
                     onClick={() => {
                       // Update form data
-                      updateFormData({ selectedAppointmentTime: time });
+                      const appointmentTime = time;
+                      console.log("Setting selectedAppointmentTime to:", appointmentTime);
+                      updateFormData({ selectedAppointmentTime: appointmentTime });
                       setDropdownOpen(false);
                       
                       // Start background update to Zoho and proceed to completion
                       updateLead().then(() => console.log('Appointment time saved'));
                       
-                      // Move to completion immediately
-                      completeForm();
+                      // Add a delay to ensure the form data is updated
+                      setTimeout(() => {
+                        // Move to completion
+                        completeForm();
+                      }, 300);
                     }}
                   >
                     &nbsp;&nbsp;{time}

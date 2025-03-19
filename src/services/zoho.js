@@ -31,6 +31,17 @@ export async function submitLeadToZoho(formData) {
       apiEquity: formData.apiEquity?.toString() || '0',
       apiPercentage: formData.apiPercentage?.toString() || '0',
       
+      // Property qualification data
+      isPropertyOwner: formData.isPropertyOwner || 'true',
+      needsRepairs: formData.needsRepairs || 'false', // Make sure this is included
+      workingWithAgent: formData.workingWithAgent || 'false',
+      homeType: formData.homeType || 'Single Family',
+      
+      // Appointment info
+      wantToSetAppointment: formData.wantToSetAppointment || 'false',
+      selectedAppointmentDate: formData.selectedAppointmentDate || '',
+      selectedAppointmentTime: formData.selectedAppointmentTime || '',
+      
       // Location data
       location: formData.location ? JSON.stringify(formData.location) : '',
       
@@ -50,7 +61,10 @@ export async function submitLeadToZoho(formData) {
       addressSelectionType: formData.addressSelectionType || 'Manual'
     };
     
-    console.log("Submitting lead to Zoho with property data:", {
+    console.log("Submitting lead to Zoho with property and appointment data:", {
+      needsRepairs: preparedData.needsRepairs,
+      appointmentDate: preparedData.selectedAppointmentDate,
+      appointmentTime: preparedData.selectedAppointmentTime,
       apiOwnerName: preparedData.apiOwnerName,
       apiEstimatedValue: preparedData.apiEstimatedValue,
       apiMaxHomeValue: preparedData.apiMaxHomeValue,
@@ -131,7 +145,7 @@ export async function updateLeadInZoho(leadId, formData) {
     const updateData = {
       // Property qualifications - using exact field names from Zoho API
       isPropertyOwner: formData.isPropertyOwner || 'true',
-      needRepairs: formData.needsRepairs || 'false', 
+      needsRepairs: formData.needsRepairs || 'false', 
       workingWithAgent: formData.workingWithAgent || 'false',
       homeType: formData.homeType || 'Single Family',
       remainingMortgage: formData.remainingMortgage?.toString() || '0',
@@ -160,6 +174,10 @@ export async function updateLeadInZoho(leadId, formData) {
     console.log("Updating lead in Zoho:", { 
       leadId, 
       data: {
+        needsRepairs: updateData.needsRepairs,
+        wantToSetAppointment: updateData.wantToSetAppointment,
+        selectedAppointmentDate: updateData.selectedAppointmentDate,
+        selectedAppointmentTime: updateData.selectedAppointmentTime,
         apiEquity: updateData.apiEquity,
         apiPercentage: updateData.apiPercentage
       } 

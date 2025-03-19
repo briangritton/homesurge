@@ -219,7 +219,7 @@ module.exports = async (req, res) => {
             
             // Property details - using exact field names from Zoho
             isPropertyOwner: formData.isPropertyOwner || "true",
-            needRepairs: formData.needsRepairs || "false", // Note: matches Zoho field name (no "s")
+            needsRepairs: formData.needsRepairs || "false", // Note: matches Zoho field name (no "s")
             workingWithAgent: formData.workingWithAgent || "false",
             homeType: formData.homeType || "",
             remainingMortgage: formData.remainingMortgage?.toString() || "0",
@@ -239,6 +239,11 @@ module.exports = async (req, res) => {
             apiEquity: formData.apiEquity?.toString() || "0",
             apiPercentage: formData.apiPercentage?.toString() || "0",
             
+            // Appointment information
+            wantToSetAppointment: formData.wantToSetAppointment || "false",
+            selectedAppointmentDate: formData.selectedAppointmentDate || "",
+            selectedAppointmentTime: formData.selectedAppointmentTime || "",
+            
             // Additional property fields
             bedrooms: formData.bedrooms?.toString() || "",
             bathrooms: formData.bathrooms?.toString() || "",
@@ -251,11 +256,6 @@ module.exports = async (req, res) => {
             septicOrSewer: formData.septicOrSewer || "",
             knownIssues: formData.knownIssues || "",
             reasonForSelling: formData.reasonForSelling || "",
-            
-            // Appointment information
-            wantToSetAppointment: formData.wantToSetAppointment || "",
-            selectedAppointmentDate: formData.selectedAppointmentDate || "",
-            selectedAppointmentTime: formData.selectedAppointmentTime || "",
             
             // Marketing information
             trafficSource: formData.trafficSource || "",
@@ -280,12 +280,16 @@ module.exports = async (req, res) => {
         ]
       };
       
-      console.log("Creating lead with property data fields:", 
+      // Log the data being sent for debugging
+      console.log("Creating lead with key fields:", 
         JSON.stringify({
+          needsRepairs: formData.needsRepairs,
+          wantToSetAppointment: formData.wantToSetAppointment,
+          selectedAppointmentDate: formData.selectedAppointmentDate,
+          selectedAppointmentTime: formData.selectedAppointmentTime,
           apiOwnerName: formData.apiOwnerName,
           apiEstimatedValue: formData.apiEstimatedValue,
           apiMaxHomeValue: formData.apiMaxHomeValue,
-          apiHomeValue: formData.apiEstimatedValue,
           apiEquity: formData.apiEquity,
           apiPercentage: formData.apiPercentage
         }, null, 2)
@@ -336,7 +340,7 @@ module.exports = async (req, res) => {
             
             // Property details - using exact field names from Zoho
             isPropertyOwner: formData.isPropertyOwner || "",
-            needRepairs: formData.needsRepairs || "", // Matches Zoho field name (no "s")
+            needsRepairs: formData.needsRepairs || "", // Matches Zoho field name (no "s")
             workingWithAgent: formData.workingWithAgent || "",
             homeType: formData.homeType || "",
             remainingMortgage: formData.remainingMortgage?.toString() || "",
@@ -355,6 +359,11 @@ module.exports = async (req, res) => {
             apiEquity: formData.apiEquity?.toString() || "",
             apiPercentage: formData.apiPercentage?.toString() || "",
             
+            // Appointment information - make sure these are included
+            wantToSetAppointment: formData.wantToSetAppointment || "",
+            selectedAppointmentDate: formData.selectedAppointmentDate || "",
+            selectedAppointmentTime: formData.selectedAppointmentTime || "",
+            
             // Additional property fields
             bedrooms: formData.bedrooms?.toString() || "",
             bathrooms: formData.bathrooms?.toString() || "",
@@ -368,16 +377,23 @@ module.exports = async (req, res) => {
             knownIssues: formData.knownIssues || "",
             reasonForSelling: formData.reasonForSelling || "",
             
-            // Appointment information
-            wantToSetAppointment: formData.wantToSetAppointment || "",
-            selectedAppointmentDate: formData.selectedAppointmentDate || "",
-            selectedAppointmentTime: formData.selectedAppointmentTime || "",
-            
             // Metadata
             qualifyingQuestionStep: formData.qualifyingQuestionStep?.toString() || ""
           }
         ]
       };
+      
+      // Log the data being updated for debugging
+      console.log("Updating lead with key fields:", 
+        JSON.stringify({
+          needsRepairs: formData.needsRepairs,
+          wantToSetAppointment: formData.wantToSetAppointment,
+          selectedAppointmentDate: formData.selectedAppointmentDate,
+          selectedAppointmentTime: formData.selectedAppointmentTime,
+          apiEquity: formData.apiEquity,
+          apiPercentage: formData.apiPercentage
+        }, null, 2)
+      );
       
       try {
         const response = await axios.put(
