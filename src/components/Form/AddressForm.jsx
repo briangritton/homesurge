@@ -48,8 +48,8 @@ function AddressForm() {
       setErrorMessage('');
     }
     
-    // If the user has typed more than 5 characters, request address predictions
-    if (value.length > 5 && googleApiLoaded && autocompleteServiceRef.current) {
+    // If the user has typed more than 2 characters, request address predictions
+    if (value.length >= 2 && googleApiLoaded && autocompleteServiceRef.current) {
       autocompleteServiceRef.current.getPlacePredictions({
         input: value,
         sessionToken: sessionTokenRef.current,
@@ -59,11 +59,12 @@ function AddressForm() {
         if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
           // Store the first suggestion for potential use if user doesn't select one
           setFirstSuggestion(predictions[0]);
+          console.log('Got suggestion:', predictions[0].description);
         } else {
           setFirstSuggestion(null);
         }
       });
-    } else if (value.length <= 5) {
+    } else if (value.length < 2) {
       // Clear first suggestion if input is too short
       setFirstSuggestion(null);
     }
@@ -99,25 +100,53 @@ function AddressForm() {
   // Fetch property data from Melissa API
   const fetchPropertyData = async (address) => {
     try {
+      console.log('Fetching property data for address:', address);
       const propertyData = await lookupPropertyInfo(address);
       
       if (propertyData) {
+        console.log('Property data received with available fields:');
+        
+        // Log important fields for analysis
+        const keysToLog = Object.keys(propertyData).filter(key => 
+          key !== 'propertyRecord'
+        );
+        
+        console.log('Available fields in propertyData:', keysToLog);
+        console.log('Complete property data for integration:', propertyData);
+        
+        // Format the estimated value nicely (fallback if not already formatted)
+        let formattedValue = propertyData.formattedApiEstimatedValue;
+        if (!formattedValue || formattedValue === '$0') {
+          const estimatedValue = propertyData.apiEstimatedValue || 0;
+          formattedValue = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+          }).format(estimatedValue);
+        }
+        
         // Update form data with property information
         updateFormData({
-          apiOwnerName: propertyData.apiOwnerName,
-          apiEstimatedValue: propertyData.apiEstimatedValue,
-          apiMaxHomeValue: propertyData.apiMaxValue,
-          formattedApiEstimatedValue: propertyData.formattedApiEstimatedValue,
-          bedrooms: propertyData.bedrooms,
-          bathrooms: propertyData.bathrooms,
-          finishedSquareFootage: propertyData.finishedSquareFootage,
+          apiOwnerName: propertyData.apiOwnerName || '',
+          apiEstimatedValue: propertyData.apiEstimatedValue || 0,
+          apiMaxHomeValue: propertyData.apiMaxValue || 0,
+          formattedApiEstimatedValue: formattedValue,
+          bedrooms: propertyData.bedrooms || '',
+          bathrooms: propertyData.bathrooms || '',
+          finishedSquareFootage: propertyData.finishedSquareFootage || 1000,
           // If city/state/zip weren't set by Google, use Melissa data
-          city: formData.city || propertyData.city,
-          state: formData.state || propertyData.state,
-          zip: formData.zip || propertyData.zip
+          city: formData.city || propertyData.city || '',
+          state: formData.state || propertyData.state || 'GA',
+          zip: formData.zip || propertyData.zip || '',
+          // Store the full property record for access to all fields
+          propertyRecord: propertyData.propertyRecord,
         });
         
+        console.log('Form data updated with property info, estimated value:', formattedValue);
         return propertyData;
+      } else {
+        console.log('No property data found for address:', address);
       }
     } catch (error) {
       console.error('Error fetching property data:', error);
@@ -202,8 +231,8 @@ function AddressForm() {
     setIsLoading(true);
     
     try {
-      // If user hasn't selected an address but has typed enough, try to use first suggestion
-      if (firstSuggestion && formData.street && formData.street.length > 5 && !formData.city) {
+      // If user has entered at least 2 characters and there's a suggestion available
+      if (firstSuggestion && formData.street && formData.street.length >= 2) {
         try {
           console.log('Using first suggestion:', firstSuggestion.description);
           
@@ -218,8 +247,8 @@ function AddressForm() {
         }
       }
       
-      // Validate address
-      if (!validateAddress(formData.street)) {
+      // Validate address - only if we don't have a suggestion to use
+      if (!firstSuggestion && !validateAddress(formData.street)) {
         setErrorMessage('Please enter a valid address to check your cash offer');
         setIsLoading(false);
         return false;
@@ -245,6 +274,18 @@ function AddressForm() {
       
       // Track address submission
       trackAddressSelected(formData.addressSelectionType || 'Manual');
+      
+      // Log the final form data before proceeding to the next step
+      console.log('Final form data before proceeding to next step:', {
+        address: formData.street,
+        propertyData: {
+          apiOwnerName: formData.apiOwnerName,
+          apiEstimatedValue: formData.apiEstimatedValue,
+          apiMaxHomeValue: formData.apiMaxHomeValue,
+          formattedValue: formData.formattedApiEstimatedValue,
+          propertyRecord: formData.propertyRecord ? 'Available' : 'Not Available'
+        }
+      });
       
       // Proceed to next step
       setTimeout(() => {

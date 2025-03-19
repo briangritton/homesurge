@@ -48,6 +48,13 @@ const initialFormState = {
   wantToSetAppointment: 'false',
   selectedAppointmentDate: '',
   selectedAppointmentTime: '',
+  
+  // Property data (Melissa API)
+  apiOwnerName: '',
+  apiEstimatedValue: 0,
+  apiMaxHomeValue: 0,
+  formattedApiEstimatedValue: '',
+  propertyRecord: null
 };
 
 // Create the context
@@ -122,6 +129,15 @@ export function FormProvider({ children }) {
   // Handle form updates
   const updateFormData = (updates) => {
     setFormData(prev => ({ ...prev, ...updates }));
+    
+    // If there are important property data updates, store them
+    if (updates.propertyRecord || updates.apiEstimatedValue || updates.apiOwnerName) {
+      console.log("Storing property data updates in localStorage:", {
+        apiOwnerName: updates.apiOwnerName,
+        apiEstimatedValue: updates.apiEstimatedValue,
+        propertyRecord: updates.propertyRecord ? "Available" : "Not available"
+      });
+    }
   };
 
   // Handle form step navigation
@@ -147,6 +163,16 @@ export function FormProvider({ children }) {
   // Submit initial lead data to Zoho
   const submitLead = async () => {
     setFormData(prev => ({ ...prev, submitting: true }));
+    
+    // Add enhanced logging for property data
+    console.log("Submitting lead with property data:", {
+      apiOwnerName: formData.apiOwnerName,
+      apiEstimatedValue: formData.apiEstimatedValue,
+      apiMaxHomeValue: formData.apiMaxHomeValue,
+      formattedApiEstimatedValue: formData.formattedApiEstimatedValue,
+      propertyRecord: formData.propertyRecord ? 'Available' : 'Not available'
+    });
+    
     try {
       console.log("Submitting lead to Zoho:", formData);
       const id = await submitLeadToZoho(formData);
@@ -165,6 +191,12 @@ export function FormProvider({ children }) {
           console.log("Successfully saved valid lead ID:", id);
         }
       }
+      
+      // Save the form data including full property record to localStorage
+      localStorage.setItem('formData', JSON.stringify({
+        ...formData,
+        propertyRecord: formData.propertyRecord || null
+      }));
       
       setFormData(prev => ({ 
         ...prev, 
@@ -220,6 +252,16 @@ export function FormProvider({ children }) {
     
     try {
       console.log("Updating lead in Zoho:", leadId, formData);
+      
+      // Log property data being sent in update
+      if (formData.apiEstimatedValue || formData.apiOwnerName) {
+        console.log("Including property data in update:", {
+          apiOwnerName: formData.apiOwnerName,
+          apiEstimatedValue: formData.apiEstimatedValue,
+          apiMaxHomeValue: formData.apiMaxHomeValue
+        });
+      }
+      
       await updateLeadInZoho(leadId, formData);
       console.log("Lead updated successfully");
       return true;

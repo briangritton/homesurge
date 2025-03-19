@@ -127,11 +127,30 @@ export async function lookupPropertyInfo(address) {
     // Get the first record
     const record = data.Records[0];
     
-    // Log key property values for debugging
+    // Enhanced logging: Log the full record to console for analysis
+    console.log('========== FULL MELISSA API RECORD ==========');
+    console.log(JSON.stringify(record, null, 2));
+    console.log('============================================');
+    
+    // Log key categories of data
     if (record.EstimatedValue) {
-      console.log('Property estimated value:', record.EstimatedValue.EstimatedValue);
-    } else {
-      console.log('No estimated value found in property data');
+      console.log('EstimatedValue data:', record.EstimatedValue);
+    }
+    
+    if (record.PrimaryOwner) {
+      console.log('PrimaryOwner data:', record.PrimaryOwner);
+    }
+    
+    if (record.BuildingData) {
+      console.log('BuildingData data:', record.BuildingData);
+    }
+    
+    if (record.TaxData) {
+      console.log('TaxData data:', record.TaxData);
+    }
+    
+    if (record.SaleData) {
+      console.log('SaleData data:', record.SaleData);
     }
     
     // Extract relevant information with safe defaults
