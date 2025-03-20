@@ -86,23 +86,27 @@ body {
   flex: 50% 1;
   text-align: right;
 }
+.header-right a {
+  text-decoration: none;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
 
 .header-logo {
   height: 20px;
 }
 
 .header-phone-icon {
-  color: #2a93db;
-  font-size: 15px;
-  font-weight: bold;
-  margin-bottom: -5px;
+  display: inline-flex;
+  align-items: center;
+  margin-right: 5px;
 }
 
 .header-call-number {
-  font-size: 20px;
-  margin-left: 8px;
-  font-style: italic;
-  font-weight: bold;
+  display: inline-block;
+  text-decoration: none;
+  color: #2a93db;
 }
 
 .header-logo-text {
@@ -124,6 +128,16 @@ body {
   padding-top: 50px;
 }
 
+.footer a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.number-positioner {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
 .footer-copyright {
   display: flex;
   text-align: center;
@@ -1305,4 +1319,17 @@ button:disabled,
   cursor: not-allowed !important;
   background-color: #aaa;
   border-color: #888;
+}
+
+.nav-links li a,
+.nav-links li div {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.nav-links li a:hover,
+.nav-links li div:hover {
+  text-decoration: none;
+  color: #3490d1;
 }
