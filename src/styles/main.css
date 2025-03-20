@@ -185,11 +185,20 @@ body {
   display: flex;
   flex-direction: column;
   flex: 0 0 60%;
-  max-width: 60%;
+ 
   text-align: center;
   justify-content: center;
   align-items: center;
-}
+      
+  width: 100%;
+ 
+  max-width: 750px;
+  }
+
+
+
+
+
 
 .hero-content::before {
   content: "Please confirm your address is correct";
@@ -201,11 +210,16 @@ body {
 }
 
 .hero-headline {
-  font-size: 4rem;
+  font-size: 3rem;
   text-align: center;
   line-height: 4rem;
   font-weight: bold;
+  padding-top: 50px;
 }
+ 
+
+
+
 
 .hero-subheadline {
   font-size: 2rem;
@@ -215,29 +229,30 @@ body {
 
 /* Fix form field and button layout */
 .form-container {
+  align-items: center;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  gap: 5px;
   justify-content: center;
-  gap: 10px;
-  width: 100%;
-  max-width: 800px;
   margin: 20px auto;
-}
+  max-width: 1200px;
+  width: 100%;
+  }
 
-.address-input {
-  flex: 1;
-  min-width: 300px;
-  max-width: 600px;
-  font-size: 1.5rem;
-  color: #333;
-  height: 60px;
-  border-radius: 5px;
-  padding-left: 15px;
-  border: 1px solid #aaa;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  transition: border-color 0.3s, box-shadow 0.3s;
-}
+  .address-input {
+    border: 1px solid #aaa;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px #0000001a;
+    color: #333;
+    flex: 1 1;
+    font-size: 1.5rem;
+    height: 60px;
+    width: 100%;
+    max-width: 1000px;
+    min-width: 300px;
+    padding-left: 15px;
+    transition: border-color .3s,box-shadow .3s;
+    }
 
 
 .address-input:focus {
@@ -267,22 +282,20 @@ body {
 }
 
 .submit-button {
-  flex-shrink: 0;
   background-color: #3490d1;
-  border-color: #2a73a6;
-  color: white;
-  font-weight: bold;
-  font-size: 1.6rem;
-  height: 60px;
+  border: 1px solid #2a73a6;
   border-radius: 5px;
+  box-shadow: 0 1px 4px #0000004d;
+  color: #fff;
+  flex-shrink: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  height: 64px;
+  min-width: 100px;
   padding: 0 40px;
-  transition: background-color 0.3s;
+  transition: background-color .3s;
   white-space: nowrap;
-  min-width: 200px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-  border-style: solid;
-  border-width: 1px;
-}
+  }
 
 .submit-button:hover {
   background-color: #2980b9;
