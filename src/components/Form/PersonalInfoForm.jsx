@@ -11,8 +11,9 @@ function PersonalInfoForm() {
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [editMode, setEditMode] = useState('address'); // New state to track which edit mode: 'address' or 'contact'
-  
+  const [editMode, setEditMode] = useState('address'); // New state to track which edit mode
+  const [editedAddress, setEditedAddress] = useState(formData.street || ''); // Track edited address
+
   const nameRef = useRef(null);
   const phoneRef = useRef(null);
   const addressRef = useRef(null);
@@ -22,7 +23,10 @@ function PersonalInfoForm() {
   // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    
+    // Initialize edited address with current address
+    setEditedAddress(formData.street || '');
+  }, [formData.street]);
   
   // Initialize Google Map when component mounts
   useEffect(() => {
@@ -123,10 +127,11 @@ function PersonalInfoForm() {
     }
   };
   
-  // Handle form input changes
+  // Handle regular form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     
+    // Update the form data state
     updateFormData({ [name]: value });
     
     // Clear validation errors when user starts typing
@@ -134,80 +139,103 @@ function PersonalInfoForm() {
       setNameError('');
     } else if (name === 'phone' && phoneError) {
       setPhoneError('');
-    } else if (name === 'street' && addressError) {
+    }
+  };
+  
+  // Handle address input changes specifically 
+  const handleAddressChange = (e) => {
+    const { value } = e.target;
+    setEditedAddress(value);
+    
+    // Clear address error when user types
+    if (addressError) {
       setAddressError('');
     }
+  };
+  
+  // Update address in form data and reinitialize map
+  const updateAddress = async () => {
+    if (!validateAddress(editedAddress)) {
+      setAddressError('Please enter a valid address');
+      if (addressRef.current) {
+        addressRef.current.className = 'overlay-form-input error';
+      }
+      return false;
+    }
+    
+    // Update form data with the new address
+    updateFormData({ 
+      street: editedAddress,
+      // Reset location to force regeocode
+      location: null
+    });
+    
+    // Close overlay and reset map
+    setOverlayVisible(false);
+    setMapLoaded(false);
+    
+    // Give time for the address update to apply
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    // Reinitialize map with new address
+    if (mapContainerRef.current && window.google && window.google.maps) {
+      initializeMap();
+    }
+    
+    console.log('Address updated to:', editedAddress);
+    return true;
   };
   
   // Handle form submission
   const handleSubmit = async (e, fromOverlay = false) => {
     e.preventDefault();
     
-    // Handle different validation based on edit mode
-    if (editMode === 'contact') {
-      let isValid = true;
+    // Different handling based on edit mode
+    if (editMode === 'address') {
+      // Handle address update
+      const addressUpdated = await updateAddress();
+      if (!addressUpdated) return;
       
-      // Validate name
-      if (!validateName(formData.name)) {
-        setNameError('Please enter a valid name');
-        if (nameRef.current) {
-          nameRef.current.className = 'overlay-form-input error';
-        }
-        isValid = false;
-      } else {
-        setNameError('');
-        if (nameRef.current) {
-          nameRef.current.className = 'overlay-form-input';
-        }
-      }
-      
-      // Validate phone
-      if (!validatePhone(formData.phone)) {
-        setPhoneError('Valid phone required to receive your cash offer details via text message (No Spam Ever)');
-        if (phoneRef.current) {
-          phoneRef.current.className = 'overlay-form-input error';
-        }
-        isValid = false;
-      } else {
-        setPhoneError('');
-        if (phoneRef.current) {
-          phoneRef.current.className = 'overlay-form-input';
-        }
-      }
-      
-      if (!isValid) {
-        return;
-      }
-    } else if (editMode === 'address') {
-      // Validate address
-      if (!validateAddress(formData.street)) {
-        setAddressError('Please enter a valid address');
-        if (addressRef.current) {
-          addressRef.current.className = 'overlay-form-input error';
-        }
-        return;
-      } else {
-        setAddressError('');
-        if (addressRef.current) {
-          addressRef.current.className = 'overlay-form-input';
-        }
-      }
-      
-      // Handle address update - reinitialize map
-      setMapLoaded(false);
-      closeOverlay();
-      
-      // Give time for the map to update
-      setTimeout(() => {
-        if (mapContainerRef.current && window.google && window.google.maps) {
-          initializeMap();
-        }
-      }, 500);
-      
+      // After successfully updating address, don't proceed further
       return;
     }
     
-    // If validation passes, submit the lead
+    // For contact info form
+    let isValid = true;
+    
+    // Validate name
+    if (!validateName(formData.name)) {
+      setNameError('Please enter a valid name');
+      if (nameRef.current) {
+        nameRef.current.className = 'overlay-form-input error';
+      }
+      isValid = false;
+    } else {
+      setNameError('');
+      if (nameRef.current) {
+        nameRef.current.className = 'overlay-form-input';
+      }
+    }
+    
+    // Validate phone
+    if (!validatePhone(formData.phone)) {
+      setPhoneError('Valid phone required to receive your cash offer details via text message (No Spam Ever)');
+      if (phoneRef.current) {
+        phoneRef.current.className = 'overlay-form-input error';
+      }
+      isValid = false;
+    } else {
+      setPhoneError('');
+      if (phoneRef.current) {
+        phoneRef.current.className = 'overlay-form-input';
+      }
+    }
+    
+    if (!isValid) {
+      return;
+    }
+    
+    // If validation passes, submit the lead with the current form data (which includes the updated address)
     try {
       setIsSubmitting(true);
       console.log('Submitting lead with form data:', formData);
@@ -242,7 +270,8 @@ function PersonalInfoForm() {
   
   // Handle "edit info" button click
   const handleEditClick = () => {
-    setEditMode('address'); // Set to address edit mode by default
+    setEditMode('address'); // Set to address edit mode
+    setEditedAddress(formData.street || ''); // Initialize with current address
     setOverlayVisible(true);
   };
   
@@ -292,7 +321,7 @@ function PersonalInfoForm() {
               Where should we send your cash offer?
             </div>
             
-            <form className="overlay-form-fields" onSubmit={(e) => handleSubmit(e, true)}>
+            <form className="overlay-form-fields" onSubmit={handleSubmit}>
               <input
                 ref={nameRef}
                 autoComplete="name"
@@ -355,16 +384,16 @@ function PersonalInfoForm() {
               Edit Property Address
             </div>
             
-            <form className="overlay-form-fields" onSubmit={(e) => handleSubmit(e, true)}>
+            <form className="overlay-form-fields" onSubmit={handleSubmit}>
               <input
                 ref={addressRef}
                 autoComplete="street-address"
                 type="text"
-                name="street"
+                name="editedAddress" // Use a different name to avoid conflicts
                 placeholder="Property address"
                 className="overlay-form-input"
-                value={formData.street || ''}
-                onChange={handleChange}
+                value={editedAddress}
+                onChange={handleAddressChange}
                 onFocus={(e) => e.target.placeholder = ''}
                 onBlur={(e) => e.target.placeholder = 'Property address'}
                 disabled={isSubmitting}
@@ -377,7 +406,8 @@ function PersonalInfoForm() {
               
               <button 
                 className="registration-button" 
-                type="submit"
+                type="button" // Changed to button type to handle custom logic
+                onClick={updateAddress}
                 disabled={isSubmitting}
               >
                 {isSubmitting ? 'UPDATING...' : 'UPDATE ADDRESS'}
