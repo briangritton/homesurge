@@ -1,22 +1,25 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
-import { validateName, validatePhone } from '../../utils/validation.js';
+import { validateName, validatePhone, validateAddress } from '../../utils/validation.js';
 import { trackPhoneNumberLead } from '../../services/analytics';
 
 function PersonalInfoForm() {
   const { formData, updateFormData, nextStep, submitLead } = useFormContext();
   const [nameError, setNameError] = useState('');
   const [phoneError, setPhoneError] = useState('');
+  const [addressError, setAddressError] = useState('');
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [editMode, setEditMode] = useState('address'); // New state to track which edit mode: 'address' or 'contact'
   
   const nameRef = useRef(null);
   const phoneRef = useRef(null);
+  const addressRef = useRef(null);
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   
-  // Scroll to top when component mounts s
+  // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -131,6 +134,8 @@ function PersonalInfoForm() {
       setNameError('');
     } else if (name === 'phone' && phoneError) {
       setPhoneError('');
+    } else if (name === 'street' && addressError) {
+      setAddressError('');
     }
   };
   
@@ -138,37 +143,67 @@ function PersonalInfoForm() {
   const handleSubmit = async (e, fromOverlay = false) => {
     e.preventDefault();
     
-    let isValid = true;
-    
-    // Validate name
-    if (!validateName(formData.name)) {
-      setNameError('Please enter a valid name');
-      if (nameRef.current) {
-        nameRef.current.className = 'overlay-form-input error';
+    // Handle different validation based on edit mode
+    if (editMode === 'contact') {
+      let isValid = true;
+      
+      // Validate name
+      if (!validateName(formData.name)) {
+        setNameError('Please enter a valid name');
+        if (nameRef.current) {
+          nameRef.current.className = 'overlay-form-input error';
+        }
+        isValid = false;
+      } else {
+        setNameError('');
+        if (nameRef.current) {
+          nameRef.current.className = 'overlay-form-input';
+        }
       }
-      isValid = false;
-    } else {
-      setNameError('');
-      if (nameRef.current) {
-        nameRef.current.className = 'overlay-form-input';
+      
+      // Validate phone
+      if (!validatePhone(formData.phone)) {
+        setPhoneError('Valid phone required to receive your cash offer details via text message (No Spam Ever)');
+        if (phoneRef.current) {
+          phoneRef.current.className = 'overlay-form-input error';
+        }
+        isValid = false;
+      } else {
+        setPhoneError('');
+        if (phoneRef.current) {
+          phoneRef.current.className = 'overlay-form-input';
+        }
       }
-    }
-    
-    // Validate phone
-    if (!validatePhone(formData.phone)) {
-      setPhoneError('Valid phone required to receive your cash offer details via text message (No Spam Ever)');
-      if (phoneRef.current) {
-        phoneRef.current.className = 'overlay-form-input error';
+      
+      if (!isValid) {
+        return;
       }
-      isValid = false;
-    } else {
-      setPhoneError('');
-      if (phoneRef.current) {
-        phoneRef.current.className = 'overlay-form-input';
+    } else if (editMode === 'address') {
+      // Validate address
+      if (!validateAddress(formData.street)) {
+        setAddressError('Please enter a valid address');
+        if (addressRef.current) {
+          addressRef.current.className = 'overlay-form-input error';
+        }
+        return;
+      } else {
+        setAddressError('');
+        if (addressRef.current) {
+          addressRef.current.className = 'overlay-form-input';
+        }
       }
-    }
-    
-    if (!isValid) {
+      
+      // Handle address update - reinitialize map
+      setMapLoaded(false);
+      closeOverlay();
+      
+      // Give time for the map to update
+      setTimeout(() => {
+        if (mapContainerRef.current && window.google && window.google.maps) {
+          initializeMap();
+        }
+      }, 500);
+      
       return;
     }
     
@@ -200,8 +235,15 @@ function PersonalInfoForm() {
     if (formData.name && formData.phone) {
       handleSubmit({ preventDefault: () => {} }, true);
     } else {
+      setEditMode('contact');
       setOverlayVisible(true);
     }
+  };
+  
+  // Handle "edit info" button click
+  const handleEditClick = () => {
+    setEditMode('address'); // Set to address edit mode by default
+    setOverlayVisible(true);
   };
   
   // Close the overlay
@@ -236,65 +278,10 @@ function PersonalInfoForm() {
   // Get the formatted value
   const formattedValue = getFormattedPropertyValue();
   
-  return (
-    <div className="hero-section">
-      <div className="hero-middle-container">
-        <div className="hero-content fade-in max-width-500">
-          <div className="hero-middle-map-headline">
-            Confirm Your Address
-          </div>
-          
-          <div className="hero-1-api-address">
-            {formData.street}
-          </div>
-          
-          {formattedValue && (
-            <div className="hero-property-estimate">
-              Estimated Value: {formattedValue}
-            </div>
-          )}
-          
-          {/* Google Map */}
-          <div 
-            ref={mapContainerRef}
-            style={mapStyles}
-          />
-          
-          <div className="simple-address-display" style={{ 
-            margin: '20px auto', 
-            padding: '20px', 
-            border: '1px solid #ccc', 
-            borderRadius: '5px',
-            maxWidth: '425px',
-            textAlign: 'center'
-          }}>
-            <strong>Please confirm your address is correct</strong>
-          </div>
-          
-          <div className="hero-middle-map-sub-info" style={{ opacity: 1 }}>
-            <div className="hero-middle-map-buttons">
-              <button
-                className="hero-middle-map-submit-button"
-                onClick={handleConfirm}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Processing...' : 'Yes, that\'s correct'}
-              </button>
-              
-              <button
-                className="hero-middle-map-edit-button"
-                onClick={() => setOverlayVisible(true)}
-                disabled={isSubmitting}
-              >
-                Edit info
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Form Overlay */}
-      {overlayVisible && (
+  // Render the correct form overlay based on edit mode
+  const renderFormOverlay = () => {
+    if (editMode === 'contact') {
+      return (
         <div className="overlay">
           <div className="overlay-form-container">
             <button onClick={closeOverlay} className="overlay-close-button">
@@ -355,7 +342,112 @@ function PersonalInfoForm() {
             </form>
           </div>
         </div>
-      )}
+      );
+    } else if (editMode === 'address') {
+      return (
+        <div className="overlay">
+          <div className="overlay-form-container">
+            <button onClick={closeOverlay} className="overlay-close-button">
+              X
+            </button>
+            
+            <div className="overlay-form-headline">
+              Edit Property Address
+            </div>
+            
+            <form className="overlay-form-fields" onSubmit={(e) => handleSubmit(e, true)}>
+              <input
+                ref={addressRef}
+                autoComplete="street-address"
+                type="text"
+                name="street"
+                placeholder="Property address"
+                className="overlay-form-input"
+                value={formData.street || ''}
+                onChange={handleChange}
+                onFocus={(e) => e.target.placeholder = ''}
+                onBlur={(e) => e.target.placeholder = 'Property address'}
+                disabled={isSubmitting}
+              />
+              {addressError && (
+                <div className="phone-error-message">
+                  {addressError}
+                </div>
+              )}
+              
+              <button 
+                className="registration-button" 
+                type="submit"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'UPDATING...' : 'UPDATE ADDRESS'}
+              </button>
+            </form>
+          </div>
+        </div>
+      );
+    }
+  };
+  
+  return (
+    <div className="hero-section">
+      <div className="hero-middle-container">
+        <div className="hero-content fade-in max-width-500">
+          <div className="hero-middle-map-headline">
+            Confirm Your Address
+          </div>
+          
+          <div className="hero-1-api-address">
+            {formData.street}
+          </div>
+          
+          {formattedValue && (
+            <div className="hero-property-estimate">
+              Estimated Value: {formattedValue}
+            </div>
+          )}
+          
+          {/* Google Map */}
+          <div 
+            ref={mapContainerRef}
+            style={mapStyles}
+          />
+          
+          <div className="simple-address-display" style={{ 
+            margin: '20px auto', 
+            padding: '20px', 
+            border: '1px solid #ccc', 
+            borderRadius: '5px',
+            maxWidth: '425px',
+            textAlign: 'center'
+          }}>
+            <strong>Please confirm your address is correct</strong>
+          </div>
+          
+          <div className="hero-middle-map-sub-info" style={{ opacity: 1 }}>
+            <div className="hero-middle-map-buttons">
+              <button
+                className="hero-middle-map-submit-button"
+                onClick={handleConfirm}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Processing...' : 'Yes, that\'s correct'}
+              </button>
+              
+              <button
+                className="hero-middle-map-edit-button"
+                onClick={handleEditClick}
+                disabled={isSubmitting}
+              >
+                Edit info
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Form Overlay - rendered conditionally based on editMode */}
+      {overlayVisible && renderFormOverlay()}
     </div>
   );
 }
