@@ -11,8 +11,8 @@ function PersonalInfoForm() {
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [editMode, setEditMode] = useState('address'); // New state to track which edit mode
-  const [editedAddress, setEditedAddress] = useState(formData.street || ''); // Track edited address
+  const [editMode, setEditMode] = useState('address');
+  const [editedAddress, setEditedAddress] = useState(formData.street || '');
 
   const nameRef = useRef(null);
   const phoneRef = useRef(null);
@@ -26,6 +26,18 @@ function PersonalInfoForm() {
     
     // Initialize edited address with current address
     setEditedAddress(formData.street || '');
+    
+    // Fix headline on map confirmation page
+    const originalHeadline = document.querySelector('.hero-middle-map-headline');
+    if (originalHeadline) {
+      originalHeadline.style.display = 'none';
+    }
+    
+    // Remove the confirmation box below the map
+    const confirmationBox = document.querySelector('.simple-address-display');
+    if (confirmationBox) {
+      confirmationBox.style.display = 'none';
+    }
   }, [formData.street]);
   
   // Initialize Google Map when component mounts
@@ -62,16 +74,39 @@ function PersonalInfoForm() {
       
       // Default map options centered on address or fallback to GA
       const mapOptions = {
-        zoom: 16,
+        zoom: 18, // Increased zoom level (was 16)
         center: { lat: 33.7490, lng: -84.3880 }, // Atlanta, GA as default
         mapTypeId: window.google.maps.MapTypeId.ROADMAP,
         mapTypeControl: false,
         streetViewControl: false,
-        fullscreenControl: false
+        fullscreenControl: false,
+        zoomControl: true,
+        zoomControlOptions: {
+          position: window.google.maps.ControlPosition.RIGHT_TOP
+        },
+        // Hide most controls
+        disableDefaultUI: true,
+        scrollwheel: false
       };
       
       // Create the map
       mapRef.current = new window.google.maps.Map(mapContainerRef.current, mapOptions);
+      
+      // Add custom styles to hide unnecessary UI elements
+      const hideLabelsStyle = [
+        {
+          featureType: "poi",
+          elementType: "labels",
+          stylers: [{ visibility: "off" }]
+        },
+        {
+          featureType: "transit",
+          elementType: "labels",
+          stylers: [{ visibility: "off" }]
+        }
+      ];
+      
+      mapRef.current.setOptions({ styles: hideLabelsStyle });
       
       // If we have location from Google Maps autocomplete
       if (formData.location && formData.location.lat && formData.location.lng) {
@@ -153,7 +188,7 @@ function PersonalInfoForm() {
     }
   };
   
-  // Update address in form data and reinitialize map
+  // Update address in form data and then immediately show the contact form
   const updateAddress = async () => {
     if (!validateAddress(editedAddress)) {
       setAddressError('Please enter a valid address');
@@ -170,17 +205,23 @@ function PersonalInfoForm() {
       location: null
     });
     
-    // Close overlay and reset map
+    // Close the current overlay
     setOverlayVisible(false);
+    
+    // Give a little time for the state to update
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Then immediately show the contact form
+    setEditMode('contact');
+    setOverlayVisible(true);
+    
+    // Update map in the background
     setMapLoaded(false);
-    
-    // Give time for the address update to apply
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    // Reinitialize map with new address
-    if (mapContainerRef.current && window.google && window.google.maps) {
-      initializeMap();
-    }
+    setTimeout(() => {
+      if (mapContainerRef.current && window.google && window.google.maps) {
+        initializeMap();
+      }
+    }, 300);
     
     console.log('Address updated to:', editedAddress);
     return true;
@@ -282,11 +323,13 @@ function PersonalInfoForm() {
   
   // Map container styles
   const mapStyles = {
-    height: '250px',
+    height: '300px',
     width: '100%',
-    borderRadius: '5px',
+    maxWidth: '650px',
+    borderRadius: '8px',
     marginBottom: '20px',
-    border: '1px solid #ccc'
+    border: '1px solid #ccc',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)'
   };
   
   // Format property value if needed
@@ -406,7 +449,7 @@ function PersonalInfoForm() {
               
               <button 
                 className="registration-button" 
-                type="button" // Changed to button type to handle custom logic
+                type="button" // Button type to handle custom logic
                 onClick={updateAddress}
                 disabled={isSubmitting}
               >
@@ -441,6 +484,7 @@ function PersonalInfoForm() {
           <div 
             ref={mapContainerRef}
             style={mapStyles}
+            className="custom-map-container"
           />
           
           <div className="simple-address-display" style={{ 
