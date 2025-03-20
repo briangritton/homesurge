@@ -521,20 +521,20 @@ body {
   }
 /* === QUALIFYING FORM STYLES === */
 .qualifying-section {
+  align-items: center;
+  animation: fadeInAnimation .5s ease;
+  animation-fill-mode: forwards;
+  animation-iteration-count: 1;
   display: flex;
   flex-direction: column;
-  width: 100%;
   height: 100%;
+  justify-content: center;
+  margin: 25% auto;
   max-width: 60%;
   min-width: 400px;
-  align-items: center;
-  justify-content: center;
+  width: 100%;
   width: 90%;
-  animation: fadeInAnimation ease 0.5s;
-  animation-iteration-count: 1;
-  animation-fill-mode: forwards;
-  margin: 10% auto;
-}
+  }
 
 .qualifying-headline {
   font-size: 2.5rem;
@@ -542,7 +542,7 @@ body {
 }
 
 .qualifying-form-container {
-  margin-top: 50px;
+  margin-top: 15px;
   flex-direction: column;
   display: flex;
   width: 100%;
