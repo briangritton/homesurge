@@ -37,7 +37,7 @@ const initialFormState = {
   
   // Property qualifications
   isPropertyOwner: 'true',
-  needsRepairs: 'false',
+  needsRepairs: 'false',  // Explicit default for repairs
   workingWithAgent: 'false',
   homeType: 'Single Family',
   remainingMortgage: 100000,
@@ -135,12 +135,16 @@ export function FormProvider({ children }) {
     
     // If there are important property data updates, store them
     if (updates.propertyRecord || updates.apiEstimatedValue || updates.apiOwnerName || 
-        updates.apiEquity || updates.apiPercentage) {
-      console.log("Storing property data updates in localStorage:", {
+        updates.apiEquity || updates.apiPercentage || updates.needsRepairs || 
+        updates.selectedAppointmentTime || updates.selectedAppointmentDate) {
+      console.log("Storing important data updates in localStorage:", {
         apiOwnerName: updates.apiOwnerName,
         apiEstimatedValue: updates.apiEstimatedValue,
         apiEquity: updates.apiEquity,
         apiPercentage: updates.apiPercentage,
+        needsRepairs: updates.needsRepairs,
+        appointmentDate: updates.selectedAppointmentDate,
+        appointmentTime: updates.selectedAppointmentTime,
         propertyRecord: updates.propertyRecord ? "Available" : "Not available"
       });
     }
@@ -171,7 +175,14 @@ export function FormProvider({ children }) {
     setFormData(prev => ({ ...prev, submitting: true }));
     
     // Add enhanced logging for property data
-    console.log("Submitting lead with property data:", {
+    console.log("Submitting lead with complete form data:", {
+      name: formData.name,
+      phone: formData.phone,
+      street: formData.street,
+      needsRepairs: formData.needsRepairs,
+      wantToSetAppointment: formData.wantToSetAppointment,
+      selectedAppointmentDate: formData.selectedAppointmentDate,
+      selectedAppointmentTime: formData.selectedAppointmentTime,
       apiOwnerName: formData.apiOwnerName,
       apiEstimatedValue: formData.apiEstimatedValue,
       apiMaxHomeValue: formData.apiMaxHomeValue,
@@ -201,6 +212,7 @@ export function FormProvider({ children }) {
       }
       
       // Save the form data including full property record to localStorage
+      // IMPORTANT: Make sure we're saving ALL form data to localStorage
       localStorage.setItem('formData', JSON.stringify({
         ...formData,
         propertyRecord: formData.propertyRecord || null
@@ -262,13 +274,18 @@ export function FormProvider({ children }) {
       console.log("Updating lead in Zoho:", leadId, formData);
       
       // Log property data being sent in update
-      if (formData.apiEstimatedValue || formData.apiOwnerName || formData.apiEquity) {
-        console.log("Including property data in update:", {
+      if (formData.apiEstimatedValue || formData.apiOwnerName || formData.apiEquity || 
+          formData.needsRepairs || formData.selectedAppointmentTime) {
+        console.log("Including property and appointment data in update:", {
           apiOwnerName: formData.apiOwnerName,
           apiEstimatedValue: formData.apiEstimatedValue,
           apiMaxHomeValue: formData.apiMaxHomeValue,
           apiEquity: formData.apiEquity,
-          apiPercentage: formData.apiPercentage
+          apiPercentage: formData.apiPercentage,
+          needsRepairs: formData.needsRepairs,
+          wantToSetAppointment: formData.wantToSetAppointment,
+          selectedAppointmentDate: formData.selectedAppointmentDate,
+          selectedAppointmentTime: formData.selectedAppointmentTime
         });
       }
       
