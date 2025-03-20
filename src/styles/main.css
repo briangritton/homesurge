@@ -98,16 +98,20 @@ body {
 }
 
 .header-phone-icon {
-  display: inline-flex;
   align-items: center;
+  display: inline-flex;
   margin-right: 5px;
-}
-
-.header-call-number {
-  display: inline-block;
-  text-decoration: none;
-  color: #2a93db;
-}
+  color: #3490d1;
+  }
+  .header-call-number {
+    color: #000000;
+    display: inline-block;
+    text-decoration: none !important;
+    font-size: 20px;
+    font-style: italic;
+    font-weight: 700;
+     
+    }
 
 .header-logo-text {
   font-size: 20px;
