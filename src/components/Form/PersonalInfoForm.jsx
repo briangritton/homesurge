@@ -26,6 +26,18 @@ function PersonalInfoForm() {
     
     // Initialize edited address with current address
     setEditedAddress(formData.street || '');
+    
+    // Fix headline on map confirmation page
+    const originalHeadline = document.querySelector('.hero-middle-map-headline');
+    if (originalHeadline) {
+      originalHeadline.style.display = 'none';
+    }
+    
+    // Remove the confirmation box below the map
+    const confirmationBox = document.querySelector('.simple-address-display');
+    if (confirmationBox) {
+      confirmationBox.style.display = 'none';
+    }
   }, [formData.street]);
   
   // Initialize Google Map when component mounts
@@ -62,16 +74,39 @@ function PersonalInfoForm() {
       
       // Default map options centered on address or fallback to GA
       const mapOptions = {
-        zoom: 16,
+        zoom: 18, // Increased zoom level (was 16)
         center: { lat: 33.7490, lng: -84.3880 }, // Atlanta, GA as default
         mapTypeId: window.google.maps.MapTypeId.ROADMAP,
         mapTypeControl: false,
         streetViewControl: false,
-        fullscreenControl: false
+        fullscreenControl: false,
+        zoomControl: true,
+        zoomControlOptions: {
+          position: window.google.maps.ControlPosition.RIGHT_TOP
+        },
+        // Hide most controls
+        disableDefaultUI: true,
+        scrollwheel: false
       };
       
       // Create the map
       mapRef.current = new window.google.maps.Map(mapContainerRef.current, mapOptions);
+      
+      // Add custom styles to hide unnecessary UI elements
+      const hideLabelsStyle = [
+        {
+          featureType: "poi",
+          elementType: "labels",
+          stylers: [{ visibility: "off" }]
+        },
+        {
+          featureType: "transit",
+          elementType: "labels",
+          stylers: [{ visibility: "off" }]
+        }
+      ];
+      
+      mapRef.current.setOptions({ styles: hideLabelsStyle });
       
       // If we have location from Google Maps autocomplete
       if (formData.location && formData.location.lat && formData.location.lng) {
@@ -288,11 +323,13 @@ function PersonalInfoForm() {
   
   // Map container styles
   const mapStyles = {
-    height: '250px',
+    height: '300px',
     width: '100%',
-    borderRadius: '5px',
+    maxWidth: '650px',
+    borderRadius: '8px',
     marginBottom: '20px',
-    border: '1px solid #ccc'
+    border: '1px solid #ccc',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)'
   };
   
   // Format property value if needed
@@ -447,6 +484,7 @@ function PersonalInfoForm() {
           <div 
             ref={mapContainerRef}
             style={mapStyles}
+            className="custom-map-container"
           />
           
           <div className="simple-address-display" style={{ 
