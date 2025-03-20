@@ -32,6 +32,23 @@ body {
   overflow-x: hidden;
 }
 
+
+/* Fix for the initial address entry page */
+.app > .form-main > .form-inner-content > .hero-section > .hero-middle-container > .hero-content:not(.max-width-500)::before {
+  content: none !important; /* Remove the "Please confirm" text from initial page */
+}
+
+/* Only show "Please confirm" text on the map confirmation page */
+.app > .form-main > .form-inner-content > .hero-section > .hero-middle-container > .hero-content.max-width-500::before {
+  content: "Please confirm your address is correct";
+  display: block;
+  font-size: 2.5rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+
 /* === ANIMATIONS === */
 @keyframes fadeInAnimation {
   0% { opacity: 0; }
@@ -196,6 +213,7 @@ body {
   margin: 20px 0px;
 }
 
+/* Fix form field and button layout */
 .form-container {
   display: flex;
   flex-direction: row;
@@ -208,7 +226,8 @@ body {
 }
 
 .address-input {
-  width: 100%;
+  flex: 1;
+  min-width: 300px;
   max-width: 600px;
   font-size: 1.5rem;
   color: #333;
@@ -219,6 +238,7 @@ body {
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   transition: border-color 0.3s, box-shadow 0.3s;
 }
+
 
 .address-input:focus {
   border-color: #3490d1;
@@ -247,6 +267,7 @@ body {
 }
 
 .submit-button {
+  flex-shrink: 0;
   background-color: #3490d1;
   border-color: #2a73a6;
   color: white;
@@ -256,13 +277,11 @@ body {
   border-radius: 5px;
   padding: 0 40px;
   transition: background-color 0.3s;
-  width: auto;
+  white-space: nowrap;
   min-width: 200px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-  cursor: pointer !important;
   border-style: solid;
   border-width: 1px;
-  white-space: nowrap;
 }
 
 .submit-button:hover {
@@ -1006,16 +1025,14 @@ body {
   
   .form-container {
     flex-direction: column;
-    height: auto;
+    width: 90%;
+    margin: 20px auto;
   }
   
+  
   .address-input {
-    font-size: 1.5rem;
-    width: 90%;
-    box-sizing: border-box;
-    border-radius: 5px;
-    border-right: 1px solid #4e4e4e;
-    margin-bottom: 10px;
+    width: 100%;
+    max-width: 100%;
   }
   .address-input-invalid {
     font-size: 1.5rem;
@@ -1027,13 +1044,8 @@ body {
   }
   
   .submit-button {
-    width: 90%;
-    height: 60px;
+    width: 100%;
     margin-top: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 5px;
   }
   
   .footer {
