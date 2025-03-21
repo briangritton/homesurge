@@ -1044,13 +1044,20 @@ body {
     padding: 0px 2%;
   }
   
-  .hero-content::before {
-    font-size: 2rem;
-  }
+  .hero-content:before {
+    font-size: 2rem !important;
+}
   
   .custom-map-container {
     max-width: 90% !important;
   }
+
+  .hero-1-api-address {
+    font-size: 1.8rem;
+    line-height: 2rem;
+    margin-left: 4px;
+}
+
 }
 
 /* Small screens (mobile, 768px and below) */
@@ -1062,16 +1069,53 @@ body {
     padding-top: 50px;
     text-align: center;
     }
-  .hero-subheadline {
-    font-size: 1.6rem;
+    .hero-subheadline {
+      font-size: 1.6rem;
+      line-height: 2rem;
   }
-  
+  .hero-1-api-address {
+    font-size: 1.5rem;
+    line-height: 1.5rem;
+    margin-left: 4px;
+}
+.hero-property-estimate {
+ 
+  font-size: 1.5rem;
+
+}
+.hero-middle-map-edit-button, .hero-middle-map-submit-button {
+  padding: 0px;
+  font-size: 1rem;
+}
+
+.hero-middle-map-buttons {
+  align-items: center;
+  display: flex
+;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 0px;
+}
+
+.custom-map-container {
+ 
+  height: 200px !important;
+
+}
+  .hero-content:before {
+    font-size: 1.5rem !important;
+}
+
   .form-container {
     flex-direction: column;
-    width: 100%;
     margin: 20px auto;
-    max-width: 80%;
-  }
+    max-width: 100%;
+    width: 100%;
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
   
  
   .address-input {
@@ -1124,7 +1168,7 @@ body {
   .qualifying-toggle-deselected-left,
   .qualifying-toggle-deselected-right {
     font-size: 1.3rem;
-    width: 50%;
+    width: 100%;
   }
   
   .qualifying-option-column {
@@ -1250,7 +1294,7 @@ body {
   }
   
   .hero-property-estimate {
-    font-size: 1.2rem;
+    font-size: 2rem;
     padding: 10px;
   }
   
