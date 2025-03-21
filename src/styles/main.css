@@ -1007,8 +1007,9 @@ body {
   
   .qualifying-section {
     width: 80%;
-  }
-  
+    min-width: auto;
+    max-width: 100%;
+}
   .qualifying-headline {
     font-size: 2rem;
     line-height: 2rem;
@@ -1202,6 +1203,14 @@ body {
 
 /* Extra small screens (mobile, 560px and below) */
 @media only screen and (max-width: 560px) {
+
+
+  .qualifying-section {
+    width: 100%;
+    min-width: auto;
+    max-width: 100%;
+}
+
 
   .form-main {
     align-items: center;
