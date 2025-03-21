@@ -1090,6 +1090,10 @@ body {
     margin-bottom: 10px;
   }
   
+  .form-inner-content {
+ 
+    max-width: 80%;
+}
   .submit-button {
     width: 100%;
     margin-top: 10px;
