@@ -1193,6 +1193,7 @@ body {
   max-width: 100%;
   width: calc(100% - 20px);
   min-width: auto;
+  font-size: 1rem;
 }
   
   .address-input-invalid {
