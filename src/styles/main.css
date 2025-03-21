@@ -1070,9 +1070,10 @@ body {
     flex-direction: column;
     width: 100%;
     margin: 20px auto;
+    max-width: 80%;
   }
   
-  
+ 
   .address-input {
     max-width: 100%;
     width: calc(100% - 20px);
@@ -1153,24 +1154,41 @@ body {
 
 /* Extra small screens (mobile, 560px and below) */
 @media only screen and (max-width: 560px) {
-  .hero-headline {
-    font-size: 2rem;
-    line-height: 2rem;
-  }
+
+  .form-main {
+    align-items: center;
+    display: flex
+;
+    justify-content: center;
+    min-height: calc(100vh - 50px);
+    width: 100%;
+    max-width: 90%;
+}
+.form-container {
+ 
+  width: 100%;
+}
+
+.hero-headline {
+  font-size: 1.8rem;
+  line-height: 2rem;
+}
   
   .hero-middle-container {
-    width: 80%;
     padding-top: 30%;
-  }
+    /* width: 80%; */
+}
   
-  .hero-subheadline {
-    font-size: 1.3rem;
-    line-height: 1.2;
-  }
+.hero-subheadline {
+  font-size: 1.3rem;
+  line-height: 1.2;
+  margin-top: 10px;
+}
   
   .address-input {
     font-size: 1rem;
     height: 50px;
+    max-width:auto;
   }
   
   .address-input-invalid {
