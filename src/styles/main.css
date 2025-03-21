@@ -1163,7 +1163,15 @@ body {
     font-size: 1.3rem;
     max-width: 310px;
   }
-  
+  .qualifying-answer-container {
+    cursor: pointer !important;
+    display: flex
+;
+    flex-direction: row;
+    margin-top: 15px;
+    width: 100%;
+
+  }
   .qualifying-toggle-selected-left,
   .qualifying-toggle-selected-right,
   .qualifying-toggle-deselected-left,
