@@ -1291,6 +1291,7 @@ body {
     margin-top: 5px;
     border-radius: 5px;
     overflow: hidden;
+    font-size: 1rem;
   }
   
   .pac-item {
@@ -1302,10 +1303,12 @@ body {
   
   .pac-item:first-child {
     border-top: none;
+    font-size: 1rem;
   }
   
   .pac-item:hover {
     background-color: #f5f5f5;
+    font-size: 1rem;
   }
   
   .pac-item-query {
