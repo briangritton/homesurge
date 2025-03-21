@@ -1383,9 +1383,26 @@ body {
 
 
 
+  .header {
+ 
+    flex-direction: column;
+  
+  }
 
 
 }
+
+
+
+
+.header {
+ 
+  flex-direction: column;
+
+}
+
+
+
 
 /* Custom Map Styles */
 .custom-map-style {
