@@ -946,20 +946,21 @@ body {
     max-width: 100%;
     text-align: center;
   }
-  
+/*   
   .hero-headline {
     font-size: 3.5rem;
     line-height: 3.5rem;
     text-align: center;
-  }
+  } */
   
-  .hero-subheadline {
+  /* .hero-subheadline {
     line-height: 1.3rem;
     text-align: center;
-  }
+  } */
   
   .form-container {
     width: 100%;
+    max-width:80%;
     margin-top: 25px;
   }
   
@@ -977,11 +978,11 @@ body {
     font-size: 1.5rem;
   }
   
-  .header-logo {
+  /* .header-logo {
     height: 15px;
     max-width: 70%;
     margin: 0 auto;
-  }
+  } */
   
   .header-logo-text {
     font-size: 15px;
