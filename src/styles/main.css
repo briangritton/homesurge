@@ -1165,8 +1165,12 @@ body {
     max-width: 90%;
 }
 .form-container {
- 
+  flex-direction: column;
+  margin: 0px auto;
+  margin-top: 20px;
+  max-width: 100%;
   width: 100%;
+  margin-bottom: 20px;
 }
 
 .hero-headline {
@@ -1185,11 +1189,11 @@ body {
   margin-top: 10px;
 }
   
-  .address-input {
-    font-size: 1rem;
-    height: 50px;
-    max-width:auto;
-  }
+.address-input {
+  max-width: 100%;
+  width: calc(100% - 20px);
+  min-width: auto;
+}
   
   .address-input-invalid {
     font-size: 1rem;
@@ -1275,6 +1279,43 @@ body {
     height: 50px;
     font-size: 1.1rem;
   }
+
+  .pac-container {
+    z-index: 9999 !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    border: 1px solid #ccc;
+    border-top: none;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", sans-serif;
+    background-color: white;
+    margin-top: 5px;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  
+  .pac-item {
+    padding: 8px 15px;
+    font-size: 1rem;
+    cursor: pointer !important;
+    border-top: 1px solid #e6e6e6;
+  }
+  
+  .pac-item:first-child {
+    border-top: none;
+  }
+  
+  .pac-item:hover {
+    background-color: #f5f5f5;
+  }
+  
+  .pac-item-query {
+    font-size: 1rem;
+    color: #333;
+  }
+
+
+
+
+
 }
 
 /* Custom Map Styles */
