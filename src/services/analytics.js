@@ -10,8 +10,8 @@ const ReactPixel = {
 };
 
 // Configuration constants
-const GA_TRACKING_ID = 'G-L961YM0GEN';
-const GTM_ID = 'GTM-MXD6W8K';
+const GA_TRACKING_ID = 'G-L1BJWHLFF6';
+const GTM_ID = 'GTM-NGC4HNKG';
 
 // Initialize analytics services
 export function initializeAnalytics() {
