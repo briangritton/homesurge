@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import { validateName, validatePhone, validateAddress } from '../../utils/validation.js';
-import { trackPhoneNumberLead } from '../../services/analytics';
+import { trackPhoneNumberLead, trackFormStepComplete, trackFormError } from '../../services/analytics';
 
 function PersonalInfoForm() {
   const { formData, updateFormData, nextStep, submitLead } = useFormContext();
@@ -20,9 +20,12 @@ function PersonalInfoForm() {
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   
-  // Scroll to top when component mounts
+  // Scroll to top when component mounts and track page view
   useEffect(() => {
     window.scrollTo(0, 0);
+    
+    // Track form step for analytics
+    trackFormStepComplete(2, 'Personal Info Form Loaded');
     
     // Initialize edited address with current address
     setEditedAddress(formData.street || '');
@@ -152,6 +155,8 @@ function PersonalInfoForm() {
             });
           } else {
             console.error('Geocode was not successful:', status);
+            // Track error for analytics
+            trackFormError('Geocode was not successful: ' + status, 'geocode');
           }
         });
         
@@ -159,6 +164,8 @@ function PersonalInfoForm() {
       }
     } catch (error) {
       console.error('Error initializing map:', error);
+      // Track error for analytics
+      trackFormError('Error initializing map: ' + error.message, 'map');
     }
   };
   
@@ -195,6 +202,8 @@ function PersonalInfoForm() {
       if (addressRef.current) {
         addressRef.current.className = 'overlay-form-input error';
       }
+      // Track error for analytics
+      trackFormError('Invalid address', 'address');
       return false;
     }
     
@@ -250,6 +259,8 @@ function PersonalInfoForm() {
       if (nameRef.current) {
         nameRef.current.className = 'overlay-form-input error';
       }
+      // Track error for analytics
+      trackFormError('Invalid name', 'name');
       isValid = false;
     } else {
       setNameError('');
@@ -264,6 +275,8 @@ function PersonalInfoForm() {
       if (phoneRef.current) {
         phoneRef.current.className = 'overlay-form-input error';
       }
+      // Track error for analytics
+      trackFormError('Invalid phone number', 'phone');
       isValid = false;
     } else {
       setPhoneError('');
@@ -284,16 +297,25 @@ function PersonalInfoForm() {
       
       if (success) {
         console.log('Lead submitted successfully');
+        
         // Track phone number lead for analytics
         trackPhoneNumberLead();
+        
+        // Track form step completion
+        trackFormStepComplete(2, 'Personal Info Form Completed');
+        
         nextStep();
       } else {
         console.error('Failed to submit lead');
         setPhoneError('There was a problem submitting your information. Please try again.');
+        // Track error for analytics
+        trackFormError('Lead submission failed', 'submit');
       }
     } catch (error) {
       console.error('Error during lead submission:', error);
       setPhoneError('There was a problem submitting your information. Please try again.');
+      // Track error for analytics
+      trackFormError('Error during lead submission: ' + error.message, 'submit');
     } finally {
       setIsSubmitting(false);
     }

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import { validateAddress } from '../../utils/validation.js';
-import { trackAddressSelected } from '../../services/analytics';
+import { trackAddressSelected, trackFormStepComplete, trackFormError } from '../../services/analytics';
 import { lookupPropertyInfo } from '../../services/maps.js';
 import axios from 'axios';
 
@@ -262,8 +262,13 @@ function AddressForm() {
       
       // Validate address - only if we don't have a suggestion to use
       if (!firstSuggestion && !validateAddress(formData.street)) {
-        setErrorMessage('Please enter a valid address to check your cash offer');
+        const errorMsg = 'Please enter a valid address to check your cash offer';
+        setErrorMessage(errorMsg);
         setIsLoading(false);
+        
+        // Track form error for analytics
+        trackFormError(errorMsg, 'street');
+        
         return false;
       }
       
@@ -293,8 +298,9 @@ function AddressForm() {
         console.log('Warning: No property value available before proceeding to next step');
       }
       
-      // Track address submission
+      // Track address submission and form step completion
       trackAddressSelected(formData.addressSelectionType || 'Manual');
+      trackFormStepComplete(1, 'Address Form Completed');
       
       // Log the final form data before proceeding to the next step
       console.log('Final form data before proceeding to next step:', {
@@ -320,6 +326,10 @@ function AddressForm() {
     } catch (error) {
       console.error('Error during form submission:', error);
       setIsLoading(false);
+      
+      // Track error for analytics
+      trackFormError('Form submission error: ' + error.message, 'form');
+      
       return false;
     }
   };
@@ -351,6 +361,9 @@ function AddressForm() {
     // Define an error handler for the API
     window.gm_authFailure = () => {
       console.error('Google Maps API authentication failure');
+      
+      // Track error for analytics
+      trackFormError('Google Maps API authentication failure', 'maps');
     };
     
     // Check if API is already loaded
@@ -373,6 +386,9 @@ function AddressForm() {
     script.defer = true;
     script.onerror = (e) => {
       console.error('Failed to load Google Maps API script:', e);
+      
+      // Track error for analytics
+      trackFormError('Failed to load Google Maps API script', 'maps');
     };
     
     document.body.appendChild(script);
@@ -428,10 +444,16 @@ function AddressForm() {
           }
         } catch (error) {
           console.error('Error handling place selection:', error);
+          
+          // Track error for analytics
+          trackFormError('Error handling place selection: ' + error.message, 'maps');
         }
       });
     } catch (error) {
       console.error('Error initializing Google Places Autocomplete:', error);
+      
+      // Track error for analytics
+      trackFormError('Error initializing Google Places Autocomplete: ' + error.message, 'maps');
     }
   }, [googleApiLoaded, updateFormData]);
   
