@@ -9,7 +9,7 @@ function QualifyingForm() {
   const [selectedOptionLR, setSelectedOptionLR] = useState('left');
   const [saveAttempted, setSaveAttempted] = useState(false);
   
-  // Refs for toggle buttons
+  // Refs for toggle buttonss
   const toggleLeftRef = useRef(null);
   const toggleRightRef = useRef(null);
   
