@@ -11,7 +11,7 @@ function ThankYou() {
     trackFormSubmission(formData);
     
     // Track final form step completion
-    trackFormStepComplete('thankyou', 'Form Completion - Thank You Page');
+    trackFormStepComplete(4, 'Form Completion - Thank You Page');
     
     // Push dataLayer event for Thank You page view
     if (window.dataLayer) {
@@ -26,7 +26,8 @@ function ThankYou() {
           timeframe: formData.howSoonSell,
           appointment: formData.wantToSetAppointment === 'true' ? 'Yes' : 'No',
           appointmentDate: formData.selectedAppointmentDate,
-          appointmentTime: formData.selectedAppointmentTime
+          appointmentTime: formData.selectedAppointmentTime,
+          estimatedValue: formData.formattedApiEstimatedValue || 'Not Available'
         }
       });
     }

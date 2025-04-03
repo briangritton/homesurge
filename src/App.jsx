@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { FormProvider, useFormContext } from './contexts/FormContext';
-import { initializeAnalytics } from './services/analytics';
+import { initializeAnalytics, trackPageView } from './services/analytics';
 
 // Components
 import Header from './components/common/Header';
@@ -15,6 +15,18 @@ import ZohoTest from './components/ZohoTest';
 
 // Styles
 import './styles/main.css';
+
+// Analytics tracker component to handle route changes
+function AnalyticsTracker() {
+  const location = useLocation();
+  
+  useEffect(() => {
+    // Track page view whenever location changes
+    trackPageView(location.pathname + location.search);
+  }, [location]);
+  
+  return null; // This component doesn't render anything
+}
 
 // Main form container that manages form steps
 function FormContainer() {
@@ -57,6 +69,7 @@ function App() {
       <FormProvider>
         <BrowserRouter>
           <Header />
+          <AnalyticsTracker /> {/* Add this to track all page views */}
           <Routes>
             <Route path="/" element={<FormContainer />} />
             <Route path="/test-zoho" element={<ZohoTest />} />

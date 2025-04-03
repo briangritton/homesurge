@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
-import { trackFormStepComplete } from '../../services/analytics';
+import { trackFormStepComplete, trackFormError } from '../../services/analytics';
 
 function QualifyingForm() {
   const { formData, updateFormData, nextStep, updateLead, leadId } = useFormContext();
@@ -9,7 +9,7 @@ function QualifyingForm() {
   const [selectedOptionLR, setSelectedOptionLR] = useState('left');
   const [saveAttempted, setSaveAttempted] = useState(false);
   
-  // Refs for toggle buttons
+  // Refs for toggle buttonss
   const toggleLeftRef = useRef(null);
   const toggleRightRef = useRef(null);
   
@@ -23,8 +23,12 @@ function QualifyingForm() {
   const [finishedSquareFootage, setFinishedSquareFootage] = useState(formData.finishedSquareFootage || 1000);
   const [basementSquareFootage, setBasementSquareFootage] = useState(formData.basementSquareFootage || 0);
   
-  // Check if we're using a temp ID and show a message
+  // Track the component load for analytics
   useEffect(() => {
+    // Track form step for analytics
+    trackFormStepComplete(3, 'Qualifying Form Loaded');
+    
+    // Check if we're using a temp ID and show a message
     if (leadId && leadId.startsWith('temp_') && !saveAttempted) {
       setSaveAttempted(true);
       console.log('Note: Using demo mode - changes will not be saved to Zoho CRM');
@@ -139,8 +143,8 @@ function QualifyingForm() {
     // Update form data locally first
     updateFormData({ [fieldName]: value });
     
-    // Track analytics
-    trackFormStepComplete(qualifyingStep, `Qualifying Question ${qualifyingStep}`);
+    // Track analytics for current qualifying step
+    trackFormStepComplete(qualifyingStep + 2, `Qualifying Question ${qualifyingStep}: ${fieldName} = ${value}`);
     
     // Move to next step immediately
     const nextQuestionStep = qualifyingStep + 1;
@@ -158,9 +162,13 @@ function QualifyingForm() {
           console.log(`Successfully updated ${fieldName} in Zoho`);
         } else {
           console.warn(`Failed to update ${fieldName} in Zoho`);
+          // Track error for analytics
+          trackFormError(`Failed to update ${fieldName} in Zoho`, 'zoho_update');
         }
       }).catch(error => {
         console.error(`Error updating ${fieldName}:`, error);
+        // Track error for analytics
+        trackFormError(`Error updating ${fieldName}: ${error.message}`, 'zoho_update');
       });
     }, 100);
   };
@@ -183,10 +191,12 @@ function QualifyingForm() {
       console.log('All data saved successfully!');
     }).catch(error => {
       console.error('Error finalizing lead:', error);
+      // Track error for analytics
+      trackFormError('Error finalizing lead: ' + error.message, 'zoho_final_update');
     });
     
     // Track form completion for analytics
-    trackFormStepComplete('complete', 'Qualifying Form Complete');
+    trackFormStepComplete(3, 'Qualifying Form Complete');
     
     // Move to thank you page immediately
     nextStep();
@@ -492,6 +502,9 @@ function QualifyingForm() {
                   updateFormData({ wantToSetAppointment: e.target.value });
                   setSelectedOptionLR('left');
                   
+                  // Track analytics
+                  trackFormStepComplete(8, 'No Appointment Requested');
+                  
                   // Trigger background save then complete the form
                   updateLead().then(() => console.log('Appointment preference saved'));
                   
@@ -509,6 +522,9 @@ function QualifyingForm() {
                   // Update form data and save in background
                   updateFormData({ wantToSetAppointment: e.target.value });
                   setSelectedOptionLR('right');
+                  
+                  // Track analytics
+                  trackFormStepComplete(8, 'Appointment Requested');
                   
                   // Trigger background save
                   updateLead().then(() => console.log('Appointment preference saved'));
@@ -547,6 +563,9 @@ function QualifyingForm() {
                     onClick={() => {
                       handleValueUpdate('selectedAppointmentDate', date);
                       setDropdownOpen(false);
+                      
+                      // Track analytics
+                      trackFormStepComplete(9, `Selected Date: ${date}`);
                     }}
                   >
                     &nbsp;&nbsp;{date}
@@ -585,6 +604,9 @@ function QualifyingForm() {
                       updateFormData({ selectedAppointmentTime: appointmentTime });
                       setDropdownOpen(false);
                       
+                      // Track analytics
+                      trackFormStepComplete(10, `Selected Time: ${time}`);
+                      
                       // Add debugging to verify the update took effect
                       console.log("Current appointment data:", {
                         date: formData.selectedAppointmentDate,
@@ -616,6 +638,8 @@ function QualifyingForm() {
                           completeForm();
                         }).catch(err => {
                           console.error('Error saving appointment:', err);
+                          // Track error for analytics
+                          trackFormError('Error saving appointment: ' + err.message, 'appointment');
                           // Still move forward even if there's an error
                           completeForm();
                         });
