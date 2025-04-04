@@ -217,6 +217,17 @@ module.exports = async (req, res) => {
             Lead_Source: formData.trafficSource || "Website",
             Description: `Property: ${formData.street}`,
             
+            // New address suggestion tracking fields
+            userTypedAddress: formData.userTypedAddress || "",
+            selectedSuggestionAddress: formData.selectedSuggestionAddress || "",
+            suggestionOne: formData.suggestionOne || "",
+            suggestionTwo: formData.suggestionTwo || "",
+            suggestionThree: formData.suggestionThree || "",
+            suggestionFour: formData.suggestionFour || "",
+            suggestionFive: formData.suggestionFive || "",
+            leadStage: formData.leadStage || "New",
+            addressSelectionType: formData.addressSelectionType || "Manual",
+            
             // Property details - using exact field names from Zoho
             isPropertyOwner: formData.isPropertyOwner || "true",
             // IMPORTANT: Make sure this is explicitly defined as a string
@@ -295,7 +306,11 @@ module.exports = async (req, res) => {
           apiEstimatedValue: formData.apiEstimatedValue,
           apiMaxHomeValue: formData.apiMaxHomeValue,
           apiEquity: formData.apiEquity,
-          apiPercentage: formData.apiPercentage
+          apiPercentage: formData.apiPercentage,
+          userTypedAddress: formData.userTypedAddress,
+          selectedSuggestionAddress: formData.selectedSuggestionAddress,
+          suggestionsCount: formData.suggestionOne ? "Has suggestions" : "No suggestions",
+          leadStage: formData.leadStage
         }, null, 2)
       );
       
@@ -341,6 +356,17 @@ module.exports = async (req, res) => {
         data: [
           {
             id: leadId,
+            
+            // Address suggestion tracking fields
+            userTypedAddress: formData.userTypedAddress || "",
+            selectedSuggestionAddress: formData.selectedSuggestionAddress || "",
+            suggestionOne: formData.suggestionOne || "",
+            suggestionTwo: formData.suggestionTwo || "",
+            suggestionThree: formData.suggestionThree || "",
+            suggestionFour: formData.suggestionFour || "",
+            suggestionFive: formData.suggestionFive || "",
+            leadStage: formData.leadStage || "",
+            addressSelectionType: formData.addressSelectionType || "",
             
             // Property details - using exact field names from Zoho
             isPropertyOwner: formData.isPropertyOwner || "",
@@ -399,7 +425,10 @@ module.exports = async (req, res) => {
           selectedAppointmentDate: formData.selectedAppointmentDate,
           selectedAppointmentTime: formData.selectedAppointmentTime,
           apiEquity: formData.apiEquity,
-          apiPercentage: formData.apiPercentage
+          apiPercentage: formData.apiPercentage,
+          userTypedAddress: formData.userTypedAddress,
+          selectedSuggestionAddress: formData.selectedSuggestionAddress,
+          leadStage: formData.leadStage
         }, null, 2)
       );
       

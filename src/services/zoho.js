@@ -21,6 +21,15 @@ export async function submitLeadToZoho(formData) {
       zip: formData.zip || '',
       state: formData.state || 'GA',
       
+      // Address suggestion tracking
+      userTypedAddress: formData.userTypedAddress || '',
+      selectedSuggestionAddress: formData.selectedSuggestionAddress || '',
+      suggestionOne: formData.suggestionOne || '',
+      suggestionTwo: formData.suggestionTwo || '',
+      suggestionThree: formData.suggestionThree || '',
+      suggestionFour: formData.suggestionFour || '',
+      suggestionFive: formData.suggestionFive || '',
+      
       // Property data from Melissa API
       apiOwnerName: formData.apiOwnerName || '',
       apiEstimatedValue: formData.apiEstimatedValue?.toString() || '0',
@@ -58,7 +67,9 @@ export async function submitLeadToZoho(formData) {
       campaignName: formData.campaignName || '',
       adgroupName: formData.adgroupName || '',
       keyword: formData.keyword || '',
-      addressSelectionType: formData.addressSelectionType || 'Manual'
+      addressSelectionType: formData.addressSelectionType || 'Manual',
+      leadSource: formData.leadSource || 'Website',
+      leadStage: formData.leadStage || 'New'
     };
     
     console.log("Submitting lead to Zoho with property and appointment data:", {
@@ -143,32 +154,52 @@ export async function updateLeadInZoho(leadId, formData) {
   try {
     // Include all relevant fields to ensure complete updates
     const updateData = {
+      // Address suggestion tracking
+      userTypedAddress: formData.userTypedAddress || '',
+      selectedSuggestionAddress: formData.selectedSuggestionAddress || '',
+      suggestionOne: formData.suggestionOne || '',
+      suggestionTwo: formData.suggestionTwo || '',
+      suggestionThree: formData.suggestionThree || '',
+      suggestionFour: formData.suggestionFour || '',
+      suggestionFive: formData.suggestionFive || '',
+      
+      // Basic address info if updated
+      street: formData.street || '',
+      city: formData.city || '',
+      state: formData.state || '',
+      zip: formData.zip || '',
+      
       // Property qualifications - using exact field names from Zoho API
-      isPropertyOwner: formData.isPropertyOwner || 'true',
-      needsRepairs: formData.needsRepairs || 'false', 
-      workingWithAgent: formData.workingWithAgent || 'false',
-      homeType: formData.homeType || 'Single Family',
-      remainingMortgage: formData.remainingMortgage?.toString() || '0',
-      finishedSquareFootage: formData.finishedSquareFootage?.toString() || '0',
-      basementSquareFootage: formData.basementSquareFootage?.toString() || '0',
-      howSoonSell: formData.howSoonSell || 'ASAP',
-      "How soon do you want to sell?": formData.howSoonSell || 'ASAP',
+      isPropertyOwner: formData.isPropertyOwner || '',
+      needsRepairs: formData.needsRepairs || '', 
+      workingWithAgent: formData.workingWithAgent || '',
+      homeType: formData.homeType || '',
+      remainingMortgage: formData.remainingMortgage?.toString() || '',
+      finishedSquareFootage: formData.finishedSquareFootage?.toString() || '',
+      basementSquareFootage: formData.basementSquareFootage?.toString() || '',
+      howSoonSell: formData.howSoonSell || '',
+      "How soon do you want to sell?": formData.howSoonSell || '',
       
       // Property data from Melissa API (in case it wasn't sent in initial creation)
       apiOwnerName: formData.apiOwnerName || '',
-      apiEstimatedValue: formData.apiEstimatedValue?.toString() || '0',
-      apiMaxHomeValue: formData.apiMaxHomeValue?.toString() || '0',
-      apiHomeValue: formData.apiEstimatedValue?.toString() || '0',
-      apiEquity: formData.apiEquity?.toString() || '0',
-      apiPercentage: formData.apiPercentage?.toString() || '0',
+      apiEstimatedValue: formData.apiEstimatedValue?.toString() || '',
+      apiMaxHomeValue: formData.apiMaxHomeValue?.toString() || '',
+      apiHomeValue: formData.apiEstimatedValue?.toString() || '',
+      apiEquity: formData.apiEquity?.toString() || '',
+      apiPercentage: formData.apiPercentage?.toString() || '',
       
       // Appointment information
-      wantToSetAppointment: formData.wantToSetAppointment || 'false',
+      wantToSetAppointment: formData.wantToSetAppointment || '',
       selectedAppointmentDate: formData.selectedAppointmentDate || '',
       selectedAppointmentTime: formData.selectedAppointmentTime || '',
       
+      // Lead tracking info
+      leadSource: formData.leadSource || '',
+      leadStage: formData.leadStage || '',
+      addressSelectionType: formData.addressSelectionType || '',
+      
       // Progress tracking
-      qualifyingQuestionStep: formData.qualifyingQuestionStep?.toString() || '1'
+      qualifyingQuestionStep: formData.qualifyingQuestionStep?.toString() || ''
     };
     
     console.log("Updating lead in Zoho:", { 
@@ -179,7 +210,9 @@ export async function updateLeadInZoho(leadId, formData) {
         selectedAppointmentDate: updateData.selectedAppointmentDate,
         selectedAppointmentTime: updateData.selectedAppointmentTime,
         apiEquity: updateData.apiEquity,
-        apiPercentage: updateData.apiPercentage
+        apiPercentage: updateData.apiPercentage,
+        selectedSuggestionAddress: updateData.selectedSuggestionAddress,
+        userTypedAddress: updateData.userTypedAddress
       } 
     });
     
@@ -206,5 +239,79 @@ export async function updateLeadInZoho(leadId, formData) {
       console.error("Status:", error.response.status);
     }
     return false; // Don't interrupt the user flow on update errors
+  }
+}
+
+/**
+ * Create or update a lead with address suggestions
+ * @param {string} partialAddress - The partial address the user has typed
+ * @param {Array} suggestions - Array of address suggestions
+ * @param {string} leadId - Optional leadId if we're updating an existing lead
+ * @returns {Promise<string>} - The ID of the created or updated lead
+ */
+export async function createSuggestionLead(partialAddress, suggestions, leadId = null) {
+  try {
+    const action = leadId ? 'update' : 'create';
+    
+    // Format the suggestions and store individually for better tracking
+    const preparedData = {
+      // Basic info
+      street: partialAddress || '',
+      userTypedAddress: partialAddress || '',
+      
+      // Store top 5 suggestions individually
+      suggestionOne: suggestions[0]?.description || '',
+      suggestionTwo: suggestions[1]?.description || '',
+      suggestionThree: suggestions[2]?.description || '',
+      suggestionFour: suggestions[3]?.description || '',
+      suggestionFive: suggestions[4]?.description || '',
+      
+      // Lead classification
+      leadSource: 'Address Entry',
+      leadStage: 'Address Typing',
+      addressSelectionType: 'Partial',
+      trafficSource: 'Website'
+    };
+    
+    // Log the suggestions
+    console.log(`${action} suggestion lead with partial address: "${partialAddress}"`);
+    console.log("Top suggestions:", {
+      sugg1: preparedData.suggestionOne,
+      sugg2: preparedData.suggestionTwo,
+      sugg3: preparedData.suggestionThree,
+      sugg4: preparedData.suggestionFour,
+      sugg5: preparedData.suggestionFive
+    });
+    
+    // Prepare the request
+    const requestData = {
+      action,
+      formData: preparedData,
+      debug: false
+    };
+    
+    // Add leadId if updating
+    if (leadId) {
+      requestData.leadId = leadId;
+    }
+    
+    // Send to API
+    const response = await axios.post('/api/zoho', requestData);
+    
+    if (response.data && response.data.success) {
+      // Return the lead ID
+      const newLeadId = leadId || response.data.leadId;
+      console.log(`Successfully ${action}d suggestion lead with ID: ${newLeadId}`);
+      return newLeadId;
+    } else {
+      console.warn("Suggestion lead creation didn't return success:", response.data);
+      return null;
+    }
+  } catch (error) {
+    console.error("Error creating suggestion lead:", error.message);
+    if (error.response) {
+      console.error("Response data:", error.response.data);
+    }
+    return null;
   }
 }

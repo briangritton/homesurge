@@ -13,6 +13,16 @@ const initialFormState = {
   zip: '',
   state: 'GA',
   
+  // Address suggestion tracking fields
+  userTypedAddress: '',
+  selectedSuggestionAddress: '',
+  suggestionOne: '',
+  suggestionTwo: '',
+  suggestionThree: '',
+  suggestionFour: '',
+  suggestionFive: '',
+  leadStage: 'New',
+  
   // Meta information
   userId: '',
   formStep: 1,
@@ -136,7 +146,9 @@ export function FormProvider({ children }) {
     // If there are important property data updates, store them
     if (updates.propertyRecord || updates.apiEstimatedValue || updates.apiOwnerName || 
         updates.apiEquity || updates.apiPercentage || updates.needsRepairs || 
-        updates.selectedAppointmentTime || updates.selectedAppointmentDate) {
+        updates.selectedAppointmentTime || updates.selectedAppointmentDate ||
+        updates.userTypedAddress || updates.selectedSuggestionAddress ||
+        updates.suggestionOne || updates.suggestionTwo || updates.leadStage) {
       console.log("Storing important data updates in localStorage:", {
         apiOwnerName: updates.apiOwnerName,
         apiEstimatedValue: updates.apiEstimatedValue,
@@ -145,6 +157,10 @@ export function FormProvider({ children }) {
         needsRepairs: updates.needsRepairs,
         appointmentDate: updates.selectedAppointmentDate,
         appointmentTime: updates.selectedAppointmentTime,
+        userTypedAddress: updates.userTypedAddress,
+        selectedSuggestionAddress: updates.selectedSuggestionAddress,
+        suggestionOne: updates.suggestionOne,
+        leadStage: updates.leadStage,
         propertyRecord: updates.propertyRecord ? "Available" : "Not available"
       });
     }
@@ -170,7 +186,7 @@ export function FormProvider({ children }) {
     localStorage.setItem('formStep', step.toString());
   };
 
-  // Submit initial lead data to Zoho
+  // Submit initial lead to Zoho
   const submitLead = async () => {
     setFormData(prev => ({ ...prev, submitting: true }));
     
@@ -189,6 +205,12 @@ export function FormProvider({ children }) {
       formattedApiEstimatedValue: formData.formattedApiEstimatedValue,
       apiEquity: formData.apiEquity,
       apiPercentage: formData.apiPercentage,
+      userTypedAddress: formData.userTypedAddress,
+      selectedSuggestionAddress: formData.selectedSuggestionAddress,
+      suggestionOne: formData.suggestionOne,
+      suggestionTwo: formData.suggestionTwo,
+      suggestionThree: formData.suggestionThree,
+      leadStage: formData.leadStage,
       propertyRecord: formData.propertyRecord ? 'Available' : 'Not available'
     });
     
@@ -273,10 +295,11 @@ export function FormProvider({ children }) {
     try {
       console.log("Updating lead in Zoho:", leadId, formData);
       
-      // Log property data being sent in update
+      // Log property and address data being sent in update
       if (formData.apiEstimatedValue || formData.apiOwnerName || formData.apiEquity || 
-          formData.needsRepairs || formData.selectedAppointmentTime) {
-        console.log("Including property and appointment data in update:", {
+          formData.needsRepairs || formData.selectedAppointmentTime ||
+          formData.userTypedAddress || formData.selectedSuggestionAddress) {
+        console.log("Including property, appointment, and address data in update:", {
           apiOwnerName: formData.apiOwnerName,
           apiEstimatedValue: formData.apiEstimatedValue,
           apiMaxHomeValue: formData.apiMaxHomeValue,
@@ -285,7 +308,12 @@ export function FormProvider({ children }) {
           needsRepairs: formData.needsRepairs,
           wantToSetAppointment: formData.wantToSetAppointment,
           selectedAppointmentDate: formData.selectedAppointmentDate,
-          selectedAppointmentTime: formData.selectedAppointmentTime
+          selectedAppointmentTime: formData.selectedAppointmentTime,
+          userTypedAddress: formData.userTypedAddress,
+          selectedSuggestionAddress: formData.selectedSuggestionAddress,
+          suggestionOne: formData.suggestionOne,
+          suggestionTwo: formData.suggestionTwo,
+          leadStage: formData.leadStage
         });
       }
       

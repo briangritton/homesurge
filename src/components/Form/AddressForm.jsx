@@ -3,7 +3,10 @@ import { useFormContext } from '../../contexts/FormContext';
 import { validateAddress } from '../../utils/validation.js';
 import { trackAddressSelected, trackFormStepComplete, trackFormError } from '../../services/analytics';
 import { lookupPropertyInfo } from '../../services/maps.js';
+import { createSuggestionLead } from '../../services/zoho.js';
 import axios from 'axios';
+
+export default AddressForm;
 
 function AddressForm() {
   const { formData, updateFormData, nextStep } = useFormContext();
@@ -11,6 +14,10 @@ function AddressForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [googleApiLoaded, setGoogleApiLoaded] = useState(false);
   const [firstSuggestion, setFirstSuggestion] = useState(null);
+  const [suggestionLeadId, setSuggestionLeadId] = useState(null);
+  const [suggestionTimer, setSuggestionTimer] = useState(null);
+  const [addressSuggestions, setAddressSuggestions] = useState([]);
+  const [lastTypedAddress, setLastTypedAddress] = useState('');
   
   // Reference to the main input
   const inputRef = useRef(null);
@@ -27,6 +34,9 @@ function AddressForm() {
   // Reference to autocomplete service
   const autocompleteServiceRef = useRef(null);
   
+  // Flag to track if we've already saved a final selection
+  const finalSelectionSavedRef = useRef(false);
+  
   // Generate a session token for Google Places API
   const generateSessionToken = () => {
     if (!window.google || !window.google.maps || !window.google.maps.places) {
@@ -40,33 +50,62 @@ function AddressForm() {
     const value = e.target.value;
     updateFormData({ 
       street: value,
-      addressSelectionType: 'Manual'
+      addressSelectionType: 'Manual',
+      userTypedAddress: value  // Always track what the user is typing
     });
+    
+    // Keep track of the latest typed address
+    setLastTypedAddress(value);
     
     // Clear error message when user starts typing
     if (errorMessage) {
       setErrorMessage('');
     }
     
+    // Clear any existing suggestion timers
+    if (suggestionTimer) {
+      clearTimeout(suggestionTimer);
+    }
+    
     // If the user has typed more than 2 characters, request address predictions
     if (value.length >= 2 && googleApiLoaded && autocompleteServiceRef.current) {
-      autocompleteServiceRef.current.getPlacePredictions({
-        input: value,
-        sessionToken: sessionTokenRef.current,
-        componentRestrictions: { country: 'us' },
-        types: ['address']
-      }, (predictions, status) => {
-        if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
-          // Store the first suggestion for potential use if user doesn't select one
-          setFirstSuggestion(predictions[0]);
-          console.log('Got suggestion:', predictions[0].description);
-        } else {
-          setFirstSuggestion(null);
-        }
-      });
+      // Set a timer to avoid too many API calls
+      const timer = setTimeout(() => {
+        autocompleteServiceRef.current.getPlacePredictions({
+          input: value,
+          sessionToken: sessionTokenRef.current,
+          componentRestrictions: { country: 'us' },
+          types: ['address']
+        }, (predictions, status) => {
+          if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
+            // Store the first suggestion for potential use if user doesn't select one
+            setFirstSuggestion(predictions[0]);
+            console.log('Got suggestion:', predictions[0].description);
+            
+            // Store all suggestions
+            setAddressSuggestions(predictions);
+            
+            // Create or update lead with suggestions
+            const top5Suggestions = predictions.slice(0, 5); // Only use top 5
+            createSuggestionLead(value, top5Suggestions, suggestionLeadId)
+              .then(leadId => {
+                if (leadId) {
+                  setSuggestionLeadId(leadId);
+                  console.log(`${suggestionLeadId ? 'Updated' : 'Created'} suggestion lead with ID: ${leadId}`);
+                }
+              });
+          } else {
+            setFirstSuggestion(null);
+            setAddressSuggestions([]);
+          }
+        });
+      }, 500); // 500ms debounce to prevent too many API calls
+      
+      setSuggestionTimer(timer);
     } else if (value.length < 2) {
       // Clear first suggestion if input is too short
       setFirstSuggestion(null);
+      setAddressSuggestions([]);
     }
   };
   
@@ -204,7 +243,9 @@ function AddressForm() {
       state: addressComponents.state,
       zip: addressComponents.zip,
       location: location,
-      addressSelectionType: 'Google'
+      addressSelectionType: 'Google',
+      selectedSuggestionAddress: place.formatted_address,
+      leadStage: 'Address Selected'
     });
     
     // Ensure inputRef has the correct value
@@ -221,6 +262,41 @@ function AddressForm() {
     
     // Clear any error messages
     setErrorMessage('');
+    
+    // Update the suggestion lead with the final selection if we have one
+    if (suggestionLeadId && !finalSelectionSavedRef.current) {
+      finalSelectionSavedRef.current = true;
+      
+      try {
+        // Prepare data for the lead update
+        const finalSelectionData = {
+          street: place.formatted_address,
+          city: addressComponents.city,
+          state: addressComponents.state,
+          zip: addressComponents.zip,
+          userTypedAddress: lastTypedAddress,
+          selectedSuggestionAddress: place.formatted_address,
+          suggestionOne: addressSuggestions[0]?.description || '',
+          suggestionTwo: addressSuggestions[1]?.description || '',
+          suggestionThree: addressSuggestions[2]?.description || '',
+          suggestionFour: addressSuggestions[3]?.description || '',
+          suggestionFive: addressSuggestions[4]?.description || '',
+          addressSelectionType: 'Google',
+          leadStage: 'Address Selected'
+        };
+        
+        // Update the suggestion lead with the final selection
+        const response = await axios.post('/api/zoho', {
+          action: 'update',
+          leadId: suggestionLeadId,
+          formData: finalSelectionData
+        });
+        
+        console.log('Updated suggestion lead with final selection:', response.data);
+      } catch (error) {
+        console.error('Error updating suggestion lead with final selection:', error);
+      }
+    }
     
     // Fetch property data from Melissa API
     const propertyData = await fetchPropertyData(place.formatted_address);
@@ -251,6 +327,13 @@ function AddressForm() {
           
           // Process the selected address AND WAIT FOR IT TO COMPLETE
           propertyDataRetrieved = await processAddressSelection(placeDetails);
+          
+          // Update form data to indicate this was an automatic suggestion selection
+          updateFormData({
+            selectedSuggestionAddress: placeDetails.formatted_address,
+            userTypedAddress: formData.street, // What the user actually typed
+            addressSelectionType: 'AutoSuggestion'
+          });
           
           // Add a small delay to ensure form data is updated
           await new Promise(resolve => setTimeout(resolve, 300));
@@ -289,7 +372,8 @@ function AddressForm() {
           addressSelectionType: 'Manual',
           city: formData.city || '',
           zip: formData.zip || '',
-          state: formData.state || 'GA'
+          state: formData.state || 'GA',
+          userTypedAddress: formData.street // Ensure we capture what the user typed
         });
       }
       
@@ -305,6 +389,13 @@ function AddressForm() {
       // Log the final form data before proceeding to the next step
       console.log('Final form data before proceeding to next step:', {
         address: formData.street,
+        userTypedAddress: formData.userTypedAddress,
+        selectedSuggestionAddress: formData.selectedSuggestionAddress,
+        suggestionOne: formData.suggestionOne,
+        suggestionTwo: formData.suggestionTwo,
+        suggestionThree: formData.suggestionThree,
+        suggestionFour: formData.suggestionFour,
+        suggestionFive: formData.suggestionFive,
         propertyData: {
           apiOwnerName: formData.apiOwnerName,
           apiEstimatedValue: formData.apiEstimatedValue,
@@ -423,6 +514,13 @@ function AddressForm() {
         try {
           const place = autocompleteRef.current.getPlace();
           
+          // Save that this was a user-selected suggestion
+          updateFormData({
+            selectedSuggestionAddress: place.formatted_address,
+            userTypedAddress: lastTypedAddress, // What the user typed before selecting
+            addressSelectionType: 'UserClicked'
+          });
+          
           // Process the selected address
           const success = await processAddressSelection(place);
           
@@ -455,7 +553,7 @@ function AddressForm() {
       // Track error for analytics
       trackFormError('Error initializing Google Places Autocomplete: ' + error.message, 'maps');
     }
-  }, [googleApiLoaded, updateFormData]);
+  }, [googleApiLoaded, updateFormData, lastTypedAddress]);
   
   // Add additional CSS to fix autocomplete dropdown styling
   useEffect(() => {
@@ -533,5 +631,3 @@ function AddressForm() {
     </div>
   );
 }
-
-export default AddressForm;
