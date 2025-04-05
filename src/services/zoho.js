@@ -80,7 +80,10 @@ export async function submitLeadToZoho(formData) {
       apiEstimatedValue: preparedData.apiEstimatedValue,
       apiMaxHomeValue: preparedData.apiMaxHomeValue,
       apiEquity: preparedData.apiEquity,
-      apiPercentage: preparedData.apiPercentage
+      apiPercentage: preparedData.apiPercentage,
+      userTypedAddress: preparedData.userTypedAddress,
+      selectedSuggestionAddress: preparedData.selectedSuggestionAddress,
+      leadStage: preparedData.leadStage
     });
     
     // Set debug flag to get more info from API
@@ -212,7 +215,8 @@ export async function updateLeadInZoho(leadId, formData) {
         apiEquity: updateData.apiEquity,
         apiPercentage: updateData.apiPercentage,
         selectedSuggestionAddress: updateData.selectedSuggestionAddress,
-        userTypedAddress: updateData.userTypedAddress
+        userTypedAddress: updateData.userTypedAddress,
+        leadStage: updateData.leadStage
       } 
     });
     
@@ -251,6 +255,7 @@ export async function updateLeadInZoho(leadId, formData) {
  */
 export async function createSuggestionLead(partialAddress, suggestions, leadId = null) {
   try {
+    // If we already have a leadId, use update action, otherwise create
     const action = leadId ? 'update' : 'create';
     
     // Format the suggestions and store individually for better tracking
@@ -304,14 +309,16 @@ export async function createSuggestionLead(partialAddress, suggestions, leadId =
       console.log(`Successfully ${action}d suggestion lead with ID: ${newLeadId}`);
       return newLeadId;
     } else {
-      console.warn("Suggestion lead creation didn't return success:", response.data);
-      return null;
+      console.warn("Suggestion lead operation didn't return success:", response.data);
+      // Return the existing leadId if available, to maintain continuity
+      return leadId; 
     }
   } catch (error) {
-    console.error("Error creating suggestion lead:", error.message);
+    console.error("Error in suggestion lead operation:", error.message);
     if (error.response) {
       console.error("Response data:", error.response.data);
     }
-    return null;
+    // Return the existing leadId if there was an error, to maintain continuity
+    return leadId;
   }
 }

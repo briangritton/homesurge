@@ -6,8 +6,6 @@ import { lookupPropertyInfo } from '../../services/maps.js';
 import { createSuggestionLead } from '../../services/zoho.js';
 import axios from 'axios';
 
-export default AddressForm;
-
 function AddressForm() {
   const { formData, updateFormData, nextStep } = useFormContext();
   const [errorMessage, setErrorMessage] = useState('');
@@ -36,6 +34,15 @@ function AddressForm() {
   
   // Flag to track if we've already saved a final selection
   const finalSelectionSavedRef = useRef(false);
+  
+  // Initialize suggestionLeadId from localStorage if available
+  useEffect(() => {
+    const existingLeadId = localStorage.getItem('suggestionLeadId');
+    if (existingLeadId) {
+      console.log("Retrieved suggestionLeadId from localStorage:", existingLeadId);
+      setSuggestionLeadId(existingLeadId);
+    }
+  }, []);
   
   // Generate a session token for Google Places API
   const generateSessionToken = () => {
@@ -76,7 +83,7 @@ function AddressForm() {
           sessionToken: sessionTokenRef.current,
           componentRestrictions: { country: 'us' },
           types: ['address']
-        }, (predictions, status) => {
+        }, async (predictions, status) => {
           if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
             // Store the first suggestion for potential use if user doesn't select one
             setFirstSuggestion(predictions[0]);
@@ -85,15 +92,21 @@ function AddressForm() {
             // Store all suggestions
             setAddressSuggestions(predictions);
             
+            // Try to get an existing leadId from localStorage
+            const existingLeadId = localStorage.getItem('suggestionLeadId') || suggestionLeadId;
+            
             // Create or update lead with suggestions
             const top5Suggestions = predictions.slice(0, 5); // Only use top 5
-            createSuggestionLead(value, top5Suggestions, suggestionLeadId)
-              .then(leadId => {
-                if (leadId) {
-                  setSuggestionLeadId(leadId);
-                  console.log(`${suggestionLeadId ? 'Updated' : 'Created'} suggestion lead with ID: ${leadId}`);
-                }
-              });
+            const leadId = await createSuggestionLead(value, top5Suggestions, existingLeadId);
+            
+            if (leadId) {
+              // Store the leadId for future updates
+              setSuggestionLeadId(leadId);
+              localStorage.setItem('suggestionLeadId', leadId);
+              // Also set as the primary leadId for the form
+              localStorage.setItem('leadId', leadId);
+              console.log(`${existingLeadId ? 'Updated' : 'Created'} suggestion lead with ID: ${leadId}`);
+            }
           } else {
             setFirstSuggestion(null);
             setAddressSuggestions([]);
@@ -263,8 +276,11 @@ function AddressForm() {
     // Clear any error messages
     setErrorMessage('');
     
+    // Get the existing lead ID from localStorage or from state
+    const existingLeadId = suggestionLeadId || localStorage.getItem('suggestionLeadId');
+    
     // Update the suggestion lead with the final selection if we have one
-    if (suggestionLeadId && !finalSelectionSavedRef.current) {
+    if (existingLeadId && !finalSelectionSavedRef.current) {
       finalSelectionSavedRef.current = true;
       
       try {
@@ -285,14 +301,17 @@ function AddressForm() {
           leadStage: 'Address Selected'
         };
         
-        // Update the suggestion lead with the final selection
+        // Update the existing lead
         const response = await axios.post('/api/zoho', {
           action: 'update',
-          leadId: suggestionLeadId,
+          leadId: existingLeadId,
           formData: finalSelectionData
         });
         
         console.log('Updated suggestion lead with final selection:', response.data);
+        
+        // Make sure we're using this leadId going forward
+        localStorage.setItem('leadId', existingLeadId);
       } catch (error) {
         console.error('Error updating suggestion lead with final selection:', error);
       }
@@ -380,6 +399,12 @@ function AddressForm() {
       // Check if we have property data before proceeding
       if (!formData.apiEstimatedValue || formData.apiEstimatedValue === 0) {
         console.log('Warning: No property value available before proceeding to next step');
+      }
+      
+      // Ensure we're using the same lead ID
+      const existingLeadId = suggestionLeadId || localStorage.getItem('suggestionLeadId');
+      if (existingLeadId) {
+        localStorage.setItem('leadId', existingLeadId);
       }
       
       // Track address submission and form step completion
@@ -631,3 +656,5 @@ function AddressForm() {
     </div>
   );
 }
+
+export default AddressForm;

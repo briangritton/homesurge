@@ -2,6 +2,15 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { submitLeadToZoho, updateLeadInZoho } from '../services/zoho';
 
+// Custom hook to use the form context
+export function useFormContext() {
+  const context = useContext(FormContext);
+  if (context === undefined) {
+    throw new Error('useFormContext must be used within a FormProvider');
+  }
+  return context;
+}
+
 // Initial form state
 const initialFormState = {
   // User information
@@ -81,6 +90,16 @@ export function FormProvider({ children }) {
   
   // Check for saved leadId from localStorage
   useEffect(() => {
+    // First check for suggestionLeadId (created during typing)
+    const suggestionLeadId = localStorage.getItem('suggestionLeadId');
+    if (suggestionLeadId) {
+      console.log("Retrieved suggestion lead ID from localStorage:", suggestionLeadId);
+      setLeadId(suggestionLeadId);
+      localStorage.setItem('leadId', suggestionLeadId); // Ensure both are in sync
+      return;
+    }
+
+    // Fall back to regular leadId if no suggestionLeadId exists
     const savedLeadId = localStorage.getItem('leadId');
     if (savedLeadId) {
       console.log("Retrieved lead ID from localStorage:", savedLeadId);
@@ -190,8 +209,12 @@ export function FormProvider({ children }) {
   const submitLead = async () => {
     setFormData(prev => ({ ...prev, submitting: true }));
     
+    // Check if we already have a lead ID from the suggestion tracking
+    const existingLeadId = localStorage.getItem('suggestionLeadId') || leadId;
+    
     // Add enhanced logging for property data
     console.log("Submitting lead with complete form data:", {
+      existingLeadId: existingLeadId || 'None',
       name: formData.name,
       phone: formData.phone,
       street: formData.street,
@@ -215,9 +238,23 @@ export function FormProvider({ children }) {
     });
     
     try {
-      console.log("Submitting lead to Zoho:", formData);
-      const id = await submitLeadToZoho(formData);
-      console.log("Lead submitted successfully, ID:", id);
+      let id;
+      
+      if (existingLeadId) {
+        // If we already have a lead ID, update it instead of creating a new one
+        console.log("Updating existing lead:", existingLeadId);
+        await updateLeadInZoho(existingLeadId, {
+          ...formData,
+          leadStage: 'Contact Info Provided' // Update the lead stage
+        });
+        id = existingLeadId;
+      } else {
+        // If no existing lead, create a new one
+        console.log("Creating new lead");
+        id = await submitLeadToZoho(formData);
+      }
+      
+      console.log("Lead operation successful, ID:", id);
       
       // If we got any ID (proper or temp), save it
       if (id) {
@@ -260,8 +297,11 @@ export function FormProvider({ children }) {
 
   // Update lead information in Zoho, or create a new lead if no ID exists
   const updateLead = async () => {
+    // Get the existing lead ID from suggestion tracking or regular flow
+    const existingLeadId = localStorage.getItem('suggestionLeadId') || leadId;
+    
     // Don't attempt to update if we have a temp ID
-    if (leadId && leadId.startsWith('temp_')) {
+    if (existingLeadId && existingLeadId.startsWith('temp_')) {
       console.log("Using temporary lead ID - update operation skipped");
       return true;
     }
@@ -275,7 +315,7 @@ export function FormProvider({ children }) {
     
     setLastUpdateTime(now);
     
-    if (!leadId) {
+    if (!existingLeadId) {
       console.warn("No lead ID available - will create a new lead instead of updating");
       try {
         // Create a new lead instead of updating
@@ -283,6 +323,8 @@ export function FormProvider({ children }) {
         if (newLeadId) {
           console.log("Created a new lead instead:", newLeadId);
           setLeadId(newLeadId);
+          localStorage.setItem('leadId', newLeadId);
+          localStorage.setItem('suggestionLeadId', newLeadId);
           return true;
         }
         return false;
@@ -293,7 +335,7 @@ export function FormProvider({ children }) {
     }
     
     try {
-      console.log("Updating lead in Zoho:", leadId, formData);
+      console.log("Updating lead in Zoho:", existingLeadId, formData);
       
       // Log property and address data being sent in update
       if (formData.apiEstimatedValue || formData.apiOwnerName || formData.apiEquity || 
@@ -317,7 +359,7 @@ export function FormProvider({ children }) {
         });
       }
       
-      await updateLeadInZoho(leadId, formData);
+      await updateLeadInZoho(existingLeadId, formData);
       console.log("Lead updated successfully");
       return true;
     } catch (error) {
@@ -364,6 +406,7 @@ export function FormProvider({ children }) {
     localStorage.removeItem('formData');
     localStorage.removeItem('formStep');
     localStorage.removeItem('leadId');
+    localStorage.removeItem('suggestionLeadId');
     setLeadId(null);
     setFormData(initialFormState);
   };
@@ -385,13 +428,4 @@ export function FormProvider({ children }) {
       {children}
     </FormContext.Provider>
   );
-}
-
-// Custom hook to use the form context
-export function useFormContext() {
-  const context = useContext(FormContext);
-  if (context === undefined) {
-    throw new Error('useFormContext must be used within a FormProvider');
-  }
-  return context;
 }
