@@ -6,6 +6,8 @@ import { lookupPropertyInfo } from '../../services/maps.js';
 import { createSuggestionLead } from '../../services/zoho.js';
 import axios from 'axios';
 
+export default AddressForm;
+
 function AddressForm() {
   const { formData, updateFormData, nextStep } = useFormContext();
   const [errorMessage, setErrorMessage] = useState('');
@@ -92,20 +94,116 @@ function AddressForm() {
             // Store all suggestions
             setAddressSuggestions(predictions);
             
-            // Try to get an existing leadId from localStorage
-            const existingLeadId = localStorage.getItem('suggestionLeadId') || suggestionLeadId;
-            
-            // Create or update lead with suggestions
-            const top5Suggestions = predictions.slice(0, 5); // Only use top 5
-            const leadId = await createSuggestionLead(value, top5Suggestions, existingLeadId);
-            
-            if (leadId) {
-              // Store the leadId for future updates
-              setSuggestionLeadId(leadId);
-              localStorage.setItem('suggestionLeadId', leadId);
-              // Also set as the primary leadId for the form
-              localStorage.setItem('leadId', leadId);
-              console.log(`${existingLeadId ? 'Updated' : 'Created'} suggestion lead with ID: ${leadId}`);
+            // Try to get details for the first suggestion to extract address components
+            if (predictions[0].place_id) {
+              try {
+                const placeDetails = await getPlaceDetails(predictions[0].place_id);
+                
+                // Extract address components
+                const addressComponents = {
+                  city: '',
+                  state: 'GA',
+                  zip: ''
+                };
+                
+                if (placeDetails.address_components && placeDetails.address_components.length > 0) {
+                  placeDetails.address_components.forEach(component => {
+                    const types = component.types;
+                    
+                    if (types.includes('locality')) {
+                      addressComponents.city = component.long_name;
+                    } else if (types.includes('administrative_area_level_1')) {
+                      addressComponents.state = component.short_name;
+                    } else if (types.includes('postal_code')) {
+                      addressComponents.zip = component.long_name;
+                    }
+                  });
+                }
+                
+                // Try to get an existing leadId from localStorage
+                const existingLeadId = localStorage.getItem('suggestionLeadId') || suggestionLeadId;
+                
+                // Create or update lead with suggestions and address components
+                const top5Suggestions = predictions.slice(0, 5); // Only use top 5
+                const preparedData = {
+                  street: value,
+                  userTypedAddress: value,
+                  city: addressComponents.city,
+                  state: addressComponents.state,
+                  zip: addressComponents.zip,
+                  suggestionOne: top5Suggestions[0]?.description || '',
+                  suggestionTwo: top5Suggestions[1]?.description || '',
+                  suggestionThree: top5Suggestions[2]?.description || '',
+                  suggestionFour: top5Suggestions[3]?.description || '',
+                  suggestionFive: top5Suggestions[4]?.description || ''
+                };
+                
+                // Update the form data with these details
+                updateFormData(preparedData);
+                
+                // Send to Zoho with the address components
+                const leadId = await createSuggestionLead(value, top5Suggestions, existingLeadId, addressComponents);
+                
+                if (leadId) {
+                  setSuggestionLeadId(leadId);
+                  localStorage.setItem('suggestionLeadId', leadId);
+                  localStorage.setItem('leadId', leadId);
+                  
+                  // Also, let's trigger the property data fetch here
+                  fetchPropertyData(placeDetails.formatted_address).then(propertyData => {
+                    if (propertyData && leadId) {
+                      // Update the lead with property data immediately
+                      try {
+                        const propertyUpdateData = {
+                          apiOwnerName: propertyData.apiOwnerName || '',
+                          apiEstimatedValue: propertyData.apiEstimatedValue?.toString() || '0',
+                          apiMaxHomeValue: propertyData.apiMaxValue?.toString() || '0',
+                          apiEquity: propertyData.apiEquity?.toString() || '0',
+                          apiPercentage: propertyData.apiPercentage?.toString() || '0',
+                          apiHomeValue: propertyData.apiEstimatedValue?.toString() || '0'
+                        };
+                        
+                        axios.post('/api/zoho', {
+                          action: 'update',
+                          leadId,
+                          formData: propertyUpdateData
+                        }).then(() => {
+                          console.log('Updated lead with property data during typing');
+                        }).catch(err => {
+                          console.error('Error updating lead with property data during typing:', err);
+                        });
+                      } catch (error) {
+                        console.error('Error preparing property data update:', error);
+                      }
+                    }
+                  }).catch(err => {
+                    console.error('Error fetching property data during typing:', err);
+                  });
+                }
+              } catch (error) {
+                console.error('Error getting place details:', error);
+                // Fall back to simple suggestion without address components
+                const existingLeadId = localStorage.getItem('suggestionLeadId') || suggestionLeadId;
+                const top5Suggestions = predictions.slice(0, 5);
+                const leadId = await createSuggestionLead(value, top5Suggestions, existingLeadId);
+                
+                if (leadId) {
+                  setSuggestionLeadId(leadId);
+                  localStorage.setItem('suggestionLeadId', leadId);
+                  localStorage.setItem('leadId', leadId);
+                }
+              }
+            } else {
+              // Handle case without place_id (less common)
+              const existingLeadId = localStorage.getItem('suggestionLeadId') || suggestionLeadId;
+              const top5Suggestions = predictions.slice(0, 5);
+              const leadId = await createSuggestionLead(value, top5Suggestions, existingLeadId);
+              
+              if (leadId) {
+                setSuggestionLeadId(leadId);
+                localStorage.setItem('suggestionLeadId', leadId);
+                localStorage.setItem('leadId', leadId);
+              }
             }
           } else {
             setFirstSuggestion(null);
@@ -317,8 +415,34 @@ function AddressForm() {
       }
     }
     
-    // Fetch property data from Melissa API
+    // Immediately fetch property data from Melissa API
+    console.log('Fetching property data immediately after address selection');
     const propertyData = await fetchPropertyData(place.formatted_address);
+    
+    // If we got property data, update the lead again with this information
+    if (propertyData && existingLeadId) {
+      try {
+        // Update the lead with property data
+        const propertyUpdateData = {
+          apiOwnerName: propertyData.apiOwnerName || '',
+          apiEstimatedValue: propertyData.apiEstimatedValue?.toString() || '0',
+          apiMaxHomeValue: propertyData.apiMaxValue?.toString() || '0',
+          apiEquity: propertyData.apiEquity?.toString() || '0',
+          apiPercentage: propertyData.apiPercentage?.toString() || '0',
+          apiHomeValue: propertyData.apiEstimatedValue?.toString() || '0'
+        };
+        
+        await axios.post('/api/zoho', {
+          action: 'update',
+          leadId: existingLeadId,
+          formData: propertyUpdateData
+        });
+        
+        console.log('Updated lead with property data from Melissa API');
+      } catch (error) {
+        console.error('Error updating lead with property data:', error);
+      }
+    }
     
     return propertyData != null;
   };
@@ -380,6 +504,33 @@ function AddressForm() {
       // If we haven't fetched property data yet, do it now
       if (!propertyDataRetrieved && !formData.apiEstimatedValue && formData.street) {
         propertyDataRetrieved = await fetchPropertyData(formData.street) != null;
+        
+        // If we got property data and have a lead ID, update the lead
+        const existingLeadId = suggestionLeadId || localStorage.getItem('suggestionLeadId');
+        
+        if (propertyDataRetrieved && existingLeadId) {
+          try {
+            // Update the lead with property data
+            const propertyUpdateData = {
+              apiOwnerName: formData.apiOwnerName || '',
+              apiEstimatedValue: formData.apiEstimatedValue?.toString() || '0',
+              apiMaxHomeValue: formData.apiMaxHomeValue?.toString() || '0',
+              apiEquity: formData.apiEquity?.toString() || '0',
+              apiPercentage: formData.apiPercentage?.toString() || '0',
+              apiHomeValue: formData.apiEstimatedValue?.toString() || '0'
+            };
+            
+            await axios.post('/api/zoho', {
+              action: 'update',
+              leadId: existingLeadId,
+              formData: propertyUpdateData
+            });
+            
+            console.log('Updated lead with property data during form submission');
+          } catch (error) {
+            console.error('Error updating lead with property data during form submission:', error);
+          }
+        }
         
         // Add a small delay to ensure form data is updated
         await new Promise(resolve => setTimeout(resolve, 300));
@@ -656,5 +807,4 @@ function AddressForm() {
     </div>
   );
 }
-
-export default AddressForm;
+ 

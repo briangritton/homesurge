@@ -368,6 +368,12 @@ module.exports = async (req, res) => {
             leadStage: formData.leadStage || "",
             addressSelectionType: formData.addressSelectionType || "",
             
+            // Basic address info
+            Street: formData.street || "",
+            City: formData.city || "",
+            State: formData.state || "",
+            Zip_Code: formData.zip || "",
+            
             // Property details - using exact field names from Zoho
             isPropertyOwner: formData.isPropertyOwner || "",
             // IMPORTANT: Make sure needsRepairs is explicitly set as a string

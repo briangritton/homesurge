@@ -251,9 +251,10 @@ export async function updateLeadInZoho(leadId, formData) {
  * @param {string} partialAddress - The partial address the user has typed
  * @param {Array} suggestions - Array of address suggestions
  * @param {string} leadId - Optional leadId if we're updating an existing lead
+ * @param {Object} addressComponents - Optional address components (city, state, zip)
  * @returns {Promise<string>} - The ID of the created or updated lead
  */
-export async function createSuggestionLead(partialAddress, suggestions, leadId = null) {
+export async function createSuggestionLead(partialAddress, suggestions, leadId = null, addressComponents = null) {
   try {
     // If we already have a leadId, use update action, otherwise create
     const action = leadId ? 'update' : 'create';
@@ -263,6 +264,11 @@ export async function createSuggestionLead(partialAddress, suggestions, leadId =
       // Basic info
       street: partialAddress || '',
       userTypedAddress: partialAddress || '',
+      
+      // Address components if available
+      city: addressComponents?.city || '',
+      state: addressComponents?.state || 'GA',
+      zip: addressComponents?.zip || '',
       
       // Store top 5 suggestions individually
       suggestionOne: suggestions[0]?.description || '',
