@@ -207,11 +207,11 @@ module.exports = async (req, res) => {
             Phone: formData.phone,
             Email: formData.email || "",
             
-            // Address
+            // Address - Make sure we're using exact Zoho field names with proper capitalization
             Street: formData.street,
             City: formData.city || "",
-            Zip_Code: formData.zip || "",
             State: formData.state || "GA",
+            Zip_Code: formData.zip || "",
             
             // Lead metadata
             Lead_Source: formData.trafficSource || "Website",
@@ -310,7 +310,13 @@ module.exports = async (req, res) => {
           userTypedAddress: formData.userTypedAddress,
           selectedSuggestionAddress: formData.selectedSuggestionAddress,
           suggestionsCount: formData.suggestionOne ? "Has suggestions" : "No suggestions",
-          leadStage: formData.leadStage
+          leadStage: formData.leadStage,
+          address: {
+            street: formData.street,
+            city: formData.city,
+            state: formData.state,
+            zip: formData.zip
+          }
         }, null, 2)
       );
       
@@ -368,7 +374,7 @@ module.exports = async (req, res) => {
             leadStage: formData.leadStage || "",
             addressSelectionType: formData.addressSelectionType || "",
             
-            // Basic address info
+            // Standard address fields - Make sure we're using exact Zoho field names with proper capitalization
             Street: formData.street || "",
             City: formData.city || "",
             State: formData.state || "",
@@ -434,7 +440,13 @@ module.exports = async (req, res) => {
           apiPercentage: formData.apiPercentage,
           userTypedAddress: formData.userTypedAddress,
           selectedSuggestionAddress: formData.selectedSuggestionAddress,
-          leadStage: formData.leadStage
+          leadStage: formData.leadStage,
+          address: {
+            street: formData.street,
+            city: formData.city,
+            state: formData.state,
+            zip: formData.zip
+          }
         }, null, 2)
       );
       

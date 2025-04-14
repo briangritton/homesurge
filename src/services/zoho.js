@@ -15,7 +15,8 @@ export async function submitLeadToZoho(formData) {
       phone: formData.phone || '',
       email: formData.email || '',
       
-      // Address info
+      // Address info - making sure we're using the internal field names
+      // (these will be mapped to Zoho's field names in the API call)
       street: formData.street || '',
       city: formData.city || '',
       zip: formData.zip || '',
@@ -83,7 +84,13 @@ export async function submitLeadToZoho(formData) {
       apiPercentage: preparedData.apiPercentage,
       userTypedAddress: preparedData.userTypedAddress,
       selectedSuggestionAddress: preparedData.selectedSuggestionAddress,
-      leadStage: preparedData.leadStage
+      leadStage: preparedData.leadStage,
+      address: {
+        street: preparedData.street,
+        city: preparedData.city,
+        state: preparedData.state,
+        zip: preparedData.zip
+      }
     });
     
     // Set debug flag to get more info from API
@@ -166,7 +173,8 @@ export async function updateLeadInZoho(leadId, formData) {
       suggestionFour: formData.suggestionFour || '',
       suggestionFive: formData.suggestionFive || '',
       
-      // Basic address info if updated
+      // Basic address info if updated - using internal field names
+      // (these will be mapped to Zoho's field names in the API call)
       street: formData.street || '',
       city: formData.city || '',
       state: formData.state || '',
@@ -183,7 +191,7 @@ export async function updateLeadInZoho(leadId, formData) {
       howSoonSell: formData.howSoonSell || '',
       "How soon do you want to sell?": formData.howSoonSell || '',
       
-      // Property data from Melissa API (in case it wasn't sent in initial creation)
+      // Property data from Melissa API (in case they weren't in initial creation)
       apiOwnerName: formData.apiOwnerName || '',
       apiEstimatedValue: formData.apiEstimatedValue?.toString() || '',
       apiMaxHomeValue: formData.apiMaxHomeValue?.toString() || '',
@@ -216,7 +224,13 @@ export async function updateLeadInZoho(leadId, formData) {
         apiPercentage: updateData.apiPercentage,
         selectedSuggestionAddress: updateData.selectedSuggestionAddress,
         userTypedAddress: updateData.userTypedAddress,
-        leadStage: updateData.leadStage
+        leadStage: updateData.leadStage,
+        address: {
+          street: updateData.street,
+          city: updateData.city,
+          state: updateData.state,
+          zip: updateData.zip
+        }
       } 
     });
     
@@ -265,7 +279,8 @@ export async function createSuggestionLead(partialAddress, suggestions, leadId =
       street: partialAddress || '',
       userTypedAddress: partialAddress || '',
       
-      // Address components if available
+      // Address components if available - using internal field names
+      // (these will be mapped to Zoho's field names in the API call)
       city: addressComponents?.city || '',
       state: addressComponents?.state || 'GA',
       zip: addressComponents?.zip || '',
@@ -291,7 +306,13 @@ export async function createSuggestionLead(partialAddress, suggestions, leadId =
       sugg2: preparedData.suggestionTwo,
       sugg3: preparedData.suggestionThree,
       sugg4: preparedData.suggestionFour,
-      sugg5: preparedData.suggestionFive
+      sugg5: preparedData.suggestionFive,
+      address: {
+        street: preparedData.street,
+        city: preparedData.city,
+        state: preparedData.state,
+        zip: preparedData.zip
+      }
     });
     
     // Prepare the request

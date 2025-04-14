@@ -6,8 +6,6 @@ import { lookupPropertyInfo } from '../../services/maps.js';
 import { createSuggestionLead } from '../../services/zoho.js';
 import axios from 'axios';
 
-export default AddressForm;
-
 function AddressForm() {
   const { formData, updateFormData, nextStep } = useFormContext();
   const [errorMessage, setErrorMessage] = useState('');
@@ -160,7 +158,12 @@ function AddressForm() {
                           apiMaxHomeValue: propertyData.apiMaxValue?.toString() || '0',
                           apiEquity: propertyData.apiEquity?.toString() || '0',
                           apiPercentage: propertyData.apiPercentage?.toString() || '0',
-                          apiHomeValue: propertyData.apiEstimatedValue?.toString() || '0'
+                          apiHomeValue: propertyData.apiEstimatedValue?.toString() || '0',
+                          // Include address components again to reinforce them
+                          street: placeDetails.formatted_address,
+                          city: addressComponents.city,
+                          state: addressComponents.state,
+                          zip: addressComponents.zip
                         };
                         
                         axios.post('/api/zoho', {
@@ -341,6 +344,13 @@ function AddressForm() {
       });
     }
     
+    // Log the extracted address components
+    console.log('Extracted address components:', {
+      city: addressComponents.city,
+      state: addressComponents.state,
+      zip: addressComponents.zip
+    });
+    
     // Get location data if available
     const location = place.geometry?.location ? {
       lat: place.geometry.location.lat(),
@@ -382,12 +392,14 @@ function AddressForm() {
       finalSelectionSavedRef.current = true;
       
       try {
-        // Prepare data for the lead update
+        // Prepare data for the lead update - explicitly include address fields
         const finalSelectionData = {
+          // Use the proper field names that will map to Zoho
           street: place.formatted_address,
           city: addressComponents.city,
           state: addressComponents.state,
           zip: addressComponents.zip,
+          
           userTypedAddress: lastTypedAddress,
           selectedSuggestionAddress: place.formatted_address,
           suggestionOne: addressSuggestions[0]?.description || '',
@@ -398,6 +410,13 @@ function AddressForm() {
           addressSelectionType: 'Google',
           leadStage: 'Address Selected'
         };
+        
+        console.log('Sending address components to Zoho:', {
+          street: finalSelectionData.street,
+          city: finalSelectionData.city,
+          state: finalSelectionData.state,
+          zip: finalSelectionData.zip
+        });
         
         // Update the existing lead
         const response = await axios.post('/api/zoho', {
@@ -424,6 +443,13 @@ function AddressForm() {
       try {
         // Update the lead with property data
         const propertyUpdateData = {
+          // Include the address components again to ensure they are saved
+          street: place.formatted_address,
+          city: addressComponents.city,
+          state: addressComponents.state,
+          zip: addressComponents.zip,
+          
+          // Include property data
           apiOwnerName: propertyData.apiOwnerName || '',
           apiEstimatedValue: propertyData.apiEstimatedValue?.toString() || '0',
           apiMaxHomeValue: propertyData.apiMaxValue?.toString() || '0',
@@ -517,7 +543,12 @@ function AddressForm() {
               apiMaxHomeValue: formData.apiMaxHomeValue?.toString() || '0',
               apiEquity: formData.apiEquity?.toString() || '0',
               apiPercentage: formData.apiPercentage?.toString() || '0',
-              apiHomeValue: formData.apiEstimatedValue?.toString() || '0'
+              apiHomeValue: formData.apiEstimatedValue?.toString() || '0',
+              // Include address fields again
+              street: formData.street,
+              city: formData.city,
+              state: formData.state,
+              zip: formData.zip
             };
             
             await axios.post('/api/zoho', {
@@ -807,4 +838,5 @@ function AddressForm() {
     </div>
   );
 }
- 
+
+export default AddressForm;
