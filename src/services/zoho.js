@@ -15,7 +15,8 @@ export async function submitLeadToZoho(formData) {
       phone: formData.phone || '',
       email: formData.email || '',
       
-      // Address info
+      // Address info - making sure we're using the internal field names
+      // (these will be mapped to Zoho's field names in the API call)
       street: formData.street || '',
       city: formData.city || '',
       zip: formData.zip || '',
@@ -80,7 +81,16 @@ export async function submitLeadToZoho(formData) {
       apiEstimatedValue: preparedData.apiEstimatedValue,
       apiMaxHomeValue: preparedData.apiMaxHomeValue,
       apiEquity: preparedData.apiEquity,
-      apiPercentage: preparedData.apiPercentage
+      apiPercentage: preparedData.apiPercentage,
+      userTypedAddress: preparedData.userTypedAddress,
+      selectedSuggestionAddress: preparedData.selectedSuggestionAddress,
+      leadStage: preparedData.leadStage,
+      address: {
+        street: preparedData.street,
+        city: preparedData.city,
+        state: preparedData.state,
+        zip: preparedData.zip
+      }
     });
     
     // Set debug flag to get more info from API
@@ -163,7 +173,8 @@ export async function updateLeadInZoho(leadId, formData) {
       suggestionFour: formData.suggestionFour || '',
       suggestionFive: formData.suggestionFive || '',
       
-      // Basic address info if updated
+      // Basic address info if updated - using internal field names
+      // (these will be mapped to Zoho's field names in the API call)
       street: formData.street || '',
       city: formData.city || '',
       state: formData.state || '',
@@ -180,7 +191,7 @@ export async function updateLeadInZoho(leadId, formData) {
       howSoonSell: formData.howSoonSell || '',
       "How soon do you want to sell?": formData.howSoonSell || '',
       
-      // Property data from Melissa API (in case it wasn't sent in initial creation)
+      // Property data from Melissa API (in case they weren't in initial creation)
       apiOwnerName: formData.apiOwnerName || '',
       apiEstimatedValue: formData.apiEstimatedValue?.toString() || '',
       apiMaxHomeValue: formData.apiMaxHomeValue?.toString() || '',
@@ -212,7 +223,14 @@ export async function updateLeadInZoho(leadId, formData) {
         apiEquity: updateData.apiEquity,
         apiPercentage: updateData.apiPercentage,
         selectedSuggestionAddress: updateData.selectedSuggestionAddress,
-        userTypedAddress: updateData.userTypedAddress
+        userTypedAddress: updateData.userTypedAddress,
+        leadStage: updateData.leadStage,
+        address: {
+          street: updateData.street,
+          city: updateData.city,
+          state: updateData.state,
+          zip: updateData.zip
+        }
       } 
     });
     
@@ -247,10 +265,12 @@ export async function updateLeadInZoho(leadId, formData) {
  * @param {string} partialAddress - The partial address the user has typed
  * @param {Array} suggestions - Array of address suggestions
  * @param {string} leadId - Optional leadId if we're updating an existing lead
+ * @param {Object} addressComponents - Optional address components (city, state, zip)
  * @returns {Promise<string>} - The ID of the created or updated lead
  */
-export async function createSuggestionLead(partialAddress, suggestions, leadId = null) {
+export async function createSuggestionLead(partialAddress, suggestions, leadId = null, addressComponents = null) {
   try {
+    // If we already have a leadId, use update action, otherwise create
     const action = leadId ? 'update' : 'create';
     
     // Format the suggestions and store individually for better tracking
@@ -258,6 +278,12 @@ export async function createSuggestionLead(partialAddress, suggestions, leadId =
       // Basic info
       street: partialAddress || '',
       userTypedAddress: partialAddress || '',
+      
+      // Address components if available - using internal field names
+      // (these will be mapped to Zoho's field names in the API call)
+      city: addressComponents?.city || '',
+      state: addressComponents?.state || 'GA',
+      zip: addressComponents?.zip || '',
       
       // Store top 5 suggestions individually
       suggestionOne: suggestions[0]?.description || '',
@@ -280,7 +306,13 @@ export async function createSuggestionLead(partialAddress, suggestions, leadId =
       sugg2: preparedData.suggestionTwo,
       sugg3: preparedData.suggestionThree,
       sugg4: preparedData.suggestionFour,
-      sugg5: preparedData.suggestionFive
+      sugg5: preparedData.suggestionFive,
+      address: {
+        street: preparedData.street,
+        city: preparedData.city,
+        state: preparedData.state,
+        zip: preparedData.zip
+      }
     });
     
     // Prepare the request
@@ -304,14 +336,16 @@ export async function createSuggestionLead(partialAddress, suggestions, leadId =
       console.log(`Successfully ${action}d suggestion lead with ID: ${newLeadId}`);
       return newLeadId;
     } else {
-      console.warn("Suggestion lead creation didn't return success:", response.data);
-      return null;
+      console.warn("Suggestion lead operation didn't return success:", response.data);
+      // Return the existing leadId if available, to maintain continuity
+      return leadId; 
     }
   } catch (error) {
-    console.error("Error creating suggestion lead:", error.message);
+    console.error("Error in suggestion lead operation:", error.message);
     if (error.response) {
       console.error("Response data:", error.response.data);
     }
-    return null;
+    // Return the existing leadId if there was an error, to maintain continuity
+    return leadId;
   }
 }

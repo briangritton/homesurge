@@ -1,7 +1,7 @@
 // api/zoho.js
 const axios = require('axios');
 
-// Zoho credentials from environment variables
+// Zoho credentials from environment variablesa
 const ZOHO_CLIENT_ID = process.env.ZOHO_CLIENT_ID || "1000.LGKLH514KZLSSXEHNZACB3GGF4LJVN";
 const ZOHO_CLIENT_SECRET = process.env.ZOHO_CLIENT_SECRET || "6fffecc107326530c6ccdcf39d7237832f048b190d";
 const ZOHO_REFRESH_TOKEN = process.env.ZOHO_REFRESH_TOKEN || "1000.5bfeff607130f3406d5b180df07cce3d.ac515fa8d3f4774f5dde44cbb37ce52b";
@@ -207,11 +207,11 @@ module.exports = async (req, res) => {
             Phone: formData.phone,
             Email: formData.email || "",
             
-            // Address
+            // Address - Make sure we're using exact Zoho field names with proper capitalization
             Street: formData.street,
             City: formData.city || "",
-            Zip_Code: formData.zip || "",
             State: formData.state || "GA",
+            Zip_Code: formData.zip || "",
             
             // Lead metadata
             Lead_Source: formData.trafficSource || "Website",
@@ -310,7 +310,13 @@ module.exports = async (req, res) => {
           userTypedAddress: formData.userTypedAddress,
           selectedSuggestionAddress: formData.selectedSuggestionAddress,
           suggestionsCount: formData.suggestionOne ? "Has suggestions" : "No suggestions",
-          leadStage: formData.leadStage
+          leadStage: formData.leadStage,
+          address: {
+            street: formData.street,
+            city: formData.city,
+            state: formData.state,
+            zip: formData.zip
+          }
         }, null, 2)
       );
       
@@ -367,6 +373,12 @@ module.exports = async (req, res) => {
             suggestionFive: formData.suggestionFive || "",
             leadStage: formData.leadStage || "",
             addressSelectionType: formData.addressSelectionType || "",
+            
+            // Standard address fields - Make sure we're using exact Zoho field names with proper capitalization
+            Street: formData.street || "",
+            City: formData.city || "",
+            State: formData.state || "",
+            Zip_Code: formData.zip || "",
             
             // Property details - using exact field names from Zoho
             isPropertyOwner: formData.isPropertyOwner || "",
@@ -428,7 +440,13 @@ module.exports = async (req, res) => {
           apiPercentage: formData.apiPercentage,
           userTypedAddress: formData.userTypedAddress,
           selectedSuggestionAddress: formData.selectedSuggestionAddress,
-          leadStage: formData.leadStage
+          leadStage: formData.leadStage,
+          address: {
+            street: formData.street,
+            city: formData.city,
+            state: formData.state,
+            zip: formData.zip
+          }
         }, null, 2)
       );
       
