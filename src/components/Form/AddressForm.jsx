@@ -92,121 +92,31 @@ function AddressForm() {
             // Store all suggestions
             setAddressSuggestions(predictions);
             
-            // Try to get details for the first suggestion to extract address components
-            if (predictions[0].place_id) {
-              try {
-                const placeDetails = await getPlaceDetails(predictions[0].place_id);
-                
-                // Extract address components
-                const addressComponents = {
-                  city: '',
-                  state: 'GA',
-                  zip: ''
-                };
-                
-                if (placeDetails.address_components && placeDetails.address_components.length > 0) {
-                  placeDetails.address_components.forEach(component => {
-                    const types = component.types;
-                    
-                    if (types.includes('locality')) {
-                      addressComponents.city = component.long_name;
-                    } else if (types.includes('administrative_area_level_1')) {
-                      addressComponents.state = component.short_name;
-                    } else if (types.includes('postal_code')) {
-                      addressComponents.zip = component.long_name;
-                    }
-                  });
-                }
-                
-                // Try to get an existing leadId from localStorage
-                const existingLeadId = localStorage.getItem('suggestionLeadId') || suggestionLeadId;
-                
-                // Create or update lead with suggestions and address components
-                const top5Suggestions = predictions.slice(0, 5); // Only use top 5
-                const preparedData = {
-                  street: value,
-                  userTypedAddress: value,
-                  city: addressComponents.city,
-                  state: addressComponents.state,
-                  zip: addressComponents.zip,
-                  suggestionOne: top5Suggestions[0]?.description || '',
-                  suggestionTwo: top5Suggestions[1]?.description || '',
-                  suggestionThree: top5Suggestions[2]?.description || '',
-                  suggestionFour: top5Suggestions[3]?.description || '',
-                  suggestionFive: top5Suggestions[4]?.description || ''
-                };
-                
-                // Update the form data with these details
-                updateFormData(preparedData);
-                
-                // Send to Zoho with the address components
-                const leadId = await createSuggestionLead(value, top5Suggestions, existingLeadId, addressComponents);
-                
-                if (leadId) {
-                  setSuggestionLeadId(leadId);
-                  localStorage.setItem('suggestionLeadId', leadId);
-                  localStorage.setItem('leadId', leadId);
-                  
-                  // Also, let's trigger the property data fetch here
-                  fetchPropertyData(placeDetails.formatted_address).then(propertyData => {
-                    if (propertyData && leadId) {
-                      // Update the lead with property data immediately
-                      try {
-                        const propertyUpdateData = {
-                          apiOwnerName: propertyData.apiOwnerName || '',
-                          apiEstimatedValue: propertyData.apiEstimatedValue?.toString() || '0',
-                          apiMaxHomeValue: propertyData.apiMaxValue?.toString() || '0',
-                          apiEquity: propertyData.apiEquity?.toString() || '0',
-                          apiPercentage: propertyData.apiPercentage?.toString() || '0',
-                          apiHomeValue: propertyData.apiEstimatedValue?.toString() || '0',
-                          // Include address components again to reinforce them
-                          street: placeDetails.formatted_address,
-                          city: addressComponents.city,
-                          state: addressComponents.state,
-                          zip: addressComponents.zip
-                        };
-                        
-                        axios.post('/api/zoho', {
-                          action: 'update',
-                          leadId,
-                          formData: propertyUpdateData
-                        }).then(() => {
-                          console.log('Updated lead with property data during typing');
-                        }).catch(err => {
-                          console.error('Error updating lead with property data during typing:', err);
-                        });
-                      } catch (error) {
-                        console.error('Error preparing property data update:', error);
-                      }
-                    }
-                  }).catch(err => {
-                    console.error('Error fetching property data during typing:', err);
-                  });
-                }
-              } catch (error) {
-                console.error('Error getting place details:', error);
-                // Fall back to simple suggestion without address components
-                const existingLeadId = localStorage.getItem('suggestionLeadId') || suggestionLeadId;
-                const top5Suggestions = predictions.slice(0, 5);
-                const leadId = await createSuggestionLead(value, top5Suggestions, existingLeadId);
-                
-                if (leadId) {
-                  setSuggestionLeadId(leadId);
-                  localStorage.setItem('suggestionLeadId', leadId);
-                  localStorage.setItem('leadId', leadId);
-                }
-              }
-            } else {
-              // Handle case without place_id (less common)
-              const existingLeadId = localStorage.getItem('suggestionLeadId') || suggestionLeadId;
-              const top5Suggestions = predictions.slice(0, 5);
-              const leadId = await createSuggestionLead(value, top5Suggestions, existingLeadId);
-              
-              if (leadId) {
-                setSuggestionLeadId(leadId);
-                localStorage.setItem('suggestionLeadId', leadId);
-                localStorage.setItem('leadId', leadId);
-              }
+            // Try to get an existing leadId from localStorage
+            const existingLeadId = localStorage.getItem('suggestionLeadId') || suggestionLeadId;
+            
+            // Create or update lead with suggestions only (not address components)
+            const top5Suggestions = predictions.slice(0, 5); // Only use top 5
+            const preparedData = {
+              userTypedAddress: value,
+              suggestionOne: top5Suggestions[0]?.description || '',
+              suggestionTwo: top5Suggestions[1]?.description || '',
+              suggestionThree: top5Suggestions[2]?.description || '',
+              suggestionFour: top5Suggestions[3]?.description || '',
+              suggestionFive: top5Suggestions[4]?.description || '',
+              leadStage: 'Address Typing'
+            };
+            
+            // Update the form data with suggestions only, don't update the street/address fields
+            updateFormData(preparedData);
+            
+            // Send to Zoho with just the suggestions
+            const leadId = await createSuggestionLead(value, top5Suggestions, existingLeadId);
+            
+            if (leadId) {
+              setSuggestionLeadId(leadId);
+              localStorage.setItem('suggestionLeadId', leadId);
+              localStorage.setItem('leadId', leadId);
             }
           } else {
             setFirstSuggestion(null);
@@ -487,6 +397,7 @@ function AddressForm() {
       let propertyDataRetrieved = false;
       
       // If user has entered at least 2 characters and there's a suggestion available
+      // This handles the case where user presses Enter without selecting from dropdown
       if (firstSuggestion && formData.street && formData.street.length >= 2) {
         try {
           console.log('Using first suggestion:', firstSuggestion.description);
@@ -494,15 +405,17 @@ function AddressForm() {
           // Get full place details for the suggestion
           const placeDetails = await getPlaceDetails(firstSuggestion.place_id);
           
-          // Process the selected address AND WAIT FOR IT TO COMPLETE
-          propertyDataRetrieved = await processAddressSelection(placeDetails);
-          
-          // Update form data to indicate this was an automatic suggestion selection
+          // Update form data to mark this address as selected and not a typing suggestion
           updateFormData({
             selectedSuggestionAddress: placeDetails.formatted_address,
             userTypedAddress: formData.street, // What the user actually typed
-            addressSelectionType: 'AutoSuggestion'
+            addressSelectionType: 'EnterKeyPressed',
+            leadStage: 'Address Selected'
           });
+          
+          // Process the selected address AND WAIT FOR IT TO COMPLETE
+          // This is where we get property data after user has confirmed the address
+          propertyDataRetrieved = await processAddressSelection(placeDetails);
           
           // Add a small delay to ensure form data is updated
           await new Promise(resolve => setTimeout(resolve, 300));

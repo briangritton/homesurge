@@ -275,15 +275,8 @@ export async function createSuggestionLead(partialAddress, suggestions, leadId =
     
     // Format the suggestions and store individually for better tracking
     const preparedData = {
-      // Basic info
-      street: partialAddress || '',
+      // Only include userTypedAddress, not the official street address
       userTypedAddress: partialAddress || '',
-      
-      // Address components if available - using internal field names
-      // (these will be mapped to Zoho's field names in the API call)
-      city: addressComponents?.city || '',
-      state: addressComponents?.state || 'GA',
-      zip: addressComponents?.zip || '',
       
       // Store top 5 suggestions individually
       suggestionOne: suggestions[0]?.description || '',
@@ -295,9 +288,17 @@ export async function createSuggestionLead(partialAddress, suggestions, leadId =
       // Lead classification
       leadSource: 'Address Entry',
       leadStage: 'Address Typing',
-      addressSelectionType: 'Partial',
-      trafficSource: 'Website'
+      addressSelectionType: 'Partial'
     };
+    
+    // Only add address components if explicitly provided and this is a final selection
+    if (addressComponents && addressComponents.city) {
+      preparedData.city = addressComponents.city;
+      preparedData.state = addressComponents.state || 'GA';
+      preparedData.zip = addressComponents.zip || '';
+      preparedData.street = partialAddress; // Only set street if we have other components
+      preparedData.leadStage = 'Address Selected'; // Update the stage
+    }
     
     // Log the suggestions
     console.log(`${action} suggestion lead with partial address: "${partialAddress}"`);
