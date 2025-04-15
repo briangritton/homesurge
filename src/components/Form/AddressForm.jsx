@@ -504,7 +504,7 @@ function AddressForm() {
       
       // Track address submission and form step completion
       trackAddressSelected(formData.addressSelectionType || 'Manual');
-      trackFormStepComplete(1, 'Address Form Completed');
+      trackFormStepComplete(1, 'Address Form Completed', formData);
       
       // Log the final form data before proceeding to the next step
       console.log('Final form data before proceeding to next step:', {
@@ -641,25 +641,19 @@ function AddressForm() {
             addressSelectionType: 'UserClicked'
           });
           
-          // Process the selected address
-          const success = await processAddressSelection(place);
+          // Start form submission process immediately - don't wait for property data
+          setIsLoading(true);
           
-          if (success) {
-            // Automatically submit the form after selecting an address
-            // Using setTimeout to ensure React has updated the state
-            setTimeout(() => {
-              // Use a direct click on the submit button for most reliable behavior
-              const submitButton = document.querySelector('.submit-button');
-              if (submitButton) {
-                submitButton.click();
-              } else {
-                // Fallback to programmatic form submission
-                if (formRef.current) {
-                  formRef.current.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-                }
-              }
-            }, 200);
-          }
+          // Process the selected address but don't wait for it to complete
+          processAddressSelection(place);
+          
+          // Proceed to next step immediately
+          nextStep();
+          
+          // Reset loading state after navigation
+          setTimeout(() => {
+            setIsLoading(false);
+          }, 100);
         } catch (error) {
           console.error('Error handling place selection:', error);
           

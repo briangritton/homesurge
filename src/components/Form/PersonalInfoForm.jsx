@@ -329,8 +329,8 @@ function PersonalInfoForm() {
         // Track phone number lead for analytics
         trackPhoneNumberLead();
         
-        // Track form step completion
-        trackFormStepComplete(2, 'Personal Info Form Completed');
+        // Track form step completion with campaign data
+        trackFormStepComplete(2, 'Personal Info Form Completed', formData);
         
         nextStep();
       } else {

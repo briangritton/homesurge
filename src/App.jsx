@@ -37,12 +37,22 @@ function FormContainer() {
     // Initialize analytics
     initializeAnalytics();
     
-    // Initialize dynamic content from URL parameters
+    // Initialize dynamic content from URL parameters (including campaign tracking)
     initFromUrlParams();
     
     // Log that dynamic content has been initialized
-    console.log('Dynamic content initialized from URL parameters');
-  }, [initFromUrlParams]);
+    console.log('Dynamic content and campaign tracking initialized from URL parameters');
+    
+    // Add debug logging to show what campaign parameters were detected
+    console.log('Current campaign parameters:', {
+      campaignId: formData.campaignId || 'Not set',
+      campaignName: formData.campaignName || 'Not set',
+      adgroupId: formData.adgroupId || 'Not set',
+      adgroupName: formData.adgroupName || 'Not set',
+      keyword: formData.keyword || 'Not set',
+      trafficSource: formData.trafficSource || 'Direct'
+    });
+  }, [initFromUrlParams, formData]);
   
   // Render the appropriate form step based on form state
   const renderFormStep = () => {
