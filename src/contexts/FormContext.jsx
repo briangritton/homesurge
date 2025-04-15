@@ -377,37 +377,164 @@ export function FormProvider({ children }) {
     }
   };
 
-  // Set dynamic content based on keywords
-  const setDynamicContent = (keyword) => {
+  // Enhanced dynamic content handler based on campaign ID and keyword
+  const setDynamicContent = (keyword, campaignId, adgroupId) => {
     if (!keyword) return;
     
-    // Convert to lowercase for case-insensitive matching
-    const lowerKeyword = keyword.toLowerCase();
+    // Convert to lowercase and clean keyword for matching
+    const sanitizedKeyword = keyword.replace(/[^a-z0-9\s]/gi, "").toLowerCase();
+    const keywordWords = sanitizedKeyword.split(" ");
     
-    // Simple matching logic based on keywords
-    if (lowerKeyword.includes('cash') && lowerKeyword.includes('sell')) {
+    // Create a config object for the cash offer campaign (20196006239)
+    const cashOfferConfig = {
+      // Map of keyword sets to content variations
+      keywordSets: [
+        {
+          // Match if ALL these words are in the keyword
+          words: ['get', 'cash'],
+          content: {
+            headline: 'Get Cash For Your House Fast!',
+            subHeadline: 'Get a great cash offer for your house and close fast! Enter your address below to generate your cash offer',
+            buttonText: 'CHECK OFFER',
+            thankYouHeadline: 'Cash Offer Request Completed!',
+            thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!'
+          }
+        },
+        {
+          words: ['cash', 'out'],
+          content: {
+            headline: 'Check Your Home Cash Out Amount',
+            subHeadline: 'Get a great cash out offer for your house and close fast! Enter your address below to generate your cash amount',
+            buttonText: 'CHECK OFFER',
+            thankYouHeadline: 'Cash Offer Request Completed!',
+            thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!'
+          }
+        },
+        {
+          words: ['sell', 'cash'],
+          content: {
+            headline: 'Sell Your House For Cash Fast',
+            subHeadline: 'Get a great cash offer for your house and close fast! Enter your address below to generate your cash offer',
+            buttonText: 'CHECK OFFER',
+            thankYouHeadline: 'Cash Offer Request Completed!',
+            thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!'
+          }
+        },
+        {
+          words: ['sell', 'cash', 'fast'],
+          content: {
+            headline: 'Sell Your House For Cash Fast',
+            subHeadline: 'Get a great cash offer for your house and close fast! Enter your address below to generate your cash offer',
+            buttonText: 'CHECK OFFER',
+            thankYouHeadline: 'Cash Offer Request Completed!',
+            thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!'
+          }
+        },
+        {
+          words: ['cash'],
+          content: {
+            headline: 'Sell Your House For Cash Fast',
+            subHeadline: 'Get a great cash offer for your house and close fast! Enter your address below to generate your cash offer',
+            buttonText: 'CHECK OFFER',
+            thankYouHeadline: 'Cash Offer Request Completed!',
+            thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!'
+          }
+        }
+      ],
+      // Default content if no keywords match
+      defaultContent: {
+        headline: 'Sell Your House For Cash Fast!',
+        subHeadline: 'We Buy Houses In Any Condition. Get an Instant Cash Offer Now!',
+        buttonText: 'CHECK OFFER',
+        thankYouHeadline: 'Request Completed!',
+        thankYouSubHeadline: 'You\'ll be receiving your requested details at your contact number shortly, thank you!'
+      }
+    };
+    
+    // Select the appropriate campaign config based on campaignId
+    let campaignConfig;
+    if (campaignId === "20196006239") {
+      campaignConfig = cashOfferConfig;
+    } else {
+      // For all other campaigns, use a simpler approach
+      if (keywordWords.includes('cash') && keywordWords.includes('sell')) {
+        updateFormData({
+          dynamicHeadline: 'Sell Your House For Cash Fast!',
+          dynamicSubHeadline: 'Get a great cash offer for your house and close fast!',
+          thankYouHeadline: 'Cash Offer Request Completed!',
+          thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!',
+          buttonText: 'CHECK OFFER',
+          trafficSource: 'Google Search',
+          url: window.location.href
+        });
+      } else if (keywordWords.includes('value')) {
+        updateFormData({
+          dynamicHeadline: 'Check The Value Of Your House!',
+          dynamicSubHeadline: 'Find out how much your home is worth today.',
+          thankYouHeadline: 'Home Value Request Completed!',
+          thankYouSubHeadline: 'You\'ll be receiving your home value details at your contact number shortly, thank you!',
+          buttonText: 'CHECK VALUE',
+          trafficSource: 'Google Search',
+          url: window.location.href
+        });
+      } else if (keywordWords.includes('fast')) {
+        updateFormData({
+          dynamicHeadline: 'Sell Your House Fast!',
+          dynamicSubHeadline: 'Get a cash offer and close in as little as 10 days!',
+          thankYouHeadline: 'Fast Sale Request Completed!',
+          thankYouSubHeadline: 'You\'ll be receiving your fast sale details at your contact number shortly, thank you!',
+          buttonText: 'CHECK OFFER',
+          trafficSource: 'Google Search',
+          url: window.location.href
+        });
+      }
+      return; // Exit here for non-cash-offer campaigns
+    }
+    
+    // For the cash offer campaign, use the detailed keyword matching
+    let matched = false;
+    
+    // Try to match keyword sets in order (more specific first)
+    for (const keywordSet of campaignConfig.keywordSets) {
+      // Check if ALL words in this set are in the keyword
+      if (keywordSet.words.every(word => keywordWords.includes(word))) {
+        const content = keywordSet.content;
+        
+        // Update form data with the matched content
+        updateFormData({
+          dynamicHeadline: content.headline,
+          dynamicSubHeadline: content.subHeadline,
+          thankYouHeadline: content.thankYouHeadline,
+          thankYouSubHeadline: content.thankYouSubHeadline,
+          buttonText: content.buttonText,
+          trafficSource: 'Google Search',
+          url: window.location.href,
+          campaignName: 'Sell For Cash Form Submit (Google only)',
+          adgroupName: adgroupId === '149782006756' ? '(exact)' : 
+                        adgroupId === '153620745798' ? '(phrase)' : 'not set'
+        });
+        
+        matched = true;
+        break;
+      }
+    }
+    
+    // If no match, use default content
+    if (!matched) {
+      const defaultContent = campaignConfig.defaultContent;
       updateFormData({
-        dynamicHeadline: 'Sell Your House For Cash Fast!',
-        dynamicSubHeadline: 'Get a great cash offer for your house and close fast!',
-        thankYouHeadline: 'Cash Offer Request Completed!',
-        thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!'
-      });
-    } else if (lowerKeyword.includes('value')) {
-      updateFormData({
-        dynamicHeadline: 'Check The Value Of Your House!',
-        dynamicSubHeadline: 'Find out how much your home is worth today.',
-        thankYouHeadline: 'Home Value Request Completed!',
-        thankYouSubHeadline: 'You\'ll be receiving your home value details at your contact number shortly, thank you!'
-      });
-    } else if (lowerKeyword.includes('fast')) {
-      updateFormData({
-        dynamicHeadline: 'Sell Your House Fast!',
-        dynamicSubHeadline: 'Get a cash offer and close in as little as 10 days!',
-        thankYouHeadline: 'Fast Sale Request Completed!',
-        thankYouSubHeadline: 'You\'ll be receiving your fast sale details at your contact number shortly, thank you!'
+        dynamicHeadline: defaultContent.headline,
+        dynamicSubHeadline: defaultContent.subHeadline,
+        thankYouHeadline: defaultContent.thankYouHeadline,
+        thankYouSubHeadline: defaultContent.thankYouSubHeadline,
+        buttonText: defaultContent.buttonText,
+        trafficSource: 'Google Search',
+        url: window.location.href,
+        campaignName: 'Sell For Cash Form Submit (Google only)',
+        adgroupName: adgroupId === '149782006756' ? '(exact)' : 
+                      adgroupId === '153620745798' ? '(phrase)' : 'not set'
       });
     }
-    // Default values are already set in initialFormState
   };
   
   // Clear all form data (for testing or resetting)
@@ -418,6 +545,35 @@ export function FormProvider({ children }) {
     localStorage.removeItem('suggestionLeadId');
     setLeadId(null);
     setFormData(initialFormState);
+  };
+
+  // Initialize dynamic content from URL parameters
+  const initFromUrlParams = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const keyword = urlParams.get('keyword');
+    const campaignId = urlParams.get('campaignid');
+    const adgroupId = urlParams.get('adgroupid');
+    const device = urlParams.get('device');
+    const gclid = urlParams.get('gclid');
+    
+    if (keyword || campaignId) {
+      // First update the tracking parameters
+      updateFormData({
+        keyword: keyword || '',
+        campaignId: campaignId || '',
+        adgroupId: adgroupId || '',
+        device: device || '',
+        gclid: gclid || '',
+        url: window.location.href,
+      });
+      
+      // Then set the dynamic content based on these parameters
+      setDynamicContent(keyword, campaignId, adgroupId);
+      
+      return true;
+    }
+    
+    return false;
   };
 
   // Provide the context value to children
@@ -432,6 +588,7 @@ export function FormProvider({ children }) {
       submitLead,
       updateLead,
       setDynamicContent,
+      initFromUrlParams,
       clearFormData
     }}>
       {children}

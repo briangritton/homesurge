@@ -30,12 +30,19 @@ function AnalyticsTracker() {
 
 // Main form container that manages form steps
 function FormContainer() {
-  const { formData } = useFormContext();
+  const { formData, initFromUrlParams } = useFormContext();
   
-  // Initialize analytics when the app loads
+  // Initialize analytics and dynamic content from URL params
   useEffect(() => {
+    // Initialize analytics
     initializeAnalytics();
-  }, []);
+    
+    // Initialize dynamic content from URL parameters
+    initFromUrlParams();
+    
+    // Log that dynamic content has been initialized
+    console.log('Dynamic content initialized from URL parameters');
+  }, [initFromUrlParams]);
   
   // Render the appropriate form step based on form state
   const renderFormStep = () => {
