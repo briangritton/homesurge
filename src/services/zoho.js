@@ -162,8 +162,41 @@ export async function updateLeadInZoho(leadId, formData) {
   }
   
   try {
+    // Process name field for Zoho - need to split into first/last
+    let firstName = '';
+    let lastName = '';
+    
+    // If name is provided, extract first and last name
+    if (formData.name) {
+      const nameParts = formData.name.split(' ');
+      if (nameParts.length >= 2) {
+        firstName = nameParts[0];
+        lastName = nameParts.slice(1).join(' ');
+      } else {
+        // If only one name provided, use it as last name
+        lastName = formData.name;
+      }
+    }
+    
+    // Explicitly log contact info to debug
+    console.log("CONTACT INFO FOR ZOHO UPDATE:", {
+      name: formData.name,
+      firstName: firstName,
+      lastName: lastName,
+      phone: formData.phone || ''
+    });
+    
     // Include all relevant fields to ensure complete updates
     const updateData = {
+      // IMPORTANT: Basic user info
+      name: formData.name || '',
+      phone: formData.phone || '',
+      email: formData.email || '',
+      // Add Zoho-specific name fields
+      First_Name: firstName,
+      Last_Name: lastName || "Contact",
+      Phone: formData.phone || '',
+      
       // Address suggestion tracking
       userTypedAddress: formData.userTypedAddress || '',
       selectedSuggestionAddress: formData.selectedSuggestionAddress || '',
@@ -268,6 +301,86 @@ export async function updateLeadInZoho(leadId, formData) {
  * @param {Object} addressComponents - Optional address components (city, state, zip)
  * @returns {Promise<string>} - The ID of the created or updated lead
  */
+/**
+ * Specialized function to update ONLY contact info (name and phone)
+ * This ensures these fields are explicitly sent to Zoho
+ */
+export async function updateContactInfo(leadId, name, phone, email = '') {
+  if (!leadId) {
+    console.error("Cannot update contact: Missing lead ID");
+    return false;
+  }
+  
+  // Don't attempt to update temporary IDs
+  if (leadId.startsWith("temp_")) {
+    console.log("Using temporary ID - contact update skipped");
+    return true;
+  }
+  
+  try {
+    // Process name field for Zoho
+    let firstName = '';
+    let lastName = '';
+    
+    if (name) {
+      const nameParts = name.split(' ');
+      if (nameParts.length >= 2) {
+        firstName = nameParts[0];
+        lastName = nameParts.slice(1).join(' ');
+      } else {
+        lastName = name;
+      }
+    }
+    
+    // Contact data only - using both Zoho specific fields and generic fields
+    const contactData = {
+      // Generic field names handled by our API wrapper
+      name: name || '',
+      phone: phone || '',
+      email: email || '',
+      
+      // Zoho-specific field names (these will be used directly)
+      First_Name: firstName,
+      Last_Name: lastName || 'Contact',
+      Phone: phone || '',
+      Email: email || '',
+      
+      // Update lead stage
+      leadStage: 'Contact Info Provided'
+    };
+    
+    console.log("DIRECT CONTACT UPDATE:", {
+      leadId,
+      name,
+      firstName,
+      lastName,
+      phone
+    });
+    
+    // Make the API call - this only updates contact fields, nothing else
+    const response = await axios.post('/api/zoho', {
+      action: 'update',
+      leadId,
+      formData: contactData,
+      debug: true
+    });
+    
+    if (response.data && response.data.success) {
+      console.log("Contact info update successful");
+      return true;
+    } else {
+      console.error("Contact info update failed:", response.data);
+      return false;
+    }
+  } catch (error) {
+    console.error("Error updating contact info:", error);
+    if (error.response) {
+      console.error("Response data:", error.response.data);
+    }
+    return false;
+  }
+}
+
 export async function createSuggestionLead(partialAddress, suggestions, leadId = null, addressComponents = null) {
   try {
     // If we already have a leadId, use update action, otherwise create
@@ -288,7 +401,13 @@ export async function createSuggestionLead(partialAddress, suggestions, leadId =
       // Lead classification
       leadSource: 'Address Entry',
       leadStage: 'Address Typing',
-      addressSelectionType: 'Partial'
+      addressSelectionType: 'Partial',
+      
+      // Set a default name to avoid "Lead" default
+      name: 'Property Lead',
+      
+      // Initialize phone to empty string to avoid undefined
+      phone: ''
     };
     
     // Only add address components if explicitly provided and this is a final selection

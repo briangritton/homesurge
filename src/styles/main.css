@@ -1,4 +1,4 @@
-/* === GENERAL STYLES === */
+/* === GENERAL STYLES === */ 
 @font-face {
   font-family: "AgencyBold";
   src: local("AgencyBold"), url("../assets/fonts/AGENCYB.TTF") format("truetype");
@@ -1139,10 +1139,11 @@ body {
  
     max-width: 80%;
 }
-  .submit-button {
-    width: 100%;
-    margin-top: 10px;
-  }
+.submit-button {
+  margin-top: 10px;
+  width: 100%;
+  max-width: 300px;
+}
   
   .footer {
     flex-direction: column;
@@ -1211,6 +1212,14 @@ body {
 
 /* Extra small screens (mobile, 560px and below) */
 @media only screen and (max-width: 560px) {
+
+
+  .thank-you-section {
+ 
+    width: 100%;
+}
+
+
 
 
   .qualifying-section {

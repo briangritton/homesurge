@@ -141,7 +141,7 @@ module.exports = async (req, res) => {
     if (action === 'create' && formData) {
       // Prepare name field - Zoho requires Last_Name at minimum
       let firstName = '';
-      let lastName = 'Lead';
+      let lastName = 'Property Lead'; // Better default than just "Lead"
       
       if (formData.name) {
         const nameParts = formData.name.split(' ');
@@ -204,7 +204,7 @@ module.exports = async (req, res) => {
             // Basic information - standard fields
             First_Name: firstName,
             Last_Name: lastName,
-            Phone: formData.phone,
+            Phone: formData.phone || "", // Ensure phone is never undefined
             Email: formData.email || "",
             
             // Address - Make sure we're using exact Zoho field names with proper capitalization
@@ -358,10 +358,43 @@ module.exports = async (req, res) => {
       }
     } else if (action === 'update' && leadId && formData) {
       // Update existing lead with the exact field names from Zoho
-      const payload = {
+      // Handle name field - Zoho requires Last_Name at minimum
+      let firstName = '';
+      let lastName = '';
+      
+      if (formData.name) {
+        const nameParts = formData.name.split(' ');
+        if (nameParts.length >= 2) {
+          firstName = nameParts[0];
+          lastName = nameParts.slice(1).join(' ');
+        } else {
+          lastName = formData.name;
+        }
+      }
+      
+      // Log contact info being updated
+      console.log("Updating lead with contact info:", {
+        name: formData.name,
+        firstName: firstName,
+        lastName: lastName,
+        phone: formData.phone
+      });
+      
+      // Check direct Zoho field names first, then fallback to our field names
+const hasDirectZohoFields = formData.First_Name !== undefined || formData.Last_Name !== undefined;
+
+const payload = {
         data: [
           {
             id: leadId,
+            
+            // Always include these fields to ensure they get updated
+            // Even if empty strings, this ensures old values are replaced
+            // Use direct Zoho fields if provided, otherwise use our processed values
+            First_Name: hasDirectZohoFields ? formData.First_Name : firstName,
+            Last_Name: hasDirectZohoFields ? formData.Last_Name : (lastName || formData.name),
+            Phone: formData.Phone !== undefined ? formData.Phone : (formData.phone || ""),
+            Email: formData.Email !== undefined ? formData.Email : (formData.email || ""),
             
             // Address suggestion tracking fields
             userTypedAddress: formData.userTypedAddress || "",
