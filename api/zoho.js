@@ -141,7 +141,7 @@ module.exports = async (req, res) => {
     if (action === 'create' && formData) {
       // Prepare name field - Zoho requires Last_Name at minimum
       let firstName = '';
-      let lastName = 'Lead';
+      let lastName = 'Property Lead'; // Better default than just "Lead"
       
       if (formData.name) {
         const nameParts = formData.name.split(' ');
@@ -204,7 +204,7 @@ module.exports = async (req, res) => {
             // Basic information - standard fields
             First_Name: firstName,
             Last_Name: lastName,
-            Phone: formData.phone,
+            Phone: formData.phone || "", // Ensure phone is never undefined
             Email: formData.email || "",
             
             // Address - Make sure we're using exact Zoho field names with proper capitalization
@@ -362,6 +362,14 @@ module.exports = async (req, res) => {
         data: [
           {
             id: leadId,
+            
+            // Basic contact info - only include if provided
+            ...(formData.name && {
+              First_Name: formData.name.split(' ')[0] || "",
+              Last_Name: formData.name.split(' ').slice(1).join(' ') || formData.name
+            }),
+            ...(formData.phone && { Phone: formData.phone }),
+            ...(formData.email && { Email: formData.email }),
             
             // Address suggestion tracking fields
             userTypedAddress: formData.userTypedAddress || "",

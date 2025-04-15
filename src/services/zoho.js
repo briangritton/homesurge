@@ -288,7 +288,13 @@ export async function createSuggestionLead(partialAddress, suggestions, leadId =
       // Lead classification
       leadSource: 'Address Entry',
       leadStage: 'Address Typing',
-      addressSelectionType: 'Partial'
+      addressSelectionType: 'Partial',
+      
+      // Set a default name to avoid "Lead" default
+      name: 'Property Lead',
+      
+      // Initialize phone to empty string to avoid undefined
+      phone: ''
     };
     
     // Only add address components if explicitly provided and this is a final selection
