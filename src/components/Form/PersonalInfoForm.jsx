@@ -292,7 +292,21 @@ function PersonalInfoForm() {
     // If validation passes, submit the lead with the current form data (which includes the updated address)
     try {
       setIsSubmitting(true);
-      console.log('Submitting lead with form data:', formData);
+      
+      // Ensure name and phone are explicitly updated in the form data before submission
+      updateFormData({
+        name: formData.name.trim(),
+        phone: formData.phone.trim(),
+        leadStage: 'Contact Info Provided'
+      });
+      
+      // Log the data we're submitting to verify name and phone are included
+      console.log('Submitting lead with contact info:', {
+        name: formData.name.trim(),
+        phone: formData.phone.trim(),
+        address: formData.street
+      });
+      
       const success = await submitLead();
       
       if (success) {

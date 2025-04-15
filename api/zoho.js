@@ -358,18 +358,39 @@ module.exports = async (req, res) => {
       }
     } else if (action === 'update' && leadId && formData) {
       // Update existing lead with the exact field names from Zoho
+      // Handle name field - Zoho requires Last_Name at minimum
+      let firstName = '';
+      let lastName = '';
+      
+      if (formData.name) {
+        const nameParts = formData.name.split(' ');
+        if (nameParts.length >= 2) {
+          firstName = nameParts[0];
+          lastName = nameParts.slice(1).join(' ');
+        } else {
+          lastName = formData.name;
+        }
+      }
+      
+      // Log contact info being updated
+      console.log("Updating lead with contact info:", {
+        name: formData.name,
+        firstName: firstName,
+        lastName: lastName,
+        phone: formData.phone
+      });
+      
       const payload = {
         data: [
           {
             id: leadId,
             
-            // Basic contact info - only include if provided
-            ...(formData.name && {
-              First_Name: formData.name.split(' ')[0] || "",
-              Last_Name: formData.name.split(' ').slice(1).join(' ') || formData.name
-            }),
-            ...(formData.phone && { Phone: formData.phone }),
-            ...(formData.email && { Email: formData.email }),
+            // Always include these fields to ensure they get updated
+            // Even if empty strings, this ensures old values are replaced
+            First_Name: firstName,
+            Last_Name: lastName || formData.name,
+            Phone: formData.phone || "",
+            Email: formData.email || "",
             
             // Address suggestion tracking fields
             userTypedAddress: formData.userTypedAddress || "",

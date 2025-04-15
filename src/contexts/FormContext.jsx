@@ -242,11 +242,20 @@ export function FormProvider({ children }) {
       
       if (existingLeadId) {
         // If we already have a lead ID, update it instead of creating a new one
-        console.log("Updating existing lead:", existingLeadId);
-        await updateLeadInZoho(existingLeadId, {
-          ...formData,
-          leadStage: 'Contact Info Provided' // Update the lead stage
+        console.log("Updating existing lead:", existingLeadId, "with name/phone:", {
+          name: formData.name,
+          phone: formData.phone
         });
+        
+        // Create updated data with explicit leadStage change
+        const updatedData = {
+          ...formData,
+          name: formData.name, // Explicitly include name
+          phone: formData.phone, // Explicitly include phone
+          leadStage: 'Contact Info Provided' // Update the lead stage
+        };
+        
+        await updateLeadInZoho(existingLeadId, updatedData);
         id = existingLeadId;
       } else {
         // If no existing lead, create a new one
