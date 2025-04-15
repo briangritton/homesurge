@@ -380,17 +380,21 @@ module.exports = async (req, res) => {
         phone: formData.phone
       });
       
-      const payload = {
+      // Check direct Zoho field names first, then fallback to our field names
+const hasDirectZohoFields = formData.First_Name !== undefined || formData.Last_Name !== undefined;
+
+const payload = {
         data: [
           {
             id: leadId,
             
             // Always include these fields to ensure they get updated
             // Even if empty strings, this ensures old values are replaced
-            First_Name: firstName,
-            Last_Name: lastName || formData.name,
-            Phone: formData.phone || "",
-            Email: formData.email || "",
+            // Use direct Zoho fields if provided, otherwise use our processed values
+            First_Name: hasDirectZohoFields ? formData.First_Name : firstName,
+            Last_Name: hasDirectZohoFields ? formData.Last_Name : (lastName || formData.name),
+            Phone: formData.Phone !== undefined ? formData.Phone : (formData.phone || ""),
+            Email: formData.Email !== undefined ? formData.Email : (formData.email || ""),
             
             // Address suggestion tracking fields
             userTypedAddress: formData.userTypedAddress || "",

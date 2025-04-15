@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import { validateName, validatePhone, validateAddress } from '../../utils/validation.js';
 import { trackPhoneNumberLead, trackFormStepComplete, trackFormError } from '../../services/analytics';
+import { updateContactInfo } from '../../services/zoho.js';
 
 function PersonalInfoForm() {
   const { formData, updateFormData, nextStep, submitLead } = useFormContext();
@@ -294,19 +295,32 @@ function PersonalInfoForm() {
       setIsSubmitting(true);
       
       // Ensure name and phone are explicitly updated in the form data before submission
+      const cleanName = formData.name.trim();
+      const cleanPhone = formData.phone.trim();
+      
       updateFormData({
-        name: formData.name.trim(),
-        phone: formData.phone.trim(),
+        name: cleanName,
+        phone: cleanPhone,
         leadStage: 'Contact Info Provided'
       });
       
       // Log the data we're submitting to verify name and phone are included
       console.log('Submitting lead with contact info:', {
-        name: formData.name.trim(),
-        phone: formData.phone.trim(),
+        name: cleanName,
+        phone: cleanPhone,
         address: formData.street
       });
       
+      // Get the existing lead ID - this should already exist from the address suggestion step
+      const existingLeadId = localStorage.getItem('suggestionLeadId') || localStorage.getItem('leadId');
+      
+      if (existingLeadId) {
+        // First directly update the contact info - this is a specialized direct update
+        console.log("DIRECT CONTACT UPDATE FOR LEADID:", existingLeadId);
+        await updateContactInfo(existingLeadId, cleanName, cleanPhone, formData.email || '');
+      }
+      
+      // Then submit the full lead data using the standard flow
       const success = await submitLead();
       
       if (success) {
