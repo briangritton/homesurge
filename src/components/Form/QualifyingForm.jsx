@@ -186,19 +186,39 @@ function QualifyingForm() {
       selectedAppointmentTime: formData.selectedAppointmentTime
     });
     
+    // Store a copy in localStorage in case the API call fails
+    try {
+      localStorage.setItem('qualifyingFormData', JSON.stringify({
+        needsRepairs: formData.needsRepairs,
+        workingWithAgent: formData.workingWithAgent,
+        homeType: formData.homeType,
+        remainingMortgage: formData.remainingMortgage,
+        howSoonSell: formData.howSoonSell,
+        wantToSetAppointment: formData.wantToSetAppointment,
+        selectedAppointmentDate: formData.selectedAppointmentDate,
+        selectedAppointmentTime: formData.selectedAppointmentTime,
+        timestamp: new Date().toISOString()
+      }));
+    } catch (storageError) {
+      console.warn('Failed to save backup to localStorage:', storageError);
+    }
+    
     // Initiate Zoho update in the background
     updateLead().then(() => {
       console.log('All data saved successfully!');
+      // If API call succeeded, we can remove the localStorage backup
+      localStorage.removeItem('qualifyingFormData');
     }).catch(error => {
-      console.error('Error finalizing lead:', error);
+      console.error('Error finalizing lead, but continuing:', error);
       // Track error for analytics
       trackFormError('Error finalizing lead: ' + error.message, 'zoho_final_update');
+      // Data is already backed up in localStorage
     });
     
     // Track form completion for analytics with campaign data
     trackFormStepComplete(3, 'Qualifying Form Complete', formData);
     
-    // Move to thank you page immediately
+    // Move to thank you page immediately - never block the user flow
     nextStep();
   };
   
