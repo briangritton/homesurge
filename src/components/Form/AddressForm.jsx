@@ -17,7 +17,7 @@ function AddressForm() {
   const [addressSuggestions, setAddressSuggestions] = useState([]);
   const [lastTypedAddress, setLastTypedAddress] = useState('');
   
-  // Reference to the main input
+  // Reference to the main input 
   const inputRef = useRef(null);
   
   // Reference to autocomplete instance
