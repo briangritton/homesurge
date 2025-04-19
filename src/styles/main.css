@@ -86,7 +86,7 @@ body {
   flex: 50% 1;
   text-align: right;
 }
-.header-right a {
+.header a {
   text-decoration: none;
   display: flex;
   justify-content: flex-end;
