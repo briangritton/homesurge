@@ -547,31 +547,106 @@ export function FormProvider({ children }) {
     setFormData(initialFormState);
   };
 
-  // Initialize dynamic content from URL parameters
+  // Initialize dynamic content from URL parameters and setup analytics tracking
   const initFromUrlParams = () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const keyword = urlParams.get('keyword');
-    const campaignId = urlParams.get('campaignid');
-    const adgroupId = urlParams.get('adgroupid');
-    const device = urlParams.get('device');
-    const gclid = urlParams.get('gclid');
+    const keyword = urlParams.get('keyword') || '';
+    const campaignId = urlParams.get('campaignid') || '';
+    const adgroupId = urlParams.get('adgroupid') || '';
+    const device = urlParams.get('device') || '';
+    const gclid = urlParams.get('gclid') || '';
+    
+    // Determine campaign name based on campaignId
+    let campaignName = 'Organic';
+    if (campaignId === "20196006239") {
+      campaignName = "Sell For Cash Form Submit (Google only)";
+    } else if (campaignId === "20490389456") {
+      campaignName = "Sell For Cash Form Submit (Search Partners)";
+    } else if (campaignId === "20311247419") {
+      campaignName = "Sell Fast, On Own, No Agent, Form Submit (Google only)";
+    } else if (campaignId === "20490511649") {
+      campaignName = "Sell Fast, On Own, No Agent, Form Submit (Search Partners)";
+    }
+    
+    // Determine adgroup name based on adgroupId
+    let adgroupName = '';
+    if (adgroupId === "149782006756" || adgroupId === "151670982418" || 
+        adgroupId === "153325247952" || adgroupId === "156355988601") {
+      adgroupName = "(exact)";
+    } else if (adgroupId === "153620745798" || adgroupId === "156658963430" || 
+               adgroupId === "153325247992" || adgroupId === "156355988761") {
+      adgroupName = "(phrase)";
+    }
     
     if (keyword || campaignId) {
-      // First update the tracking parameters
+      // Update the tracking parameters in form data
       updateFormData({
-        keyword: keyword || '',
-        campaignId: campaignId || '',
-        adgroupId: adgroupId || '',
-        device: device || '',
-        gclid: gclid || '',
+        keyword: keyword,
+        campaignId: campaignId,
+        adgroupId: adgroupId,
+        device: device,
+        gclid: gclid,
         url: window.location.href,
+        campaignName: campaignName,
+        adgroupName: adgroupName,
+        trafficSource: campaignId ? 'Google Search' : 'Direct'
       });
       
-      // Then set the dynamic content based on these parameters
+      // Set the dynamic content based on these parameters
       setDynamicContent(keyword, campaignId, adgroupId);
+      
+      // Push event to Google Analytics (gtag)
+      if (window.gtag) {
+        window.gtag('set', {
+          'campaign_id': campaignId,
+          'campaign_name': campaignName,
+          'campaign_source': 'google',
+          'campaign_medium': 'cpc',
+          'campaign_keyword': keyword,
+          'adgroup_id': adgroupId,
+          'adgroup_name': adgroupName,
+          'device': device,
+          'gclid': gclid
+        });
+        
+        // Send page view event with campaign data
+        window.gtag('event', 'page_view', {
+          'campaign_data_available': 'yes'
+        });
+      }
+      
+      // Push to dataLayer for GTM
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        'event': 'campaign_page_view',
+        'campaignId': campaignId,
+        'campaignName': campaignName,
+        'adgroupId': adgroupId,
+        'adgroupName': adgroupName,
+        'keyword': keyword,
+        'device': device,
+        'gclid': gclid,
+        'template': 'cash_offer',
+        'traffic_source': 'paid_search'
+      });
+      
+      console.log('Campaign tracking initialized:', {
+        campaignId,
+        campaignName,
+        adgroupId,
+        adgroupName,
+        keyword
+      });
       
       return true;
     }
+    
+    // If no campaign parameters, track as direct traffic
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      'event': 'organic_page_view',
+      'traffic_source': 'direct'
+    });
     
     return false;
   };

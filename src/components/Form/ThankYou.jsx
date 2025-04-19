@@ -10,10 +10,10 @@ function ThankYou() {
     // Track one last time with all completed data
     trackFormSubmission(formData);
     
-    // Track final form step completion
-    trackFormStepComplete(4, 'Form Completion - Thank You Page');
+    // Track final form step completion with campaign data
+    trackFormStepComplete(4, 'Form Completion - Thank You Page', formData);
     
-    // Push dataLayer event for Thank You page view
+    // Push dataLayer event for Thank You page view with enhanced campaign data
     if (window.dataLayer) {
       window.dataLayer.push({
         event: 'GaFastOfferHeroTYPageView',
@@ -28,7 +28,18 @@ function ThankYou() {
           appointmentDate: formData.selectedAppointmentDate,
           appointmentTime: formData.selectedAppointmentTime,
           estimatedValue: formData.formattedApiEstimatedValue || 'Not Available'
-        }
+        },
+        campaignData: {
+          campaignId: formData.campaignId || '',
+          campaignName: formData.campaignName || '',
+          adgroupId: formData.adgroupId || '',
+          adgroupName: formData.adgroupName || '',
+          keyword: formData.keyword || '',
+          device: formData.device || '',
+          gclid: formData.gclid || '',
+          trafficSource: formData.trafficSource || 'Direct'
+        },
+        conversionValue: formData.apiEstimatedValue ? Math.round(formData.apiEstimatedValue / 1000) : 0
       });
     }
     

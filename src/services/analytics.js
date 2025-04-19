@@ -74,7 +74,9 @@ export function trackFormSubmission(formData) {
       name: formData.name ? 'Provided' : 'Missing',
       phone: formData.phone ? 'Provided' : 'Missing', 
       address: formData.street ? 'Provided' : 'Missing',
-      propertyValue: formData.apiEstimatedValue || 'Not Available'
+      propertyValue: formData.apiEstimatedValue || 'Not Available',
+      campaignId: formData.campaignId || 'Not Available',
+      keyword: formData.keyword || 'Not Available'
     });
   }
   
@@ -82,11 +84,22 @@ export function trackFormSubmission(formData) {
     ReactGA.event({
       category: 'Form',
       action: 'Submit',
-      label: 'Lead Form'
+      label: 'Lead Form',
+      // Include campaign data as custom parameters
+      custom_map: {
+        dimension1: 'campaign_id',
+        dimension2: 'campaign_name',
+        dimension3: 'adgroup_id',
+        dimension4: 'keyword'
+      },
+      campaign_id: formData.campaignId || '',
+      campaign_name: formData.campaignName || '',
+      adgroup_id: formData.adgroupId || '',
+      keyword: formData.keyword || ''
     });
   }
 
-  // GTM form submission event
+  // GTM form submission event with enhanced campaign data
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({
     event: 'formSubmission',
@@ -100,19 +113,48 @@ export function trackFormSubmission(formData) {
       wantToSetAppointment: formData.wantToSetAppointment || '',
       selectedAppointmentDate: formData.selectedAppointmentDate || '',
       selectedAppointmentTime: formData.selectedAppointmentTime || ''
-    }
+    },
+    campaignData: {
+      campaignId: formData.campaignId || '',
+      campaignName: formData.campaignName || '',
+      adgroupId: formData.adgroupId || '',
+      adgroupName: formData.adgroupName || '',
+      keyword: formData.keyword || '',
+      device: formData.device || '',
+      gclid: formData.gclid || '',
+      trafficSource: formData.trafficSource || 'Direct'
+    },
+    conversionValue: formData.apiEstimatedValue ? Math.round(formData.apiEstimatedValue / 1000) : 0
   });
 }
 
 // Track form step completion
-export function trackFormStepComplete(stepNumber, stepName) {
-  if (isDebug) console.log('Analytics - Form Step Complete:', { stepNumber, stepName });
+export function trackFormStepComplete(stepNumber, stepName, formData) {
+  if (isDebug) {
+    console.log('Analytics - Form Step Complete:', { 
+      stepNumber, 
+      stepName,
+      campaignId: formData?.campaignId || 'Not Available' 
+    });
+  }
   
   if (GA_TRACKING_ID) {
     ReactGA.event({
       category: 'Form',
       action: 'StepComplete',
-      label: `Step ${stepNumber}: ${stepName}`
+      label: `Step ${stepNumber}: ${stepName}`,
+      value: stepNumber,
+      // Include campaign data as custom parameters
+      custom_map: {
+        dimension1: 'campaign_id',
+        dimension2: 'campaign_name',
+        dimension3: 'adgroup_id',
+        dimension4: 'keyword'
+      },
+      campaign_id: formData?.campaignId || '',
+      campaign_name: formData?.campaignName || '',
+      adgroup_id: formData?.adgroupId || '',
+      keyword: formData?.keyword || ''
     });
   }
 
@@ -120,7 +162,17 @@ export function trackFormStepComplete(stepNumber, stepName) {
   window.dataLayer.push({
     event: 'formStepComplete',
     formStep: stepNumber,
-    stepName: stepName
+    stepName: stepName,
+    campaignData: formData ? {
+      campaignId: formData.campaignId || '',
+      campaignName: formData.campaignName || '',
+      adgroupId: formData.adgroupId || '',
+      adgroupName: formData.adgroupName || '',
+      keyword: formData.keyword || '',
+      device: formData.device || '',
+      gclid: formData.gclid || '',
+      trafficSource: formData.trafficSource || 'Direct'
+    } : {}
   });
 }
 

@@ -17,7 +17,7 @@ function AddressForm() {
   const [addressSuggestions, setAddressSuggestions] = useState([]);
   const [lastTypedAddress, setLastTypedAddress] = useState('');
   
-  // Reference to the main input
+  // Reference to the main input 
   const inputRef = useRef(null);
   
   // Reference to autocomplete instance
@@ -398,27 +398,38 @@ function AddressForm() {
       
       // If user has entered at least 2 characters and there's a suggestion available
       // This handles the case where user presses Enter without selecting from dropdown
-      if (firstSuggestion && formData.street && formData.street.length >= 2) {
+      if (firstSuggestion && formData.street && formData.street.length >= 2 && googleApiLoaded) {
         try {
           console.log('Using first suggestion:', firstSuggestion.description);
           
           // Get full place details for the suggestion
-          const placeDetails = await getPlaceDetails(firstSuggestion.place_id);
+          const placeDetails = await getPlaceDetails(firstSuggestion.place_id)
+            .catch(err => {
+              console.warn('Failed to get place details, continuing with basic address:', err.message);
+              return null;
+            });
           
-          // Update form data to mark this address as selected and not a typing suggestion
-          updateFormData({
-            selectedSuggestionAddress: placeDetails.formatted_address,
-            userTypedAddress: formData.street, // What the user actually typed
-            addressSelectionType: 'EnterKeyPressed',
-            leadStage: 'Address Selected'
-          });
-          
-          // Process the selected address AND WAIT FOR IT TO COMPLETE
-          // This is where we get property data after user has confirmed the address
-          propertyDataRetrieved = await processAddressSelection(placeDetails);
-          
-          // Add a small delay to ensure form data is updated
-          await new Promise(resolve => setTimeout(resolve, 300));
+          // Only proceed with detailed processing if we got the place details
+          if (placeDetails) {
+            // Update form data to mark this address as selected and not a typing suggestion
+            updateFormData({
+              selectedSuggestionAddress: placeDetails.formatted_address,
+              userTypedAddress: formData.street, // What the user actually typed
+              addressSelectionType: 'EnterKeyPressed',
+              leadStage: 'Address Selected'
+            });
+            
+            // Process the selected address AND WAIT FOR IT TO COMPLETE
+            // This is where we get property data after user has confirmed the address
+            propertyDataRetrieved = await processAddressSelection(placeDetails)
+              .catch(err => {
+                console.warn('Address processing failed, continuing with basic form:', err.message);
+                return false;
+              });
+            
+            // Add a small delay to ensure form data is updated
+            await new Promise(resolve => setTimeout(resolve, 300));
+          }
         } catch (error) {
           console.error('Error using first suggestion:', error);
           // Continue with normal submission even if this fails
@@ -504,7 +515,7 @@ function AddressForm() {
       
       // Track address submission and form step completion
       trackAddressSelected(formData.addressSelectionType || 'Manual');
-      trackFormStepComplete(1, 'Address Form Completed');
+      trackFormStepComplete(1, 'Address Form Completed', formData);
       
       // Log the final form data before proceeding to the next step
       console.log('Final form data before proceeding to next step:', {
@@ -538,7 +549,7 @@ function AddressForm() {
       console.error('Error during form submission:', error);
       setIsLoading(false);
       
-      // Track error for analytics
+      // Track error for analytics 
       trackFormError('Form submission error: ' + error.message, 'form');
       
       return false;
@@ -551,7 +562,15 @@ function AddressForm() {
     if (googleApiLoaded) return;
     
     // Get API key from environment variable
-    const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY || "AIzaSyArZ4pBJT_YW6wRVuPI2-AgGL-0hbAdVbI";
+    const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+    
+    // Check if API key is available
+    if (!apiKey) {
+      console.error('Google Maps API key is missing. Please check your environment variables.');
+      // Still allow basic form functionality without Maps API
+      console.log('Continuing with basic address input without Google Places autocomplete');
+      return;
+    }
     
     // Define a callback function for when the API loads
     window.initGoogleMapsAutocomplete = () => {
@@ -641,25 +660,19 @@ function AddressForm() {
             addressSelectionType: 'UserClicked'
           });
           
-          // Process the selected address
-          const success = await processAddressSelection(place);
+          // Start form submission process immediately - don't wait for property data
+          setIsLoading(true);
           
-          if (success) {
-            // Automatically submit the form after selecting an address
-            // Using setTimeout to ensure React has updated the state
-            setTimeout(() => {
-              // Use a direct click on the submit button for most reliable behavior
-              const submitButton = document.querySelector('.submit-button');
-              if (submitButton) {
-                submitButton.click();
-              } else {
-                // Fallback to programmatic form submission
-                if (formRef.current) {
-                  formRef.current.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-                }
-              }
-            }, 200);
-          }
+          // Process the selected address but don't wait for it to complete
+          processAddressSelection(place);
+          
+          // Proceed to next step immediately
+          nextStep();
+          
+          // Reset loading state after navigation
+          setTimeout(() => {
+            setIsLoading(false);
+          }, 100);
         } catch (error) {
           console.error('Error handling place selection:', error);
           

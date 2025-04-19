@@ -106,15 +106,28 @@ export async function lookupPropertyInfo(address) {
   }
   
   try {
-    // Use environment variable for API key if available
-    const apiKey = process.env.REACT_APP_MELISSA_API_KEY || "TyXpKLplL6R0lDTHV7B8Bb**nSAcwXpxhQ0PC2lXxuDAZ-**";
+    // Use environment variable for API key
+    const apiKey = process.env.REACT_APP_MELISSA_API_KEY;
+    
+    // Check if API key is available
+    if (!apiKey) {
+      console.error('Melissa API key is missing. Please check your environment variables.');
+      return null; // Return early if no API key is available
+    }
     const encodedAddress = encodeURIComponent(address);
     const url = `https://property.melissadata.net/v4/WEB/LookupProperty?id=${apiKey}&format=json&cols=GrpAll&opt=desc:on&ff=${encodedAddress}`;
     
     console.log(`Looking up property data for: ${address}`);
     
     // Add timeout to prevent long hangs
-    const { data } = await axios.get(url, { timeout: 15000 });
+    // Use a shorter timeout and add catch handler to prevent blocking user flow
+    const { data } = await axios.get(url, { 
+      timeout: 8000 // Shorter timeout to ensure we don't delay the user too much
+    }).catch(error => {
+      console.warn('Property data lookup failed:', error.message);
+      // Return empty object to allow the form flow to continue
+      return { data: { Records: [] } };
+    });
     
     // Log the first part of the response to avoid overwhelming the console
     console.log('Property lookup response received, TotalRecords:', data.TotalRecords);
