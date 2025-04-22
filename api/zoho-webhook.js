@@ -123,15 +123,9 @@ function getDefaultValueForEvent(event) {
       return 5;
     case 'wrongNumber':
       return 2;
-    case 'successfulClientAgreement':
-      return 200;
     case 'successfullyClosedTransaction':
     case 'closed':
       return 500;
-    case 'offerMade':
-      return 100;
-    case 'contractSigned':
-      return 200;
     default:
       return 10;
   }
@@ -152,15 +146,9 @@ function getConversionNameForEvent(event) {
       return 'Lead Not Interested';
     case 'wrongNumber':
       return 'Wrong Number';
-    case 'successfulClientAgreement':
-      return 'Client Agreement Signed';
     case 'successfullyClosedTransaction':
     case 'closed':
       return 'Deal Closed';
-    case 'offerMade':
-      return 'Offer Made';
-    case 'contractSigned':
-      return 'Contract Signed';
     default:
       return 'Zoho Lead Event';
   }

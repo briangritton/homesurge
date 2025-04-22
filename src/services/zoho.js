@@ -101,16 +101,10 @@ function getConversionValue(event, customValue = null) {
       return 5;
     case 'wrongNumber':
       return 2;
-    case 'successfulClientAgreement':
-      return 200;
     case 'successfullyClosedTransaction':
     case 'closed':
       // For closed deals, rely on the provided value from Zoho CRM
       return 500;
-    case 'offerMade':
-      return 100;
-    case 'contractSigned':
-      return 200;
     default:
       return 10;
   }

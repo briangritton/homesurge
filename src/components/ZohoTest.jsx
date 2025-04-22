@@ -470,33 +470,6 @@ function ZohoTest() {
             Track "Appointment Set"
           </button>
           
-          <button 
-            onClick={() => {
-              setLoading(true);
-              trackZohoConversion('successfulClientAgreement', leadId, 'Agreement Signed')
-                .then(success => {
-                  setResult(success ? 
-                    'Successfully tracked successfulClientAgreement conversion' : 
-                    'Failed to track conversion');
-                  setLoading(false);
-                })
-                .catch(err => {
-                  setError('Error tracking conversion: ' + err.message);
-                  setLoading(false);
-                });
-            }}
-            disabled={loading || !leadId}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: loading ? '#cccccc' : (leadId ? '#f39c12' : '#cccccc'),
-              color: 'white',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: (loading || !leadId) ? 'default' : 'pointer'
-            }}
-          >
-            Track "Client Agreement"
-          </button>
           
           <button 
             onClick={() => {
@@ -586,7 +559,6 @@ function ZohoTest() {
               <option value="appointmentSet">Appointment Set</option>
               <option value="notInterested">Not Interested</option>
               <option value="wrongNumber">Wrong Number</option>
-              <option value="successfulClientAgreement">Client Agreement</option>
               <option value="closed">Closed Deal</option>
             </select>
           </div>
