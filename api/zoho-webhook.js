@@ -23,8 +23,12 @@ module.exports = async (req, res) => {
   }
   
   try {
-    // Log webhook payload for debugging (remove in production)
-    console.log('Received Zoho webhook payload:', JSON.stringify(req.body, null, 2));
+    // Enhanced debugging for troubleshooting
+    console.log('======== ZOHO WEBHOOK RECEIVED ========');
+    console.log('Headers:', JSON.stringify(req.headers, null, 2));
+    console.log('Body:', JSON.stringify(req.body, null, 2));
+    console.log('Method:', req.method);
+    console.log('URL:', req.url);
     
     // Verify webhook authenticity (optional but recommended)
     // In production, uncomment this code and configure a proper secret
@@ -79,11 +83,18 @@ module.exports = async (req, res) => {
     });
     
   } catch (error) {
+    console.error('======== ZOHO WEBHOOK ERROR ========');
     console.error('Error processing Zoho webhook:', error);
+    console.error('Error stack:', error.stack);
+    console.error('Error message:', error.message);
     
-    return res.status(500).json({
-      error: 'Failed to process webhook',
-      details: error.message
+    // Always return a 200 response to avoid Zoho marking the webhook as failed
+    // This will help us debug while not causing failed webhook executions in Zoho
+    return res.status(200).json({
+      success: false,
+      error: 'Error occurred but webhook acknowledged',
+      message: 'Webhook received but encountered an error during processing',
+      errorDetails: error.message
     });
   }
 };
@@ -159,14 +170,14 @@ function getConversionNameForEvent(event) {
  * @param {Object} data - The data to push to GTM
  */
 async function pushToGTM(data) {
-  // This implementation uses the GTM server-side client ID
-  // for demonstration purposes only
-  
-  // Log data that would be sent (for debugging/dev environments)
-  console.log('Would push to GTM server-side:', data);
+  // Log debugging info
+  console.log('Attempting to push to GTM server-side');
+  console.log('NODE_ENV:', process.env.NODE_ENV);
+  console.log('GCLID present:', !!data.gclid);
+  console.log('Data to push:', JSON.stringify(data, null, 2));
   
   // For actual GTM server-side implementation:
-  if (process.env.NODE_ENV === 'production' && data.gclid) {
+  if ((process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'development') && data.gclid) {
     try {
       // This is a sample implementation for GTM server-side
       // You would need to customize this based on your specific setup
@@ -204,8 +215,13 @@ async function pushToGTM(data) {
  * @param {Object} data - The event data to send
  */
 async function sendToGA4MeasurementProtocol(data) {
+  console.log('Attempting to send to GA4 Measurement Protocol');
+  
   // Skip if no API secret or measurement ID is configured
   if (!GA4_API_SECRET || !GA4_MEASUREMENT_ID) {
+    console.log('GA4 Measurement Protocol skipped: Missing API secret or measurement ID');
+    console.log('GA4_MEASUREMENT_ID set:', !!GA4_MEASUREMENT_ID);
+    console.log('GA4_API_SECRET set:', !!GA4_API_SECRET);
     return false;
   }
   
