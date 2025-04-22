@@ -1,7 +1,7 @@
-// api/zoho.js 
+// api/zoho.js
 const axios = require('axios');
 
-// Zoho credentials from environment variablesa
+// Zoho credentials from environment variables
 const ZOHO_CLIENT_ID = process.env.ZOHO_CLIENT_ID || "1000.LGKLH514KZLSSXEHNZACB3GGF4LJVN";
 const ZOHO_CLIENT_SECRET = process.env.ZOHO_CLIENT_SECRET || "6fffecc107326530c6ccdcf39d7237832f048b190d";
 const ZOHO_REFRESH_TOKEN = process.env.ZOHO_REFRESH_TOKEN || "1000.5bfeff607130f3406d5b180df07cce3d.ac515fa8d3f4774f5dde44cbb37ce52b";
@@ -46,7 +46,7 @@ module.exports = async (req, res) => {
   // Handle CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Zoho-Webhook-Token');
   
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -57,7 +57,7 @@ module.exports = async (req, res) => {
   }
   
   try {
-    const { action, leadId, formData, propertyRecord, userId, debug } = req.body;
+    const { action, leadId, formData, propertyRecord, userId, debug, event, status, customValue, additionalData } = req.body;
     
     if (!action) {
       return res.status(400).json({ error: 'Missing action parameter' });
@@ -381,9 +381,9 @@ module.exports = async (req, res) => {
       });
       
       // Check direct Zoho field names first, then fallback to our field names
-const hasDirectZohoFields = formData.First_Name !== undefined || formData.Last_Name !== undefined;
+      const hasDirectZohoFields = formData.First_Name !== undefined || formData.Last_Name !== undefined;
 
-const payload = {
+      const payload = {
         data: [
           {
             id: leadId,
@@ -540,6 +540,107 @@ const payload = {
       } catch (error) {
         return res.status(500).json({ 
           error: 'Failed to save property record',
+          message: error.message,
+          details: error.response?.data
+        });
+      }
+    } else if (action === 'track_conversion' && leadId && event) {
+      // Handle conversion tracking
+      console.log(`Tracking conversion event: ${event} for lead ${leadId}`);
+      
+      try {
+        // If status is provided, update the lead status in Zoho
+        if (status) {
+          const updatePayload = {
+            data: [
+              {
+                id: leadId,
+                Status: status
+              }
+            ]
+          };
+          
+          // If this is a transaction close event with an amount, update the transaction amount field
+          if ((event === 'successfullyClosedTransaction' || event === 'closed') && customValue) {
+            updatePayload.data[0].Transaction_Amount = customValue.toString();
+          }
+          
+          await axios.put(
+            `${ZOHO_API_DOMAIN}/crm/v2/Leads`,
+            updatePayload,
+            {
+              headers: {
+                'Authorization': `Zoho-oauthtoken ${token}`,
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+          
+          console.log(`Updated lead ${leadId} status to ${status}`);
+        }
+        
+        // Get lead data to include in the note
+        const leadResponse = await axios.get(
+          `${ZOHO_API_DOMAIN}/crm/v2/Leads/${leadId}`,
+          {
+            headers: {
+              'Authorization': `Zoho-oauthtoken ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        
+        const leadData = leadResponse.data.data[0];
+        
+        // Create a note to track the conversion event
+        const conversionNote = {
+          data: [
+            {
+              Note_Title: `Conversion Event: ${event}`,
+              Note_Content: JSON.stringify({
+                event: event,
+                timestamp: new Date().toISOString(),
+                status: status || 'No status change',
+                customValue: customValue || 'No custom value',
+                additionalData: additionalData || {},
+                leadData: {
+                  name: leadData.Full_Name || `${leadData.First_Name || ''} ${leadData.Last_Name || ''}`.trim(),
+                  phone: leadData.Phone || '',
+                  email: leadData.Email || '',
+                  gclid: leadData.gclid || '',
+                  needsRepairs: leadData.needsRepairs || '',
+                  apiEstimatedValue: leadData.apiEstimatedValue || ''
+                }
+              }, null, 2),
+              Parent_Id: leadId,
+              se_module: "Leads"
+            }
+          ]
+        };
+        
+        await axios.post(
+          `${ZOHO_API_DOMAIN}/crm/v2/Notes`,
+          conversionNote,
+          {
+            headers: {
+              'Authorization': `Zoho-oauthtoken ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        
+        // Optionally, you could add more analytics tracking here like making a request
+        // to Google Analytics Measurement Protocol API
+        
+        return res.status(200).json({
+          success: true,
+          message: `Tracked conversion ${event} for lead ${leadId}`,
+          status: status ? `Updated status to ${status}` : 'No status change'
+        });
+      } catch (error) {
+        console.error('Error processing conversion tracking:', error);
+        return res.status(500).json({
+          error: 'Failed to track conversion',
           message: error.message,
           details: error.response?.data
         });

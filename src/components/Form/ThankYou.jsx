@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import { trackFormSubmission, trackFormStepComplete } from '../../services/analytics';
+import { trackZohoConversion } from '../../services/zoho';
 
 function ThankYou() {
-  const { formData } = useFormContext();
+  const { formData, leadId } = useFormContext();
   
   // Track successful form completion on page load
   useEffect(() => {
@@ -12,6 +13,21 @@ function ThankYou() {
     
     // Track final form step completion with campaign data
     trackFormStepComplete(4, 'Form Completion - Thank You Page', formData);
+    
+    // Track conversion in Zoho based on appointment status
+    if (leadId) {
+      // If appointment was set, track that specific conversion
+      if (formData.wantToSetAppointment === 'true' && 
+          formData.selectedAppointmentDate && 
+          formData.selectedAppointmentTime) {
+        console.log('Tracking appointment set conversion for lead:', leadId);
+        trackZohoConversion('appointmentSet', leadId, 'Appointment Set');
+      } else {
+        // Otherwise track a standard lead submission conversion
+        console.log('Tracking lead submission conversion for lead:', leadId);
+        trackZohoConversion('successfulContact', leadId, 'Lead Submitted');
+      }
+    }
     
     // Push dataLayer event for Thank You page view with enhanced campaign data
     if (window.dataLayer) {
@@ -48,7 +64,7 @@ function ThankYou() {
     
     // Scroll to top
     window.scrollTo(0, 0);
-  }, [formData]);
+  }, [formData, leadId]);
   
   return (
     <div className="thank-you-section">

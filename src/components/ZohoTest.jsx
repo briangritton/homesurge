@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { submitLeadToZoho, updateLeadInZoho } from '../services/zoho';
+import { submitLeadToZoho, updateLeadInZoho, trackZohoConversion } from '../services/zoho';
 import axios from 'axios';
 
 function ZohoTest() {
@@ -352,6 +352,321 @@ function ZohoTest() {
           View Lead Details
         </button>
       </div>
+      
+      {/* New Conversion Testing Section */}
+      <div style={{ marginBottom: '20px' }}>
+        <h3>Conversion Tracking Test</h3>
+        
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '10px', flexWrap: 'wrap' }}>
+          <button 
+            onClick={() => {
+              setLoading(true);
+              trackZohoConversion('successfulContact', leadId, 'Contacted')
+                .then(success => {
+                  setResult(success ? 
+                    'Successfully tracked successfulContact conversion' : 
+                    'Failed to track conversion');
+                  setLoading(false);
+                })
+                .catch(err => {
+                  setError('Error tracking conversion: ' + err.message);
+                  setLoading(false);
+                });
+            }}
+            disabled={loading || !leadId}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: loading ? '#cccccc' : (leadId ? '#3498db' : '#cccccc'),
+              color: 'white',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: (loading || !leadId) ? 'default' : 'pointer'
+            }}
+          >
+            Track "Successful Contact"
+          </button>
+          
+          <button 
+            onClick={() => {
+              setLoading(true);
+              trackZohoConversion('notInterested', leadId, 'Not Interested')
+                .then(success => {
+                  setResult(success ? 
+                    'Successfully tracked notInterested conversion' : 
+                    'Failed to track conversion');
+                  setLoading(false);
+                })
+                .catch(err => {
+                  setError('Error tracking conversion: ' + err.message);
+                  setLoading(false);
+                });
+            }}
+            disabled={loading || !leadId}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: loading ? '#cccccc' : (leadId ? '#e74c3c' : '#cccccc'),
+              color: 'white',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: (loading || !leadId) ? 'default' : 'pointer'
+            }}
+          >
+            Track "Not Interested"
+          </button>
+          
+          <button 
+            onClick={() => {
+              setLoading(true);
+              trackZohoConversion('wrongNumber', leadId, 'Wrong Number')
+                .then(success => {
+                  setResult(success ? 
+                    'Successfully tracked wrongNumber conversion' : 
+                    'Failed to track conversion');
+                  setLoading(false);
+                })
+                .catch(err => {
+                  setError('Error tracking conversion: ' + err.message);
+                  setLoading(false);
+                });
+            }}
+            disabled={loading || !leadId}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: loading ? '#cccccc' : (leadId ? '#95a5a6' : '#cccccc'),
+              color: 'white',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: (loading || !leadId) ? 'default' : 'pointer'
+            }}
+          >
+            Track "Wrong Number"
+          </button>
+          
+          <button 
+            onClick={() => {
+              setLoading(true);
+              trackZohoConversion('appointmentSet', leadId, 'Appointment Set')
+                .then(success => {
+                  setResult(success ? 
+                    'Successfully tracked appointmentSet conversion' : 
+                    'Failed to track conversion');
+                  setLoading(false);
+                })
+                .catch(err => {
+                  setError('Error tracking conversion: ' + err.message);
+                  setLoading(false);
+                });
+            }}
+            disabled={loading || !leadId}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: loading ? '#cccccc' : (leadId ? '#2ecc71' : '#cccccc'),
+              color: 'white',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: (loading || !leadId) ? 'default' : 'pointer'
+            }}
+          >
+            Track "Appointment Set"
+          </button>
+          
+          <button 
+            onClick={() => {
+              setLoading(true);
+              trackZohoConversion('successfulClientAgreement', leadId, 'Agreement Signed')
+                .then(success => {
+                  setResult(success ? 
+                    'Successfully tracked successfulClientAgreement conversion' : 
+                    'Failed to track conversion');
+                  setLoading(false);
+                })
+                .catch(err => {
+                  setError('Error tracking conversion: ' + err.message);
+                  setLoading(false);
+                });
+            }}
+            disabled={loading || !leadId}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: loading ? '#cccccc' : (leadId ? '#f39c12' : '#cccccc'),
+              color: 'white',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: (loading || !leadId) ? 'default' : 'pointer'
+            }}
+          >
+            Track "Client Agreement"
+          </button>
+          
+          <button 
+            onClick={() => {
+              setLoading(true);
+              trackZohoConversion('closed', leadId, 'Closed', null)
+                .then(success => {
+                  setResult(success ? 
+                    'Successfully tracked closed transaction conversion' : 
+                    'Failed to track conversion');
+                  setLoading(false);
+                })
+                .catch(err => {
+                  setError('Error tracking conversion: ' + err.message);
+                  setLoading(false);
+                });
+            }}
+            disabled={loading || !leadId}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: loading ? '#cccccc' : (leadId ? '#8e44ad' : '#cccccc'),
+              color: 'white',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: (loading || !leadId) ? 'default' : 'pointer'
+            }}
+          >
+            Track "Closed Transaction"
+          </button>
+        </div>
+        
+        {/* Form for custom transaction amount */}
+        <div style={{ marginTop: '15px', marginBottom: '15px', padding: '15px', border: '1px solid #ddd', borderRadius: '5px' }}>
+          <h4>Track Closed Transaction with Amount</h4>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <input 
+              type="number" 
+              placeholder="Transaction Amount (e.g. 500000)" 
+              style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ccc', flex: '1' }}
+              id="transactionAmount"
+            />
+            <button 
+              onClick={() => {
+                setLoading(true);
+                const amountInput = document.getElementById('transactionAmount');
+                const amount = amountInput ? amountInput.value : '';
+                trackZohoConversion('closed', leadId, 'Closed', amount, {
+                  transactionDate: new Date().toISOString().split('T')[0]
+                })
+                  .then(success => {
+                    setResult(success ? 
+                      `Successfully tracked closed transaction with amount: ${amount}` : 
+                      'Failed to track conversion');
+                    setLoading(false);
+                  })
+                  .catch(err => {
+                    setError('Error tracking conversion: ' + err.message);
+                    setLoading(false);
+                  });
+              }}
+              disabled={loading || !leadId}
+              style={{
+                padding: '10px 20px',
+                backgroundColor: loading ? '#cccccc' : (leadId ? '#27ae60' : '#cccccc'),
+                color: 'white',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: (loading || !leadId) ? 'default' : 'pointer'
+              }}
+            >
+              Track With Amount
+            </button>
+          </div>
+        </div>
+        
+        {/* New section for testing Zoho webhooks */}
+        <div style={{ marginTop: '20px', marginBottom: '15px', padding: '15px', border: '1px solid #3498db', borderRadius: '5px', backgroundColor: '#f0f8ff' }}>
+          <h3>Test Zoho Webhook</h3>
+          <p>This section simulates webhook calls from Zoho CRM.</p>
+          
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{ display: 'block', marginBottom: '5px' }}>Event Type:</label>
+            <select 
+              id="webhookEvent"
+              style={{ padding: '8px', width: '100%', borderRadius: '5px', border: '1px solid #ccc' }}
+            >
+              <option value="successfulContact">Successful Contact</option>
+              <option value="appointmentSet">Appointment Set</option>
+              <option value="notInterested">Not Interested</option>
+              <option value="wrongNumber">Wrong Number</option>
+              <option value="successfulClientAgreement">Client Agreement</option>
+              <option value="closed">Closed Deal</option>
+            </select>
+          </div>
+          
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{ display: 'block', marginBottom: '5px' }}>Status:</label>
+            <input
+              type="text"
+              id="webhookStatus"
+              defaultValue="Contacted" 
+              style={{ padding: '8px', width: '100%', borderRadius: '5px', border: '1px solid #ccc' }}
+            />
+          </div>
+          
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{ display: 'block', marginBottom: '5px' }}>Value:</label>
+            <input
+              type="text"
+              id="webhookValue"
+              defaultValue="25" 
+              style={{ padding: '8px', width: '100%', borderRadius: '5px', border: '1px solid #ccc' }}
+            />
+          </div>
+          
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{ display: 'block', marginBottom: '5px' }}>GCLID:</label>
+            <input
+              type="text"
+              id="webhookGclid"
+              defaultValue={formData.gclid || "test_gclid_123"} 
+              style={{ padding: '8px', width: '100%', borderRadius: '5px', border: '1px solid #ccc' }}
+            />
+          </div>
+          
+          <div>
+            <button 
+              onClick={() => {
+                setLoading(true);
+                const eventSelect = document.getElementById('webhookEvent');
+                const statusInput = document.getElementById('webhookStatus');
+                const valueInput = document.getElementById('webhookValue');
+                const gclidInput = document.getElementById('webhookGclid');
+                
+                const webhookData = {
+                  event: eventSelect ? eventSelect.value : 'successfulContact',
+                  leadId: leadId || 'test_lead_id',
+                  status: statusInput ? statusInput.value : 'Contacted',
+                  value: valueInput ? valueInput.value : '25',
+                  timestamp: new Date().toISOString(),
+                  gclid: gclidInput ? gclidInput.value : ''
+                };
+                
+                axios.post('/api/zoho-webhook', webhookData)
+                  .then(response => {
+                    setResult(`Successfully tested webhook: ${response.data.message || 'Success'}`);
+                    setDetailedResponse(response.data);
+                    setLoading(false);
+                  })
+                  .catch(err => {
+                    setError(`Error testing webhook: ${err.message}`);
+                    setDetailedResponse(err.response?.data);
+                    setLoading(false);
+                  });
+              }}
+              disabled={loading}
+              style={{
+                padding: '10px 20px',
+                backgroundColor: loading ? '#cccccc' : '#3498db',
+                color: 'white',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: loading ? 'default' : 'pointer',
+                width: '100%'
+              }}
+            >
+              Test Webhook
+            </button>
+          </div>
+        </div>
+      </div>
 
       <div style={{ marginBottom: '20px' }}>
         <label style={{ display: 'block', marginBottom: '5px' }}>Lead ID (for updates/viewing):</label>
@@ -517,51 +832,14 @@ function ZohoTest() {
               </div>
               
               <div style={{ marginTop: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Remaining Mortgage:</label>
+                <label style={{ display: 'block', marginBottom: '5px' }}>GCLID:</label>
                 <input 
                   type="text" 
-                  name="remainingMortgage" 
-                  value={formData.remainingMortgage} 
+                  name="gclid" 
+                  value={formData.gclid} 
                   onChange={handleFormChange}
                   style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
                 />
-              </div>
-              
-              <div style={{ marginTop: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Square Footage:</label>
-                <input 
-                  type="text" 
-                  name="finishedSquareFootage" 
-                  value={formData.finishedSquareFootage} 
-                  onChange={handleFormChange}
-                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-                />
-              </div>
-              
-              <div style={{ marginTop: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Garage:</label>
-                <select
-                  name="garage"
-                  value={formData.garage}
-                  onChange={handleFormChange}
-                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-                >
-                  <option value="Yes">Yes</option>
-                  <option value="No">No</option>
-                </select>
-              </div>
-              
-              <div style={{ marginTop: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}>HOA:</label>
-                <select
-                  name="hasHoa"
-                  value={formData.hasHoa}
-                  onChange={handleFormChange}
-                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-                >
-                  <option value="Yes">Yes</option>
-                  <option value="No">No</option>
-                </select>
               </div>
               
               <div style={{ marginTop: '10px' }}>
