@@ -572,7 +572,7 @@ module.exports = async (req, res) => {
           
           // If this is a contract signed event, update the contract field and status
           if (event === 'successfulClientAgreement') {
-            updatePayload.data[0].signed_on_as_client = 'true';
+            updatePayload.data[0].Signed_On_As_Client = 'true';
             updatePayload.data[0].Status = 'Contract agreement signed';
           }
           
