@@ -59,6 +59,15 @@ module.exports = async (req, res) => {
   try {
     const { action, leadId, formData, propertyRecord, userId, debug, event, status, customValue, additionalData } = req.body;
     
+    // Log the complete incoming request for debugging
+    console.log("Zoho API Request:", {
+      action,
+      leadId,
+      formDataKeys: formData ? Object.keys(formData) : null,
+      event,
+      status
+    });
+    
     if (!action) {
       return res.status(400).json({ error: 'Missing action parameter' });
     }
@@ -372,12 +381,35 @@ module.exports = async (req, res) => {
         }
       }
       
-      // Log contact info being updated
-      console.log("Updating lead with contact info:", {
+      // Log critical fields in update
+      console.log("Updating lead with data:", {
+        // Contact info
         name: formData.name,
-        firstName: firstName,
-        lastName: lastName,
-        phone: formData.phone
+        firstName: formData.First_Name || firstName,
+        lastName: formData.Last_Name || lastName,
+        phone: formData.Phone || formData.phone,
+        
+        // Sales fields
+        Transaction_Amount: formData.Transaction_Amount,
+        Revenue_Made: formData.Revenue_Made,
+        Signed_On_As_Client: formData.Signed_On_As_Client,
+        
+        // API fields
+        apiOwnerName: formData.apiOwnerName,
+        apiEstimatedValue: formData.apiEstimatedValue,
+        apiHomeValue: formData.apiHomeValue,
+        apiMaxHomeValue: formData.apiMaxHomeValue,
+        apiEquity: formData.apiEquity,
+        apiPercentage: formData.apiPercentage,
+        
+        // Address
+        Street: formData.Street,
+        City: formData.City,
+        State: formData.State,
+        Zip_Code: formData.Zip_Code,
+        
+        // Other lead fields
+        Status: formData.Status
       });
       
       // Check direct Zoho field names first, then fallback to our field names
@@ -406,6 +438,14 @@ module.exports = async (req, res) => {
             suggestionFive: formData.suggestionFive || "",
             leadStage: formData.leadStage || "",
             addressSelectionType: formData.addressSelectionType || "",
+            
+            // CRITICAL: Ensure API data fields are preserved during updates
+            apiOwnerName: formData.apiOwnerName || "",
+            apiEstimatedValue: formData.apiEstimatedValue || formData.apiHomeValue || "",
+            apiHomeValue: formData.apiHomeValue || formData.apiEstimatedValue || "",
+            apiMaxHomeValue: formData.apiMaxHomeValue || "",
+            apiEquity: formData.apiEquity || "",
+            apiPercentage: formData.apiPercentage || "",
             
             // Standard address fields - Make sure we're using exact Zoho field names with proper capitalization
             Street: formData.street || "",
@@ -551,11 +591,44 @@ module.exports = async (req, res) => {
       try {
         // If status is provided, update the lead status in Zoho
         if (status) {
+          // Get lead data first to preserve existing values
+          const leadResponse = await axios.get(
+            `${ZOHO_API_DOMAIN}/crm/v2/Leads/${leadId}`,
+            {
+              headers: {
+                'Authorization': `Zoho-oauthtoken ${token}`,
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+          
+          // Extract the lead data
+          const leadData = leadResponse.data.data[0] || {};
+          
+          // Create update payload with existing data preserved
           const updatePayload = {
             data: [
               {
                 id: leadId,
-                Status: status
+                Status: status,
+                
+                // Preserve important fields
+                First_Name: leadData.First_Name || "",
+                Last_Name: leadData.Last_Name || "",
+                Phone: leadData.Phone || "",
+                Email: leadData.Email || "",
+                Street: leadData.Street || "",
+                City: leadData.City || "",
+                State: leadData.State || "",
+                Zip_Code: leadData.Zip_Code || "",
+                
+                // Preserve API data
+                apiOwnerName: leadData.apiOwnerName || "",
+                apiEstimatedValue: leadData.apiEstimatedValue || leadData.apiHomeValue || "",
+                apiHomeValue: leadData.apiHomeValue || leadData.apiEstimatedValue || "",
+                apiMaxHomeValue: leadData.apiMaxHomeValue || "",
+                apiEquity: leadData.apiEquity || "",
+                apiPercentage: leadData.apiPercentage || ""
               }
             ]
           };

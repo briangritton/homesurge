@@ -97,9 +97,40 @@ function SalesPage() {
       if (response.data && response.data.success && response.data.lead) {
         const lead = response.data.lead;
         
-        // Store complete lead data for use in updates (to prevent overwriting fields)
-        window.fullLeadData = lead;
-        console.log("Retrieved full lead data:", lead);
+        // Create a clean copy of all important lead fields
+        const cleanedLeadData = {};
+        
+        // Copy ALL lead properties to ensure none are lost
+        for (const key in lead) {
+          // Skip internal fields that start with $ or _
+          if (!key.startsWith('$') && !key.startsWith('_')) {
+            cleanedLeadData[key] = lead[key];
+          }
+        }
+        
+        // Explicitly preserve critical fields with special handling
+        // API data fields
+        cleanedLeadData.apiOwnerName = lead.apiOwnerName || lead.API_Owner_Name || "";
+        cleanedLeadData.apiEstimatedValue = lead.apiEstimatedValue || lead.API_Estimated_Value || lead.apiHomeValue || lead.API_Home_Value || "";
+        cleanedLeadData.apiMaxHomeValue = lead.apiMaxHomeValue || lead.API_Max_Home_Value || "";
+        cleanedLeadData.apiEquity = lead.apiEquity || lead.API_Equity || "";
+        cleanedLeadData.apiPercentage = lead.apiPercentage || lead.API_Percentage || "";
+        
+        // Address fields - use all possible variations
+        cleanedLeadData.Street = lead.Street || lead.street || lead.selectedSuggestionAddress || lead.userTypedAddress || "";
+        cleanedLeadData.City = lead.City || lead.city || "";
+        cleanedLeadData.State = lead.State || lead.state || "";
+        cleanedLeadData.Zip_Code = lead.Zip_Code || lead.zip || "";
+        
+        // Contact information
+        cleanedLeadData.First_Name = lead.First_Name || lead.firstName || "";
+        cleanedLeadData.Last_Name = lead.Last_Name || lead.lastName || "";
+        cleanedLeadData.Phone = lead.Phone || lead.phone || "";
+        cleanedLeadData.Email = lead.Email || lead.email || "";
+        
+        // Store the cleaned data for updates
+        window.fullLeadData = cleanedLeadData;
+        console.log("Preserved lead data for updates:", cleanedLeadData);
         
         // Check if contract is already signed - with more verbose logging
         console.log("Checking contract status:", {
