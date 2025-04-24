@@ -54,17 +54,18 @@ const initialFormState = {
   gclid: '',
   url: window.location.href,
   
-  // Property qualifications
-  isPropertyOwner: 'true',
-  needsRepairs: 'false',  // Explicit default for repairs
-  workingWithAgent: 'false',
-  homeType: 'Single Family',
-  remainingMortgage: 100000,
-  finishedSquareFootage: 1000,
-  basementSquareFootage: 0,
-  howSoonSell: 'ASAP',
+  // Property qualifications - removing default values for Zoho submission
+  // These will still display default values in UI, but won't be sent to Zoho until set
+  isPropertyOwner: undefined, // UI may show 'Yes' but it won't be sent to Zoho initially
+  needsRepairs: undefined,    // UI may show 'No' but it won't be sent to Zoho initially
+  workingWithAgent: undefined,
+  homeType: undefined,
+  remainingMortgage: 100000,  // UI shows default but only sent if user interacts or API sets it
+  finishedSquareFootage: 1000, // UI shows default but only sent if user interacts or API sets it
+  basementSquareFootage: 0,   // UI shows default but only sent if user interacts or API sets it
+  howSoonSell: undefined,
   qualifyingQuestionStep: 1,
-  wantToSetAppointment: 'false',
+  wantToSetAppointment: undefined,
   selectedAppointmentDate: '',
   selectedAppointmentTime: '',
   
@@ -76,7 +77,10 @@ const initialFormState = {
   apiEquity: 0,
   apiPercentage: 0, 
   mortgageAmount: 0,
-  propertyRecord: null
+  propertyRecord: null,
+  
+  // Track which fields have been interacted with (by user or API)
+  interactedFields: {}
 };
 
 // Create the context
@@ -158,9 +162,25 @@ export function FormProvider({ children }) {
     }
   }, []);
 
-  // Handle form updates
+  // Handle form updates with tracking of interacted fields
   const updateFormData = (updates) => {
-    setFormData(prev => ({ ...prev, ...updates }));
+    setFormData(prev => {
+      // Track which fields have been explicitly interacted with
+      const newInteractedFields = { ...prev.interactedFields };
+      
+      // Mark each updated field as interacted with
+      Object.keys(updates).forEach(key => {
+        if (key !== 'interactedFields') {
+          newInteractedFields[key] = true;
+        }
+      });
+      
+      return { 
+        ...prev, 
+        ...updates, 
+        interactedFields: newInteractedFields 
+      };
+    });
     
     // If there are important property data updates, store them
     if (updates.propertyRecord || updates.apiEstimatedValue || updates.apiOwnerName || 
@@ -205,6 +225,64 @@ export function FormProvider({ children }) {
     localStorage.setItem('formStep', step.toString());
   };
 
+  // Helper function to clean data before sending to Zoho
+  const prepareDataForZoho = (data) => {
+    // Create a clean copy of data
+    const cleanData = { ...data };
+    
+    // List of qualifying fields that should only be sent if interacted with
+    const qualifyingFields = [
+      'isPropertyOwner',
+      'needsRepairs',
+      'workingWithAgent',
+      'homeType',
+      'howSoonSell',
+      'wantToSetAppointment'
+    ];
+    
+    // List of fields that should only be sent if they have a value
+    const valueRequiredFields = [
+      'remainingMortgage',
+      'finishedSquareFootage',
+      'basementSquareFootage'
+    ];
+    
+    // Remove qualifying fields that haven't been interacted with
+    qualifyingFields.forEach(field => {
+      // Only include field if it's been explicitly interacted with or set by an API
+      const hasBeenInteractedWith = data.interactedFields[field];
+      const hasValidValue = data[field] !== undefined && data[field] !== '';
+      
+      if (!hasBeenInteractedWith && !hasValidValue) {
+        delete cleanData[field];
+        console.log(`Removed ${field} from Zoho submission - no user interaction`);
+      }
+    });
+    
+    // Remove value fields that don't have values set
+    valueRequiredFields.forEach(field => {
+      // Check if field has a valid numeric value
+      const hasValue = data[field] !== undefined && 
+                       data[field] !== null && 
+                       data[field] !== '' && 
+                       !isNaN(data[field]) && 
+                       data[field] > 0;
+      
+      // Check if field has been set by API or user
+      const hasBeenInteractedWith = data.interactedFields[field];
+      
+      if (!hasValue && !hasBeenInteractedWith) {
+        delete cleanData[field];
+        console.log(`Removed ${field} from Zoho submission - no value set`);
+      }
+    });
+    
+    // Remove the interactedFields tracker from the data sent to Zoho
+    delete cleanData.interactedFields;
+    
+    return cleanData;
+  };
+
   // Submit initial lead to Zoho
   const submitLead = async () => {
     setFormData(prev => ({ ...prev, submitting: true }));
@@ -212,29 +290,29 @@ export function FormProvider({ children }) {
     // Check if we already have a lead ID from the suggestion tracking
     const existingLeadId = localStorage.getItem('suggestionLeadId') || leadId;
     
+    // Prepare data by removing uninteracted fields
+    const cleanedFormData = prepareDataForZoho(formData);
+    
     // Add enhanced logging for property data
-    console.log("Submitting lead with complete form data:", {
+    console.log("Submitting lead with cleaned form data:", {
       existingLeadId: existingLeadId || 'None',
-      name: formData.name,
-      phone: formData.phone,
-      street: formData.street,
-      needsRepairs: formData.needsRepairs,
-      wantToSetAppointment: formData.wantToSetAppointment,
-      selectedAppointmentDate: formData.selectedAppointmentDate,
-      selectedAppointmentTime: formData.selectedAppointmentTime,
-      apiOwnerName: formData.apiOwnerName,
-      apiEstimatedValue: formData.apiEstimatedValue,
-      apiMaxHomeValue: formData.apiMaxHomeValue,
-      formattedApiEstimatedValue: formData.formattedApiEstimatedValue,
-      apiEquity: formData.apiEquity,
-      apiPercentage: formData.apiPercentage,
-      userTypedAddress: formData.userTypedAddress,
-      selectedSuggestionAddress: formData.selectedSuggestionAddress,
-      suggestionOne: formData.suggestionOne,
-      suggestionTwo: formData.suggestionTwo,
-      suggestionThree: formData.suggestionThree,
-      leadStage: formData.leadStage,
-      propertyRecord: formData.propertyRecord ? 'Available' : 'Not available'
+      name: cleanedFormData.name,
+      phone: cleanedFormData.phone,
+      street: cleanedFormData.street,
+      needsRepairs: cleanedFormData.needsRepairs,
+      wantToSetAppointment: cleanedFormData.wantToSetAppointment,
+      selectedAppointmentDate: cleanedFormData.selectedAppointmentDate,
+      selectedAppointmentTime: cleanedFormData.selectedAppointmentTime,
+      apiOwnerName: cleanedFormData.apiOwnerName,
+      apiEstimatedValue: cleanedFormData.apiEstimatedValue,
+      apiMaxHomeValue: cleanedFormData.apiMaxHomeValue,
+      formattedApiEstimatedValue: cleanedFormData.formattedApiEstimatedValue,
+      apiEquity: cleanedFormData.apiEquity,
+      apiPercentage: cleanedFormData.apiPercentage,
+      userTypedAddress: cleanedFormData.userTypedAddress,
+      selectedSuggestionAddress: cleanedFormData.selectedSuggestionAddress,
+      leadStage: cleanedFormData.leadStage,
+      propertyRecord: cleanedFormData.propertyRecord ? 'Available' : 'Not available'
     });
     
     try {
@@ -243,15 +321,15 @@ export function FormProvider({ children }) {
       if (existingLeadId) {
         // If we already have a lead ID, update it instead of creating a new one
         console.log("Updating existing lead:", existingLeadId, "with name/phone:", {
-          name: formData.name,
-          phone: formData.phone
+          name: cleanedFormData.name,
+          phone: cleanedFormData.phone
         });
         
         // Create updated data with explicit leadStage change
         const updatedData = {
-          ...formData,
-          name: formData.name, // Explicitly include name
-          phone: formData.phone, // Explicitly include phone
+          ...cleanedFormData,
+          name: cleanedFormData.name, // Explicitly include name
+          phone: cleanedFormData.phone, // Explicitly include phone
           leadStage: 'Contact Info Provided' // Update the lead stage
         };
         
@@ -259,8 +337,8 @@ export function FormProvider({ children }) {
         id = existingLeadId;
       } else {
         // If no existing lead, create a new one
-        console.log("Creating new lead");
-        id = await submitLeadToZoho(formData);
+        console.log("Creating new lead with cleaned data");
+        id = await submitLeadToZoho(cleanedFormData);
       }
       
       console.log("Lead operation successful, ID:", id);
@@ -324,11 +402,14 @@ export function FormProvider({ children }) {
     
     setLastUpdateTime(now);
     
+    // Clean data by removing uninteracted fields
+    const cleanedFormData = prepareDataForZoho(formData);
+    
     if (!existingLeadId) {
       console.warn("No lead ID available - will create a new lead instead of updating");
       try {
         // Create a new lead instead of updating
-        const newLeadId = await submitLeadToZoho(formData);
+        const newLeadId = await submitLeadToZoho(cleanedFormData);
         if (newLeadId) {
           console.log("Created a new lead instead:", newLeadId);
           setLeadId(newLeadId);
@@ -344,31 +425,29 @@ export function FormProvider({ children }) {
     }
     
     try {
-      console.log("Updating lead in Zoho:", existingLeadId, formData);
+      console.log("Updating lead in Zoho with cleaned data:", existingLeadId);
       
       // Log property and address data being sent in update
-      if (formData.apiEstimatedValue || formData.apiOwnerName || formData.apiEquity || 
-          formData.needsRepairs || formData.selectedAppointmentTime ||
-          formData.userTypedAddress || formData.selectedSuggestionAddress) {
+      if (cleanedFormData.apiEstimatedValue || cleanedFormData.apiOwnerName || cleanedFormData.apiEquity || 
+          cleanedFormData.needsRepairs || cleanedFormData.selectedAppointmentTime ||
+          cleanedFormData.userTypedAddress || cleanedFormData.selectedSuggestionAddress) {
         console.log("Including property, appointment, and address data in update:", {
-          apiOwnerName: formData.apiOwnerName,
-          apiEstimatedValue: formData.apiEstimatedValue,
-          apiMaxHomeValue: formData.apiMaxHomeValue,
-          apiEquity: formData.apiEquity,
-          apiPercentage: formData.apiPercentage,
-          needsRepairs: formData.needsRepairs,
-          wantToSetAppointment: formData.wantToSetAppointment,
-          selectedAppointmentDate: formData.selectedAppointmentDate,
-          selectedAppointmentTime: formData.selectedAppointmentTime,
-          userTypedAddress: formData.userTypedAddress,
-          selectedSuggestionAddress: formData.selectedSuggestionAddress,
-          suggestionOne: formData.suggestionOne,
-          suggestionTwo: formData.suggestionTwo,
-          leadStage: formData.leadStage
+          apiOwnerName: cleanedFormData.apiOwnerName,
+          apiEstimatedValue: cleanedFormData.apiEstimatedValue,
+          apiMaxHomeValue: cleanedFormData.apiMaxHomeValue,
+          apiEquity: cleanedFormData.apiEquity,
+          apiPercentage: cleanedFormData.apiPercentage,
+          needsRepairs: cleanedFormData.needsRepairs,
+          wantToSetAppointment: cleanedFormData.wantToSetAppointment,
+          selectedAppointmentDate: cleanedFormData.selectedAppointmentDate,
+          selectedAppointmentTime: cleanedFormData.selectedAppointmentTime,
+          userTypedAddress: cleanedFormData.userTypedAddress,
+          selectedSuggestionAddress: cleanedFormData.selectedSuggestionAddress,
+          leadStage: cleanedFormData.leadStage
         });
       }
       
-      await updateLeadInZoho(existingLeadId, formData);
+      await updateLeadInZoho(existingLeadId, cleanedFormData);
       console.log("Lead updated successfully");
       return true;
     } catch (error) {
@@ -655,7 +734,7 @@ export function FormProvider({ children }) {
   return (
     <FormContext.Provider value={{
       formData,
-      leadId,  // <-- ADD THIS LINE to expose leadId to components
+      leadId,
       updateFormData,
       nextStep,
       previousStep,

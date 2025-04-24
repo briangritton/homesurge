@@ -41,7 +41,7 @@ function QualifyingForm() {
     // Set the selected option for property repairs
     if (formData.needsRepairs === 'true') {
       setSelectedOptionLR('right');
-    } else {
+    } else if (formData.needsRepairs === 'false') {
       setSelectedOptionLR('left');
     }
     

@@ -117,27 +117,39 @@ function getConversionValue(event, customValue = null) {
 }
 
 /**
- * Submit new lead to Zoho CRM
+ * Submit new lead to Zoho CRM with only relevant fields
  * @param {Object} formData - The form data to submit
  * @returns {Promise<string>} - The ID of the created lead
  */
 export async function submitLeadToZoho(formData) {
   try {
-    // Include all relevant property data from Melissa API
+    // Get list of fields that should only be sent if they have been interacted with
+    const qualifyingFields = [
+      'isPropertyOwner',
+      'needsRepairs', 
+      'workingWithAgent',
+      'homeType',
+      'remainingMortgage',
+      'finishedSquareFootage',
+      'basementSquareFootage',
+      'howSoonSell',
+      'wantToSetAppointment'
+    ];
+    
+    // Create cleaned data object
     const preparedData = {
-      // Basic user info
+      // Basic user info - always include these
       name: formData.name || '',
       phone: formData.phone || '',
       email: formData.email || '',
       
-      // Address info - making sure we're using the internal field names
-      // (these will be mapped to Zoho's field names in the API call)
+      // Address info - always include these
       street: formData.street || '',
       city: formData.city || '',
       zip: formData.zip || '',
       state: formData.state || 'GA',
       
-      // Address suggestion tracking
+      // Address suggestion tracking - always include these
       userTypedAddress: formData.userTypedAddress || '',
       selectedSuggestionAddress: formData.selectedSuggestionAddress || '',
       suggestionOne: formData.suggestionOne || '',
@@ -146,36 +158,20 @@ export async function submitLeadToZoho(formData) {
       suggestionFour: formData.suggestionFour || '',
       suggestionFive: formData.suggestionFive || '',
       
-      // Property data from Melissa API
+      // Property data from Melissa API - include if available
       apiOwnerName: formData.apiOwnerName || '',
       apiEstimatedValue: formData.apiEstimatedValue?.toString() || '0',
       apiMaxHomeValue: formData.apiMaxHomeValue?.toString() || '0',
       formattedApiEstimatedValue: formData.formattedApiEstimatedValue || '$0',
       
-      // New equity data
+      // New equity data - include if available
       apiEquity: formData.apiEquity?.toString() || '0',
       apiPercentage: formData.apiPercentage?.toString() || '0',
       
-      // Property qualification data
-      isPropertyOwner: formData.isPropertyOwner || 'true',
-      needsRepairs: formData.needsRepairs || 'false', // Make sure this is included
-      workingWithAgent: formData.workingWithAgent || 'false',
-      homeType: formData.homeType || 'Single Family',
-      
-      // Appointment info
-      wantToSetAppointment: formData.wantToSetAppointment || 'false',
-      selectedAppointmentDate: formData.selectedAppointmentDate || '',
-      selectedAppointmentTime: formData.selectedAppointmentTime || '',
-      
-      // Location data
+      // Location data - include if available
       location: formData.location ? JSON.stringify(formData.location) : '',
       
-      // Additional property details
-      bedrooms: formData.bedrooms?.toString() || '',
-      bathrooms: formData.bathrooms?.toString() || '',
-      finishedSquareFootage: formData.finishedSquareFootage?.toString() || '',
-      
-      // Tracking parameters
+      // Tracking parameters - always include these
       trafficSource: formData.trafficSource || 'Direct',
       url: formData.url || '',
       gclid: formData.gclid || '',
@@ -187,6 +183,41 @@ export async function submitLeadToZoho(formData) {
       leadSource: formData.leadSource || 'Website',
       leadStage: formData.leadStage || 'New'
     };
+    
+    // Only add qualifying fields if they have values set or have been interacted with
+    qualifyingFields.forEach(field => {
+      const hasValidValue = formData[field] !== undefined && formData[field] !== '';
+      const hasBeenInteractedWith = formData.interactedFields && formData.interactedFields[field];
+      
+      if (hasValidValue || hasBeenInteractedWith) {
+        // For numeric fields, add toString() to ensure proper format
+        if (typeof formData[field] === 'number') {
+          preparedData[field] = formData[field].toString();
+        } else {
+          preparedData[field] = formData[field];
+        }
+      } else {
+        // Log fields we're NOT sending
+        console.log(`Not sending field ${field} to Zoho - no value set or user interaction`);
+      }
+    });
+    
+    // Additional fields to include only if they have valid values
+    if (formData.selectedAppointmentDate) {
+      preparedData.selectedAppointmentDate = formData.selectedAppointmentDate;
+    }
+    
+    if (formData.selectedAppointmentTime) {
+      preparedData.selectedAppointmentTime = formData.selectedAppointmentTime;
+    }
+    
+    if (formData.bedrooms) {
+      preparedData.bedrooms = formData.bedrooms.toString();
+    }
+    
+    if (formData.bathrooms) {
+      preparedData.bathrooms = formData.bathrooms.toString();
+    }
     
     console.log("Submitting lead to Zoho with property and appointment data:", {
       needsRepairs: preparedData.needsRepairs,
@@ -277,6 +308,23 @@ export async function updateLeadInZoho(leadId, formData) {
   }
   
   try {
+    // List of fields that should only be sent if they have been explicitly set
+    const qualifyingFields = [
+      'isPropertyOwner',
+      'needsRepairs', 
+      'workingWithAgent',
+      'homeType',
+      'howSoonSell',
+      'wantToSetAppointment'
+    ];
+    
+    // List of fields that should only be sent if they have a numeric value
+    const valueRequiredFields = [
+      'remainingMortgage',
+      'finishedSquareFootage',
+      'basementSquareFootage'
+    ];
+    
     // Process name field for Zoho - need to split into first/last
     let firstName = '';
     let lastName = '';
@@ -301,7 +349,7 @@ export async function updateLeadInZoho(leadId, formData) {
       phone: formData.phone || ''
     });
     
-    // Include all relevant fields to ensure complete updates
+    // Include basic fields in updateData
     const updateData = {
       // IMPORTANT: Basic user info
       name: formData.name || '',
@@ -322,22 +370,10 @@ export async function updateLeadInZoho(leadId, formData) {
       suggestionFive: formData.suggestionFive || '',
       
       // Basic address info if updated - using internal field names
-      // (these will be mapped to Zoho's field names in the API call)
       street: formData.street || '',
       city: formData.city || '',
       state: formData.state || '',
       zip: formData.zip || '',
-      
-      // Property qualifications - using exact field names from Zoho API
-      isPropertyOwner: formData.isPropertyOwner || '',
-      needsRepairs: formData.needsRepairs || '', 
-      workingWithAgent: formData.workingWithAgent || '',
-      homeType: formData.homeType || '',
-      remainingMortgage: formData.remainingMortgage?.toString() || '',
-      finishedSquareFootage: formData.finishedSquareFootage?.toString() || '',
-      basementSquareFootage: formData.basementSquareFootage?.toString() || '',
-      howSoonSell: formData.howSoonSell || '',
-      "How soon do you want to sell?": formData.howSoonSell || '',
       
       // Property data from Melissa API (in case they weren't in initial creation)
       apiOwnerName: formData.apiOwnerName || '',
@@ -347,11 +383,6 @@ export async function updateLeadInZoho(leadId, formData) {
       apiEquity: formData.apiEquity?.toString() || '',
       apiPercentage: formData.apiPercentage?.toString() || '',
       
-      // Appointment information
-      wantToSetAppointment: formData.wantToSetAppointment || '',
-      selectedAppointmentDate: formData.selectedAppointmentDate || '',
-      selectedAppointmentTime: formData.selectedAppointmentTime || '',
-      
       // Lead tracking info
       leadSource: formData.leadSource || '',
       leadStage: formData.leadStage || '',
@@ -360,6 +391,48 @@ export async function updateLeadInZoho(leadId, formData) {
       // Progress tracking
       qualifyingQuestionStep: formData.qualifyingQuestionStep?.toString() || ''
     };
+    
+    // Only include qualifying fields if they have values or have been interacted with
+    qualifyingFields.forEach(field => {
+      const hasValidValue = formData[field] !== undefined && formData[field] !== '';
+      const hasBeenInteractedWith = formData.interactedFields && formData.interactedFields[field];
+      
+      if (hasValidValue || hasBeenInteractedWith) {
+        // Include the field with its value
+        updateData[field] = formData[field];
+      } else {
+        // Log fields we're excluding
+        console.log(`Not including ${field} in update - no value set or user interaction`);
+      }
+    });
+    
+    // Only include value-required fields if they have numeric values or API set them
+    valueRequiredFields.forEach(field => {
+      const hasValidValue = formData[field] !== undefined && 
+          formData[field] !== '' && 
+          formData[field] !== null && 
+          !isNaN(formData[field]) && 
+          Number(formData[field]) > 0;
+      
+      const hasBeenInteractedWith = formData.interactedFields && formData.interactedFields[field];
+      
+      if (hasValidValue || hasBeenInteractedWith) {
+        updateData[field] = formData[field].toString();
+      } else {
+        console.log(`Not including ${field} in update - no valid numeric value or user interaction`);
+      }
+    });
+    
+    // Include appointment fields only if they have values
+    if (formData.selectedAppointmentDate) {
+      updateData.selectedAppointmentDate = formData.selectedAppointmentDate;
+      updateData.AppointmentDate = formData.selectedAppointmentDate;
+    }
+    
+    if (formData.selectedAppointmentTime) {
+      updateData.selectedAppointmentTime = formData.selectedAppointmentTime;
+      updateData.AppointmentTime = formData.selectedAppointmentTime;
+    }
     
     console.log("Updating lead in Zoho:", { 
       leadId, 
