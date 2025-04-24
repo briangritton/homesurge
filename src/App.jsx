@@ -12,6 +12,7 @@ import QualifyingForm from './components/Form/QualifyingForm';
 import ThankYou from './components/Form/ThankYou';
 import Privacy from './components/common/Privacy';
 import ZohoTest from './components/ZohoTest';
+import SalesPage from './components/SalesPage';
 
 // Styles
 import './styles/main.css';
@@ -92,6 +93,7 @@ function App() {
             <Route path="/test-zoho" element={<ZohoTest />} />
             <Route path="/privacy" element={<Privacy handleTermsClick={() => {}} />} />
             <Route path="/thank-you" element={<ThankYou />} />
+            <Route path="/sales" element={<SalesPage />} />
           </Routes>
           <Footer />
         </BrowserRouter>

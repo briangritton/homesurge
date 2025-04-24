@@ -565,6 +565,11 @@ module.exports = async (req, res) => {
             updatePayload.data[0].Transaction_Amount = customValue.toString();
           }
           
+          // If this is a contract signed event, update the contract field
+          if (event === 'successfulClientAgreement') {
+            updatePayload.data[0].Contract_Signed = 'true';
+          }
+          
           await axios.put(
             `${ZOHO_API_DOMAIN}/crm/v2/Leads`,
             updatePayload,
