@@ -396,11 +396,11 @@ function AddressForm() {
     try {
       let propertyDataRetrieved = false;
       
-      // If user has entered at least 2 characters and there's a suggestion available
-      // This handles the case where user presses Enter without selecting from dropdown
+      // CRITICAL FIX: Always use the first suggestion if available
+      // This ensures auto-selection when user just clicks the button without explicitly selecting from dropdown
       if (firstSuggestion && formData.street && formData.street.length >= 2 && googleApiLoaded) {
         try {
-          console.log('Using first suggestion:', firstSuggestion.description);
+          console.log('IMPORTANT: Auto-selecting first suggestion:', firstSuggestion.description);
           
           // Get full place details for the suggestion
           const placeDetails = await getPlaceDetails(firstSuggestion.place_id)
@@ -411,11 +411,17 @@ function AddressForm() {
           
           // Only proceed with detailed processing if we got the place details
           if (placeDetails) {
+            // CRITICAL: Update the input field with the complete address immediately!
+            if (inputRef.current) {
+              inputRef.current.value = placeDetails.formatted_address;
+            }
+            
             // Update form data to mark this address as selected and not a typing suggestion
             updateFormData({
+              street: placeDetails.formatted_address, // CRITICAL: Update the street field with FULL address
               selectedSuggestionAddress: placeDetails.formatted_address,
               userTypedAddress: formData.street, // What the user actually typed
-              addressSelectionType: 'EnterKeyPressed',
+              addressSelectionType: 'AutoSelected',
               leadStage: 'Address Selected'
             });
             
@@ -745,6 +751,48 @@ function AddressForm() {
               onFocus={(e) => e.target.placeholder = ''}
               onBlur={(e) => e.target.placeholder = 'Street address...'}
               disabled={isLoading}
+              onKeyDown={async (e) => {
+                // Check if Enter key is pressed
+                if (e.key === 'Enter') {
+                  e.preventDefault(); // Prevent default form submission
+                  
+                  // If we have a first suggestion, use it
+                  if (firstSuggestion) {
+                    console.log('Enter key pressed - selecting first suggestion:', firstSuggestion.description);
+                    
+                    // Get place details for the suggestion
+                    try {
+                      const placeDetails = await getPlaceDetails(firstSuggestion.place_id);
+                      
+                      if (placeDetails) {
+                        // Update the input field with the full address
+                        inputRef.current.value = placeDetails.formatted_address;
+                        
+                        // Update form data with the selected address
+                        updateFormData({
+                          street: placeDetails.formatted_address,
+                          selectedSuggestionAddress: placeDetails.formatted_address,
+                          userTypedAddress: lastTypedAddress, // What the user typed
+                          addressSelectionType: 'EnterKeyPressed'
+                        });
+                        
+                        // Process the selection (gets address components, etc.)
+                        await processAddressSelection(placeDetails);
+                        
+                        // Immediately submit the form
+                        setTimeout(() => handleSubmit(), 100);
+                      }
+                    } catch (error) {
+                      console.error('Error handling Enter key selection:', error);
+                      // If there's an error, fall back to regular form submission
+                      handleSubmit();
+                    }
+                  } else {
+                    // No suggestion available, just submit normally
+                    handleSubmit();
+                  }
+                }
+              }}
             />
             
             <button 
