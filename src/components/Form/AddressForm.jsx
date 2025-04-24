@@ -383,6 +383,71 @@ function AddressForm() {
     return propertyData != null;
   };
   
+  // Handle ENTER key specifically - this function will properly handle the first suggestion
+  const handleEnterKeySubmission = async (e) => {
+    e.preventDefault(); // Prevent form submission
+    
+    // If already loading, prevent multiple submissions
+    if (isLoading) return;
+    
+    // Set loading state immediately
+    setIsLoading(true);
+    console.log("Enter key pressed - auto-selecting first suggestion");
+    
+    try {
+      // Check if we have suggestions available
+      if (firstSuggestion && googleApiLoaded) {
+        console.log("Using first suggestion:", firstSuggestion.description);
+        
+        try {
+          // Get full place details for the suggestion
+          const placeDetails = await getPlaceDetails(firstSuggestion.place_id);
+          
+          // Only proceed if we got place details
+          if (placeDetails) {
+            // Update input field with complete address
+            if (inputRef.current) {
+              inputRef.current.value = placeDetails.formatted_address;
+            }
+            
+            // Update form data
+            updateFormData({
+              street: placeDetails.formatted_address,
+              selectedSuggestionAddress: placeDetails.formatted_address,
+              userTypedAddress: formData.street,
+              addressSelectionType: 'EnterKeyAutoSelected',
+              leadStage: 'Address Selected'
+            });
+            
+            // Process the selected address and wait for it to complete
+            await processAddressSelection(placeDetails);
+            
+            // Give a little time to ensure form data is updated
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Proceed to next step
+            nextStep();
+          } else {
+            console.warn("Could not get place details, falling back to manual submission");
+            handleSubmit({ preventDefault: () => {} });
+          }
+        } catch (error) {
+          console.error("Error processing first suggestion:", error);
+          handleSubmit({ preventDefault: () => {} });
+        }
+      } else {
+        // No suggestion available, so use normal submission
+        console.log("No suggestion available, using normal submission");
+        handleSubmit({ preventDefault: () => {} });
+      }
+    } catch (error) {
+      console.error("Error during Enter key handling:", error);
+      setIsLoading(false);
+      // Try normal submission as fallback
+      handleSubmit({ preventDefault: () => {} });
+    }
+  };
+  
   // Handle form submission
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
@@ -754,17 +819,8 @@ function AddressForm() {
               onKeyDown={(e) => {
                 // Check if Enter key is pressed
                 if (e.key === 'Enter') {
-                  e.preventDefault(); // Prevent default form submission
-                  console.log('Enter key pressed - using same path as Check Offer button');
-                  
-                  // Simply click the button programmatically - this will use the existing working flow
-                  const submitButton = document.getElementById('address-submit-button');
-                  if (submitButton) {
-                    submitButton.click();
-                  } else {
-                    // Fallback in case button not found
-                    handleSubmit();
-                  }
+                  // Use our special Enter key handler
+                  handleEnterKeySubmission(e);
                 }
               }}
             />
