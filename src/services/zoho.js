@@ -2,6 +2,121 @@
 import axios from 'axios';
 
 /**
+ * Track conversion event in Zoho and for marketing analytics
+ * @param {string} event - Event type (e.g., 'appointmentSet', 'successfulContact')
+ * @param {string} leadId - The Zoho lead ID
+ * @param {string} status - Optional status to update in Zoho
+ * @param {number|string} customValue - Optional custom conversion value (e.g., transaction amount)
+ * @param {Object} additionalData - Optional additional data to include
+ * @returns {Promise<boolean>} Success indicator
+ */
+export async function trackZohoConversion(event, leadId, status = null, customValue = null, additionalData = {}) {
+  if (!leadId) {
+    console.warn('Cannot track conversion: Missing lead ID');
+    return false;
+  }
+  
+  // Don't attempt to track conversions for temporary IDs
+  if (leadId.startsWith('temp_')) {
+    console.log('Using temporary ID - conversion tracking skipped');
+    return true;
+  }
+  
+  try {
+    // Create payload for status update and conversion tracking
+    let payload = {
+      event: event,
+      leadId: leadId,
+      customValue: customValue
+    };
+    
+    if (status) {
+      payload.status = status;
+    }
+    
+    // Include any additional data
+    if (additionalData && typeof additionalData === 'object') {
+      payload = { ...payload, ...additionalData };
+    }
+    
+    // Track conversion by updating lead in Zoho
+    const response = await axios.post('/api/zoho', {
+      action: 'track_conversion',
+      ...payload
+    });
+    
+    // Also push to dataLayer for GTM tracking
+    if (window.dataLayer) {
+      const conversionValue = getConversionValue(event, customValue);
+      
+      window.dataLayer.push({
+        event: 'zohoConversion',
+        zohoEvent: event,
+        leadId: leadId,
+        status: status || '',
+        conversionValue: conversionValue,
+        customValue: customValue,
+        ...additionalData
+      });
+      
+      console.log(`Pushed conversion event to dataLayer: ${event} with value: ${conversionValue}`);
+    }
+    
+    console.log(`Successfully tracked conversion: ${event} for lead ${leadId}`);
+    return true;
+  } catch (error) {
+    console.error('Error tracking conversion:', error);
+    
+    // Still try to push to dataLayer even if the API call fails
+    if (window.dataLayer) {
+      window.dataLayer.push({
+        event: 'zohoConversion',
+        zohoEvent: event,
+        leadId: leadId,
+        status: status || '',
+        conversionValue: getConversionValue(event, customValue),
+        customValue: customValue,
+        ...additionalData
+      });
+    }
+    
+    return false;
+  }
+}
+
+// Helper function to get conversion value based on event type
+function getConversionValue(event, customValue = null) {
+  // If a custom value is provided, use it
+  if (customValue !== null && !isNaN(parseFloat(customValue))) {
+    return parseFloat(customValue);
+  }
+  
+  // Default values for different conversion types
+  switch (event) {
+    case 'successfulContact':
+      return 25;
+    case 'appointmentSet':
+      return 50;
+    case 'notInterested':
+      return 5;
+    case 'wrongNumber':
+      return 2;
+    case 'successfulClientAgreement':
+      return 200;
+    case 'successfullyClosedTransaction':
+    case 'closed':
+      // For closed deals, rely on the provided value from Zoho CRM
+      return 500;
+    case 'offerMade':
+      return 100;
+    case 'contractSigned':
+      return 200;
+    default:
+      return 10;
+  }
+}
+
+/**
  * Submit new lead to Zoho CRM
  * @param {Object} formData - The form data to submit
  * @returns {Promise<string>} - The ID of the created lead
@@ -293,14 +408,6 @@ export async function updateLeadInZoho(leadId, formData) {
   }
 }
 
-/**
- * Create or update a lead with address suggestions
- * @param {string} partialAddress - The partial address the user has typed
- * @param {Array} suggestions - Array of address suggestions
- * @param {string} leadId - Optional leadId if we're updating an existing lead
- * @param {Object} addressComponents - Optional address components (city, state, zip)
- * @returns {Promise<string>} - The ID of the created or updated lead
- */
 /**
  * Specialized function to update ONLY contact info (name and phone)
  * This ensures these fields are explicitly sent to Zoho

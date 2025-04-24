@@ -655,7 +655,7 @@ export function FormProvider({ children }) {
   return (
     <FormContext.Provider value={{
       formData,
-      leadId,
+      leadId,  // <-- ADD THIS LINE to expose leadId to components
       updateFormData,
       nextStep,
       previousStep,

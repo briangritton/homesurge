@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import { trackFormStepComplete, trackFormError } from '../../services/analytics';
+import { trackZohoConversion } from '../../services/zoho';
 
 function QualifyingForm() {
   const { formData, updateFormData, nextStep, updateLead, leadId } = useFormContext();
@@ -654,6 +655,18 @@ function QualifyingForm() {
                         // Start background update to Zoho with explicit form data
                         updateLead().then(success => {
                           console.log('Appointment time saved to Zoho:', success ? 'Success' : 'Failed');
+                          
+                          // Track appointment conversion if successful
+                          if (success && leadId) {
+                            trackZohoConversion('appointmentSet', leadId, 'Appointment Set')
+                              .then(tracked => {
+                                console.log('Appointment conversion tracked:', tracked ? 'Success' : 'Failed');
+                              })
+                              .catch(error => {
+                                console.error('Error tracking appointment conversion:', error);
+                              });
+                          }
+                          
                           // Move to completion after the update
                           completeForm();
                         }).catch(err => {
