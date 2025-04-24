@@ -7,6 +7,8 @@ import { createSuggestionLead } from '../../services/zoho.js';
 import axios from 'axios';
 
 function AddressForm() {
+  // VERSION INDICATOR - DO NOT REMOVE - v374
+  
   const { formData, updateFormData, nextStep } = useFormContext();
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -16,6 +18,7 @@ function AddressForm() {
   const [suggestionTimer, setSuggestionTimer] = useState(null);
   const [addressSuggestions, setAddressSuggestions] = useState([]);
   const [lastTypedAddress, setLastTypedAddress] = useState('');
+  const [isEnterPressed, setIsEnterPressed] = useState(false);
   
   // Reference to the main input 
   const inputRef = useRef(null);
@@ -118,6 +121,18 @@ function AddressForm() {
               localStorage.setItem('suggestionLeadId', leadId);
               localStorage.setItem('leadId', leadId);
             }
+            
+            // If Enter was pressed and we now have suggestions, use the first one
+            if (isEnterPressed && predictions && predictions.length > 0) {
+              setIsEnterPressed(false); // Reset the flag
+              
+              try {
+                // Get place details for the first suggestion
+                await handleSuggestionSelection(predictions[0]);
+              } catch (error) {
+                console.error("Error processing Enter press with first suggestion:", error);
+              }
+            }
           } else {
             setFirstSuggestion(null);
             setAddressSuggestions([]);
@@ -131,6 +146,55 @@ function AddressForm() {
       setFirstSuggestion(null);
       setAddressSuggestions([]);
     }
+  };
+  
+  // Function to handle the selection of a suggestion (used by Enter key and buttons)
+  const handleSuggestionSelection = async (suggestion) => {
+    if (!suggestion || !suggestion.place_id) {
+      console.error("Invalid suggestion provided to handleSuggestionSelection");
+      return false;
+    }
+    
+    console.log('Processing suggestion selection:', suggestion.description);
+    setIsLoading(true);
+    
+    try {
+      // Get place details for the suggestion
+      const placeDetails = await getPlaceDetails(suggestion.place_id);
+      
+      if (placeDetails) {
+        // Update the input field value
+        if (inputRef.current) {
+          inputRef.current.value = placeDetails.formatted_address;
+        }
+        
+        // Update form data
+        updateFormData({
+          street: placeDetails.formatted_address,
+          selectedSuggestionAddress: placeDetails.formatted_address,
+          userTypedAddress: lastTypedAddress,
+          addressSelectionType: 'SuggestionSelected',
+          leadStage: 'Address Selected'
+        });
+        
+        // Process the selected address
+        await processAddressSelection(placeDetails);
+        
+        // Allow a moment for data to update
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // Proceed to next step
+        nextStep();
+        
+        return true;
+      }
+    } catch (error) {
+      console.error("Error in handleSuggestionSelection:", error);
+    } finally {
+      setIsLoading(false);
+    }
+    
+    return false;
   };
   
   // Get place details for a prediction
@@ -383,7 +447,31 @@ function AddressForm() {
     return propertyData != null;
   };
   
-  // Handle form submission
+  // Handle ENTER key press
+  const handleEnterKeyPress = (e) => {
+    e.preventDefault(); // Prevent default form submission
+    console.log('Enter key pressed - v374');
+    
+    // If already loading, prevent action
+    if (isLoading) return;
+    
+    if (firstSuggestion) {
+      // We already have suggestions, use the first one
+      console.log('Using existing first suggestion on Enter press:', firstSuggestion.description);
+      handleSuggestionSelection(firstSuggestion);
+    } else {
+      // No suggestions yet, set flag and let handleChange deal with it when suggestions arrive
+      console.log('No suggestions yet, setting flag to handle when they arrive');
+      setIsEnterPressed(true);
+      
+      // If the user hasn't typed enough to get suggestions, focus on the input
+      if (formData.street.length < 2) {
+        setErrorMessage('Please enter at least 2 characters to search for an address');
+      }
+    }
+  };
+  
+  // Handle form submission (button click)
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     
@@ -394,56 +482,14 @@ function AddressForm() {
     setIsLoading(true);
     
     try {
-      let propertyDataRetrieved = false;
-      
-      // CRITICAL FIX: Always use the first suggestion if available
-      // This ensures auto-selection when user just clicks the button without explicitly selecting from dropdown
+      // If we have a first suggestion, use it directly (same behavior as Enter key)
       if (firstSuggestion && formData.street && formData.street.length >= 2 && googleApiLoaded) {
-        try {
-          console.log('IMPORTANT: Auto-selecting first suggestion:', firstSuggestion.description);
-          
-          // Get full place details for the suggestion
-          const placeDetails = await getPlaceDetails(firstSuggestion.place_id)
-            .catch(err => {
-              console.warn('Failed to get place details, continuing with basic address:', err.message);
-              return null;
-            });
-          
-          // Only proceed with detailed processing if we got the place details
-          if (placeDetails) {
-            // CRITICAL: Update the input field with the complete address immediately!
-            if (inputRef.current) {
-              inputRef.current.value = placeDetails.formatted_address;
-            }
-            
-            // Update form data to mark this address as selected and not a typing suggestion
-            updateFormData({
-              street: placeDetails.formatted_address, // CRITICAL: Update the street field with FULL address
-              selectedSuggestionAddress: placeDetails.formatted_address,
-              userTypedAddress: formData.street, // What the user actually typed
-              addressSelectionType: 'AutoSelected',
-              leadStage: 'Address Selected'
-            });
-            
-            // Process the selected address AND WAIT FOR IT TO COMPLETE
-            // This is where we get property data after user has confirmed the address
-            propertyDataRetrieved = await processAddressSelection(placeDetails)
-              .catch(err => {
-                console.warn('Address processing failed, continuing with basic form:', err.message);
-                return false;
-              });
-            
-            // Add a small delay to ensure form data is updated
-            await new Promise(resolve => setTimeout(resolve, 300));
-          }
-        } catch (error) {
-          console.error('Error using first suggestion:', error);
-          // Continue with normal submission even if this fails
-        }
+        console.log('Button clicked - using first suggestion');
+        return await handleSuggestionSelection(firstSuggestion);
       }
       
-      // Validate address - only if we don't have a suggestion to use
-      if (!firstSuggestion && !validateAddress(formData.street)) {
+      // If no suggestion available, use standard validation
+      if (!validateAddress(formData.street)) {
         const errorMsg = 'Please enter a valid address to check your cash offer';
         setErrorMessage(errorMsg);
         setIsLoading(false);
@@ -454,64 +500,14 @@ function AddressForm() {
         return false;
       }
       
+      // No suggestion available, but address is valid enough, proceed with what we have
+      console.log('No suggestions available, proceeding with manual address');
+      
       // Clear error message
       setErrorMessage('');
       
-      // If we haven't fetched property data yet, do it now
-      if (!propertyDataRetrieved && !formData.apiEstimatedValue && formData.street) {
-        propertyDataRetrieved = await fetchPropertyData(formData.street) != null;
-        
-        // If we got property data and have a lead ID, update the lead
-        const existingLeadId = suggestionLeadId || localStorage.getItem('suggestionLeadId');
-        
-        if (propertyDataRetrieved && existingLeadId) {
-          try {
-            // Update the lead with property data
-            const propertyUpdateData = {
-              apiOwnerName: formData.apiOwnerName || '',
-              apiEstimatedValue: formData.apiEstimatedValue?.toString() || '0',
-              apiMaxHomeValue: formData.apiMaxHomeValue?.toString() || '0',
-              apiEquity: formData.apiEquity?.toString() || '0',
-              apiPercentage: formData.apiPercentage?.toString() || '0',
-              apiHomeValue: formData.apiEstimatedValue?.toString() || '0',
-              // Include address fields again
-              street: formData.street,
-              city: formData.city,
-              state: formData.state,
-              zip: formData.zip
-            };
-            
-            await axios.post('/api/zoho', {
-              action: 'update',
-              leadId: existingLeadId,
-              formData: propertyUpdateData
-            });
-            
-            console.log('Updated lead with property data during form submission');
-          } catch (error) {
-            console.error('Error updating lead with property data during form submission:', error);
-          }
-        }
-        
-        // Add a small delay to ensure form data is updated
-        await new Promise(resolve => setTimeout(resolve, 300));
-      }
-      
-      // Set some minimal data if we don't have complete address info
-      if (!formData.city || !formData.zip) {
-        updateFormData({
-          addressSelectionType: 'Manual',
-          city: formData.city || '',
-          zip: formData.zip || '',
-          state: formData.state || 'GA',
-          userTypedAddress: formData.street // Ensure we capture what the user typed
-        });
-      }
-      
-      // Check if we have property data before proceeding
-      if (!formData.apiEstimatedValue || formData.apiEstimatedValue === 0) {
-        console.log('Warning: No property value available before proceeding to next step');
-      }
+      // Try to fetch property data with whatever address we have
+      const propertyDataRetrieved = await fetchPropertyData(formData.street) != null;
       
       // Ensure we're using the same lead ID
       const existingLeadId = suggestionLeadId || localStorage.getItem('suggestionLeadId');
@@ -522,27 +518,6 @@ function AddressForm() {
       // Track address submission and form step completion
       trackAddressSelected(formData.addressSelectionType || 'Manual');
       trackFormStepComplete(1, 'Address Form Completed', formData);
-      
-      // Log the final form data before proceeding to the next step
-      console.log('Final form data before proceeding to next step:', {
-        address: formData.street,
-        userTypedAddress: formData.userTypedAddress,
-        selectedSuggestionAddress: formData.selectedSuggestionAddress,
-        suggestionOne: formData.suggestionOne,
-        suggestionTwo: formData.suggestionTwo,
-        suggestionThree: formData.suggestionThree,
-        suggestionFour: formData.suggestionFour,
-        suggestionFive: formData.suggestionFive,
-        propertyData: {
-          apiOwnerName: formData.apiOwnerName,
-          apiEstimatedValue: formData.apiEstimatedValue,
-          apiMaxHomeValue: formData.apiMaxHomeValue,
-          apiEquity: formData.apiEquity,
-          apiPercentage: formData.apiPercentage,
-          formattedValue: formData.formattedApiEstimatedValue,
-          propertyRecord: formData.propertyRecord ? 'Available' : 'Not Available'
-        }
-      });
       
       // Proceed to next step
       setTimeout(() => {
@@ -734,6 +709,19 @@ function AddressForm() {
   
   return (
     <div className="hero-section">
+      {/* Version indicator */}
+      <div style={{
+        position: 'fixed',
+        top: '10px',
+        right: '10px',
+        background: '#3490d1',
+        color: 'white',
+        padding: '5px 10px',
+        borderRadius: '5px',
+        fontWeight: 'bold',
+        zIndex: 1000
+      }}>v374</div>
+      
       <div className="hero-middle-container">
         <div className="hero-content fade-in">
           <div className="hero-headline">{formData.dynamicHeadline || "Sell Your House For Cash Fast!"}</div>
@@ -754,17 +742,8 @@ function AddressForm() {
               onKeyDown={(e) => {
                 // Check if Enter key is pressed
                 if (e.key === 'Enter') {
-                  e.preventDefault(); // Prevent default form submission
-                  console.log('Enter key pressed - using same path as Check Offer button');
-                  
-                  // Simply click the button programmatically - this will use the existing working flow
-                  const submitButton = document.getElementById('address-submit-button');
-                  if (submitButton) {
-                    submitButton.click();
-                  } else {
-                    // Fallback in case button not found
-                    handleSubmit();
-                  }
+                  // Use our specialized Enter key handler
+                  handleEnterKeyPress(e);
                 }
               }}
             />
