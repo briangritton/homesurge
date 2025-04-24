@@ -47,6 +47,7 @@ function SalesPage() {
     
     // If we have a lead ID, fetch complete lead information
     if (leadId) {
+      console.log("Fetching lead details for ID:", leadId);
       fetchLeadDetails(leadId);
     } else {
       setIsLoading(false);
@@ -98,6 +99,40 @@ function SalesPage() {
         
         // Store complete lead data for use in updates (to prevent overwriting fields)
         window.fullLeadData = lead;
+        console.log("Retrieved full lead data:", lead);
+        
+        // Check if contract is already signed - with more verbose logging
+        console.log("Checking contract status:", {
+          value: lead.Signed_On_As_Client,
+          type: typeof lead.Signed_On_As_Client,
+          asString: String(lead.Signed_On_As_Client),
+          asBool: Boolean(lead.Signed_On_As_Client)
+        });
+        
+        // More flexible check for truthy values
+        if (lead.Signed_On_As_Client === 'true' || 
+            lead.Signed_On_As_Client === true || 
+            lead.Signed_On_As_Client === 'True' ||
+            lead.Signed_On_As_Client === 'yes' ||
+            lead.Signed_On_As_Client === 'Yes' ||
+            lead.Signed_On_As_Client === 1 ||
+            lead.Signed_On_As_Client === '1') {
+          console.log("Setting contract as signed");
+          setContractSigned(true);
+          setContractSubmitted(true);
+        }
+        
+        // Display transaction amount if already set
+        if (lead.Transaction_Amount) {
+          const formattedAmount = formatCurrency(lead.Transaction_Amount.toString());
+          setTransactionValue(formattedAmount);
+        }
+        
+        // Display revenue amount if already set
+        if (lead.Revenue_Made) {
+          const formattedRevenue = formatCurrency(lead.Revenue_Made.toString());
+          setRevenueValue(formattedRevenue);
+        }
         
         // Update lead data with fetched values
         setLeadData({
@@ -140,25 +175,11 @@ function SalesPage() {
       // Extract numeric value from formatted string
       const numericValue = transactionValue.replace(/[^0-9]/g, '');
       
-      // Prepare update data, only overriding specific fields
-      const formData = {
-        // Include only fields we want to update
-        Transaction_Amount: numericValue,
-        
-        // Preserve essential data to prevent it from being cleared
-        First_Name: window.fullLeadData?.First_Name,
-        Last_Name: window.fullLeadData?.Last_Name,
-        Phone: window.fullLeadData?.Phone,
-        Email: window.fullLeadData?.Email,
-        Street: window.fullLeadData?.Street,
-        City: window.fullLeadData?.City,
-        State: window.fullLeadData?.State,
-        Zip_Code: window.fullLeadData?.Zip_Code,
-        
-        // Preserve any existing values for our other sales fields
-        Revenue_Made: window.fullLeadData?.Revenue_Made,
-        Signed_On_As_Client: window.fullLeadData?.Signed_On_As_Client
-      };
+      // Create a copy of the full lead data to preserve all fields
+      const formData = { ...window.fullLeadData };
+      
+      // Only override the specific field we want to update
+      formData.Transaction_Amount = numericValue;
       
       // Update lead in Zoho with transaction value
       await axios.post('/api/zoho', {
@@ -217,25 +238,11 @@ function SalesPage() {
       // Extract numeric value from formatted string
       const numericValue = revenueValue.replace(/[^0-9]/g, '');
       
-      // Prepare update data, only overriding specific fields
-      const formData = {
-        // Include only fields we want to update
-        Revenue_Made: numericValue,
-        
-        // Preserve essential data to prevent it from being cleared
-        First_Name: window.fullLeadData?.First_Name,
-        Last_Name: window.fullLeadData?.Last_Name,
-        Phone: window.fullLeadData?.Phone,
-        Email: window.fullLeadData?.Email,
-        Street: window.fullLeadData?.Street,
-        City: window.fullLeadData?.City,
-        State: window.fullLeadData?.State,
-        Zip_Code: window.fullLeadData?.Zip_Code,
-        
-        // Preserve any existing values for our other sales fields
-        Transaction_Amount: window.fullLeadData?.Transaction_Amount,
-        Signed_On_As_Client: window.fullLeadData?.Signed_On_As_Client
-      };
+      // Create a copy of the full lead data to preserve all fields
+      const formData = { ...window.fullLeadData };
+      
+      // Only override the specific field we want to update
+      formData.Revenue_Made = numericValue;
       
       // Update lead in Zoho with revenue value
       await axios.post('/api/zoho', {
@@ -285,26 +292,14 @@ function SalesPage() {
     setIsLoading(true);
     
     try {
-      // Prepare update data, only overriding specific fields
-      const formData = {
-        // Include only fields we want to update
-        Signed_On_As_Client: 'true',
-        Status: 'Contract agreement signed',  // Update lead status
-        
-        // Preserve essential data to prevent it from being cleared
-        First_Name: window.fullLeadData?.First_Name,
-        Last_Name: window.fullLeadData?.Last_Name,
-        Phone: window.fullLeadData?.Phone,
-        Email: window.fullLeadData?.Email,
-        Street: window.fullLeadData?.Street,
-        City: window.fullLeadData?.City,
-        State: window.fullLeadData?.State,
-        Zip_Code: window.fullLeadData?.Zip_Code,
-        
-        // Preserve any existing values for our other sales fields
-        Transaction_Amount: window.fullLeadData?.Transaction_Amount,
-        Revenue_Made: window.fullLeadData?.Revenue_Made
-      };
+      // Create a copy of the full lead data to preserve all fields
+      const formData = { ...window.fullLeadData };
+      
+      // Only override the specific fields we want to update
+      // Try multiple formats to ensure compatibility with Zoho
+      formData.Signed_On_As_Client = true; // Boolean value
+      formData.Signed_On_As_Client_text = 'true'; // String value as backup
+      formData.Status = 'Contract agreement signed';
       
       // Update lead in Zoho with contract signed status
       await axios.post('/api/zoho', {
