@@ -751,44 +751,18 @@ function AddressForm() {
               onFocus={(e) => e.target.placeholder = ''}
               onBlur={(e) => e.target.placeholder = 'Street address...'}
               disabled={isLoading}
-              onKeyDown={async (e) => {
+              onKeyDown={(e) => {
                 // Check if Enter key is pressed
                 if (e.key === 'Enter') {
                   e.preventDefault(); // Prevent default form submission
+                  console.log('Enter key pressed - using same path as Check Offer button');
                   
-                  // If we have a first suggestion, use it
-                  if (firstSuggestion) {
-                    console.log('Enter key pressed - selecting first suggestion:', firstSuggestion.description);
-                    
-                    // Get place details for the suggestion
-                    try {
-                      const placeDetails = await getPlaceDetails(firstSuggestion.place_id);
-                      
-                      if (placeDetails) {
-                        // Update the input field with the full address
-                        inputRef.current.value = placeDetails.formatted_address;
-                        
-                        // Update form data with the selected address
-                        updateFormData({
-                          street: placeDetails.formatted_address,
-                          selectedSuggestionAddress: placeDetails.formatted_address,
-                          userTypedAddress: lastTypedAddress, // What the user typed
-                          addressSelectionType: 'EnterKeyPressed'
-                        });
-                        
-                        // Process the selection (gets address components, etc.)
-                        await processAddressSelection(placeDetails);
-                        
-                        // Immediately submit the form
-                        setTimeout(() => handleSubmit(), 100);
-                      }
-                    } catch (error) {
-                      console.error('Error handling Enter key selection:', error);
-                      // If there's an error, fall back to regular form submission
-                      handleSubmit();
-                    }
+                  // Simply click the button programmatically - this will use the existing working flow
+                  const submitButton = document.getElementById('address-submit-button');
+                  if (submitButton) {
+                    submitButton.click();
                   } else {
-                    // No suggestion available, just submit normally
+                    // Fallback in case button not found
                     handleSubmit();
                   }
                 }
@@ -796,7 +770,8 @@ function AddressForm() {
             />
             
             <button 
-              className="submit-button" 
+              className="submit-button"
+              id="address-submit-button" 
               type="submit"
               disabled={isLoading}
             >
