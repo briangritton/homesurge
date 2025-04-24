@@ -132,6 +132,8 @@ function getDefaultValueForEvent(event) {
       return 100;
     case 'contractSigned':
       return 200;
+    case 'revenueRecorded':
+      return 300; // Default value for revenue recorded events
     default:
       return 10;
   }
@@ -161,6 +163,8 @@ function getConversionNameForEvent(event) {
       return 'Offer Made';
     case 'contractSigned':
       return 'Contract Signed';
+    case 'revenueRecorded':
+      return 'Revenue Recorded';
     default:
       return 'Zoho Lead Event';
   }

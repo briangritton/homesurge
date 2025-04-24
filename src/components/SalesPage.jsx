@@ -16,8 +16,10 @@ function SalesPage() {
     phone: ''
   });
   const [transactionValue, setTransactionValue] = useState('');
+  const [revenueValue, setRevenueValue] = useState('');
   const [contractSigned, setContractSigned] = useState(false);
   const [transactionSubmitted, setTransactionSubmitted] = useState(false);
+  const [revenueSubmitted, setRevenueSubmitted] = useState(false);
   const [contractSubmitted, setContractSubmitted] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -74,6 +76,12 @@ function SalesPage() {
   const handleTransactionValueChange = (e) => {
     const formattedValue = formatCurrency(e.target.value);
     setTransactionValue(formattedValue);
+  };
+  
+  // Handle revenue value change
+  const handleRevenueValueChange = (e) => {
+    const formattedValue = formatCurrency(e.target.value);
+    setRevenueValue(formattedValue);
   };
 
   // Fetch lead details from Zoho
@@ -167,6 +175,65 @@ function SalesPage() {
     }
   };
 
+  // Save Revenue made from Client to Zoho
+  const handleSaveRevenue = async () => {
+    setError('');
+    setSuccess('');
+    
+    if (!leadData.leadId) {
+      setError('No lead ID available. Cannot save revenue.');
+      return;
+    }
+    
+    if (!revenueValue) {
+      setError('Please enter a revenue value.');
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      // Extract numeric value from formatted string
+      const numericValue = revenueValue.replace(/[^0-9]/g, '');
+      
+      // Update lead in Zoho with revenue value
+      await axios.post('/api/zoho', {
+        action: 'update',
+        leadId: leadData.leadId,
+        formData: {
+          Revenue_Made: numericValue
+        }
+      });
+      
+      // Track conversion event for revenue
+      await trackZohoConversion(
+        'revenueRecorded', 
+        leadData.leadId, 
+        'Revenue Recorded', 
+        numericValue,
+        { revenueDate: new Date().toISOString().split('T')[0] }
+      );
+      
+      setRevenueSubmitted(true);
+      setSuccess('Revenue value saved successfully!');
+      
+      // Push revenue data to dataLayer for GTM
+      if (window.dataLayer) {
+        window.dataLayer.push({
+          event: 'revenueSaved',
+          leadId: leadData.leadId,
+          revenueValue: numericValue,
+          revenueDate: new Date().toISOString().split('T')[0]
+        });
+      }
+    } catch (error) {
+      console.error('Error saving revenue:', error);
+      setError('Failed to save revenue. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Save contract signed status to Zoho
   const handleContractSigned = async () => {
     setError('');
@@ -179,12 +246,13 @@ function SalesPage() {
     setIsLoading(true);
     
     try {
-      // Update lead in Zoho with contract signed status
+      // Update lead in Zoho with contract signed status AND update status field
       await axios.post('/api/zoho', {
         action: 'update',
         leadId: leadData.leadId,
         formData: {
-          Contract_Signed: 'true'
+          signed_on_as_client: 'true',
+          Status: 'Contract agreement signed'  // Update lead status
         }
       });
       
@@ -192,7 +260,7 @@ function SalesPage() {
       await trackZohoConversion(
         'successfulClientAgreement', 
         leadData.leadId, 
-        'Agreement Signed'
+        'Contract agreement signed'  // Updated status name to match
       );
       
       setContractSubmitted(true);
@@ -205,7 +273,8 @@ function SalesPage() {
         window.dataLayer.push({
           event: 'contractSigned',
           leadId: leadData.leadId,
-          contractDate: new Date().toISOString().split('T')[0]
+          contractDate: new Date().toISOString().split('T')[0],
+          leadStatus: 'Contract agreement signed'
         });
       }
     } catch (error) {
@@ -218,8 +287,18 @@ function SalesPage() {
 
   return (
     <div className="form-container">
-      <div className="form-section">
-        <h2 className="form-title">Sales Portal</h2>
+      <div style={{ 
+        maxWidth: '1000px', 
+        width: '90%',
+        margin: '0 auto',
+        padding: '30px',
+        borderRadius: '8px',
+        backgroundColor: 'white',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+        marginTop: '50px',
+        marginBottom: '50px'
+      }}>
+        <h2 className="form-title" style={{ fontSize: '2.5rem', color: '#3490d1', marginBottom: '30px' }}>Sales Dashboard</h2>
         
         {isLoading ? (
           <div className="loading-indicator">Loading lead information...</div>
@@ -228,81 +307,128 @@ function SalesPage() {
         ) : (
           <>
             {/* Lead Information Display */}
-            <div className="lead-info-section">
-              <h3>Lead Information</h3>
-              <div className="lead-info-container">
-                <div className="lead-info-item">
-                  <strong>Lead ID:</strong> {leadData.leadId}
-                </div>
-                <div className="lead-info-item">
-                  <strong>Name:</strong> {leadData.fullName || `${leadData.firstName} ${leadData.lastName}`}
-                </div>
-                <div className="lead-info-item">
-                  <strong>Phone:</strong> {leadData.phone}
-                </div>
-                <div className="lead-info-item">
-                  <strong>Address:</strong> {leadData.address}
+            <div className="qualifying-section" style={{ marginBottom: '30px' }}>
+              <h3 className="qualifying-headline">Lead Information</h3>
+              <div style={{ 
+                backgroundColor: '#f6f9fc', 
+                padding: '20px', 
+                borderRadius: '8px', 
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                margin: '20px 0'
+              }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                  <div style={{ textAlign: 'left', padding: '8px', fontSize: '1.2rem' }}>
+                    <strong style={{ color: '#3490d1' }}>Lead ID:</strong> {leadData.leadId}
+                  </div>
+                  <div style={{ textAlign: 'left', padding: '8px', fontSize: '1.2rem' }}>
+                    <strong style={{ color: '#3490d1' }}>Name:</strong> {leadData.fullName || `${leadData.firstName} ${leadData.lastName}`}
+                  </div>
+                  <div style={{ textAlign: 'left', padding: '8px', fontSize: '1.2rem' }}>
+                    <strong style={{ color: '#3490d1' }}>Phone:</strong> {leadData.phone}
+                  </div>
+                  <div style={{ textAlign: 'left', padding: '8px', fontSize: '1.2rem' }}>
+                    <strong style={{ color: '#3490d1' }}>Address:</strong> {leadData.address}
+                  </div>
                 </div>
               </div>
             </div>
             
             {/* Transaction Value Form */}
-            <div className="transaction-section">
-              <h3>Transaction Details</h3>
-              <div className="form-group">
-                <label htmlFor="transactionValue">Transaction Amount:</label>
-                <input
-                  type="text"
-                  id="transactionValue"
-                  className="form-control"
-                  value={transactionValue}
-                  onChange={handleTransactionValueChange}
-                  placeholder="Enter amount (e.g. $250,000)"
-                  disabled={transactionSubmitted}
-                />
+            <div className="qualifying-section">
+              <h3 className="qualifying-headline">Transaction Details</h3>
+              <div className="qualifying-form-container">
+                <div className="qualifying-option-column">
+                  <label htmlFor="transactionValue" className="qualifying-question">Transaction Amount:</label>
+                  <input
+                    type="text"
+                    id="transactionValue"
+                    className="qualifying-text-input"
+                    value={transactionValue}
+                    onChange={handleTransactionValueChange}
+                    placeholder="Enter amount (e.g. $250,000)"
+                    disabled={transactionSubmitted}
+                  />
+                </div>
+                
+                <button 
+                  onClick={handleSaveTransaction}
+                  className="qualifying-button"
+                  disabled={isLoading || transactionSubmitted || !transactionValue}
+                >
+                  {isLoading ? 'Saving...' : 'Save Transaction Value'}
+                </button>
+                
+                {transactionSubmitted && (
+                  <div className="success-message">Transaction value saved!</div>
+                )}
               </div>
-              
-              <button 
-                onClick={handleSaveTransaction}
-                className="btn btn-primary"
-                disabled={isLoading || transactionSubmitted || !transactionValue}
-              >
-                {isLoading ? 'Saving...' : 'Save Transaction Value'}
-              </button>
-              
-              {transactionSubmitted && (
-                <div className="success-message">Transaction value saved!</div>
-              )}
+            </div>
+            
+            {/* Revenue Value Form */}
+            <div className="qualifying-section">
+              <h3 className="qualifying-headline">Revenue Details</h3>
+              <div className="qualifying-form-container">
+                <div className="qualifying-option-column">
+                  <label htmlFor="revenueValue" className="qualifying-question">Revenue made from Client:</label>
+                  <input
+                    type="text"
+                    id="revenueValue"
+                    className="qualifying-text-input"
+                    value={revenueValue}
+                    onChange={handleRevenueValueChange}
+                    placeholder="Enter amount (e.g. $25,000)"
+                    disabled={revenueSubmitted}
+                  />
+                </div>
+                
+                <button 
+                  onClick={handleSaveRevenue}
+                  className="qualifying-button"
+                  disabled={isLoading || revenueSubmitted || !revenueValue}
+                >
+                  {isLoading ? 'Saving...' : 'Save Revenue Value'}
+                </button>
+                
+                {revenueSubmitted && (
+                  <div className="success-message">Revenue value saved!</div>
+                )}
+              </div>
             </div>
             
             {/* Contract Signed Checkbox */}
-            <div className="contract-section">
-              <h3>Contract Status</h3>
-              <div className="form-check">
-                <input
-                  type="checkbox"
-                  id="contractSigned"
-                  className="form-check-input"
-                  checked={contractSigned}
-                  onChange={(e) => setContractSigned(e.target.checked)}
-                  disabled={contractSubmitted}
-                />
-                <label className="form-check-label" htmlFor="contractSigned">
-                  New client contract agreement signed
-                </label>
+            <div className="qualifying-section">
+              <h3 className="qualifying-headline">Contract Status</h3>
+              <div className="qualifying-form-container">
+                <div className="qualifying-option-column">
+                  <div className="form-check" style={{ margin: '15px 0' }}>
+                    <input
+                      type="checkbox"
+                      id="contractSigned"
+                      className="form-check-input"
+                      checked={contractSigned}
+                      onChange={(e) => setContractSigned(e.target.checked)}
+                      disabled={contractSubmitted}
+                      style={{ width: '25px', height: '25px' }}
+                    />
+                    <label className="qualifying-question" htmlFor="contractSigned" style={{ marginLeft: '10px' }}>
+                      New client contract agreement signed
+                    </label>
+                  </div>
+                </div>
+                
+                <button 
+                  onClick={handleContractSigned}
+                  className="qualifying-button"
+                  disabled={isLoading || contractSubmitted || !contractSigned}
+                  style={{ marginTop: '10px' }}
+                >
+                  {isLoading ? 'Updating...' : 'Update Contract Status'}
+                </button>
+                
+                {contractSubmitted && (
+                  <div className="success-message">Contract status updated!</div>
+                )}
               </div>
-              
-              <button 
-                onClick={handleContractSigned}
-                className="btn btn-secondary"
-                disabled={isLoading || contractSubmitted || !contractSigned}
-              >
-                {isLoading ? 'Updating...' : 'Update Contract Status'}
-              </button>
-              
-              {contractSubmitted && (
-                <div className="success-message">Contract status updated!</div>
-              )}
             </div>
             
             {/* Success/Error Messages */}

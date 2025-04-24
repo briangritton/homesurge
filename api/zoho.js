@@ -565,9 +565,15 @@ module.exports = async (req, res) => {
             updatePayload.data[0].Transaction_Amount = customValue.toString();
           }
           
-          // If this is a contract signed event, update the contract field
+          // If this is a revenue recorded event with an amount, update the revenue field
+          if (event === 'revenueRecorded' && customValue) {
+            updatePayload.data[0].Revenue_Made = customValue.toString();
+          }
+          
+          // If this is a contract signed event, update the contract field and status
           if (event === 'successfulClientAgreement') {
-            updatePayload.data[0].Contract_Signed = 'true';
+            updatePayload.data[0].signed_on_as_client = 'true';
+            updatePayload.data[0].Status = 'Contract agreement signed';
           }
           
           await axios.put(
