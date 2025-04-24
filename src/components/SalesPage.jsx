@@ -45,8 +45,35 @@ function SalesPage() {
       phone
     });
     
+    // Track page view for Sales Dashboard
+    if (window.dataLayer) {
+      window.dataLayer.push({
+        event: 'salesPageView',
+        leadId: leadId,
+        pageName: 'Sales Dashboard',
+        pageType: 'internal',
+        userType: 'sales',
+        leadData: {
+          name: fullName || `${firstName} ${lastName}`,
+          phone: phone || '',
+          address: address || ''
+        }
+      });
+    }
+    
+    // Track in Google Analytics if available
+    if (window.gtag) {
+      window.gtag('event', 'page_view', {
+        page_title: 'Sales Dashboard',
+        page_path: '/sales',
+        page_location: window.location.href,
+        lead_id: leadId
+      });
+    }
+    
     // If we have a lead ID, fetch complete lead information
     if (leadId) {
+      console.log("Fetching lead details for ID:", leadId);
       fetchLeadDetails(leadId);
     } else {
       setIsLoading(false);
@@ -96,8 +123,73 @@ function SalesPage() {
       if (response.data && response.data.success && response.data.lead) {
         const lead = response.data.lead;
         
-        // Store complete lead data for use in updates (to prevent overwriting fields)
-        window.fullLeadData = lead;
+        // Create a clean copy of all important lead fields
+        const cleanedLeadData = {};
+        
+        // Copy ALL lead properties to ensure none are lost
+        for (const key in lead) {
+          // Skip internal fields that start with $ or _
+          if (!key.startsWith('$') && !key.startsWith('_')) {
+            cleanedLeadData[key] = lead[key];
+          }
+        }
+        
+        // Explicitly preserve critical fields with special handling
+        // API data fields
+        cleanedLeadData.apiOwnerName = lead.apiOwnerName || lead.API_Owner_Name || "";
+        cleanedLeadData.apiEstimatedValue = lead.apiEstimatedValue || lead.API_Estimated_Value || lead.apiHomeValue || lead.API_Home_Value || "";
+        cleanedLeadData.apiMaxHomeValue = lead.apiMaxHomeValue || lead.API_Max_Home_Value || "";
+        cleanedLeadData.apiEquity = lead.apiEquity || lead.API_Equity || "";
+        cleanedLeadData.apiPercentage = lead.apiPercentage || lead.API_Percentage || "";
+        
+        // Address fields - use all possible variations
+        cleanedLeadData.Street = lead.Street || lead.street || lead.selectedSuggestionAddress || lead.userTypedAddress || "";
+        cleanedLeadData.City = lead.City || lead.city || "";
+        cleanedLeadData.State = lead.State || lead.state || "";
+        cleanedLeadData.Zip_Code = lead.Zip_Code || lead.zip || "";
+        
+        // Contact information
+        cleanedLeadData.First_Name = lead.First_Name || lead.firstName || "";
+        cleanedLeadData.Last_Name = lead.Last_Name || lead.lastName || "";
+        cleanedLeadData.Phone = lead.Phone || lead.phone || "";
+        cleanedLeadData.Email = lead.Email || lead.email || "";
+        
+        // Store the cleaned data for updates
+        window.fullLeadData = cleanedLeadData;
+        console.log("Preserved lead data for updates:", cleanedLeadData);
+        
+        // Check if contract is already signed - with more verbose logging
+        console.log("Checking contract status:", {
+          value: lead.Signed_On_As_Client,
+          type: typeof lead.Signed_On_As_Client,
+          asString: String(lead.Signed_On_As_Client),
+          asBool: Boolean(lead.Signed_On_As_Client)
+        });
+        
+        // More flexible check for truthy values
+        if (lead.Signed_On_As_Client === 'true' || 
+            lead.Signed_On_As_Client === true || 
+            lead.Signed_On_As_Client === 'True' ||
+            lead.Signed_On_As_Client === 'yes' ||
+            lead.Signed_On_As_Client === 'Yes' ||
+            lead.Signed_On_As_Client === 1 ||
+            lead.Signed_On_As_Client === '1') {
+          console.log("Setting contract as signed");
+          setContractSigned(true);
+          setContractSubmitted(true);
+        }
+        
+        // Display transaction amount if already set
+        if (lead.Transaction_Amount) {
+          const formattedAmount = formatCurrency(lead.Transaction_Amount.toString());
+          setTransactionValue(formattedAmount);
+        }
+        
+        // Display revenue amount if already set
+        if (lead.Revenue_Made) {
+          const formattedRevenue = formatCurrency(lead.Revenue_Made.toString());
+          setRevenueValue(formattedRevenue);
+        }
         
         // Update lead data with fetched values
         setLeadData({
@@ -140,25 +232,32 @@ function SalesPage() {
       // Extract numeric value from formatted string
       const numericValue = transactionValue.replace(/[^0-9]/g, '');
       
-      // Prepare update data, only overriding specific fields
-      const formData = {
-        // Include only fields we want to update
-        Transaction_Amount: numericValue,
-        
-        // Preserve essential data to prevent it from being cleared
-        First_Name: window.fullLeadData?.First_Name,
-        Last_Name: window.fullLeadData?.Last_Name,
-        Phone: window.fullLeadData?.Phone,
-        Email: window.fullLeadData?.Email,
-        Street: window.fullLeadData?.Street,
-        City: window.fullLeadData?.City,
-        State: window.fullLeadData?.State,
-        Zip_Code: window.fullLeadData?.Zip_Code,
-        
-        // Preserve any existing values for our other sales fields
-        Revenue_Made: window.fullLeadData?.Revenue_Made,
-        Signed_On_As_Client: window.fullLeadData?.Signed_On_As_Client
-      };
+      // Create a copy of the full lead data to preserve all fields
+      const formData = { ...window.fullLeadData };
+      
+      // Only override the specific field we want to update
+      formData.Transaction_Amount = numericValue;
+      
+      // CRITICAL: Explicitly preserve address fields (exact field names matter)
+      // Make sure Street is capitalized as Zoho expects it
+      formData.Street = window.fullLeadData?.Street || 
+                       window.fullLeadData?.street || 
+                       leadData.address || 
+                       window.fullLeadData?.selectedSuggestionAddress || 
+                       window.fullLeadData?.userTypedAddress || '';
+                       
+      // Ensure other address fields are preserved
+      formData.City = window.fullLeadData?.City || window.fullLeadData?.city || '';
+      formData.State = window.fullLeadData?.State || window.fullLeadData?.state || '';
+      formData.Zip_Code = window.fullLeadData?.Zip_Code || window.fullLeadData?.zip || '';
+      
+      // API Home Value and other API fields preservation
+      formData.apiHomeValue = window.fullLeadData?.apiHomeValue || window.fullLeadData?.apiEstimatedValue || '';
+      formData.apiEstimatedValue = window.fullLeadData?.apiEstimatedValue || window.fullLeadData?.apiHomeValue || '';
+      formData.apiMaxHomeValue = window.fullLeadData?.apiMaxHomeValue || '';
+      formData.apiOwnerName = window.fullLeadData?.apiOwnerName || '';
+      formData.apiEquity = window.fullLeadData?.apiEquity || '';
+      formData.apiPercentage = window.fullLeadData?.apiPercentage || '';
       
       // Update lead in Zoho with transaction value
       await axios.post('/api/zoho', {
@@ -179,13 +278,28 @@ function SalesPage() {
       setTransactionSubmitted(true);
       setSuccess('Transaction value saved successfully!');
       
-      // Push transaction data to dataLayer for GTM
+      // Enhanced analytics for transaction saved event
+      // Push to Google Tag Manager with more details
       if (window.dataLayer) {
         window.dataLayer.push({
           event: 'transactionSaved',
           leadId: leadData.leadId,
           transactionValue: numericValue,
-          transactionDate: new Date().toISOString().split('T')[0]
+          transactionDate: new Date().toISOString().split('T')[0],
+          eventType: 'sales_action',
+          eventCategory: 'lead_management',
+          eventAction: 'transaction_saved',
+          eventValue: parseInt(numericValue, 10) || 0
+        });
+      }
+      
+      // Push to Google Analytics (if available)
+      if (window.gtag) {
+        window.gtag('event', 'transaction_saved', {
+          'event_category': 'sales',
+          'event_label': leadData.leadId,
+          'value': parseInt(numericValue, 10) || 0,
+          'transaction_id': `${leadData.leadId}_${Date.now()}`
         });
       }
     } catch (error) {
@@ -217,25 +331,32 @@ function SalesPage() {
       // Extract numeric value from formatted string
       const numericValue = revenueValue.replace(/[^0-9]/g, '');
       
-      // Prepare update data, only overriding specific fields
-      const formData = {
-        // Include only fields we want to update
-        Revenue_Made: numericValue,
-        
-        // Preserve essential data to prevent it from being cleared
-        First_Name: window.fullLeadData?.First_Name,
-        Last_Name: window.fullLeadData?.Last_Name,
-        Phone: window.fullLeadData?.Phone,
-        Email: window.fullLeadData?.Email,
-        Street: window.fullLeadData?.Street,
-        City: window.fullLeadData?.City,
-        State: window.fullLeadData?.State,
-        Zip_Code: window.fullLeadData?.Zip_Code,
-        
-        // Preserve any existing values for our other sales fields
-        Transaction_Amount: window.fullLeadData?.Transaction_Amount,
-        Signed_On_As_Client: window.fullLeadData?.Signed_On_As_Client
-      };
+      // Create a copy of the full lead data to preserve all fields
+      const formData = { ...window.fullLeadData };
+      
+      // Only override the specific field we want to update
+      formData.Revenue_Made = numericValue;
+      
+      // CRITICAL: Explicitly preserve address fields (exact field names matter)
+      // Make sure Street is capitalized as Zoho expects it
+      formData.Street = window.fullLeadData?.Street || 
+                       window.fullLeadData?.street || 
+                       leadData.address || 
+                       window.fullLeadData?.selectedSuggestionAddress || 
+                       window.fullLeadData?.userTypedAddress || '';
+                       
+      // Ensure other address fields are preserved
+      formData.City = window.fullLeadData?.City || window.fullLeadData?.city || '';
+      formData.State = window.fullLeadData?.State || window.fullLeadData?.state || '';
+      formData.Zip_Code = window.fullLeadData?.Zip_Code || window.fullLeadData?.zip || '';
+      
+      // API Home Value and other API fields preservation
+      formData.apiHomeValue = window.fullLeadData?.apiHomeValue || window.fullLeadData?.apiEstimatedValue || '';
+      formData.apiEstimatedValue = window.fullLeadData?.apiEstimatedValue || window.fullLeadData?.apiHomeValue || '';
+      formData.apiMaxHomeValue = window.fullLeadData?.apiMaxHomeValue || '';
+      formData.apiOwnerName = window.fullLeadData?.apiOwnerName || '';
+      formData.apiEquity = window.fullLeadData?.apiEquity || '';
+      formData.apiPercentage = window.fullLeadData?.apiPercentage || '';
       
       // Update lead in Zoho with revenue value
       await axios.post('/api/zoho', {
@@ -256,13 +377,28 @@ function SalesPage() {
       setRevenueSubmitted(true);
       setSuccess('Revenue value saved successfully!');
       
-      // Push revenue data to dataLayer for GTM
+      // Enhanced analytics for revenue saved event
+      // Push to Google Tag Manager with more details
       if (window.dataLayer) {
         window.dataLayer.push({
           event: 'revenueSaved',
           leadId: leadData.leadId,
           revenueValue: numericValue,
-          revenueDate: new Date().toISOString().split('T')[0]
+          revenueDate: new Date().toISOString().split('T')[0],
+          eventType: 'sales_action',
+          eventCategory: 'lead_management',
+          eventAction: 'revenue_saved',
+          eventValue: parseInt(numericValue, 10) || 0
+        });
+      }
+      
+      // Push to Google Analytics (if available)
+      if (window.gtag) {
+        window.gtag('event', 'revenue_saved', {
+          'event_category': 'sales',
+          'event_label': leadData.leadId,
+          'value': parseInt(numericValue, 10) || 0,
+          'revenue_id': `${leadData.leadId}_${Date.now()}`
         });
       }
     } catch (error) {
@@ -285,26 +421,35 @@ function SalesPage() {
     setIsLoading(true);
     
     try {
-      // Prepare update data, only overriding specific fields
-      const formData = {
-        // Include only fields we want to update
-        Signed_On_As_Client: 'true',
-        Status: 'Contract agreement signed',  // Update lead status
-        
-        // Preserve essential data to prevent it from being cleared
-        First_Name: window.fullLeadData?.First_Name,
-        Last_Name: window.fullLeadData?.Last_Name,
-        Phone: window.fullLeadData?.Phone,
-        Email: window.fullLeadData?.Email,
-        Street: window.fullLeadData?.Street,
-        City: window.fullLeadData?.City,
-        State: window.fullLeadData?.State,
-        Zip_Code: window.fullLeadData?.Zip_Code,
-        
-        // Preserve any existing values for our other sales fields
-        Transaction_Amount: window.fullLeadData?.Transaction_Amount,
-        Revenue_Made: window.fullLeadData?.Revenue_Made
-      };
+      // Create a copy of the full lead data to preserve all fields
+      const formData = { ...window.fullLeadData };
+      
+      // Only override the specific fields we want to update
+      // Try multiple formats to ensure compatibility with Zoho
+      formData.Signed_On_As_Client = true; // Boolean value
+      formData.Signed_On_As_Client_text = 'true'; // String value as backup
+      formData.Status = 'Contract agreement signed';
+      
+      // CRITICAL: Explicitly preserve address fields (exact field names matter)
+      // Make sure Street is capitalized as Zoho expects it
+      formData.Street = window.fullLeadData?.Street || 
+                       window.fullLeadData?.street || 
+                       leadData.address || 
+                       window.fullLeadData?.selectedSuggestionAddress || 
+                       window.fullLeadData?.userTypedAddress || '';
+                       
+      // Ensure other address fields are preserved
+      formData.City = window.fullLeadData?.City || window.fullLeadData?.city || '';
+      formData.State = window.fullLeadData?.State || window.fullLeadData?.state || '';
+      formData.Zip_Code = window.fullLeadData?.Zip_Code || window.fullLeadData?.zip || '';
+      
+      // API Home Value and other API fields preservation
+      formData.apiHomeValue = window.fullLeadData?.apiHomeValue || window.fullLeadData?.apiEstimatedValue || '';
+      formData.apiEstimatedValue = window.fullLeadData?.apiEstimatedValue || window.fullLeadData?.apiHomeValue || '';
+      formData.apiMaxHomeValue = window.fullLeadData?.apiMaxHomeValue || '';
+      formData.apiOwnerName = window.fullLeadData?.apiOwnerName || '';
+      formData.apiEquity = window.fullLeadData?.apiEquity || '';
+      formData.apiPercentage = window.fullLeadData?.apiPercentage || '';
       
       // Update lead in Zoho with contract signed status
       await axios.post('/api/zoho', {
@@ -325,13 +470,27 @@ function SalesPage() {
         prevSuccess ? `${prevSuccess} Contract status updated!` : 'Contract status updated successfully!'
       );
       
-      // Push contract signed event to dataLayer for GTM
+      // Enhanced analytics for contract signed event
+      // Push to Google Tag Manager
       if (window.dataLayer) {
         window.dataLayer.push({
           event: 'contractSigned',
           leadId: leadData.leadId,
           contractDate: new Date().toISOString().split('T')[0],
-          leadStatus: 'Contract agreement signed'
+          leadStatus: 'Contract agreement signed',
+          eventType: 'sales_action',
+          eventCategory: 'lead_management',
+          eventAction: 'contract_signed',
+          eventValue: 200 // Conversion value
+        });
+      }
+      
+      // Push to Google Analytics (if available)
+      if (window.gtag) {
+        window.gtag('event', 'contract_signed', {
+          'event_category': 'sales',
+          'event_label': leadData.leadId,
+          'value': 200
         });
       }
     } catch (error) {
