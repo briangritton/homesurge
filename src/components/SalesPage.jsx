@@ -96,6 +96,9 @@ function SalesPage() {
       if (response.data && response.data.success && response.data.lead) {
         const lead = response.data.lead;
         
+        // Store complete lead data for use in updates (to prevent overwriting fields)
+        window.fullLeadData = lead;
+        
         // Update lead data with fetched values
         setLeadData({
           leadId,
@@ -137,13 +140,31 @@ function SalesPage() {
       // Extract numeric value from formatted string
       const numericValue = transactionValue.replace(/[^0-9]/g, '');
       
+      // Prepare update data, only overriding specific fields
+      const formData = {
+        // Include only fields we want to update
+        Transaction_Amount: numericValue,
+        
+        // Preserve essential data to prevent it from being cleared
+        First_Name: window.fullLeadData?.First_Name,
+        Last_Name: window.fullLeadData?.Last_Name,
+        Phone: window.fullLeadData?.Phone,
+        Email: window.fullLeadData?.Email,
+        Street: window.fullLeadData?.Street,
+        City: window.fullLeadData?.City,
+        State: window.fullLeadData?.State,
+        Zip_Code: window.fullLeadData?.Zip_Code,
+        
+        // Preserve any existing values for our other sales fields
+        Revenue_Made: window.fullLeadData?.Revenue_Made,
+        Signed_On_As_Client: window.fullLeadData?.Signed_On_As_Client
+      };
+      
       // Update lead in Zoho with transaction value
       await axios.post('/api/zoho', {
         action: 'update',
         leadId: leadData.leadId,
-        formData: {
-          Transaction_Amount: numericValue
-        }
+        formData: formData
       });
       
       // Track conversion event
@@ -196,13 +217,31 @@ function SalesPage() {
       // Extract numeric value from formatted string
       const numericValue = revenueValue.replace(/[^0-9]/g, '');
       
+      // Prepare update data, only overriding specific fields
+      const formData = {
+        // Include only fields we want to update
+        Revenue_Made: numericValue,
+        
+        // Preserve essential data to prevent it from being cleared
+        First_Name: window.fullLeadData?.First_Name,
+        Last_Name: window.fullLeadData?.Last_Name,
+        Phone: window.fullLeadData?.Phone,
+        Email: window.fullLeadData?.Email,
+        Street: window.fullLeadData?.Street,
+        City: window.fullLeadData?.City,
+        State: window.fullLeadData?.State,
+        Zip_Code: window.fullLeadData?.Zip_Code,
+        
+        // Preserve any existing values for our other sales fields
+        Transaction_Amount: window.fullLeadData?.Transaction_Amount,
+        Signed_On_As_Client: window.fullLeadData?.Signed_On_As_Client
+      };
+      
       // Update lead in Zoho with revenue value
       await axios.post('/api/zoho', {
         action: 'update',
         leadId: leadData.leadId,
-        formData: {
-          Revenue_Made: numericValue
-        }
+        formData: formData
       });
       
       // Track conversion event for revenue
@@ -246,14 +285,32 @@ function SalesPage() {
     setIsLoading(true);
     
     try {
-      // Update lead in Zoho with contract signed status AND update status field
+      // Prepare update data, only overriding specific fields
+      const formData = {
+        // Include only fields we want to update
+        Signed_On_As_Client: 'true',
+        Status: 'Contract agreement signed',  // Update lead status
+        
+        // Preserve essential data to prevent it from being cleared
+        First_Name: window.fullLeadData?.First_Name,
+        Last_Name: window.fullLeadData?.Last_Name,
+        Phone: window.fullLeadData?.Phone,
+        Email: window.fullLeadData?.Email,
+        Street: window.fullLeadData?.Street,
+        City: window.fullLeadData?.City,
+        State: window.fullLeadData?.State,
+        Zip_Code: window.fullLeadData?.Zip_Code,
+        
+        // Preserve any existing values for our other sales fields
+        Transaction_Amount: window.fullLeadData?.Transaction_Amount,
+        Revenue_Made: window.fullLeadData?.Revenue_Made
+      };
+      
+      // Update lead in Zoho with contract signed status
       await axios.post('/api/zoho', {
         action: 'update',
         leadId: leadData.leadId,
-        formData: {
-          signed_on_as_client: 'true',
-          Status: 'Contract agreement signed'  // Update lead status
-        }
+        formData: formData
       });
       
       // Track contract signed conversion event
@@ -333,101 +390,106 @@ function SalesPage() {
               </div>
             </div>
             
-            {/* Transaction Value Form */}
-            <div className="qualifying-section">
-              <h3 className="qualifying-headline">Transaction Details</h3>
-              <div className="qualifying-form-container">
-                <div className="qualifying-option-column">
-                  <label htmlFor="transactionValue" className="qualifying-question">Transaction Amount:</label>
-                  <input
-                    type="text"
-                    id="transactionValue"
-                    className="qualifying-text-input"
-                    value={transactionValue}
-                    onChange={handleTransactionValueChange}
-                    placeholder="Enter amount (e.g. $250,000)"
-                    disabled={transactionSubmitted}
-                  />
-                </div>
-                
-                <button 
-                  onClick={handleSaveTransaction}
-                  className="qualifying-button"
-                  disabled={isLoading || transactionSubmitted || !transactionValue}
-                >
-                  {isLoading ? 'Saving...' : 'Save Transaction Value'}
-                </button>
-                
-                {transactionSubmitted && (
-                  <div className="success-message">Transaction value saved!</div>
-                )}
-              </div>
-            </div>
-            
-            {/* Revenue Value Form */}
-            <div className="qualifying-section">
-              <h3 className="qualifying-headline">Revenue Details</h3>
-              <div className="qualifying-form-container">
-                <div className="qualifying-option-column">
-                  <label htmlFor="revenueValue" className="qualifying-question">Revenue made from Client:</label>
-                  <input
-                    type="text"
-                    id="revenueValue"
-                    className="qualifying-text-input"
-                    value={revenueValue}
-                    onChange={handleRevenueValueChange}
-                    placeholder="Enter amount (e.g. $25,000)"
-                    disabled={revenueSubmitted}
-                  />
-                </div>
-                
-                <button 
-                  onClick={handleSaveRevenue}
-                  className="qualifying-button"
-                  disabled={isLoading || revenueSubmitted || !revenueValue}
-                >
-                  {isLoading ? 'Saving...' : 'Save Revenue Value'}
-                </button>
-                
-                {revenueSubmitted && (
-                  <div className="success-message">Revenue value saved!</div>
-                )}
-              </div>
-            </div>
-            
-            {/* Contract Signed Checkbox */}
-            <div className="qualifying-section">
-              <h3 className="qualifying-headline">Contract Status</h3>
-              <div className="qualifying-form-container">
-                <div className="qualifying-option-column">
-                  <div className="form-check" style={{ margin: '15px 0' }}>
+            {/* All Forms in a more compact layout */}
+            <div style={{ marginBottom: '20px' }}>
+              {/* Transaction Value Form */}
+              <div style={{ marginBottom: '15px', padding: '15px', backgroundColor: '#f7f9fc', borderRadius: '8px' }}>
+                <h3 className="qualifying-headline" style={{ marginBottom: '10px' }}>Transaction Details</h3>
+                <div className="qualifying-form-container">
+                  <div className="qualifying-option-column">
+                    <label htmlFor="transactionValue" className="qualifying-question">Transaction Amount:</label>
                     <input
-                      type="checkbox"
-                      id="contractSigned"
-                      className="form-check-input"
-                      checked={contractSigned}
-                      onChange={(e) => setContractSigned(e.target.checked)}
-                      disabled={contractSubmitted}
-                      style={{ width: '25px', height: '25px' }}
+                      type="text"
+                      id="transactionValue"
+                      className="qualifying-text-input"
+                      value={transactionValue}
+                      onChange={handleTransactionValueChange}
+                      placeholder="Enter amount (e.g. $250,000)"
+                      disabled={transactionSubmitted}
                     />
-                    <label className="qualifying-question" htmlFor="contractSigned" style={{ marginLeft: '10px' }}>
-                      New client contract agreement signed
-                    </label>
                   </div>
+                  
+                  <button 
+                    onClick={handleSaveTransaction}
+                    className="qualifying-button"
+                    style={{ marginTop: '10px' }}
+                    disabled={isLoading || transactionSubmitted || !transactionValue}
+                  >
+                    {isLoading ? 'Saving...' : 'Save Transaction Value'}
+                  </button>
+                  
+                  {transactionSubmitted && (
+                    <div className="success-message" style={{ marginTop: '10px' }}>Transaction value saved!</div>
+                  )}
                 </div>
-                
-                <button 
-                  onClick={handleContractSigned}
-                  className="qualifying-button"
-                  disabled={isLoading || contractSubmitted || !contractSigned}
-                  style={{ marginTop: '10px' }}
-                >
-                  {isLoading ? 'Updating...' : 'Update Contract Status'}
-                </button>
-                
-                {contractSubmitted && (
-                  <div className="success-message">Contract status updated!</div>
-                )}
+              </div>
+              
+              {/* Revenue Value Form */}
+              <div style={{ marginBottom: '15px', padding: '15px', backgroundColor: '#f7f9fc', borderRadius: '8px' }}>
+                <h3 className="qualifying-headline" style={{ marginBottom: '10px' }}>Revenue Details</h3>
+                <div className="qualifying-form-container">
+                  <div className="qualifying-option-column">
+                    <label htmlFor="revenueValue" className="qualifying-question">Revenue made from Client:</label>
+                    <input
+                      type="text"
+                      id="revenueValue"
+                      className="qualifying-text-input"
+                      value={revenueValue}
+                      onChange={handleRevenueValueChange}
+                      placeholder="Enter amount (e.g. $25,000)"
+                      disabled={revenueSubmitted}
+                    />
+                  </div>
+                  
+                  <button 
+                    onClick={handleSaveRevenue}
+                    className="qualifying-button"
+                    style={{ marginTop: '10px' }}
+                    disabled={isLoading || revenueSubmitted || !revenueValue}
+                  >
+                    {isLoading ? 'Saving...' : 'Save Revenue Value'}
+                  </button>
+                  
+                  {revenueSubmitted && (
+                    <div className="success-message" style={{ marginTop: '10px' }}>Revenue value saved!</div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Contract Signed Checkbox */}
+              <div style={{ marginBottom: '15px', padding: '15px', backgroundColor: '#f7f9fc', borderRadius: '8px' }}>
+                <h3 className="qualifying-headline" style={{ marginBottom: '10px' }}>Contract Status</h3>
+                <div className="qualifying-form-container">
+                  <div className="qualifying-option-column">
+                    <div className="form-check" style={{ margin: '5px 0' }}>
+                      <input
+                        type="checkbox"
+                        id="contractSigned"
+                        className="form-check-input"
+                        checked={contractSigned}
+                        onChange={(e) => setContractSigned(e.target.checked)}
+                        disabled={contractSubmitted}
+                        style={{ width: '25px', height: '25px' }}
+                      />
+                      <label className="qualifying-question" htmlFor="contractSigned" style={{ marginLeft: '10px' }}>
+                        New client contract agreement signed
+                      </label>
+                    </div>
+                  </div>
+                  
+                  <button 
+                    onClick={handleContractSigned}
+                    className="qualifying-button"
+                    style={{ marginTop: '10px' }}
+                    disabled={isLoading || contractSubmitted || !contractSigned}
+                  >
+                    {isLoading ? 'Updating...' : 'Update Contract Status'}
+                  </button>
+                  
+                  {contractSubmitted && (
+                    <div className="success-message" style={{ marginTop: '10px' }}>Contract status updated!</div>
+                  )}
+                </div>
               </div>
             </div>
             
