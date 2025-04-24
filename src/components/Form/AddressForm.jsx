@@ -7,7 +7,7 @@ import { createSuggestionLead } from '../../services/zoho.js';
 import axios from 'axios';
 
 function AddressForm() {
-  // VERSION INDICATOR - DO NOT REMOVE - v374
+  // VERSION INDICATOR - DO NOT REMOVE - v999
   
   const { formData, updateFormData, nextStep } = useFormContext();
   const [errorMessage, setErrorMessage] = useState('');
@@ -18,7 +18,6 @@ function AddressForm() {
   const [suggestionTimer, setSuggestionTimer] = useState(null);
   const [addressSuggestions, setAddressSuggestions] = useState([]);
   const [lastTypedAddress, setLastTypedAddress] = useState('');
-  const [isEnterPressed, setIsEnterPressed] = useState(false);
   
   // Reference to the main input 
   const inputRef = useRef(null);
@@ -121,18 +120,6 @@ function AddressForm() {
               localStorage.setItem('suggestionLeadId', leadId);
               localStorage.setItem('leadId', leadId);
             }
-            
-            // If Enter was pressed and we now have suggestions, use the first one
-            if (isEnterPressed && predictions && predictions.length > 0) {
-              setIsEnterPressed(false); // Reset the flag
-              
-              try {
-                // Get place details for the first suggestion
-                await handleSuggestionSelection(predictions[0]);
-              } catch (error) {
-                console.error("Error processing Enter press with first suggestion:", error);
-              }
-            }
           } else {
             setFirstSuggestion(null);
             setAddressSuggestions([]);
@@ -146,55 +133,6 @@ function AddressForm() {
       setFirstSuggestion(null);
       setAddressSuggestions([]);
     }
-  };
-  
-  // Function to handle the selection of a suggestion (used by Enter key and buttons)
-  const handleSuggestionSelection = async (suggestion) => {
-    if (!suggestion || !suggestion.place_id) {
-      console.error("Invalid suggestion provided to handleSuggestionSelection");
-      return false;
-    }
-    
-    console.log('Processing suggestion selection:', suggestion.description);
-    setIsLoading(true);
-    
-    try {
-      // Get place details for the suggestion
-      const placeDetails = await getPlaceDetails(suggestion.place_id);
-      
-      if (placeDetails) {
-        // Update the input field value
-        if (inputRef.current) {
-          inputRef.current.value = placeDetails.formatted_address;
-        }
-        
-        // Update form data
-        updateFormData({
-          street: placeDetails.formatted_address,
-          selectedSuggestionAddress: placeDetails.formatted_address,
-          userTypedAddress: lastTypedAddress,
-          addressSelectionType: 'SuggestionSelected',
-          leadStage: 'Address Selected'
-        });
-        
-        // Process the selected address
-        await processAddressSelection(placeDetails);
-        
-        // Allow a moment for data to update
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
-        // Proceed to next step
-        nextStep();
-        
-        return true;
-      }
-    } catch (error) {
-      console.error("Error in handleSuggestionSelection:", error);
-    } finally {
-      setIsLoading(false);
-    }
-    
-    return false;
   };
   
   // Get place details for a prediction
@@ -447,93 +385,165 @@ function AddressForm() {
     return propertyData != null;
   };
   
-  // Handle ENTER key press
-  const handleEnterKeyPress = (e) => {
-    e.preventDefault(); // Prevent default form submission
-    console.log('Enter key pressed - v374');
+  // Completely separate function for handling Enter key presses
+  const handleEnterKeyPress = async (e) => {
+    // Always prevent default - critical!
+    e.preventDefault();
+    e.stopPropagation();
+    
+    console.log('ENTER key pressed - v999', firstSuggestion ? 'First suggestion available' : 'No suggestion yet');
     
     // If already loading, prevent action
     if (isLoading) return;
     
-    if (firstSuggestion) {
-      // We already have suggestions, use the first one
-      console.log('Using existing first suggestion on Enter press:', firstSuggestion.description);
-      handleSuggestionSelection(firstSuggestion);
-    } else {
-      // No suggestions yet, set flag and let handleChange deal with it when suggestions arrive
-      console.log('No suggestions yet, setting flag to handle when they arrive');
-      setIsEnterPressed(true);
-      
-      // If the user hasn't typed enough to get suggestions, focus on the input
-      if (formData.street.length < 2) {
-        setErrorMessage('Please enter at least 2 characters to search for an address');
-      }
-    }
-  };
-  
-  // Handle form submission (button click)
-  const handleSubmit = async (e) => {
-    if (e) e.preventDefault();
-    
-    // If already loading, prevent multiple submissions
-    if (isLoading) return false;
-    
-    // Set loading state immediately
+    // Set loading immediately
     setIsLoading(true);
     
     try {
-      // If we have a first suggestion, use it directly (same behavior as Enter key)
-      if (firstSuggestion && formData.street && formData.street.length >= 2 && googleApiLoaded) {
-        console.log('Button clicked - using first suggestion');
-        return await handleSuggestionSelection(firstSuggestion);
-      }
-      
-      // If no suggestion available, use standard validation
-      if (!validateAddress(formData.street)) {
-        const errorMsg = 'Please enter a valid address to check your cash offer';
-        setErrorMessage(errorMsg);
+      // Make sure we have enough characters to get suggestions
+      if (formData.street.length < 2) {
+        setErrorMessage('Please enter at least 2 characters to search for an address');
         setIsLoading(false);
-        
-        // Track form error for analytics
-        trackFormError(errorMsg, 'street');
-        
-        return false;
+        return;
       }
       
-      // No suggestion available, but address is valid enough, proceed with what we have
-      console.log('No suggestions available, proceeding with manual address');
-      
-      // Clear error message
-      setErrorMessage('');
-      
-      // Try to fetch property data with whatever address we have
-      const propertyDataRetrieved = await fetchPropertyData(formData.street) != null;
-      
-      // Ensure we're using the same lead ID
-      const existingLeadId = suggestionLeadId || localStorage.getItem('suggestionLeadId');
-      if (existingLeadId) {
-        localStorage.setItem('leadId', existingLeadId);
+      // If we already have a first suggestion, use it
+      if (firstSuggestion && firstSuggestion.place_id) {
+        console.log('Using first suggestion:', firstSuggestion.description);
+        
+        try {
+          // Get the place details
+          const placeDetails = await getPlaceDetails(firstSuggestion.place_id);
+          
+          // Now we have full place details
+          if (placeDetails && placeDetails.formatted_address) {
+            console.log('Got full place details:', placeDetails.formatted_address);
+            
+            // Update the value in the input field
+            if (inputRef.current) {
+              inputRef.current.value = placeDetails.formatted_address;
+            }
+            
+            // Update form data with full address
+            updateFormData({
+              street: placeDetails.formatted_address,
+              selectedSuggestionAddress: placeDetails.formatted_address,
+              userTypedAddress: lastTypedAddress,
+              addressSelectionType: 'EnterKey'
+            });
+            
+            // Process the selected address
+            await processAddressSelection(placeDetails);
+            
+            // Proceed to next step
+            setTimeout(() => {
+              nextStep();
+              // Reset loading state after navigation
+              setIsLoading(false);
+            }, 200);
+            
+            return;
+          }
+        } catch (error) {
+          console.error('Error getting place details:', error);
+        }
       }
       
-      // Track address submission and form step completion
-      trackAddressSelected(formData.addressSelectionType || 'Manual');
-      trackFormStepComplete(1, 'Address Form Completed', formData);
-      
-      // Proceed to next step
-      setTimeout(() => {
-        setIsLoading(false);
-        nextStep();
-      }, 300);
-      
-      return true;
-    } catch (error) {
-      console.error('Error during form submission:', error);
+      // If we don't have a suggestion yet or there was an error, 
+      // show an error message
+      setErrorMessage('Please select an address from the dropdown or wait for suggestions to load');
       setIsLoading(false);
+    } catch (error) {
+      console.error('Error handling Enter key:', error);
+      setIsLoading(false);
+      setErrorMessage('An error occurred. Please try again or click the Check Offer button.');
+    }
+  };
+
+  // Handle button click
+  const handleButtonClick = async (e) => {
+    // Always prevent default form submission
+    e.preventDefault();
+    e.stopPropagation();
+    
+    console.log('Button clicked - v999');
+    
+    // If already loading, prevent action
+    if (isLoading) return;
+    
+    // Set loading state
+    setIsLoading(true);
+    
+    try {
+      // Make sure we have enough characters to get suggestions
+      if (formData.street.length < 2) {
+        setErrorMessage('Please enter at least 2 characters to search for an address');
+        setIsLoading(false);
+        return;
+      }
       
-      // Track error for analytics 
-      trackFormError('Form submission error: ' + error.message, 'form');
+      // If we have a first suggestion, use it
+      if (firstSuggestion && firstSuggestion.place_id) {
+        console.log('Using first suggestion:', firstSuggestion.description);
+        
+        try {
+          // Get the place details
+          const placeDetails = await getPlaceDetails(firstSuggestion.place_id);
+          
+          // Now we have full place details
+          if (placeDetails && placeDetails.formatted_address) {
+            console.log('Got full place details:', placeDetails.formatted_address);
+            
+            // Update the value in the input field
+            if (inputRef.current) {
+              inputRef.current.value = placeDetails.formatted_address;
+            }
+            
+            // Update form data with full address
+            updateFormData({
+              street: placeDetails.formatted_address,
+              selectedSuggestionAddress: placeDetails.formatted_address,
+              userTypedAddress: lastTypedAddress,
+              addressSelectionType: 'ButtonClick'
+            });
+            
+            // Process the selected address
+            await processAddressSelection(placeDetails);
+            
+            // Proceed to next step
+            setTimeout(() => {
+              nextStep();
+              // Reset loading state after navigation
+              setIsLoading(false);
+            }, 200);
+            
+            return;
+          }
+        } catch (error) {
+          console.error('Error getting place details:', error);
+        }
+      }
       
-      return false;
+      // If no suggestion and address validation passes, proceed with what we have
+      if (validateAddress(formData.street)) {
+        console.log('No suggestion available, but address validates');
+        
+        // Try to fetch property data with what we have
+        await fetchPropertyData(formData.street);
+        
+        // Track and proceed
+        trackFormStepComplete(1, 'Address Form Completed (Manual)', formData);
+        nextStep();
+        setIsLoading(false);
+      } else {
+        // Address doesn't validate
+        setErrorMessage('Please enter a valid address to check your cash offer');
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error('Error handling button click:', error);
+      setIsLoading(false);
+      setErrorMessage('An error occurred. Please try again.');
     }
   };
   
@@ -707,6 +717,31 @@ function AddressForm() {
     };
   }, [googleApiLoaded]);
   
+  // Special effect to add key event listeners at the document level to catch Enter globally
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Check for Enter key at the document level
+      if (e.key === 'Enter' && document.activeElement === inputRef.current) {
+        console.log('Enter key caught at document level');
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Call our Enter key handler
+        handleEnterKeyPress(e);
+        
+        return false;
+      }
+    };
+    
+    // Add global event listener for keydown
+    document.addEventListener('keydown', handleKeyDown, true);
+    
+    // Cleanup
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown, true);
+    };
+  }, [firstSuggestion, formData.street, isLoading]);
+  
   return (
     <div className="hero-section">
       {/* Version indicator */}
@@ -720,15 +755,15 @@ function AddressForm() {
         borderRadius: '5px',
         fontWeight: 'bold',
         zIndex: 1000
-      }}>v374</div>
+      }}>v999</div>
       
       <div className="hero-middle-container">
         <div className="hero-content fade-in">
           <div className="hero-headline">{formData.dynamicHeadline || "Sell Your House For Cash Fast!"}</div>
           <div className="hero-subheadline">{formData.dynamicSubHeadline || "Get a Great Cash Offer For Your House and Close Fast!"}</div>
           
-          <form ref={formRef} className="form-container" onSubmit={handleSubmit}>
-            {/* Input with direct Google Places autocomplete */}
+          {/* This is now a div, not a form! We don't want form submission at all */}
+          <div className="form-container">
             <input
               ref={inputRef}
               type="text"
@@ -739,24 +774,18 @@ function AddressForm() {
               onFocus={(e) => e.target.placeholder = ''}
               onBlur={(e) => e.target.placeholder = 'Street address...'}
               disabled={isLoading}
-              onKeyDown={(e) => {
-                // Check if Enter key is pressed
-                if (e.key === 'Enter') {
-                  // Use our specialized Enter key handler
-                  handleEnterKeyPress(e);
-                }
-              }}
+              // We now handle Enter in the document level listener
             />
             
             <button 
               className="submit-button"
               id="address-submit-button" 
-              type="submit"
               disabled={isLoading}
+              onClick={handleButtonClick}
             >
               {isLoading ? 'CHECKING...' : 'CHECK OFFER'}
             </button>
-          </form>
+          </div>
           
           {errorMessage && (
             <div className="error-message">{errorMessage}</div>
