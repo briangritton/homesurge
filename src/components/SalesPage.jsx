@@ -84,7 +84,7 @@ function SalesPage() {
   // Format currency input
   const formatCurrency = (value) => {
     // Remove non-digit characters
-    const numericValue = value.replace(/[^0-9]/g, '');
+    const numericValue = value.replace(/\D/g, '');
     
     // Convert to number and format
     if (numericValue) {
@@ -278,6 +278,9 @@ function SalesPage() {
       setTransactionSubmitted(true);
       setSuccess('Transaction value saved successfully!');
       
+      // Create unique transaction ID
+      const transactionId = `${leadData.leadId}_${Date.now()}`;
+      
       // Enhanced analytics for transaction saved event
       // Push to Google Tag Manager with more details
       if (window.dataLayer) {
@@ -289,17 +292,21 @@ function SalesPage() {
           eventType: 'sales_action',
           eventCategory: 'lead_management',
           eventAction: 'transaction_saved',
-          eventValue: parseInt(numericValue, 10) || 0
+          eventValue: parseInt(numericValue, 10) || 0,
+          // Add these new parameters for Google Ads compatibility
+          value: parseInt(numericValue, 10) || 0,
+          currency: 'USD',
+          transaction_id: transactionId
         });
       }
       
       // Push to Google Analytics (if available)
       if (window.gtag) {
-        window.gtag('event', 'transaction_saved', {
-          'event_category': 'sales',
-          'event_label': leadData.leadId,
+        window.gtag('event', 'conversion', {
+          'send_to': 'AW-YOUR_CONVERSION_ID/YOUR_TRANSACTION_LABEL', // Replace with your actual IDs
           'value': parseInt(numericValue, 10) || 0,
-          'transaction_id': `${leadData.leadId}_${Date.now()}`
+          'currency': 'USD',
+          'transaction_id': transactionId
         });
       }
     } catch (error) {
@@ -377,6 +384,9 @@ function SalesPage() {
       setRevenueSubmitted(true);
       setSuccess('Revenue value saved successfully!');
       
+      // Create unique revenue ID
+      const revenueId = `${leadData.leadId}_rev_${Date.now()}`;
+      
       // Enhanced analytics for revenue saved event
       // Push to Google Tag Manager with more details
       if (window.dataLayer) {
@@ -388,17 +398,21 @@ function SalesPage() {
           eventType: 'sales_action',
           eventCategory: 'lead_management',
           eventAction: 'revenue_saved',
-          eventValue: parseInt(numericValue, 10) || 0
+          eventValue: parseInt(numericValue, 10) || 0,
+          // Add these new parameters for Google Ads compatibility
+          value: parseInt(numericValue, 10) || 0,
+          currency: 'USD',
+          transaction_id: revenueId
         });
       }
       
       // Push to Google Analytics (if available)
       if (window.gtag) {
-        window.gtag('event', 'revenue_saved', {
-          'event_category': 'sales',
-          'event_label': leadData.leadId,
+        window.gtag('event', 'conversion', {
+          'send_to': 'AW-YOUR_CONVERSION_ID/YOUR_REVENUE_LABEL', // Replace with your actual IDs
           'value': parseInt(numericValue, 10) || 0,
-          'revenue_id': `${leadData.leadId}_${Date.now()}`
+          'currency': 'USD',
+          'transaction_id': revenueId
         });
       }
     } catch (error) {
@@ -470,6 +484,9 @@ function SalesPage() {
         prevSuccess ? `${prevSuccess} Contract status updated!` : 'Contract status updated successfully!'
       );
       
+      // Create unique contract ID
+      const contractId = `${leadData.leadId}_contract_${Date.now()}`;
+      
       // Enhanced analytics for contract signed event
       // Push to Google Tag Manager
       if (window.dataLayer) {
@@ -481,16 +498,21 @@ function SalesPage() {
           eventType: 'sales_action',
           eventCategory: 'lead_management',
           eventAction: 'contract_signed',
-          eventValue: 200 // Conversion value
+          eventValue: 200, // Conversion value
+          // Add these new parameters for Google Ads compatibility
+          value: 200, // Fixed value for contract conversions
+          currency: 'USD',
+          transaction_id: contractId
         });
       }
       
       // Push to Google Analytics (if available)
       if (window.gtag) {
-        window.gtag('event', 'contract_signed', {
-          'event_category': 'sales',
-          'event_label': leadData.leadId,
-          'value': 200
+        window.gtag('event', 'conversion', {
+          'send_to': 'AW-YOUR_CONVERSION_ID/YOUR_CONTRACT_LABEL', // Replace with your actual IDs
+          'value': 200,
+          'currency': 'USD',
+          'transaction_id': contractId
         });
       }
     } catch (error) {
