@@ -7,8 +7,8 @@ import { createSuggestionLead } from '../../services/zoho.js';
 import axios from 'axios';
 
 function AddressForm() {
-  // VERSION INDICATOR - DO NOT REMOVE - v999
-  
+  // VERSION INDICATOR - DO NOT REMOVE - v1000
+   
   const { formData, updateFormData, nextStep } = useFormContext();
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -94,10 +94,7 @@ function AddressForm() {
             // Store all suggestions
             setAddressSuggestions(predictions);
             
-            // Try to get an existing leadId from localStorage
-            const existingLeadId = localStorage.getItem('suggestionLeadId') || suggestionLeadId;
-            
-            // Create or update lead with suggestions only (not address components)
+            // Store suggestions in form data but don't send to Zoho yet
             const top5Suggestions = predictions.slice(0, 5); // Only use top 5
             const preparedData = {
               userTypedAddress: value,
@@ -112,14 +109,7 @@ function AddressForm() {
             // Update the form data with suggestions only, don't update the street/address fields
             updateFormData(preparedData);
             
-            // Send to Zoho with just the suggestions
-            const leadId = await createSuggestionLead(value, top5Suggestions, existingLeadId);
-            
-            if (leadId) {
-              setSuggestionLeadId(leadId);
-              localStorage.setItem('suggestionLeadId', leadId);
-              localStorage.setItem('leadId', leadId);
-            }
+            // No longer sending to Zoho here - will wait until form submission
           } else {
             setFirstSuggestion(null);
             setAddressSuggestions([]);
@@ -296,54 +286,67 @@ function AddressForm() {
     // Clear any error messages
     setErrorMessage('');
     
-    // Get the existing lead ID from localStorage or from state
-    const existingLeadId = suggestionLeadId || localStorage.getItem('suggestionLeadId');
+    // Get existing lead ID from localStorage
+    const existingLeadId = localStorage.getItem('leadId');
     
-    // Update the suggestion lead with the final selection if we have one
-    if (existingLeadId && !finalSelectionSavedRef.current) {
-      finalSelectionSavedRef.current = true;
+    // Create or update lead with the final selection and address data
+    try {
+      // Prepare data for the lead
+      const finalSelectionData = {
+        // Use the proper field names that will map to Zoho
+        street: place.formatted_address,
+        city: addressComponents.city,
+        state: addressComponents.state,
+        zip: addressComponents.zip,
+        
+        userTypedAddress: lastTypedAddress,
+        selectedSuggestionAddress: place.formatted_address,
+        suggestionOne: addressSuggestions[0]?.description || '',
+        suggestionTwo: addressSuggestions[1]?.description || '',
+        suggestionThree: addressSuggestions[2]?.description || '',
+        suggestionFour: addressSuggestions[3]?.description || '',
+        suggestionFive: addressSuggestions[4]?.description || '',
+        addressSelectionType: 'Google',
+        leadStage: 'Address Selected'
+      };
       
-      try {
-        // Prepare data for the lead update - explicitly include address fields
-        const finalSelectionData = {
-          // Use the proper field names that will map to Zoho
-          street: place.formatted_address,
-          city: addressComponents.city,
-          state: addressComponents.state,
-          zip: addressComponents.zip,
-          
-          userTypedAddress: lastTypedAddress,
-          selectedSuggestionAddress: place.formatted_address,
-          suggestionOne: addressSuggestions[0]?.description || '',
-          suggestionTwo: addressSuggestions[1]?.description || '',
-          suggestionThree: addressSuggestions[2]?.description || '',
-          suggestionFour: addressSuggestions[3]?.description || '',
-          suggestionFive: addressSuggestions[4]?.description || '',
-          addressSelectionType: 'Google',
-          leadStage: 'Address Selected'
-        };
-        
-        console.log('Sending address components to Zoho:', {
-          street: finalSelectionData.street,
-          city: finalSelectionData.city,
-          state: finalSelectionData.state,
-          zip: finalSelectionData.zip
-        });
-        
-        // Update the existing lead
-        const response = await axios.post('/api/zoho', {
+      console.log('Sending address components to Zoho:', {
+        street: finalSelectionData.street,
+        city: finalSelectionData.city,
+        state: finalSelectionData.state,
+        zip: finalSelectionData.zip
+      });
+      
+      // Create a new lead or update existing one
+      let leadId, response;
+      
+      if (existingLeadId) {
+        // Update existing lead
+        response = await axios.post('/api/zoho', {
           action: 'update',
           leadId: existingLeadId,
           formData: finalSelectionData
         });
-        
-        console.log('Updated suggestion lead with final selection:', response.data);
-        
-        // Make sure we're using this leadId going forward
-        localStorage.setItem('leadId', existingLeadId);
-      } catch (error) {
-        console.error('Error updating suggestion lead with final selection:', error);
+        leadId = existingLeadId;
+        console.log('Updated lead with final selection:', response.data);
+      } else {
+        // Create a new lead with suggestions and address
+        const top5Suggestions = addressSuggestions.slice(0, 5);
+        leadId = await createSuggestionLead(place.formatted_address, top5Suggestions, null, addressComponents);
+        console.log('Created new lead with ID:', leadId);
       }
+      
+      if (leadId) {
+        // Set in state and localStorage
+        setSuggestionLeadId(leadId);
+        localStorage.setItem('suggestionLeadId', leadId);
+        localStorage.setItem('leadId', leadId);
+        
+        // Now we've saved the final selection
+        finalSelectionSavedRef.current = true;
+      }
+    } catch (error) {
+      console.error('Error sending address data to Zoho:', error);
     }
     
     // Immediately fetch property data from Melissa API
@@ -351,7 +354,8 @@ function AddressForm() {
     const propertyData = await fetchPropertyData(place.formatted_address);
     
     // If we got property data, update the lead again with this information
-    if (propertyData && existingLeadId) {
+    const updatedLeadId = localStorage.getItem('leadId') || suggestionLeadId;
+    if (propertyData && updatedLeadId) {
       try {
         // Update the lead with property data
         const propertyUpdateData = {
@@ -372,7 +376,7 @@ function AddressForm() {
         
         await axios.post('/api/zoho', {
           action: 'update',
-          leadId: existingLeadId,
+          leadId: updatedLeadId,
           formData: propertyUpdateData
         });
         
@@ -391,7 +395,7 @@ function AddressForm() {
     e.preventDefault();
     e.stopPropagation();
     
-    console.log('ENTER key pressed - v999', firstSuggestion ? 'First suggestion available' : 'No suggestion yet');
+    console.log('ENTER key pressed - v1000', firstSuggestion ? 'First suggestion available' : 'No suggestion yet');
     
     // If already loading, prevent action
     if (isLoading) return;
@@ -466,7 +470,7 @@ function AddressForm() {
     e.preventDefault();
     e.stopPropagation();
     
-    console.log('Button clicked - v999');
+    console.log('Button clicked - v1000');
     
     // If already loading, prevent action
     if (isLoading) return;
@@ -755,7 +759,7 @@ function AddressForm() {
         borderRadius: '5px',
         fontWeight: 'bold',
         zIndex: 1000
-      }}>v999</div>
+      }}>v1000</div>
       
       <div className="hero-middle-container">
         <div className="hero-content fade-in">
