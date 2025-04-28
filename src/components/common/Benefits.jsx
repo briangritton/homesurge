@@ -6,7 +6,7 @@ function Benefits({ isOpen, onClose }) {
     <Popup isOpen={isOpen} onClose={onClose} title="BENEFITS">
       <div className="benefits-content">
         <div className="benefits-point">
-          <span className="benefit-number">1</span>
+          <span className="benefit-number">1.</span>
           <span className="benefit-title">No Repairs, Closing Costs, or Time Consuming Listings</span>
           <p>
             We'll make you a cash offer for your house "as is" within 24
@@ -16,7 +16,7 @@ function Benefits({ isOpen, onClose }) {
         </div>
         
         <div className="benefits-point">
-          <span className="benefit-number">2</span>
+          <span className="benefit-number">2.</span>
           <span className="benefit-title">Quick Transactions</span>
           <p>
             No more waiting for buyers to get approved for financing. We
@@ -26,7 +26,7 @@ function Benefits({ isOpen, onClose }) {
         </div>
         
         <div className="benefits-point">
-          <span className="benefit-number">3</span>
+          <span className="benefit-number">3.</span>
           <span className="benefit-title">Packing, Moving, and Relocation Assistance</span>
           <p>
             Not only will we buy your house, but we can also help you with

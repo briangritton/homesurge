@@ -12,10 +12,8 @@ function ContactUs({ isOpen, onClose }) {
         </p>
         
         <h3>Get in Touch</h3>
-        <ul>
-          <li><strong>Phone:</strong> 770-765-7969</li>
-          <li><strong>Email:</strong> contact@SellForCash.Online</li>
-        </ul>
+        <p><strong>Phone:</strong> 770-765-7969</p>
+        <p><strong>Email:</strong> contact@SellForCash.Online</p>
         
         <p>
           Our team is available to answer your calls and emails promptly. We understand
@@ -24,13 +22,12 @@ function ContactUs({ isOpen, onClose }) {
         </p>
         
         <h3>How We Can Help</h3>
-        <ul>
-          <li>Get a cash offer for your home</li>
-          <li>Discuss your selling timeline</li>
-          <li>Answer questions about our buying process</li>
-          <li>Provide information about closing and paperwork</li>
-          <li>Assist with moving and relocation</li>
-        </ul>
+        <p>We can assist you with:</p>
+        <p>• Getting a cash offer for your home</p>
+        <p>• Discussing your selling timeline</p>
+        <p>• Answering questions about our buying process</p>
+        <p>• Providing information about closing and paperwork</p>
+        <p>• Assisting with moving and relocation</p>
         
         <p>
           Fill out the form on our website or give us a call today to get started!
