@@ -1,9 +1,18 @@
-import React, { useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import Privacy from './Privacy'; 
+import Privacy from './Privacy';
+import AboutUs from './AboutUs';
+import HowItWorks from './HowItWorks';
+import Benefits from './Benefits';
+import ContactUs from './ContactUs';
+import '../../styles/popup.css';
 
 function Footer() {
   const privacyRef = useRef(null);
+  const [showAboutUs, setShowAboutUs] = useState(false);
+  const [showHowItWorks, setShowHowItWorks] = useState(false);
+  const [showBenefits, setShowBenefits] = useState(false);
+  const [showContact, setShowContact] = useState(false);
 
   const handlePrivacyClick = (action) => {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
@@ -26,17 +35,17 @@ function Footer() {
           <div onClick={() => handlePrivacyClick('privacy')}>
             <li>Privacy Policy</li>
           </div>
-          <li>
-            <a href="#about">About Us</a>
+          <li onClick={() => setShowAboutUs(true)}>
+            About Us
           </li>
-          <li>
-            <a href="#how-it-works">How it Works</a>
+          <li onClick={() => setShowHowItWorks(true)}>
+            How it Works
           </li>
-          <li>
-            <a href="#benefits">Benefits</a>
+          <li onClick={() => setShowBenefits(true)}>
+            Benefits
           </li>
-          <li>
-            <a href="#contact">Contact</a>
+          <li onClick={() => setShowContact(true)}>
+            Contact
           </li>
         </ul>
       </div>
@@ -48,6 +57,11 @@ function Footer() {
       >
         <Privacy handleTermsClick={handlePrivacyClick} />
       </div>
+
+      <AboutUs isOpen={showAboutUs} onClose={() => setShowAboutUs(false)} />
+      <HowItWorks isOpen={showHowItWorks} onClose={() => setShowHowItWorks(false)} />
+      <Benefits isOpen={showBenefits} onClose={() => setShowBenefits(false)} />
+      <ContactUs isOpen={showContact} onClose={() => setShowContact(false)} />
     </div>
   );
 }
