@@ -1,0 +1,1529 @@
+.ga-fast-offer-hero-fade-in {
+  opacity: 0;
+  animation: fade-in 0.5s forwards;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+input:-webkit-autofill {
+  background-color: white !important;
+  color: black !important;
+}
+.ga-fast-offer-hero-1-full-width-parent {
+  width: 100%;
+
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.GaFastOfferHeroSection1 {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: calc(100vh - 30px);
+  /* max-width: 1300px; */
+  /* padding-top: 8%; */
+  align-items: center;
+  justify-content: space-between;
+  align-items: center;
+  background-image: url("../../../../assets/images/roofline.png");
+  background-size: contain;
+  background-repeat: repeat-x;
+  background-position: bottom 0px right 0px;
+}
+.GaFastOfferHeroSection1-below-fold {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  /* max-width: 1300px; */
+  /* padding-top: 8%; */
+  align-items: center;
+  justify-content: space-between;
+}
+.ga-fast-offer-hero-1-middle-right-postioner {
+  display: flex;
+  flex-direction: row;
+}
+.ga-fast-offer-hero-1-middle-postioner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* padding-top: 10%; */
+  width: 100%;
+  position: relative;
+}
+.max-width-500 {
+  max-width: 500px !important;
+  opacity: 0;
+  animation: fade-in 2s forwards;
+}
+.ga-fast-offer-hero-middle-section-1 {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 60%;
+  min-width: 500px;
+  max-width: 60%;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+.ga-fast-offer-hero-middle-map-sub-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  opacity: 0;
+  animation: fade-in 1s forwards;
+}
+.ga-fast-offer-hero-right-section-1 {
+  flex: 0 0 50%;
+  max-width: 50%;
+  height: 100%;
+  align-items: center;
+  display: flex;
+}
+.ga-fast-offer-hero-left-headline-1 {
+  font-size: 2.8rem;
+  text-align: left;
+  line-height: 2.8rem;
+  font-weight: bold;
+}
+.ga-fast-offer-hero-left-section-text-1 {
+  font-size: 1.3rem;
+  margin-top: 8px;
+}
+.ga-fast-offer-hero-middle-headline-1 {
+  font-size: 2.5rem;
+  text-align: center;
+  line-height: 1;
+  font-weight: bold;
+  padding-top: 20%;
+}
+.ga-fast-offer-hero-middle-section-text-1 {
+  font-size: 1.5rem;
+  line-height: 1.5rem;
+  margin: 10px 0px 20px;
+}
+.ga-fast-offer-hero-middle-form-container-1 {
+  display: flex;
+  flex-direction: row;
+  margin-top: 5px;
+  /* height: 89px; */
+  width: 100%;
+  margin-bottom: 5px;
+  z-index: 50;
+}
+
+.pac-container {
+  z-index: 50 !important;
+}
+
+.ga-fast-offer-hero-middle-zip-field-container-1 {
+  border: 1px solid #4e4e4e;
+  width: 75%;
+  font-size: 1.2rem;
+  color: #6d6d6d;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  padding-left: 25px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  border-radius: 5px 0px 0px 5px;
+  border-right: none;
+  position: relative;
+  z-index: 50;
+}
+.ga-fast-offer-hero-middle-zip-field-container-1-invalid {
+  border: 1px solid #4e4e4e;
+  width: 75%;
+  font-size: 1.2rem;
+  color: #6d6d6d;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  padding-left: 25px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  border-radius: 5px 0px 0px 5px;
+  border-right: none;
+  background-color: rgba(149, 234, 255, 0.346);
+}
+
+.ga-fast-offer-hero-middle-phone-field-container-1-invalid {
+  border-style: solid;
+  border-width: 1px;
+  border-color: #4e4e4e;
+
+  width: 203px;
+  font-size: 1.6rem;
+  color: #6d6d6d;
+  height: 70px;
+  display: flex;
+  align-items: center;
+
+  padding-left: 25px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  border-radius: 5px 0px 0px 5px;
+  border-right: none;
+  background-color: rgba(255, 149, 149, 0.244);
+}
+
+input:focus {
+  outline: none;
+  background-color: #3392d817;
+}
+input:focus-active {
+  outline: none;
+  background-color: #3392d817;
+}
+input:focus-within {
+  outline: none;
+  background-color: #3392d817;
+}
+input:focus-visible {
+  outline: none;
+  background-color: #3392d817;
+}
+
+input:autofill {
+  font-size: 30px;
+}
+
+input:-webkit-autofill {
+  font-size: 30px;
+}
+
+.ga-fast-offer-hero-middle-form-button-1 {
+  color: white;
+  font-weight: bold;
+  width: auto;
+  text-align: center;
+  font-size: 1.2rem;
+  height: 52px;
+  /* margin-top: -1px; */
+  border-radius: 5px 5px 5px 5px;
+  cursor: pointer !important;
+
+  border-style: solid;
+  border-width: 1px;
+  white-space: nowrap;
+  padding: 0px 50px;
+  margin-left: -3px;
+  background-color: #3490d1;
+  border-color: #2a73a6;
+  box-shadow: 0px 1px 4px 0px #0000004d;
+  transition: all 0.2s ease-in-out;
+}
+.ga-fast-offer-hero-middle-form-button-1:hover {
+  background-color: #3e95d4;
+  box-shadow: 0px 1px 4px 0px #00000088;
+  transition: all 0.2s ease-in-out;
+}
+
+.ga-fast-offer-hero-middle-headline-positioner {
+  position: absolute;
+  right: 0px;
+}
+
+.ga-fast-offer-hero-error-message {
+  color: #008af4;
+  font-size: 1rem;
+  height: 0px;
+  line-height: 1;
+  text-align: center;
+  padding-top: 10px;
+}
+
+.ga-fast-offer-hero-phone-error-message {
+  color: #008af4;
+  font-size: 1rem;
+  /* height: 50px; */
+  line-height: 1;
+  text-align: center;
+  padding-top: 3px;
+  padding-bottom: 5px;
+}
+input:focus {
+  outline: none;
+  background-color: white;
+}
+input:focus-active {
+  outline: none;
+  background-color: white;
+}
+input:focus-within {
+  outline: none;
+  background-color: white;
+}
+input:focus-visible {
+  outline: none;
+  background-color: white;
+}
+
+input:autofill {
+  font-size: 1rem;
+}
+
+input:-webkit-autofill {
+  font-size: 1rem;
+}
+/* .pac-container {
+  font-size: 1.5rem;
+  padding-left: 15px;
+  color: #6d6d6d;
+}
+.pac-item {
+  margin-left: 10px;
+
+  padding: 10px 10px;
+  font-size: 1.5rem;
+}
+
+.pac-icon {
+  display: none;
+}
+
+.hdpi .pac-icon {
+  display: none !important;
+  background-image: url(https://maps.gstatic.com/mapfiles/api-3/images/autocomplete-icons_hdpi.png);
+}
+
+.pac-matched {
+  font-size: 1.5rem !important;
+}
+.pac-item-query {
+  font-size: 1.5rem !important;
+
+  margin-right: 5px;
+}
+
+.hdpi.pac-logo:after {
+  display: none !important;
+}
+
+.hdpi.pac-logo:after {
+  display: none !important;
+}
+
+.pac-logo:after {
+  display: none !important;
+}
+
+.pac-logo:after {
+  display: none !important;
+} */
+
+.ga-fast-offer-hero-left-form-button-1 {
+  background-color: #ff7d00;
+  color: white;
+  font-weight: bold;
+  width: 228px;
+  text-align: center;
+  font-size: 1.6rem;
+  height: calc(100% + 2px);
+  border-style: none;
+  /* margin-top: -1px; */
+  border-radius: 0px 5px 5px 0px;
+  cursor: pointer !important;
+  border-color: dimgrey;
+  border-style: solid;
+  border-width: 1px;
+}
+.ga-fast-offer-hero-left-form-button-1:hover {
+  background-color: #ef7300;
+}
+
+.ga-fast-offer-hero-left-headline-positioner {
+  position: absolute;
+  right: 0px;
+}
+
+.ga-fast-offer-hero-right-section-companies-container {
+  display: flex;
+  flex-direction: column;
+}
+.ga-fast-offer-hero-individual-company-container {
+  padding: 10px 15px;
+  display: flex;
+  flex-direction: row;
+}
+.ga-fast-offer-hero-company-list {
+  width: 60%;
+  height: auto;
+}
+.ga-fast-offer-hero-1-form-auto-container {
+  height: 0px;
+  overflow: hidden;
+  width: 0px;
+}
+
+.ga-fast-offer-hero-middle-map-container {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  z-index: 100;
+}
+
+.google-map-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 99;
+  width: 100%;
+  border: 0.5px solid black;
+  height: 100%;
+  min-width: 425px;
+  max-width: 425px;
+}
+.ga-fast-offer-hero-1-api-address {
+  font-size: 1.4rem;
+
+  line-height: 1;
+  font-weight: bold;
+}
+.ga-fast-offer-hero-address-owner-and-phone-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  margin: 5px 0px 0px;
+  z-index: 100;
+}
+.ga-fast-offer-hero-middle-map-headline {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-top: 5%;
+}
+
+.ga-fast-offer-hero-middle-confirm-value-headline {
+  line-height: 1.5rem;
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-top: 10%;
+  margin-bottom: 10px;
+  max-width: 400px;
+}
+.ga-fast-offer-hero-middle-confirm-value-sub-headline {
+  line-height: 1.5rem;
+  font-size: 1.4rem;
+  /* font-weight: bold; */
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.ga-fast-offer-hero-middle-map-buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: 10px;
+  width: 100%;
+  max-width: 450px;
+  align-items: center;
+}
+
+.ga-fast-offer-hero-middle-map-edit-button {
+  width: 25%;
+  background: none;
+  color: #3490d1;
+  border: solid 1.5px #3490d1;
+  /* padding: 9px 0px; */
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border-radius: 5px;
+  margin-top: 7px;
+  font-size: 1rem;
+}
+.ga-fast-offer-hero-middle-map-edit-button:hover {
+  background-color: #3490d1;
+  color: white;
+
+  transition: all 0.2s ease-in-out;
+}
+
+.ga-fast-offer-hero-middle-verify-phone {
+  width: 250px;
+  padding-left: 15px;
+  height: 50px;
+  font-size: 1.3rem;
+  border-radius: 5px;
+  border: 1px solid grey;
+  margin-bottom: 10px;
+}
+
+.ga-fast-offer-hero-middle-map-submit-button {
+  padding: 10px 25px;
+  width: 250px;
+  background-color: #3490d1;
+  color: white;
+  font-weight: bold;
+  border: solid 2px #3592d3;
+  /* box-shadow: 0px 1px 4px 0px #000000; */
+  box-shadow: 0px 1px 4px 0px #0000004d;
+  transition: all 0.2s ease-in-out;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  height: 60px;
+}
+.ga-fast-offer-hero-middle-map-submit-button:hover {
+  background-color: #3e95d4;
+  box-shadow: 0px 1px 4px 0px #00000088;
+  transition: all 0.2s ease-in-out;
+}
+
+.ga-fast-offer-hero-middle-phone-verify-button {
+  padding: 10px 25px;
+  width: 45%;
+  background-color: #3490d1;
+  color: white;
+  font-weight: bold;
+  border: solid 2px #3592d3;
+  /* box-shadow: 0px 1px 4px 0px #000000; */
+  box-shadow: 0px 1px 4px 0px #0000004d;
+  transition: all 0.2s ease-in-out;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.3rem;
+  height: 50px;
+}
+.ga-fast-offer-hero-middle-phone-verify-button:hover {
+  background-color: #3e95d4;
+  box-shadow: 0px 1px 4px 0px #00000088;
+  transition: all 0.2s ease-in-out;
+}
+
+.ga-fast-offer-hero-middle-estimated-value {
+  color: #3490d1;
+  font-size: 2.5rem;
+  font-weight: bold;
+  line-height: 2.3rem;
+}
+.ga-fast-offer-hero-middle-estimated-value-text {
+  font-size: 0.9rem;
+}
+.ga-fast-offer-hero-address-owner {
+  font-size: 0.8rem;
+  line-height: 1;
+  margin-right: 10px;
+}
+.ga-fast-offer-hero-address-phone {
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.ga-fast-offer-hero-confirm-address-owner {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+.ga-fast-offer-hero-confirm-address-phone {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.map-marker {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: auto;
+  z-index: 100;
+  transform: translate(-50%, -50%);
+  background-color: transparent;
+  margin-top: -15px;
+}
+
+/* satelite/map */
+.gmnoprint {
+  display: none;
+}
+
+/* fullscreen button */
+.gm-fullscreen-control {
+  display: none;
+}
+
+.ga-fast-offer-hero-1-below-fold-about-us-parent-container {
+  display: flex;
+  flex-direction: row;
+
+  max-width: 60%;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+}
+
+.ga-fast-offer-hero-1-below-fold-about-us-headline {
+  font-size: 2.8rem;
+  line-height: 2.8rem;
+  padding-bottom: 50px;
+}
+
+.ga-fast-offer-hero-1-below-fold-about-us-left {
+  width: 40%;
+}
+.ga-fast-offer-hero-1-dynamic-sitelink-text {
+  padding-top: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+}
+.ga-fast-offer-hero-1-address-disclaimer {
+  padding-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  font-size: 0.8rem;
+}
+.ga-fast-offer-hero-1-full-width-border {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
+  justify-content: flex-start;
+  border: 1px solid #d7d7d7;
+  padding: 150px 0px;
+  border-left: none;
+  border-right: none;
+}
+.ga-fast-offer-hero-1-full-width-border-alt {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  justify-content: center;
+  border: none;
+  padding: 150px 0px;
+  background-image: url("../../../../assets/images/roofline.png");
+  background-size: contain;
+  background-repeat: repeat-x;
+  background-position: bottom 0px right 0px;
+}
+.ga-fast-offer-hero-1-below-fold-about-us-left-image {
+  width: 40%;
+  object-fit: contain;
+  display: flex;
+  margin-top: 10px;
+}
+.ga-fast-offer-hero-1-below-fold-about-us-left-image-mobile {
+  width: 100%;
+  object-fit: contain;
+  display: none;
+}
+.ga-fast-offer-hero-1-below-fold-about-us-right {
+  width: 60%;
+  text-align: left;
+  padding-left: 6%;
+}
+.ga-fast-offer-hero-1-below-fold-about-us-left-right-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.ga-fast-offer-hero-1-below-fold-about-us-right-headline {
+  font-size: 2.8rem;
+  line-height: 2.8rem;
+  padding-bottom: 10px;
+}
+.ga-fast-offer-hero-1-below-fold-about-us-right-text {
+  font-size: 1.5rem;
+}
+.ga-fast-offer-hero-1-below-fold-how-it-works-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 60%;
+  text-align: center;
+  justify-content: center;
+
+  align-items: center;
+}
+.ga-fast-offer-hero-1-below-fold-how-it-works-headline {
+  font-size: 2.8rem;
+  line-height: 2.8rem;
+
+  padding-bottom: 50px;
+}
+.ga-fast-offer-hero-1-below-fold-how-it-works-points-grid {
+  display: flex;
+  /* flex-basis: fit-content; */
+  align-items: flex-start;
+  justify-content: space-between;
+  text-align: left;
+}
+.ga-fast-offer-hero-1-below-fold-how-it-works-individual-point {
+  width: 31%;
+}
+.ga-fast-offer-hero-1-below-fold-how-it-works-individual-point-headline {
+  font-size: 2rem;
+  font-weight: bold;
+  padding-bottom: 10px;
+}
+.ga-fast-offer-hero-1-below-fold-how-it-works-individual-point-text {
+  font-size: 1.5rem;
+}
+
+.ga-fast-offer-hero-1-below-fold-summary-text {
+  font-size: 2.5rem;
+  padding-top: 50px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.ga-fast-offer-hero-1-below-fold-benefits-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 60%;
+  text-align: center;
+  justify-content: center;
+
+  align-items: center;
+
+  text-align: left;
+}
+.ga-fast-offer-hero-1-below-fold-benefits-headline {
+  font-size: 2.8rem;
+  line-height: 2.8rem;
+  text-align: center;
+}
+.ga-fast-offer-hero-1-below-fold-benefits-points-grid {
+  text-align: left;
+  /* padding-top: 50px; */
+}
+.ga-fast-offer-hero-1-below-fold-benefits-individual-point {
+  padding-top: 50px;
+}
+.ga-fast-offer-hero-1-below-fold-benefits-individual-point-headline {
+  font-size: 2rem;
+  line-height: 2rem;
+  font-weight: bold;
+  padding-bottom: 10px;
+}
+.ga-fast-offer-hero-1-below-fold-benefits-individual-point-text {
+  font-size: 1.5rem;
+  /* line-height: 1.5; */
+}
+.ga-fast-offer-hero-1-below-fold-contact-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 60%;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  padding-top: 150px;
+  padding-bottom: 50px;
+}
+
+.ga-fast-offer-hero-1-below-fold-contact-headline-text {
+  font-size: 2.8rem;
+  padding-bottom: 10px;
+}
+.ga-fast-offer-hero-1-below-fold-contact-headline-subtext {
+  font-size: 2rem;
+  line-height: 1.2;
+}
+.ga-fast-offer-hero-1-middle-form-postioner {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 60%;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  padding: 0px 0px 150px;
+}
+.ga-fast-offer-hero-1-how-it-works-bullet-number-and-text {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: flex-start;
+}
+.ga-fast-offer-hero-1-how-it-works-bullet-number {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #3592d3;
+  line-height: 1;
+  padding-right: 25px;
+  font-style: italic;
+}
+.ga-fast-offer-hero-1-how-it-works-bullet-text {
+  font-size: 2rem;
+  line-height: 1;
+  font-style: italic;
+}
+
+.ga-fast-offer-hero-1-benefits-bullet-number-and-text {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: flex-start;
+}
+.ga-fast-offer-hero-1-benefits-bullet-number {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #3592d3;
+  line-height: 1;
+  padding-right: 25px;
+  font-style: italic;
+}
+.ga-fast-offer-hero-1-benefits-bullet-text {
+  font-size: 2rem;
+  line-height: 1;
+  font-style: italic;
+}
+
+/* The Overlay (background) */
+.ga-fast-offer-hero-overlay {
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+/* PopupForm styles */
+.popup-form-container {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%; /* Could be more or less, depending on screen size */
+  max-width: 600px; /* You might want to set a max-width */
+}
+
+.popup-form-title {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
+}
+
+.ga-fast-offer-hero-registration-form-button-1 {
+  color: white;
+  font-weight: bold;
+  width: auto;
+  text-align: center;
+  font-size: 1.2rem;
+  height: 65px;
+  /* margin-top: -1px; */
+  border-radius: 5px 5px 5px 5px;
+  cursor: pointer !important;
+
+  border-style: solid;
+  border-width: 1px;
+  white-space: nowrap;
+  padding: 0px 50px;
+  width: 100%;
+  margin-top: 5px;
+  background-color: #3490d1;
+  border-color: #2a73a6;
+  box-shadow: 0px 1px 4px 0px #0000004d;
+  transition: all 0.2s ease-in-out;
+}
+
+.ga-fast-offer-hero-registration-form-button-1:hover {
+  background-color: #3e95d4;
+  box-shadow: 0px 1px 4px 0px #00000088;
+  transition: all 0.2s ease-in-out;
+}
+
+.ga-fast-offer-hero-name-and-phone-input {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  padding-bottom: 10px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0px 5px;
+}
+.edit-button {
+  margin-left: 10px;
+  outline: none;
+  /* border-style: none; */
+  background: none;
+  border-bottom: 1px solid #9e9e9e;
+  color: #717171;
+  border: 1px solid #717171;
+  margin-top: 5px;
+  border-radius: 2px;
+}
+.edit-submit-button {
+  margin-left: 10px;
+  outline: none;
+  /* border-style: none; */
+  background: none;
+  border-bottom: 1px solid #9e9e9e;
+  color: #717171;
+  border: 1px solid #717171;
+  margin-top: 5px;
+  border-radius: 2px;
+  padding: 5px 10px;
+  max-width: 75px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+}
+.input-group-name {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-left: 5px;
+  padding-left: 5px;
+}
+
+.input-group-phone {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-left: 5px;
+  padding-left: 5px;
+  margin-top: 3px;
+}
+.editing-group {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.ga-fast-offer-hero-dynamic-name {
+  display: flex;
+  flex-direction: column;
+  color: #6d6d6d;
+}
+.ga-fast-offer-hero-dynamic-phone {
+  display: flex;
+  flex-direction: column;
+  color: #6d6d6d;
+}
+
+.ga-fast-offer-hero-overlay-form-container {
+  background-color: white;
+  margin-top: 10%;
+  flex-direction: column;
+
+  padding: 0px 50px 50px;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+}
+
+.ga-fast-offer-hero-overlay-form-fields {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.ga-fast-offer-hero-confirm-offer-form-fields {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.ga-fast-offer-hero-confirm-offer-form-input {
+  width: 300px;
+  border-right: solid;
+  font-size: 1.2rem;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #4e4e4e;
+  color: #6d6d6d;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  /* padding-left: 25px; */
+  padding-top: 0px;
+  padding-bottom: 0px;
+  border-radius: 5px;
+  margin: 5px 0px;
+  text-align: center;
+}
+
+.ga-fast-offer-hero-middle-confirm-offer-submit-button {
+  padding: 10px 25px;
+  width: 305px;
+  background-color: #3490d1;
+  color: white;
+  font-weight: bold;
+  border: solid 2px #3592d3;
+  /* box-shadow: 0px 1px 4px 0px #000000; */
+  box-shadow: 0px 1px 4px 0px #0000004d;
+  transition: all 0.2s ease-in-out;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  height: 60px;
+  margin-top: 5px;
+}
+.ga-fast-offer-hero-middle-confirm-offer-submit-button:hover {
+  background-color: #3e95d4;
+  box-shadow: 0px 1px 4px 0px #00000088;
+  transition: all 0.2s ease-in-out;
+}
+
+.ga-fast-offer-hero-overlay-form-headline {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.3rem;
+
+  color: #333;
+}
+.ga-fast-offer-hero-overlay-form-input {
+  width: calc(100% - 27px);
+  border-right: solid;
+  font-size: 1rem;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #4e4e4e;
+  color: #6d6d6d;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  padding-left: 25px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  border-radius: 5px;
+  margin: 5px 0px;
+}
+
+/* The Close Button */
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ga-fast-offer-hero-overlay-close-button {
+  float: right;
+  font-size: 1rem;
+  cursor: pointer;
+
+  position: relative;
+  display: flex;
+  align-self: flex-end;
+  outline: none;
+  justify-self: flex-start;
+  border-style: none;
+  background-color: none;
+  background: none;
+  padding-top: 10px;
+  margin-right: -40px;
+}
+
+@media only screen and (max-width: 1024px) {
+  /* .ga-fast-offer-hero-middle-section-1 {
+    margin-left: 0px;
+    display: flex;
+    flex-direction: column;
+  
+    max-width: 100%;
+    text-align: left;
+    justify-content: center;
+    align-items: center;
+  } */
+
+  .ga-fast-offer-hero-company-list {
+    width: 100%;
+    height: auto;
+  }
+  .ga-fast-offer-hero-1-middle-postioner {
+    flex-direction: column;
+    align-items: center;
+    /* width: 80%; */
+  }
+  .ga-fast-offer-hero-individual-company-container {
+    justify-content: center;
+  }
+
+  /* .ga-fast-offer-hero-middle-headline-1 {
+    text-align: center;
+    font-size: 3.5rem;
+    line-height: 3.5rem;
+  } */
+  .ga-fast-offer-hero-right-section-1 {
+    max-width: 80%;
+    height: 100%;
+    align-items: center;
+  }
+  .ga-fast-offer-hero-middle-form-container-1 {
+    width: 100%;
+    /* margin-top: 25px; */
+  }
+
+  .ga-fast-offer-hero-middle-zip-field-container-1 {
+    font-size: 1rem;
+    width: 70%;
+  }
+  .ga-fast-offer-hero-middle-zip-field-container-1-invalid {
+    font-size: 1rem;
+    width: 70%;
+  }
+
+  .ga-fast-offer-hero-middle-form-button-1 {
+    /* width: 50%; */
+    font-size: 1rem;
+  }
+  /* .ga-fast-offer-hero-middle-section-text-1 {
+    line-height: 1.3rem;
+    text-align: center;
+    line-height: 1;
+  } */
+
+  .fold-bottom-headline {
+    font-size: 2rem !important;
+    width: 100% !important;
+    line-height: 2rem !important;
+  }
+  .fold-bottom-text {
+    margin-top: 8px;
+    width: 100% !important;
+  }
+  .ga-fast-offer-hero-1-below-fold-about-us-parent-container {
+    max-width: 80%;
+  }
+  .ga-fast-offer-hero-1-below-fold-about-us-right-headline {
+    font-size: 2rem;
+    line-height: 2rem;
+  }
+
+  .ga-fast-offer-hero-1-below-fold-how-it-works-container {
+    max-width: 80%;
+  }
+  .ga-fast-offer-hero-1-below-fold-how-it-works-headline {
+    font-size: 2.8rem;
+    line-height: 2.8rem;
+    padding-bottom: 0px;
+  }
+  .ga-fast-offer-hero-1-below-fold-how-it-works-points-grid {
+    display: flex;
+    /* flex-basis: fit-content; */
+    align-items: flex-start;
+    justify-content: space-between;
+    text-align: left;
+    flex-direction: column;
+  }
+  .ga-fast-offer-hero-1-below-fold-how-it-works-individual-point {
+    width: 100%;
+  }
+  .ga-fast-offer-hero-1-below-fold-how-it-works-individual-point-headline {
+    font-size: 2rem;
+    font-weight: bold;
+    padding-bottom: 10px;
+    padding-top: 50px;
+  }
+
+  .ga-fast-offer-hero-1-below-fold-benefits-container {
+    max-width: 80%;
+  }
+  .ga-fast-offer-hero-1-below-fold-contact-container {
+    max-width: 80%;
+  }
+
+  .ga-fast-offer-hero-1-middle-form-postioner {
+    max-width: 80%;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .ga-fast-offer-hero-name-and-phone-input {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    padding-bottom: 10px;
+    margin-top: 10px;
+  }
+  .editing-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .ga-fast-offer-hero-middle-headline-1 {
+    text-align: center;
+    font-size: 2rem;
+  }
+  .ga-fast-offer-hero-middle-section-text-1 {
+    line-height: 1.3rem;
+    text-align: center;
+    line-height: 1;
+    font-size: 1.3rem;
+    line-height: 1.3;
+  }
+  .ga-fast-offer-hero-middle-form-container-1 {
+    width: 100%;
+    margin-top: 0px;
+    flex-direction: column;
+    height: auto;
+  }
+  .ga-fast-offer-hero-middle-zip-field-container-1 {
+    /* font-size: 1.5rem; */
+    box-sizing: border-box;
+    width: 100%;
+
+    border: 1px solid #4e4e4e;
+    border-right: 1px solid #4e4e4e;
+
+    border-radius: 5px 5px 5px 5px;
+  }
+
+  .ga-fast-offer-hero-middle-zip-field-container-1-invalid {
+    box-sizing: border-box;
+    width: 100%;
+
+    border: 1px solid #4e4e4e;
+    border-right: 1px solid #4e4e4e;
+
+    border-radius: 5px 5px 5px 5px;
+  }
+
+  .ga-fast-offer-hero-middle-form-button-1 {
+    width: 100%;
+    /* font-size: 1.5rem; */
+    height: 60px;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    margin-left: auto;
+  }
+
+  .ga-fast-offer-hero-1-how-it-works-bullet-number-and-text {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  .ga-fast-offer-hero-1-benefits-bullet-number-and-text {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  .ga-fast-offer-hero-1-below-fold-about-us-left-right-container {
+    display: flex;
+    flex-direction: column;
+    /* width: 100%; */
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .ga-fast-offer-hero-1-below-fold-about-us-right {
+    width: 100%;
+    text-align: left;
+    padding-left: 0;
+    padding-top: 50px;
+  }
+  .ga-fast-offer-hero-1-below-fold-about-us-left-image {
+    width: 40%;
+    object-fit: contain;
+    display: none;
+  }
+  .ga-fast-offer-hero-1-below-fold-about-us-left-image-mobile {
+    display: flex;
+  }
+  .ga-fast-offer-hero-1-below-fold-summary-text {
+    font-size: 2rem;
+  }
+}
+
+@media only screen and (max-width: 560px) {
+  .ga-fast-offer-hero-confirm-offer-form-fields {
+    width: 100%;
+  }
+  .ga-fast-offer-hero-confirm-offer-form-input {
+    width: 100%;
+  }
+  .ga-fast-offer-hero-middle-confirm-offer-submit-button {
+    padding: 10px 25px;
+    width: 100%;
+  }
+
+  .ga-fast-offer-hero-middle-map-edit-button {
+    width: 50%;
+  }
+
+  .ga-fast-offer-hero-middle-map-headline {
+    margin-top: 15%;
+  }
+  .ga-fast-offer-hero-middle-confirm-value-headline {
+    margin-top: 20%;
+  }
+  .ga-fast-offer-hero-overlay-close-button {
+    float: right;
+    font-size: 1rem;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-self: flex-end;
+    outline: none;
+    justify-self: flex-start;
+    border-style: none;
+    background-color: none;
+    background: none;
+    padding-top: 10px;
+    margin-right: -5%;
+  }
+  .ga-fast-offer-hero-overlay-form-headline {
+    /* font-size: 1.5rem; */
+    padding-top: 10%;
+  }
+  .ga-fast-offer-hero-overlay-form-container {
+    background-color: white;
+    margin-top: 30%;
+    flex-direction: column;
+    padding: 15% 7% 15%;
+    max-width: auto;
+  }
+
+  .ga-fast-offer-hero-overlay-form-container {
+    background-color: white;
+    margin-top: 0;
+    flex-direction: column;
+    padding: 0% 7% 15%;
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .ga-fast-offer-hero-middle-section-1 {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    flex: 0 0 90%;
+    min-width: auto;
+    max-width: 95%;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .ga-fast-offer-hero-middle-headline-1 {
+    text-align: center;
+    font-size: 1.5rem;
+    line-height: 1.7rem;
+  }
+
+  .ga-fast-offer-hero-1-middle-postioner {
+    flex-direction: column;
+    align-items: center;
+    width: 90%;
+    /* padding-top: 30%; */
+  }
+
+  .ga-fast-offer-hero-middle-section-text-1 {
+    line-height: 1.2;
+    margin-bottom: 15px;
+    font-size: 1rem;
+  }
+  .ga-fast-offer-hero-middle-zip-field-container-1 {
+    font-size: 1rem;
+    height: 42px;
+  }
+
+  .ga-fast-offer-hero-middle-zip-field-container-1-invalid {
+    font-size: 1rem;
+    height: 50px;
+  }
+
+  /* .pac-container {
+    font-size: 1rem;
+    padding-left: 15px;
+    color: #6d6d6d;
+  }
+  .pac-item {
+    margin-left: 10px;
+
+    padding: 5px 0px;
+    font-size: 1rem;
+  }
+
+  .pac-icon {
+    display: none;
+  }
+
+  .hdpi .pac-icon {
+    display: none !important;
+    background-image: url(https://maps.gstatic.com/mapfiles/api-3/images/autocomplete-icons_hdpi.png);
+  }
+
+  .pac-matched {
+    font-size: 1.3rem !important;
+  }
+  .pac-item-query {
+    font-size: 1.3rem !important;
+    padding-right: 3px;
+  } */
+
+  .ga-fast-offer-hero-middle-form-button-1 {
+    font-size: 1rem;
+    height: auto;
+    padding: 17px 10px;
+    margin-top: 10px;
+  }
+  .hero-form-qualify-individual-option-column {
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 5px;
+    align-items: center;
+  }
+  .hero-form-qualify-slider-container {
+    margin-top: 15px;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 15px;
+    /* justify-content: space-around; */
+  }
+  .ga-fast-offer-hero-middle-map-container {
+    position: relative;
+    width: 100%;
+    height: 150px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    z-index: 100;
+  }
+
+  .google-map-container {
+    min-width: auto;
+    max-width: auto;
+  }
+
+  .ga-fast-offer-hero-middle-form-container-1 {
+    width: 100%;
+  }
+  .ga-fast-offer-hero-right-section-1 {
+    max-width: 100%;
+  }
+
+  .ga-fast-offer-hero-1-below-fold-about-us-headline {
+    font-size: 2rem;
+    line-height: 2rem;
+  }
+  .ga-fast-offer-hero-1-below-fold-about-us-right-text {
+    font-size: 1.3rem;
+  }
+
+  .ga-fast-offer-hero-error-message {
+    color: #008af4;
+    font-size: 1rem;
+    height: 0px;
+    line-height: 1;
+    text-align: center;
+    padding-top: 10px;
+  }
+
+  .ga-fast-offer-hero-1-below-fold-how-it-works-headline {
+    font-size: 2rem;
+    line-height: 2rem;
+  }
+  .ga-fast-offer-hero-1-below-fold-how-it-works-individual-point-text {
+    font-size: 1.3rem;
+  }
+  .ga-fast-offer-hero-1-how-it-works-bullet-text {
+    font-size: 1.8rem;
+  }
+  .ga-fast-offer-hero-1-how-it-works-bullet-number {
+    font-size: 2rem;
+  }
+  .ga-fast-offer-hero-1-below-fold-summary-text {
+    font-size: 1.8rem;
+  }
+
+  .ga-fast-offer-hero-1-below-fold-benefits-headline {
+    font-size: 2rem;
+    line-height: 2rem;
+  }
+  .ga-fast-offer-hero-1-benefits-bullet-text {
+    font-size: 1.8rem;
+    line-height: 1;
+    font-style: italic;
+  }
+
+  .ga-fast-offer-hero-1-benefits-bullet-number {
+    font-size: 2rem;
+  }
+  .ga-fast-offer-hero-1-below-fold-benefits-individual-point-text {
+    font-size: 1.3rem;
+  }
+
+  .ga-fast-offer-hero-1-below-fold-how-it-works-individual-point-headline {
+    padding-top: 0px;
+  }
+
+  .ga-fast-offer-hero-1-below-fold-contact-headline-text {
+    font-size: 2rem;
+  }
+
+  .ga-fast-offer-hero-1-below-fold-contact-headline-subtext {
+    font-size: 1.8rem;
+    line-height: 1.2;
+  }
+
+  .ga-fast-offer-hero-1-below-fold-how-it-works-individual-point {
+    width: 100%;
+    padding-top: 50px;
+  }
+  .ga-fast-offer-hero-registration-form-button-1 {
+    color: white;
+    font-weight: bold;
+    width: auto;
+    text-align: center;
+    font-size: 1rem;
+    height: auto;
+    padding: 17px 10px;
+    /* margin-top: -1px; */
+    border-radius: 5px 5px 5px 5px;
+    cursor: pointer !important;
+
+    border-style: solid;
+    border-width: 1px;
+    white-space: nowrap;
+
+    width: 100%;
+    margin-top: 5px;
+  }
+}

@@ -1,0 +1,15 @@
+.App {
+  text-align: center;
+  min-height: calc(100vh - 50px);
+  /* background-color: grey; */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  background-image: url("../assets/images/roofline.png");
+  background-size: contain;
+  background-repeat: repeat-x;
+  background-position: bottom 0px right 0px;
+  display: flex;
+  justify-content: center;
+}

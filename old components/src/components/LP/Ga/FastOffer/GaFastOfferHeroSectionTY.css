@@ -1,0 +1,93 @@
+.GaFastOfferHeroSectionTY {
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+  height: 100%;
+  max-width: 1300px;
+  justify-content: flex-start;
+  margin-top: 10%;
+  animation: fadeInAnimation ease 0.5s;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  align-items: center;
+  text-align: center;
+  align-self: flex-start !important;
+  margin: 10% auto;
+}
+@keyframes fadeInAnimation {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.ga-fast-offer-hero-ty-headline {
+  font-size: 1.4rem;
+  line-height: 1.5rem;
+  font-weight: bold;
+}
+.ga-fast-offer-hero-ty-text {
+  font-size: 1.4rem;
+  line-height: 1.2;
+  max-width: 70%;
+  margin-top: 25px;
+}
+
+.roofman-gif-image-ty {
+  width: 100%;
+  max-width: 300px;
+  margin-top: 50px;
+}
+.ga-fast-offer-hero-ty-button {
+  color: white;
+  font-weight: bold;
+  width: auto;
+  text-align: center;
+  font-size: 1.2rem;
+  height: 52px;
+  /* margin-top: -1px; */
+  border-radius: 5px 5px 5px 5px;
+  cursor: pointer !important;
+  border-style: solid;
+  border-width: 1px;
+  white-space: nowrap;
+  padding: 0px 50px;
+  margin-left: -3px;
+  background-color: #3490d1;
+  border-color: #2a73a6;
+  box-shadow: 0px 1px 4px 0px #0000004d;
+  transition: all 0.2s ease-in-out;
+  margin-top: 25px;
+}
+.ga-fast-offer-hero-ty-home-value {
+  color: #3490d1;
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+@media only screen and (max-width: 1000px) {
+  .ga-fast-offer-hero-ty-headline {
+    font-size: 2rem;
+    line-height: 2rem;
+  }
+  .ga-fast-offer-hero-ty-text {
+    max-width: 95%;
+  }
+  .roofman-gif-image-ty {
+    width: 50%;
+    max-width: 300px;
+    margin-top: 50px;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .ga-fast-offer-hero-ty-headline {
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+  .ga-fast-offer-hero-ty-text {
+    max-width: 95%;
+    font-size: 1rem;
+  }
+}

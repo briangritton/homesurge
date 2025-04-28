@@ -1,0 +1,478 @@
+.GaFastOfferHeroSectionQualify {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  max-width: 60%;
+  min-width: 400px;
+  align-items: center;
+  justify-content: center;
+  /* margin-top: -qualify5%; */
+  width: 90%;
+  animation: fadeInAnimation ease 0.5s;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  margin: 10% auto;
+}
+.hero-form-qualify-slider-container {
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 15px;
+  /* justify-content: space-around; */
+}
+.hero-form-qualify-slider-container-text {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+
+  font-weight: bold;
+  color: #3490d1;
+}
+.hero-form-qualify-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 15px;
+  border-radius: 5px;
+  background: #d3d3d3 !important;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: 0.2s;
+  transition: opacity 0.2s;
+}
+
+.hero-form-qualify-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #006dd4;
+  cursor: pointer;
+  border-style: solid;
+  border-color: #2a73a6;
+  border-width: 1px;
+  box-shadow: 0px 1px 4px 0px #0000004d;
+}
+
+.hero-form-qualify-slider::-moz-range-thumb {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #0078ce;
+  cursor: pointer;
+  border-style: solid;
+  border-color: #2a73a6;
+  border-width: 1px;
+  box-shadow: 0px 1px 4px 0px #0000004d;
+}
+
+@keyframes fadeInAnimation {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+.hero-qualify-headline {
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+.hero-qualify-form-container {
+  /* margin-top: 50px; */
+  flex-direction: column;
+  display: flex;
+  width: 100%;
+  max-width: 1000px;
+  align-items: center;
+}
+.hero-form-qualify-individual-option {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 25px;
+}
+
+.hero-form-qualify-individual-option-column {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 5px;
+  align-items: center;
+}
+
+.hero-form-qualify-individual-left {
+  display: flex;
+  width: 100%;
+}
+
+.hero-form-qualify-individual-right {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+  width: 310px;
+}
+.hero-form-slider-container {
+  display: flex;
+
+  justify-content: flex-end;
+
+  flex-direction: column;
+  align-items: center;
+  font-size: 1.2rem;
+  justify-content: center;
+  width: 100%;
+  /* justify-content: flex-end; */
+  min-width: 300px;
+  max-width: 300px;
+}
+.hero-form-qualify-individual-question {
+  font-size: 1.5rem;
+
+  text-align: center;
+
+  align-items: center;
+  display: flex;
+}
+
+.hero-form-qualify-individual-question-column {
+  font-size: 1.5rem;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  align-items: center;
+  display: flex;
+}
+
+.hero-form-qualify-individual-answer {
+}
+.hero-form-qualify-individual-answer-toggle-container {
+  display: flex;
+  flex-direction: row;
+  cursor: pointer !important;
+  margin-top: 15px;
+}
+
+.hero-form-qualify-individual-answer-toggle-selected-left {
+  border-style: solid;
+  border-width: 1px;
+  border-color: #4e4e4e;
+  font-size: 1.2rem;
+  color: #6d6d6d;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  width: 150px;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  background-color: #3490d1;
+  color: white;
+  border-style: solid;
+  border-color: #2a73a6;
+  border-width: 1px;
+  border-radius: 5px 0px 0px 5px;
+  cursor: pointer !important;
+  box-shadow: 0px 1px 4px 0px #0000004d;
+}
+.hero-form-qualify-individual-answer-toggle-selected-right {
+  border-style: solid;
+  border-width: 1px;
+  border-color: #4e4e4e;
+  font-size: 1.2rem;
+  color: #6d6d6d;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  width: 150px;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  background-color: #3490d1;
+  color: white;
+  border-style: solid;
+  border-color: #2a73a6;
+  border-width: 1px;
+  border-radius: 0px 5px 5px 0px;
+  border-right: none;
+  cursor: pointer !important;
+  box-shadow: 0px 1px 4px 0px #0000004d;
+}
+.hero-form-qualify-individual-answer-toggle-deselected-left {
+  font-size: 1.2rem;
+  color: #6d6d6d;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  width: 150px;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  border-style: solid;
+  border-color: #a3a3a3;
+  border-width: 1px;
+  background-color: white;
+  border-radius: 5px 0px 0px 5px;
+  border-right: none;
+  cursor: pointer !important;
+  /* box-shadow: 0px 1px 4px 0px #0000004d; */
+}
+.hero-form-qualify-individual-answer-toggle-deselected-right {
+  font-size: 1.2rem;
+  color: #6d6d6d;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  width: 150px;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  border-style: solid;
+  border-color: #a3a3a3;
+  border-width: 1px;
+  background-color: white;
+  border-radius: 0px 5px 5px 0px;
+  border-left: none;
+  cursor: pointer !important;
+  /* box-shadow: 0px 1px 4px 0px #0000004d; */
+}
+.hero-qualify-button-positioner {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.hero-qualify-form-button {
+  color: white;
+  font-weight: bold;
+  width: auto;
+  text-align: center;
+  font-size: 1.2rem;
+  height: 52px;
+  /* margin-top: -1px; */
+  border-radius: 5px 5px 5px 5px;
+  cursor: pointer !important;
+  border-style: solid;
+  border-width: 1px;
+  white-space: nowrap;
+  padding: 0px 50px;
+  margin-left: -3px;
+  background-color: #3490d1;
+  border-color: #2a73a6;
+  box-shadow: 0px 1px 4px 0px #0000004d;
+  transition: all 0.2s ease-in-out;
+  /* margin-top: 25px; */
+  width: 300px;
+}
+
+.hero-qualify-form-button:hover {
+  box-shadow: 0px 1px 4px 0px #00000088;
+  transition: all 0.2s ease-in-out;
+}
+
+.hero-form-qualify-text-input {
+  width: 300px;
+  border-right: solid;
+  font-size: 1.2rem;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #4e4e4e;
+  color: #6d6d6d;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  /* padding-left: 25px; */
+  padding-top: 0px;
+  padding-bottom: 0px;
+  border-radius: 5px;
+  margin: 5px 0px;
+  text-align: center;
+}
+
+/* Style The Dropdown Button */
+.dropbtn {
+  background-color: #ffffff;
+  color: #6d6d6d;
+  box-shadow: 0px 1px 4px 0px #0000004d;
+  border-radius: 5px 5px 5px 5px;
+  cursor: pointer !important;
+
+  border-style: solid;
+  border-color: #a3a3a3;
+  border-width: 1px;
+
+  cursor: pointer;
+  width: 100%;
+  height: 52px;
+  font-size: 1.2rem;
+  position: relative; /* Make it relative to position the pseudo-element. */
+  padding-right: 20px; /* Provide some space for the arrow. Adjust as needed. */
+}
+
+.dropbtn::after {
+  content: ""; /* This is necessary for the pseudo-element to work. */
+  position: absolute;
+  right: 20px; /* This positions the arrow a little off the edge. Adjust as needed. */
+  top: 50%;
+  transform: translateY(-50%);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #1b405b;
+}
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
+  display: inline-block;
+  width: 300px;
+  margin-top: 15px;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  width: 300px;
+  display: none;
+  position: absolute;
+  background-color: #ffffff; /* Or any color you prefer */
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  border-style: solid;
+  border-color: #a3a3a3;
+  border-width: 1px;
+  border-radius: 5px;
+  padding: 10px 0px;
+  line-height: 2rem;
+  font-size: 1.2rem;
+}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+.dropdown-content div:hover {
+  background-color: #f2f2f2; /* Or any color you prefer */
+  cursor: pointer;
+}
+
+/* Change the background color of the dropdown button when the dropdown content is shown */
+.dropdown:hover .dropbtn {
+  background-color: #ffffff;
+}
+@media only screen and (max-width: 1000px) {
+  .hero-form-qualify-slider-container {
+    margin-top: 15px;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    width: 300px;
+  }
+  .GaFastOfferHeroSectionQualify {
+    width: 80%;
+    margin-top: 8%;
+  }
+  .hero-qualify-headline {
+    font-size: 2rem;
+    line-height: 2rem;
+    text-align: center;
+  }
+  .hero-form-qualify-individual-question {
+    font-size: 1.3rem;
+    line-height: 1.3rem;
+    text-align: center;
+    margin-right: 0px;
+    max-width: 310px;
+  }
+
+  .hero-form-qualify-individual-answer-toggle-selected-left {
+    font-size: 1.3rem;
+    width: 50%;
+  }
+  .hero-form-qualify-individual-answer-toggle-selected-right {
+    font-size: 1.3rem;
+    width: 50%;
+  }
+  .hero-form-qualify-individual-answer-toggle-deselected-left {
+    font-size: 1.3rem;
+    width: 50%;
+  }
+  .hero-form-qualify-individual-answer-toggle-deselected-right {
+    font-size: 1.3rem;
+    width: 50%;
+  }
+
+  .hero-form-qualify-individual-option {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero-form-qualify-individual-right {
+    justify-content: center;
+    margin-top: 15px;
+    align-self: center;
+  }
+  .hero-form-qualify-individual-right-slider {
+    justify-content: center;
+    margin-top: 15px;
+    align-self: center;
+  }
+
+  .hero-form-qualify-individual-answer-toggle-container {
+    width: 100%;
+    max-width: 405px;
+  }
+  .hero-form-qualify-individual-answer {
+    width: 100%;
+    justify-content: center;
+    display: flex;
+  }
+
+  .hero-form-qualify-individual-left {
+    justify-content: center;
+  }
+  .hero-form-qualify-slider-container-text {
+    margin-top: -10px;
+  }
+}
+@media only screen and (max-width: 500px) {
+  .GaFastOfferHeroSectionQualify {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    min-width: auto;
+  }
+
+  .hero-qualify-headline {
+    font-size: 1.3rem;
+    max-width: 300px;
+    line-height: 1.3rem;
+    text-align: center;
+  }
+
+  .hero-form-qualify-individual-question {
+    font-size: 1.2rem;
+    text-align: center;
+  }
+  .hero-qualify-form-container {
+    margin-top: 20px;
+  }
+  .hero-form-qualify-individual-answer-toggle-selected-left {
+    font-size: 1rem;
+    width: 50%;
+    height: 55px;
+  }
+  .hero-form-qualify-individual-answer-toggle-selected-right {
+    font-size: 1rem;
+    width: 50%;
+    height: 55px;
+  }
+  .hero-form-qualify-individual-answer-toggle-deselected-left {
+    font-size: 1rem;
+    width: 50%;
+    height: 55px;
+  }
+  .hero-form-qualify-individual-answer-toggle-deselected-right {
+    font-size: 1rem;
+    width: 50%;
+    height: 55px;
+  }
+}
