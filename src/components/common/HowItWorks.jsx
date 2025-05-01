@@ -6,7 +6,7 @@ function HowItWorks({ isOpen, onClose }) {
     <Popup isOpen={isOpen} onClose={onClose} title="HOW IT WORKS">
       <div className="how-it-works-content">
         <div className="how-it-works-step">
-          <span className="step-number">1</span>
+          <span className="step-number">1.</span>
           <span className="step-title">Enter Your Address</span>
           <p>
             Enter your address in the form to get started. We'll ask you a
@@ -17,7 +17,7 @@ function HowItWorks({ isOpen, onClose }) {
         </div>
         
         <div className="how-it-works-step">
-          <span className="step-number">2</span>
+          <span className="step-number">2.</span>
           <span className="step-title">Get Your Offer</span>
           <p>
             We'll make you a cash offer for your house "as is" within 24
@@ -27,7 +27,7 @@ function HowItWorks({ isOpen, onClose }) {
         </div>
         
         <div className="how-it-works-step">
-          <span className="step-number">3</span>
+          <span className="step-number">3.</span>
           <span className="step-title">Close Quickly</span>
           <p>
             Tired of waiting months to sell your house? We can close in as

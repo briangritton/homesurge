@@ -7,8 +7,7 @@ import { createSuggestionLead } from '../../services/zoho.js';
 import axios from 'axios';
 
 function AddressForm() {
-  // VERSION INDICATOR - DO NOT REMOVE - v1000
-   
+    
   const { formData, updateFormData, nextStep } = useFormContext();
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -748,18 +747,8 @@ function AddressForm() {
   
   return (
     <div className="hero-section">
-      {/* Version indicator */}
-      <div style={{
-        position: 'fixed',
-        top: '10px',
-        right: '10px',
-        background: '#3490d1',
-        color: 'white',
-        padding: '5px 10px',
-        borderRadius: '5px',
-        fontWeight: 'bold',
-        zIndex: 1000
-      }}>v1000</div>
+ 
+       
       
       <div className="hero-middle-container">
         <div className="hero-content fade-in">
