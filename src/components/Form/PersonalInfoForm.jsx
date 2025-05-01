@@ -645,16 +645,25 @@ function PersonalInfoForm() {
       <div className="hero-middle-container">
         <div className="hero-content fade-in max-width-500">
           <div className="hero-middle-map-headline">
-            Confirm Your Address
+            Please confirm your address and home value:
           </div>
           
           <div className="hero-1-api-address">
             {formData.street}
           </div>
           
-          {formattedValue && (
+          {formData.apiMaxHomeValue ? (
             <div className="hero-property-estimate">
-              Estimated Value: {formattedValue}
+              Maximum Value: {new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+              }).format(formData.apiMaxHomeValue)}
+            </div>
+          ) : formattedValue && (
+            <div className="hero-property-estimate">
+              Maximum Value: {formattedValue}
             </div>
           )}
           
@@ -673,7 +682,7 @@ function PersonalInfoForm() {
             maxWidth: '425px',
             textAlign: 'center'
           }}>
-            <strong>Please confirm your address is correct</strong>
+            <strong>Please confirm your address and maximum value are correct</strong>
           </div>
           
           <div className="hero-middle-map-sub-info" style={{ opacity: 1 }}>
