@@ -682,7 +682,8 @@ function PersonalInfoForm() {
             maxWidth: '425px',
             textAlign: 'center'
           }}>
-            <strong>Please confirm your address and maximum value are correct</strong>
+            <strong> Please confirm your address and home value:
+            </strong>
           </div>
           
           <div className="hero-middle-map-sub-info" style={{ opacity: 1 }}>
