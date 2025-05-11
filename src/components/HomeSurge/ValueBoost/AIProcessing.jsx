@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useFormContext } from '../../../contexts/FormContext';
 
 function AIProcessing() {
   const { formData, nextStep } = useFormContext();
   const [processingStep, setProcessingStep] = useState(0);
   const [progressPercent, setProgressPercent] = useState(0);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapError, setMapError] = useState(false);
+  const mapContainerRef = useRef(null);
   
   // Steps in the AI processing sequence
   const processingSteps = [
@@ -18,6 +21,106 @@ function AIProcessing() {
     'Finalizing AI recommendations...',
     'Value boost report ready!'
   ];
+
+  // Initialize Google Maps
+  useEffect(() => {
+    // Only try to load maps if we have location data
+    if (!formData.location || !formData.location.lat || !formData.location.lng) {
+      console.log('No location data available for map');
+      return;
+    }
+
+    // Check if Maps API is already loaded
+    if (window.google && window.google.maps) {
+      initializeMap();
+      return;
+    }
+
+    // Define callback for when Maps API loads
+    window.initGoogleMaps = () => {
+      console.log('Google Maps loaded in AIProcessing component');
+      initializeMap();
+    };
+
+    // Load Maps API if not already loaded
+    const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+    if (!apiKey) {
+      console.error('Google Maps API key missing');
+      setMapError(true);
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initGoogleMaps`;
+    script.async = true;
+    script.onerror = () => {
+      console.error('Failed to load Google Maps API');
+      setMapError(true);
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      // Clean up
+      delete window.initGoogleMaps;
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+    };
+  }, [formData.location]);
+
+  // Function to initialize map
+  const initializeMap = () => {
+    try {
+      if (!mapContainerRef.current || !formData.location) return;
+
+      const { lat, lng } = formData.location;
+      const location = new window.google.maps.LatLng(lat, lng);
+
+      // Create map - using same settings as PersonalInfoForm
+      const map = new window.google.maps.Map(mapContainerRef.current, {
+        center: location,
+        zoom: 18,
+        mapTypeId: window.google.maps.MapTypeId.ROADMAP,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: false,
+        zoomControl: true,
+        zoomControlOptions: {
+          position: window.google.maps.ControlPosition.RIGHT_TOP
+        },
+        disableDefaultUI: true,
+        scrollwheel: false
+      });
+
+      // Add custom styles to hide unnecessary UI elements - matching PersonalInfoForm
+      const hideLabelsStyle = [
+        {
+          featureType: "poi",
+          elementType: "labels",
+          stylers: [{ visibility: "off" }]
+        },
+        {
+          featureType: "transit",
+          elementType: "labels",
+          stylers: [{ visibility: "off" }]
+        }
+      ];
+
+      map.setOptions({ styles: hideLabelsStyle });
+
+      // Add marker at property location - matching PersonalInfoForm
+      new window.google.maps.Marker({
+        position: location,
+        map: map,
+        animation: window.google.maps.Animation.DROP
+      });
+
+      setMapLoaded(true);
+    } catch (error) {
+      console.error('Error initializing map:', error);
+      setMapError(true);
+    }
+  };
 
   // Effect to automatically progress through steps with timing
   useEffect(() => {
@@ -35,11 +138,11 @@ function AIProcessing() {
     if (processingStep < processingSteps.length) {
       const timer = setTimeout(() => {
         setProcessingStep(prevStep => prevStep + 1);
-        
+
         // Update progress percentage
         const newProgress = Math.round((processingStep + 1) / processingSteps.length * 100);
         setProgressPercent(newProgress);
-        
+
         // When reaching the last step, wait a moment and then proceed to next form step
         if (processingStep === processingSteps.length - 1) {
           setTimeout(() => {
@@ -47,7 +150,7 @@ function AIProcessing() {
           }, 1000);
         }
       }, getStepDuration(processingStep));
-      
+
       return () => clearTimeout(timer);
     }
   }, [processingStep, processingSteps.length, nextStep]);
@@ -55,14 +158,27 @@ function AIProcessing() {
   // Animated scan line effect
   const scanLineStyle = {
     position: 'absolute',
-    height: '3px',
+    height: '4px',
     width: '100%',
     backgroundColor: '#3fccff',
     boxShadow: '0 0 15px 3px rgba(63, 204, 255, 0.8)',
     top: `${(processingStep / processingSteps.length) * 100}%`,
     left: 0,
     transition: 'top 0.5s ease-in-out',
-    animation: 'scanGlow 1.5s infinite alternate'
+    animation: 'scanGlow 1.5s infinite alternate',
+    zIndex: 10 // Make sure scan line is on top of everything
+  };
+
+  // Map container styles - matching PersonalInfoForm style
+  const mapStyles = {
+    height: '300px',
+    width: '100%',
+    maxWidth: '650px',
+    borderRadius: '8px',
+    border: '1px solid #ccc',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+    overflow: 'hidden',
+    margin: '0 auto 30px'
   };
 
   // Circle indicators for steps
@@ -90,45 +206,105 @@ function AIProcessing() {
           </div>
           
           {/* Processing visualization container */}
-          <div style={{ 
-            position: 'relative', 
-            height: '250px', 
-            width: '90%', 
-            maxWidth: '500px',
-            margin: '0 auto 30px', 
-            border: '1px solid #ccc',
-            borderRadius: '10px',
-            backgroundColor: '#f9f9f9',
-            overflow: 'hidden'
-          }}>
-            {/* "House blueprint" background */}
-            <div style={{ 
-              position: 'absolute', 
-              top: 0, 
-              left: 0, 
-              width: '100%', 
-              height: '100%',
-              backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'100%25\' height=\'100%25\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cdefs%3E%3Cpattern id=\'grid\' width=\'20\' height=\'20\' patternUnits=\'userSpaceOnUse\'%3E%3Cpath d=\'M 20 0 L 0 0 0 20\' fill=\'none\' stroke=\'%23e0e0e0\' stroke-width=\'0.5\'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width=\'100%25\' height=\'100%25\' fill=\'url(%23grid)\' /%3E%3C/svg%3E")',
-              opacity: 0.4
-            }} />
-            
-            {/* House icon in center */}
-            <div style={{ 
-              position: 'absolute', 
-              top: '50%', 
-              left: '50%', 
-              transform: 'translate(-50%, -50%)',
-              fontSize: '80px',
-              color: '#555',
-              opacity: 0.3
-            }}>
-              🏠
-            </div>
+          <div style={mapStyles}>
+            {/* Satellite Map container */}
+            {formData.location && formData.location.lat && !mapError ? (
+              <>
+                {/* Map container */}
+                <div
+                  ref={mapContainerRef}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    zIndex: 1,
+                    borderRadius: '8px' // Match container border radius
+                  }}
+                />
+
+                {/* Map loading overlay */}
+                {!mapLoaded && (
+                  <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    zIndex: 3,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexDirection: 'column',
+                    borderRadius: '8px'
+                  }}>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '50%',
+                      border: '3px solid rgba(63, 204, 255, 0.3)',
+                      borderTop: '3px solid #3fccff',
+                      animation: 'spin 1s linear infinite'
+                    }} />
+                    <div style={{
+                      marginTop: '10px',
+                      fontSize: '14px',
+                      color: '#ffffff',
+                      fontWeight: 'bold',
+                      textShadow: '0 1px 2px rgba(0,0,0,0.5)'
+                    }}>
+                      Loading satellite view...
+                    </div>
+                  </div>
+                )}
+
+                {/* Property analysis overlay effect */}
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  background: 'radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.4) 100%)',
+                  zIndex: 2,
+                  pointerEvents: 'none',
+                  borderRadius: '8px'
+                }} />
+              </>
+            ) : (
+              <>
+                {/* Fallback "House blueprint" background */}
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'100%25\' height=\'100%25\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cdefs%3E%3Cpattern id=\'grid\' width=\'20\' height=\'20\' patternUnits=\'userSpaceOnUse\'%3E%3Cpath d=\'M 20 0 L 0 0 0 20\' fill=\'none\' stroke=\'%23e0e0e0\' stroke-width=\'0.5\'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width=\'100%25\' height=\'100%25\' fill=\'url(%23grid)\' /%3E%3C/svg%3E")',
+                  opacity: 0.4
+                }} />
+
+                {/* House icon in center */}
+                <div style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  fontSize: '80px',
+                  color: '#555',
+                  opacity: 0.3
+                }}>
+                  🏠
+                </div>
+              </>
+            )}
             
             {/* Animated scan line */}
             <div style={scanLineStyle}></div>
             
-            {/* Data points animation */}
+            {/* Data points animation - using the original static dots style */}
             {Array.from({ length: 20 }).map((_, i) => (
               <div key={i} style={{
                 position: 'absolute',
@@ -141,6 +317,7 @@ function AIProcessing() {
                 opacity: processingStep > i/3 ? 0.8 : 0.3,
                 transition: 'background-color 0.5s ease, opacity 0.5s ease',
                 transform: `scale(${processingStep > i/3 ? 1 : 0.5})`,
+                zIndex: 5
               }} />
             ))}
           </div>
@@ -190,6 +367,15 @@ function AIProcessing() {
         @keyframes scanGlow {
           0% { opacity: 0.6; box-shadow: 0 0 10px 2px rgba(63, 204, 255, 0.5); }
           100% { opacity: 1; box-shadow: 0 0 20px 5px rgba(63, 204, 255, 0.9); }
+        }
+        @keyframes pulse {
+          0% { transform: scale(1); opacity: 0.7; }
+          50% { transform: scale(1.05); opacity: 1; }
+          100% { transform: scale(1); opacity: 0.7; }
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
       `}</style>
     </div>
