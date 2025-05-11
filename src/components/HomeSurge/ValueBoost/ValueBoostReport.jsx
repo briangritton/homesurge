@@ -878,72 +878,137 @@ function ValueBoostReport() {
             maxWidth: '600px',
             margin: '0 auto 40px'
           }}>
-            <h2 style={{ fontSize: '26px', marginBottom: '15px', color: '#0066cc' }}>
+            <h2 style={{ fontSize: '26px', marginBottom: '20px', color: '#0066cc' }}>
               Your Total Value Boost Potential
             </h2>
+
+            {/* Responsive container for values */}
             <div style={{
-              fontSize: '28px',
-              fontWeight: 'bold',
-              color: '#28a745',
-              marginBottom: '20px'
-            }}>
-              {formData.formattedApiEstimatedValue || '$500,000'} (current Value)
-            </div>
-            <div style={{
-              fontSize: '28px',
-              fontWeight: 'bold',
-              color: '#0066cc',
+              display: 'flex',
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '20px',
               marginBottom: '25px'
             }}>
-              {
-                (() => {
-                  try {
-                    // Get numeric values only, not strings
-                    let currentValue;
-                    if (typeof formData.apiEstimatedValue === 'number') {
-                      currentValue = formData.apiEstimatedValue;
-                    } else {
-                      // Parse from formatted value if needed
-                      currentValue = parseInt((formData.formattedApiEstimatedValue || '').replace(/\D/g, ''));
-                      // Fallback
-                      if (isNaN(currentValue)) currentValue = 500000;
-                    }
+              {/* Current Value */}
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                minWidth: '200px'
+              }}>
+                <div style={{
+                  fontSize: '28px',
+                  fontWeight: 'bold',
+                  color: '#28a745',
+                  marginBottom: '5px'
+                }}>
+                  {formData.formattedApiEstimatedValue || '$554,000'}
+                </div>
+                <div style={{ fontSize: '16px', color: '#555' }}>
+                  current Value
+                </div>
+              </div>
 
-                    let increaseValue;
-                    if (typeof formData.potentialValueIncrease === 'number') {
-                      increaseValue = formData.potentialValueIncrease;
-                    } else {
-                      // Try to parse from formatted value
-                      increaseValue = parseInt((formData.formattedPotentialIncrease || '').replace(/\D/g, ''));
-                      // Fallback
-                      if (isNaN(increaseValue)) increaseValue = 150000;
-                    }
+              {/* Arrow - horizontal for wider screens */}
+              <div className="value-boost-arrow" style={{
+                fontSize: '24px',
+                color: '#0066cc',
+                padding: '0 5px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <div className="horizontal-arrow" style={{ display: 'block' }}>→</div>
+                <div className="vertical-arrow" style={{ display: 'none' }}>↓</div>
+              </div>
 
-                    // Ensure both are numbers and calculate
-                    const newValue = Number(currentValue) + Number(increaseValue);
+              {/* New Value with Boost */}
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                minWidth: '200px'
+              }}>
+                <div style={{
+                  fontSize: '28px',
+                  fontWeight: 'bold',
+                  color: '#0066cc',
+                  marginBottom: '5px'
+                }}>
+                  {
+                    (() => {
+                      try {
+                        // Get numeric values only, not strings
+                        let currentValue;
+                        if (typeof formData.apiEstimatedValue === 'number') {
+                          currentValue = formData.apiEstimatedValue;
+                        } else {
+                          // Parse from formatted value if needed
+                          currentValue = parseInt((formData.formattedApiEstimatedValue || '').replace(/\D/g, ''));
+                          // Fallback
+                          if (isNaN(currentValue)) currentValue = 554000;
+                        }
 
-                    console.log('Value calculation:', {
-                      currentValue,
-                      increaseValue,
-                      newValue
-                    });
+                        let increaseValue;
+                        if (typeof formData.potentialValueIncrease === 'number') {
+                          increaseValue = formData.potentialValueIncrease;
+                        } else {
+                          // Try to parse from formatted value
+                          increaseValue = parseInt((formData.formattedPotentialIncrease || '').replace(/\D/g, ''));
+                          // Fallback
+                          if (isNaN(increaseValue)) increaseValue = 121880;
+                        }
 
-                    return new Intl.NumberFormat('en-US', {
-                      style: 'currency',
-                      currency: 'USD',
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0
-                    }).format(newValue);
-                  } catch (e) {
-                    console.error('Error calculating new value:', e);
-                    return '$650,000';
+                        // Ensure both are numbers and calculate
+                        const newValue = Number(currentValue) + Number(increaseValue);
+
+                        console.log('Value calculation:', {
+                          currentValue,
+                          increaseValue,
+                          newValue
+                        });
+
+                        return new Intl.NumberFormat('en-US', {
+                          style: 'currency',
+                          currency: 'USD',
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0
+                        }).format(newValue);
+                      } catch (e) {
+                        console.error('Error calculating new value:', e);
+                        return '$675,880';
+                      }
+                    })()
                   }
-                })()
-              } (+ Value Boost Potential: {formData.formattedPotentialIncrease || '$150,000'})
+                </div>
+                <div style={{ fontSize: '16px', color: '#555' }}>
+                  + Value Boost Potential: {formData.formattedPotentialIncrease || '$121,880'}
+                </div>
+              </div>
             </div>
-            <p style={{ fontSize: '18px', color: '#444', marginBottom: '25px' }}>
-              <strong>{recommendations.length}</strong> value-boosting improvements identified by AI
+
+            <p style={{ fontSize: '18px', color: '#444', marginBottom: '5px' }}>
+              <strong>{recommendations.length || '11'}</strong> value-boosting improvements identified by AI
             </p>
+            <p style={{ fontSize: '18px', color: '#0066cc', fontWeight: 'bold' }}>
+              Potential Increase: {formData.valueIncreasePercentage || '22'}%
+            </p>
+
+            {/* Responsive styles for different screen sizes */}
+            <style jsx="true">{`
+              @media (max-width: 600px) {
+                .value-boost-arrow .horizontal-arrow {
+                  display: none;
+                }
+                .value-boost-arrow .vertical-arrow {
+                  display: block;
+                }
+              }
+            `}</style>
           </div>
 
           {/* Display recommendations */}
