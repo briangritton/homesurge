@@ -179,9 +179,30 @@ function AddressForm() {
           }).format(estimatedValue);
         }
 
-        // Calculate potential value increase (15-25% of current value)
-        const valueIncreaseRate = 0.15 + (Math.random() * 0.1); // Random between 15-25%
-        const potentialValueIncrease = Math.round(propertyData.apiEstimatedValue * valueIncreaseRate);
+        // Calculate base increase percentage based on property age
+        const yearBuilt = propertyData.propertyRecord?.YearBuilt || 1980;
+        const propertyAge = new Date().getFullYear() - yearBuilt;
+
+        let baseIncreasePercentage = 0.15; // Default 15% increase
+
+        // Older homes have higher improvement potential
+        if (propertyAge > 30) {
+          baseIncreasePercentage = 0.22; // 22% increase potential
+        } else if (propertyAge > 15) {
+          baseIncreasePercentage = 0.18; // 18% increase potential
+        } else if (propertyAge < 5) {
+          baseIncreasePercentage = 0.12; // 12% increase potential (newer homes)
+        }
+
+        // Adjust based on home size (larger homes: smaller %, smaller homes: larger %)
+        if (propertyData.finishedSquareFootage > 3000) {
+          baseIncreasePercentage -= 0.02;
+        } else if (propertyData.finishedSquareFootage < 1200) {
+          baseIncreasePercentage += 0.03;
+        }
+
+        // Calculate potential value increase based on property
+        const potentialValueIncrease = Math.round(propertyData.apiEstimatedValue * baseIncreasePercentage);
         const formattedPotentialIncrease = new Intl.NumberFormat('en-US', {
           style: 'currency',
           currency: 'USD',
@@ -189,8 +210,14 @@ function AddressForm() {
           maximumFractionDigits: 0
         }).format(potentialValueIncrease);
 
-        // Calculate number of recommended upgrades (3-6)
-        const upgradesNeeded = Math.floor(Math.random() * 4) + 3; // Random between 3-6
+        // Calculate number of recommended upgrades based on property age
+        // Older homes typically need more upgrades
+        let upgradesNeeded = 5; // Default
+        if (propertyAge > 30) {
+          upgradesNeeded = 6;
+        } else if (propertyAge < 10) {
+          upgradesNeeded = 4;
+        }
         
         // Update form data with property information including equity fields
         updateFormData({
@@ -214,7 +241,7 @@ function AddressForm() {
           potentialValueIncrease: potentialValueIncrease,
           formattedPotentialIncrease: formattedPotentialIncrease,
           upgradesNeeded: upgradesNeeded,
-          valueIncreasePercentage: Math.round(valueIncreaseRate * 100)
+          valueIncreasePercentage: Math.round(baseIncreasePercentage * 100)
         });
         
         console.log('Form data updated with property info and ValueBoost data:', {
