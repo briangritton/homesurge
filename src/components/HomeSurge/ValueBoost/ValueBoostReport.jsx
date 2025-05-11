@@ -845,12 +845,15 @@ function ValueBoostReport() {
   }, []);
 
   return (
-    <div className="hero-section" style={{ minHeight: '100vh', padding: '20px 0' }}>
-      <div className="hero-middle-container" style={{ maxWidth: '900px' }}>
-        <div className="hero-content valueboost-content fade-in" style={contentStyle}>
+    <div className="vb-report-section">
+      <div className="vb-report-container">
+        <div className="vb-content vb-fade-in" style={contentStyle}>
           {/* Header */}
-          <div className="hero-headline" style={{ textAlign: 'center', marginBottom: '10px' }}>
-            Your AI-Powered Home Value Boost Plan
+          <div className="vb-headline">
+            Value Scan Complete For:
+          </div>
+          <div className="vb-subheadline" style={{ marginBottom: '25px' }}>
+            {formData.street || '123 Main St'}
           </div>
           
           {/* Property info summary */}

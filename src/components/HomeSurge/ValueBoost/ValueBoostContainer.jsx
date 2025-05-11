@@ -1,28 +1,14 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { FormProvider, useFormContext } from '../../../contexts/FormContext';
 import AddressForm from './AddressForm';
 import AIProcessing from './AIProcessing';
 import ValueBoostReport from './ValueBoostReport';
 
+// Import custom styles for ValueBoost funnel
+import '../../../styles/valueboost.css';
+
 function ValueBoostContainer() {
-  // Add a custom style to remove the ::before content for this funnel
-  useEffect(() => {
-    // Create a style element to override the hero-content::before
-    const styleElement = document.createElement('style');
-    styleElement.textContent = `
-      .value-boost-container .hero-content::before {
-        content: none !important;
-        display: none !important;
-      }
-    `;
-    document.head.appendChild(styleElement);
-
-    // Clean up when component unmounts
-    return () => {
-      document.head.removeChild(styleElement);
-    };
-  }, []);
-
+  // No longer need ::before override since we're using custom vb-content class
   return (
     <FormProvider>
       <ValueBoostFunnel />
@@ -51,7 +37,7 @@ function ValueBoostFunnel() {
   };
 
   return (
-    <div className="value-boost-container" style={{ width: '100%' }}>
+    <div className="vb-container" style={{ width: '100%' }}>
       {renderStep()}
     </div>
   );

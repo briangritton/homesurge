@@ -165,7 +165,7 @@ function AIProcessing() {
     top: `${(processingStep / processingSteps.length) * 100}%`,
     left: 0,
     transition: 'top 0.5s ease-in-out',
-    animation: 'scanGlow 1.5s infinite alternate',
+    animation: 'vb-scanGlow 1.5s infinite alternate',
     zIndex: 10 // Make sure scan line is on top of everything
   };
 
@@ -214,17 +214,17 @@ function AIProcessing() {
   }, []);
 
   return (
-    <div className="hero-section" style={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div className="hero-middle-container">
-        <div className="hero-content valueboost-content fade-in" style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
-          <div className="hero-headline">AI Home Analysis in Progress</div>
+    <div className="vb-section" style={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="vb-container">
+        <div className="vb-content vb-fade-in" style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
+          <div className="vb-headline">AI Home Analysis in Progress</div>
           
           <div style={{ marginTop: '20px', marginBottom: '30px' }}>
             <strong style={{ fontSize: '18px' }}>{processingSteps[processingStep] || 'Processing complete!'}</strong>
           </div>
           
           {/* Processing visualization container */}
-          <div style={mapStyles}>
+          <div className="vb-map-container">
             {/* Satellite Map container */}
             {formData.location && formData.location.lat && !mapError ? (
               <>
@@ -264,7 +264,7 @@ function AIProcessing() {
                       borderRadius: '50%',
                       border: '3px solid rgba(0, 102, 204, 0.2)',
                       borderTop: '3px solid #0066cc',
-                      animation: 'spin 1s linear infinite'
+                      animation: 'vb-spin 1s linear infinite'
                     }} />
                     <div style={{
                       marginTop: '10px',
@@ -340,28 +340,23 @@ function AIProcessing() {
           </div>
           
           {/* Progress bar */}
-          <div style={{
-            width: '88%',
-            maxWidth: '450px',
-            margin: '0 auto 20px',
-            height: '10px',
-            backgroundColor: '#e0e0e0',
-            borderRadius: '5px',
-            overflow: 'hidden'
-          }}>
-            <div style={{ 
-              width: `${progressPercent}%`, 
-              height: '100%', 
-              backgroundColor: '#4caf50',
-              transition: 'width 0.3s ease-in-out',
-              borderRadius: '5px'
-            }} />
+          <div className="vb-progress-container">
+            <div className="vb-progress-bar" style={{ width: `${progressPercent}%` }} />
           </div>
           
           {/* Step indicators */}
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+          <div className="vb-step-indicators">
             {processingSteps.map((_, index) => (
-              <div key={index} style={getCircleStyle(index)} />
+              <div
+                key={index}
+                className={
+                  processingStep > index
+                    ? 'vb-indicator vb-indicator-completed'
+                    : processingStep === index
+                      ? 'vb-indicator vb-indicator-current'
+                      : 'vb-indicator vb-indicator-pending'
+                }
+              />
             ))}
           </div>
           
@@ -379,22 +374,6 @@ function AIProcessing() {
         </div>
       </div>
       
-      {/* Add CSS for animation */}
-      <style jsx="true">{`
-        @keyframes scanGlow {
-          0% { opacity: 0.6; box-shadow: 0 0 10px 2px rgba(63, 204, 255, 0.5); }
-          100% { opacity: 1; box-shadow: 0 0 20px 5px rgba(63, 204, 255, 0.9); }
-        }
-        @keyframes pulse {
-          0% { transform: scale(1); opacity: 0.7; }
-          50% { transform: scale(1.05); opacity: 1; }
-          100% { transform: scale(1); opacity: 0.7; }
-        }
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 }

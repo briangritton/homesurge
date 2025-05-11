@@ -823,37 +823,37 @@ function AddressForm() {
   }, []);
 
   return (
-    <div className="hero-section">
-      <div className="hero-middle-container">
-        <div className="hero-content valueboost-content fade-in">
-          <div className="hero-headline">AI-Powered Home Value Boost Plan</div>
-          <div className="hero-subheadline">Find out how to increase your home's value by up to 32% with personalized AI recommendations</div>
-          
-          <div className="form-container">
+    <div className="vb-section">
+      <div className="vb-container">
+        <div className="vb-content vb-fade-in">
+          <div className="vb-headline">AI-Powered Home Value Boost Plan</div>
+          <div className="vb-subheadline">Find out how to increase your home's value by up to 32% with personalized AI recommendations</div>
+
+          <div className="vb-form-container">
             <input
               ref={inputRef}
               type="text"
               placeholder="Enter your property address..."
-              className={errorMessage ? 'address-input-invalid' : 'address-input'}
+              className={errorMessage ? 'vb-input-invalid' : 'vb-input'}
               value={formData.street || ''}
               onChange={handleChange}
               onFocus={(e) => e.target.placeholder = ''}
               onBlur={(e) => e.target.placeholder = 'Enter your property address...'}
               disabled={isLoading}
             />
-            
-            <button 
-              className="submit-button"
-              id="address-submit-button" 
+
+            <button
+              className="vb-button"
+              id="address-submit-button"
               disabled={isLoading}
               onClick={handleButtonClick}
             >
               {isLoading ? 'ANALYZING...' : 'GET YOUR REPORT'}
             </button>
           </div>
-          
+
           {errorMessage && (
-            <div className="error-message">{errorMessage}</div>
+            <div className="vb-error-message">{errorMessage}</div>
           )}
         </div>
       </div>
