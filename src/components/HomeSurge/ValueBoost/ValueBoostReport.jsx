@@ -878,16 +878,24 @@ function ValueBoostReport() {
             maxWidth: '600px',
             margin: '0 auto 40px'
           }}>
-            <h2 style={{ fontSize: '28px', marginBottom: '10px', color: '#0066cc' }}>
+            <h2 style={{ fontSize: '26px', marginBottom: '15px', color: '#0066cc' }}>
               Your Total Value Boost Potential
             </h2>
             <div style={{
-              fontSize: '32px',
+              fontSize: '28px',
               fontWeight: 'bold',
               color: '#28a745',
-              marginBottom: '15px'
+              marginBottom: '20px'
             }}>
-              {formData.formattedApiEstimatedValue || '$325,000'} → {
+              {formData.formattedApiEstimatedValue || '$500,000'} (current Value)
+            </div>
+            <div style={{
+              fontSize: '28px',
+              fontWeight: 'bold',
+              color: '#0066cc',
+              marginBottom: '25px'
+            }}>
+              {
                 (() => {
                   try {
                     // Get numeric values only, not strings
@@ -898,7 +906,7 @@ function ValueBoostReport() {
                       // Parse from formatted value if needed
                       currentValue = parseInt((formData.formattedApiEstimatedValue || '').replace(/\D/g, ''));
                       // Fallback
-                      if (isNaN(currentValue)) currentValue = 325000;
+                      if (isNaN(currentValue)) currentValue = 500000;
                     }
 
                     let increaseValue;
@@ -908,7 +916,7 @@ function ValueBoostReport() {
                       // Try to parse from formatted value
                       increaseValue = parseInt((formData.formattedPotentialIncrease || '').replace(/\D/g, ''));
                       // Fallback
-                      if (isNaN(increaseValue)) increaseValue = 65000;
+                      if (isNaN(increaseValue)) increaseValue = 150000;
                     }
 
                     // Ensure both are numbers and calculate
@@ -928,56 +936,14 @@ function ValueBoostReport() {
                     }).format(newValue);
                   } catch (e) {
                     console.error('Error calculating new value:', e);
-                    return formData.formattedApiEstimatedValue ?
-                      new Intl.NumberFormat('en-US', {
-                        style: 'currency',
-                        currency: 'USD',
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0
-                      }).format(parseInt((formData.formattedApiEstimatedValue || '').replace(/\D/g, '')) * 1.2) :
-                      '$390,000';
+                    return '$650,000';
                   }
                 })()
-              }
+              } (+ Value Boost Potential: {formData.formattedPotentialIncrease || '$150,000'})
             </div>
             <p style={{ fontSize: '18px', color: '#444', marginBottom: '25px' }}>
               <strong>{recommendations.length}</strong> value-boosting improvements identified by AI
             </p>
-
-            <div style={{ maxWidth: '450px', margin: '0 auto' }}>
-              {/* Current Value */}
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px', textAlign: 'left' }}>
-                <div style={{ flex: '0 0 auto', fontSize: '24px', marginRight: '15px' }}>🏠</div>
-                <div>
-                  <p style={{ margin: '0 0 3px 0', fontSize: '14px' }}>Current Value:</p>
-                  <p style={{ margin: '0', fontWeight: 'bold', fontSize: '20px' }}>
-                    {formData.formattedApiEstimatedValue || formatCurrency(formData.apiEstimatedValue) || '$325,000'}
-                  </p>
-                </div>
-              </div>
-
-              {/* Value Boost Potential */}
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px', textAlign: 'left' }}>
-                <div style={{ flex: '0 0 auto', fontSize: '24px', marginRight: '15px' }}>📈</div>
-                <div>
-                  <p style={{ margin: '0 0 3px 0', fontSize: '14px' }}>Value Boost Potential:</p>
-                  <p style={{ margin: '0', fontWeight: 'bold', fontSize: '20px', color: '#0066cc' }}>
-                    {formData.formattedPotentialIncrease || formatCurrency(potentialIncrease)}
-                  </p>
-                </div>
-              </div>
-
-              {/* Value Boost Percentage */}
-              <div style={{ display: 'flex', alignItems: 'center', textAlign: 'left' }}>
-                <div style={{ flex: '0 0 auto', fontSize: '24px', marginRight: '15px' }}>✨</div>
-                <div>
-                  <p style={{ margin: '0 0 3px 0', fontSize: '14px' }}>Potential Increase:</p>
-                  <p style={{ margin: '0', fontWeight: 'bold', fontSize: '18px' }}>
-                    {formData.valueIncreasePercentage || '18'}% ({recommendations.length} customized recommendations)
-                  </p>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Display recommendations */}
