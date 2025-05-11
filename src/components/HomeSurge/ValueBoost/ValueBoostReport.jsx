@@ -878,7 +878,7 @@ function ValueBoostReport() {
             maxWidth: '600px',
             margin: '0 auto 40px'
           }}>
-            <h2 style={{ fontSize: '28px', marginBottom: '10px', color: '#0066cc' }}>
+            <h2 style={{ fontSize: '26px', marginBottom: '15px', color: '#0066cc' }}>
               Your Total Value Boost Potential
             </h2>
             <div style={{
@@ -943,39 +943,36 @@ function ValueBoostReport() {
             <p style={{ fontSize: '18px', color: '#444', marginBottom: '25px' }}>
               <strong>{recommendations.length}</strong> value-boosting improvements identified by AI
             </p>
-
-            <div style={{ maxWidth: '450px', margin: '0 auto' }}>
-              {/* Current Value */}
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px', textAlign: 'left' }}>
-                <div style={{ flex: '0 0 auto', fontSize: '24px', marginRight: '15px' }}>🏠</div>
-                <div>
-                  <p style={{ margin: '0 0 3px 0', fontSize: '14px' }}>Current Value:</p>
-                  <p style={{ margin: '0', fontWeight: 'bold', fontSize: '20px' }}>
+            
+            <div style={{ maxWidth: '500px', margin: '0 auto' }}>
+              {/* Side by side Current Value and Value Boost Potential */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '25px' }}>
+                {/* Current Value */}
+                <div style={{ flex: '1', textAlign: 'center', padding: '0 15px' }}>
+                  <div style={{ fontSize: '24px', marginBottom: '8px' }}>🏠</div>
+                  <p style={{ margin: '0 0 10px 0', fontSize: '16px', fontWeight: 'bold' }}>Current Value:</p>
+                  <p style={{ margin: '0', fontWeight: 'bold', fontSize: '24px' }}>
                     {formData.formattedApiEstimatedValue || formatCurrency(formData.apiEstimatedValue) || '$325,000'}
                   </p>
                 </div>
-              </div>
-
-              {/* Value Boost Potential */}
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px', textAlign: 'left' }}>
-                <div style={{ flex: '0 0 auto', fontSize: '24px', marginRight: '15px' }}>📈</div>
-                <div>
-                  <p style={{ margin: '0 0 3px 0', fontSize: '14px' }}>Value Boost Potential:</p>
-                  <p style={{ margin: '0', fontWeight: 'bold', fontSize: '20px', color: '#0066cc' }}>
+                
+                {/* Value Boost Potential */}
+                <div style={{ flex: '1', textAlign: 'center', padding: '0 15px' }}>
+                  <div style={{ fontSize: '24px', marginBottom: '8px' }}>📈</div>
+                  <p style={{ margin: '0 0 10px 0', fontSize: '16px', fontWeight: 'bold' }}>Value Boost Potential:</p>
+                  <p style={{ margin: '0', fontWeight: 'bold', fontSize: '24px', color: '#0066cc' }}>
                     {formData.formattedPotentialIncrease || formatCurrency(potentialIncrease)}
                   </p>
                 </div>
               </div>
-
-              {/* Value Boost Percentage */}
-              <div style={{ display: 'flex', alignItems: 'center', textAlign: 'left' }}>
-                <div style={{ flex: '0 0 auto', fontSize: '24px', marginRight: '15px' }}>✨</div>
-                <div>
-                  <p style={{ margin: '0 0 3px 0', fontSize: '14px' }}>Potential Increase:</p>
-                  <p style={{ margin: '0', fontWeight: 'bold', fontSize: '18px' }}>
-                    {formData.valueIncreasePercentage || '18'}% ({recommendations.length} customized recommendations)
-                  </p>
-                </div>
+              
+              {/* Value Boost Percentage centered beneath both */}
+              <div style={{ textAlign: 'center', marginTop: '5px', padding: '15px', backgroundColor: 'rgba(40, 167, 69, 0.1)', borderRadius: '8px' }}>
+                <div style={{ fontSize: '24px', marginBottom: '5px' }}>✨</div>
+                <p style={{ margin: '0 0 5px 0', fontSize: '16px', fontWeight: 'bold' }}>Potential Increase:</p>
+                <p style={{ margin: '0', fontWeight: 'bold', fontSize: '20px', color: '#28a745' }}>
+                  {formData.valueIncreasePercentage || '18'}% ({recommendations.length} customized recommendations)
+                </p>
               </div>
             </div>
           </div>
