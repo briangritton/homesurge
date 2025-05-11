@@ -172,13 +172,14 @@ function AIProcessing() {
   // Map container styles - matching PersonalInfoForm style
   const mapStyles = {
     height: '300px',
-    width: '100%',
-    maxWidth: '650px',
+    width: '90%',
+    maxWidth: '500px',
     borderRadius: '8px',
     border: '1px solid #ccc',
     boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
     overflow: 'hidden',
-    margin: '0 auto 30px'
+    margin: '0 auto 30px',
+    position: 'relative' // Important for absolute positioning inside
   };
 
   // Circle indicators for steps
@@ -198,7 +199,7 @@ function AIProcessing() {
   return (
     <div className="hero-section" style={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div className="hero-middle-container">
-        <div className="hero-content fade-in" style={{ textAlign: 'center' }}>
+        <div className="hero-content fade-in" style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
           <div className="hero-headline">AI Home Analysis in Progress</div>
           
           <div style={{ marginTop: '20px', marginBottom: '30px' }}>
@@ -220,7 +221,7 @@ function AIProcessing() {
                     width: '100%',
                     height: '100%',
                     zIndex: 1,
-                    borderRadius: '8px' // Match container border radius
+                    borderRadius: '7px' // Slightly smaller to avoid edge bleed
                   }}
                 />
 
@@ -232,45 +233,44 @@ function AIProcessing() {
                     left: 0,
                     width: '100%',
                     height: '100%',
-                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.7)',
                     zIndex: 3,
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
                     flexDirection: 'column',
-                    borderRadius: '8px'
+                    borderRadius: '7px'
                   }}>
                     <div style={{
                       width: '40px',
                       height: '40px',
                       borderRadius: '50%',
-                      border: '3px solid rgba(63, 204, 255, 0.3)',
-                      borderTop: '3px solid #3fccff',
+                      border: '3px solid rgba(0, 102, 204, 0.2)',
+                      borderTop: '3px solid #0066cc',
                       animation: 'spin 1s linear infinite'
                     }} />
                     <div style={{
                       marginTop: '10px',
                       fontSize: '14px',
-                      color: '#ffffff',
-                      fontWeight: 'bold',
-                      textShadow: '0 1px 2px rgba(0,0,0,0.5)'
+                      color: '#0066cc',
+                      fontWeight: 'bold'
                     }}>
-                      Loading satellite view...
+                      Loading map view...
                     </div>
                   </div>
                 )}
 
-                {/* Property analysis overlay effect */}
+                {/* Property analysis overlay effect - more subtle to match street view */}
                 <div style={{
                   position: 'absolute',
                   top: 0,
                   left: 0,
                   width: '100%',
                   height: '100%',
-                  background: 'radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.4) 100%)',
+                  background: 'radial-gradient(circle at center, transparent 60%, rgba(0,0,0,0.1) 100%)',
                   zIndex: 2,
                   pointerEvents: 'none',
-                  borderRadius: '8px'
+                  borderRadius: '7px'
                 }} />
               </>
             ) : (
@@ -323,9 +323,9 @@ function AIProcessing() {
           </div>
           
           {/* Progress bar */}
-          <div style={{ 
-            width: '90%', 
-            maxWidth: '500px', 
+          <div style={{
+            width: '88%',
+            maxWidth: '450px',
             margin: '0 auto 20px',
             height: '10px',
             backgroundColor: '#e0e0e0',
