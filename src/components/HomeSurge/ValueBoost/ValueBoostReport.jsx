@@ -898,16 +898,19 @@ function ValueBoostReport() {
               color: '#28a745',
               marginBottom: '15px'
             }}>
-              {formData.formattedApiEstimatedValue || '$325,000'} → {formData.formattedPotentialIncrease ?
-                (new Intl.NumberFormat('en-US', {
-                  style: 'currency',
-                  currency: 'USD',
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0
-                }).format(
-                  (formData.apiEstimatedValue || 325000) + (formData.potentialValueIncrease || 0)
-                ))
-                : '$390,000'
+              {formData.formattedApiEstimatedValue || '$325,000'} → {
+                (() => {
+                  const currentValue = formData.apiEstimatedValue || 325000;
+                  const increaseValue = formData.potentialValueIncrease || 0;
+                  const newValue = currentValue + increaseValue;
+
+                  return new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                  }).format(newValue);
+                })()
               }
             </div>
             <p style={{ fontSize: '18px', color: '#444' }}>
@@ -1125,7 +1128,10 @@ function ValueBoostReport() {
                   </div>
 
                   <button
-                    onClick={() => setShowContactForm(true)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setShowContactForm(true);
+                    }}
                     style={{
                       backgroundColor: '#0066cc',
                       color: 'white',
@@ -1193,7 +1199,10 @@ function ValueBoostReport() {
                   cursor: 'pointer',
                   transition: 'background-color 0.3s ease'
                 }}
-                onClick={() => setShowContactForm(true)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowContactForm(true);
+                }}
                 onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#0052a3'}
                 onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#0066cc'}
               >
@@ -1317,17 +1326,48 @@ function ValueBoostReport() {
             </div>
           ) : null}
 
-          {/* Contact form - shown when user clicks to unlock */}
+          {/* Contact form - shown as a modal when user clicks to unlock */}
           {showContactForm && !submitted ? (
             <div style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.6)',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              zIndex: 1000,
+              padding: '20px'
+            }}>
+            <div id="contact-form-section" style={{
               backgroundColor: '#f0f9ff',
               borderRadius: '10px',
               padding: '30px',
-              marginBottom: '30px',
-              boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
+              boxShadow: '0 4px 25px rgba(0,0,0,0.15)',
               maxWidth: '500px',
-              margin: '0 auto 30px'
+              width: '100%',
+              position: 'relative',
+              animation: 'modalFadeIn 0.3s ease-out'
             }}>
+              <button
+                onClick={() => setShowContactForm(false)}
+                style={{
+                  position: 'absolute',
+                  top: '10px',
+                  right: '10px',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  color: '#666',
+                  padding: '5px',
+                  lineHeight: 1
+                }}
+              >
+                ×
+              </button>
               <h3 style={{ margin: '0 0 20px 0', fontSize: '22px', color: '#0066cc', textAlign: 'center' }}>
                 Create Your Free Account
               </h3>
@@ -1435,6 +1475,14 @@ function ValueBoostReport() {
                   By signing up, you agree to our terms of service and privacy policy.
                 </div>
               </form>
+
+              <style jsx="true">{`
+                @keyframes modalFadeIn {
+                  from { opacity: 0; transform: translateY(-20px); }
+                  to { opacity: 1; transform: translateY(0); }
+                }
+              `}</style>
+            </div>
             </div>
           ) : null}
           
