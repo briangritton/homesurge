@@ -516,7 +516,7 @@
   box-shadow: 0 2px 8px rgba(40, 167, 69, 0.15);
   transition: all 0.3s ease;
 }
-
+ 
 .vb-potential-increase:hover {
   background-color: rgba(40, 167, 69, 0.18);
   box-shadow: 0 3px 12px rgba(40, 167, 69, 0.25);
