@@ -506,6 +506,23 @@
   100% { opacity: 1; }
 }
 
+/* Potential increase box styling */
+.vb-potential-increase {
+  text-align: center;
+  margin-top: 10px;
+  padding: 15px;
+  background-color: rgba(40, 167, 69, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.15);
+  transition: all 0.3s ease;
+}
+
+.vb-potential-increase:hover {
+  background-color: rgba(40, 167, 69, 0.18);
+  box-shadow: 0 3px 12px rgba(40, 167, 69, 0.25);
+  transform: translateY(-2px);
+}
+
 /* Responsive styles */
 @media screen and (max-width: 768px) {
   .vb-headline {

@@ -967,7 +967,7 @@ function ValueBoostReport() {
               </div>
               
               {/* Value Boost Percentage centered beneath both */}
-              <div style={{ textAlign: 'center', marginTop: '5px', padding: '15px', backgroundColor: 'rgba(40, 167, 69, 0.1)', borderRadius: '8px' }}>
+              <div className="vb-potential-increase">
                 <div style={{ fontSize: '24px', marginBottom: '5px' }}>✨</div>
                 <p style={{ margin: '0 0 5px 0', fontSize: '16px', fontWeight: 'bold' }}>Potential Increase:</p>
                 <p style={{ margin: '0', fontWeight: 'bold', fontSize: '20px', color: '#28a745' }}>
