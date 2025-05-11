@@ -6,10 +6,8 @@ function AIProcessing() {
   const [processingStep, setProcessingStep] = useState(0);
   const [progressPercent, setProgressPercent] = useState(0);
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [showStreetView, setShowStreetView] = useState(false);
   const [mapError, setMapError] = useState(false);
   const mapContainerRef = useRef(null);
-  const streetViewContainerRef = useRef(null);
   
   // Steps in the AI processing sequence
   const processingSteps = [
@@ -78,20 +76,21 @@ function AIProcessing() {
       const { lat, lng } = formData.location;
       const location = new window.google.maps.LatLng(lat, lng);
 
-      // Create map
+      // Create satellite view map centered on property
       const map = new window.google.maps.Map(mapContainerRef.current, {
         center: location,
-        zoom: 17,
-        mapTypeId: 'hybrid',
+        zoom: 19, // Closer zoom to see the property better
+        mapTypeId: 'satellite', // Use satellite view instead of hybrid
         disableDefaultUI: true,
         zoomControl: false,
         mapTypeControl: false,
         streetViewControl: false,
         rotateControl: false,
-        fullscreenControl: false
+        fullscreenControl: false,
+        tilt: 0 // Ensure top-down view
       });
 
-      // Add marker
+      // Add marker at property location
       new window.google.maps.Marker({
         position: location,
         map: map,
@@ -105,45 +104,11 @@ function AIProcessing() {
         }
       });
 
-      // Try to load Street View in parallel
-      initializeStreetView(location);
-
       setMapLoaded(true);
     } catch (error) {
       console.error('Error initializing map:', error);
       setMapError(true);
     }
-  };
-
-  // Function to initialize Street View
-  const initializeStreetView = (location) => {
-    if (!streetViewContainerRef.current) return;
-
-    const panorama = new window.google.maps.StreetViewPanorama(
-      streetViewContainerRef.current, {
-        position: location,
-        pov: { heading: 0, pitch: 0 },
-        zoom: 1,
-        addressControl: false,
-        linksControl: false,
-        panControl: false,
-        enableCloseButton: false,
-        zoomControl: false,
-        fullscreenControl: false
-      }
-    );
-
-    // Check if Street View imagery exists
-    const streetViewService = new window.google.maps.StreetViewService();
-    streetViewService.getPanorama({ location, radius: 50 }, (data, status) => {
-      if (status === "OK") {
-        console.log('Street View available for location');
-        setShowStreetView(true);
-      } else {
-        console.log('No Street View imagery found for location');
-        setShowStreetView(false);
-      }
-    });
   };
 
   // Effect to automatically progress through steps with timing
@@ -229,26 +194,10 @@ function AIProcessing() {
             backgroundColor: '#f9f9f9',
             overflow: 'hidden'
           }}>
-            {/* Map or Street View container */}
+            {/* Satellite Map container */}
             {formData.location && formData.location.lat && !mapError ? (
               <>
-                {/* Street View container - conditionally visible */}
-                <div
-                  ref={streetViewContainerRef}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    zIndex: 2,
-                    opacity: showStreetView ? 1 : 0,
-                    visibility: showStreetView ? 'visible' : 'hidden',
-                    transition: 'opacity 0.5s ease-in-out'
-                  }}
-                />
-
-                {/* Map container - always visible if Street View not available */}
+                {/* Map container */}
                 <div
                   ref={mapContainerRef}
                   style={{
@@ -257,7 +206,8 @@ function AIProcessing() {
                     left: 0,
                     width: '100%',
                     height: '100%',
-                    zIndex: 1
+                    zIndex: 1,
+                    borderRadius: '8px' // Match container border radius
                   }}
                 />
 
@@ -269,12 +219,13 @@ function AIProcessing() {
                     left: 0,
                     width: '100%',
                     height: '100%',
-                    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
                     zIndex: 3,
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    flexDirection: 'column'
+                    flexDirection: 'column',
+                    borderRadius: '8px'
                   }}>
                     <div style={{
                       width: '40px',
@@ -287,12 +238,27 @@ function AIProcessing() {
                     <div style={{
                       marginTop: '10px',
                       fontSize: '14px',
-                      color: '#555'
+                      color: '#ffffff',
+                      fontWeight: 'bold',
+                      textShadow: '0 1px 2px rgba(0,0,0,0.5)'
                     }}>
-                      Loading property view...
+                      Loading satellite view...
                     </div>
                   </div>
                 )}
+
+                {/* Property analysis overlay effect */}
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  background: 'radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.4) 100%)',
+                  zIndex: 2,
+                  pointerEvents: 'none',
+                  borderRadius: '8px'
+                }} />
               </>
             ) : (
               <>
@@ -325,21 +291,22 @@ function AIProcessing() {
             {/* Animated scan line */}
             <div style={scanLineStyle}></div>
             
-            {/* Data points animation */}
-            {Array.from({ length: 30 }).map((_, i) => (
+            {/* Data points animation - overlay on top of the map */}
+            {Array.from({ length: 35 }).map((_, i) => (
               <div key={i} style={{
                 position: 'absolute',
                 left: `${Math.random() * 90 + 5}%`,
                 top: `${Math.random() * 90 + 5}%`,
-                width: '8px',
-                height: '8px',
+                width: '10px',
+                height: '10px',
                 borderRadius: '50%',
-                backgroundColor: processingStep > i/4 ? '#4caf50' : '#007bff',
-                opacity: processingStep > i/4 ? 0.8 : 0.3,
-                transition: 'background-color 0.5s ease, opacity 0.5s ease',
-                transform: `scale(${processingStep > i/4 ? 1 : 0.5})`,
+                backgroundColor: processingStep > i/5 ? '#4caf50' : '#ffffff',
+                opacity: processingStep > i/5 ? 0.85 : 0.4,
+                transition: 'all 0.5s ease',
+                transform: `scale(${processingStep > i/5 ? 1.2 : 0.5})`,
                 zIndex: 5,
-                boxShadow: processingStep > i/4 ? '0 0 8px rgba(76, 175, 80, 0.6)' : 'none'
+                boxShadow: processingStep > i/5 ? '0 0 10px 2px rgba(76, 175, 80, 0.8)' : '0 0 4px rgba(255, 255, 255, 0.6)',
+                pointerEvents: 'none' // Ensure it doesn't interfere with map interaction
               }} />
             ))}
           </div>
