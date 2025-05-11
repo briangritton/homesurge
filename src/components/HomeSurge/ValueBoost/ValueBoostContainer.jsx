@@ -4,7 +4,11 @@ import AddressForm from './AddressForm';
 import AIProcessing from './AIProcessing';
 import ValueBoostReport from './ValueBoostReport';
 
+// Import custom styles for ValueBoost funnel
+import '../../../styles/valueboost.css';
+
 function ValueBoostContainer() {
+  // No longer need ::before override since we're using custom vb-content class
   return (
     <FormProvider>
       <ValueBoostFunnel />
@@ -33,7 +37,7 @@ function ValueBoostFunnel() {
   };
 
   return (
-    <div className="value-boost-container">
+    <div className="vb-container" style={{ width: '100%' }}>
       {renderStep()}
     </div>
   );
