@@ -319,8 +319,60 @@ function ValueBoostReport() {
     // Sort by score (highest first)
     strategyScores.sort((a, b) => b.score - a.score);
 
-    // Take top strategies based on the upgrades needed count
-    const count = formData.upgradesNeeded || 5;
+    // Calculate the total potential value increase from recommendations
+    // and determine optimal number of recommendations to show
+    const calculateOptimalRecommendationCount = () => {
+      // Default to a higher number of recommendations (8-10)
+      let recommendationCount = formData.upgradesNeeded || 8;
+
+      // Sort strategies by score for evaluation
+      const sortedStrategies = [...strategyScores].sort((a, b) => b.score - a.score);
+
+      // Current home value
+      const currentValue = formData.apiEstimatedValue || 300000;
+
+      // Track cumulative value increase
+      let cumulativeValueIncrease = 0;
+      let cumulativeValueIncreasePercent = 0;
+      const MAX_VALUE_INCREASE_PERCENT = 40; // Cap at 40% total value increase
+
+      // Determine how many recommendations to include before hitting value cap
+      for (let i = 0; i < sortedStrategies.length && i < 12; i++) {
+        // Estimate value increase for this strategy (rough approximation)
+        // Using the strategy name to estimate impact
+        const strategy = sortedStrategies[i].strategy;
+        let estimatedValueIncreasePercent = 0;
+
+        // Assign estimated value increase percentages based on improvement type
+        if (strategy.strategy.includes("Kitchen")) estimatedValueIncreasePercent = 5;
+        else if (strategy.strategy.includes("Bathroom")) estimatedValueIncreasePercent = 4;
+        else if (strategy.strategy.includes("Basement")) estimatedValueIncreasePercent = 8;
+        else if (strategy.strategy.includes("Exterior") || strategy.strategy.includes("Curb Appeal")) estimatedValueIncreasePercent = 4;
+        else if (strategy.strategy.includes("Flooring")) estimatedValueIncreasePercent = 3;
+        else if (strategy.strategy.includes("Paint")) estimatedValueIncreasePercent = 2;
+        else if (strategy.strategy.includes("HVAC")) estimatedValueIncreasePercent = 2;
+        else if (strategy.strategy.includes("Roof")) estimatedValueIncreasePercent = 3;
+        else estimatedValueIncreasePercent = 2; // Default for other improvements
+
+        // Add to cumulative increase
+        cumulativeValueIncreasePercent += estimatedValueIncreasePercent;
+
+        // If we've reached our cap, set the count and break
+        if (cumulativeValueIncreasePercent >= MAX_VALUE_INCREASE_PERCENT) {
+          recommendationCount = i + 1; // Include this one
+          break;
+        }
+      }
+
+      // Ensure we always show at least 5 recommendations
+      return Math.max(5, recommendationCount);
+    };
+
+    // Determine optimal number of recommendations
+    const count = calculateOptimalRecommendationCount();
+    console.log(`Showing ${count} recommendations based on value impact analysis`);
+
+    // Take top strategies based on determined count
     const topStrategies = strategyScores.slice(0, count).map(item => {
       // Add property-specific customization to descriptions
       const strategy = {...item.strategy};
@@ -764,9 +816,12 @@ function ValueBoostReport() {
           
           {/* Display recommendations */}
           <div style={{ marginBottom: '30px' }}>
-            <h2 style={{ textAlign: 'center', marginBottom: '20px', fontSize: '22px' }}>
+            <h2 style={{ textAlign: 'center', marginBottom: '5px', fontSize: '22px' }}>
               Your Customized Value-Boosting Recommendations
             </h2>
+            <p style={{ textAlign: 'center', marginBottom: '20px', fontSize: '16px', color: '#666' }}>
+              {recommendations.length} high-impact improvements ranked by ROI for your property
+            </p>
             
             {recommendations.map((rec, index) => (
               <div key={index} style={{ 

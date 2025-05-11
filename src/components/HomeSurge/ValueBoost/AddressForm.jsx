@@ -201,6 +201,13 @@ function AddressForm() {
           baseIncreasePercentage += 0.03;
         }
 
+        // Cap the maximum increase at 40%
+        const MAX_INCREASE_PERCENTAGE = 0.40;
+        if (baseIncreasePercentage > MAX_INCREASE_PERCENTAGE) {
+          baseIncreasePercentage = MAX_INCREASE_PERCENTAGE;
+          console.log('Value increase capped at maximum 40%');
+        }
+
         // Calculate potential value increase based on property
         const potentialValueIncrease = Math.round(propertyData.apiEstimatedValue * baseIncreasePercentage);
         const formattedPotentialIncrease = new Intl.NumberFormat('en-US', {
@@ -210,14 +217,19 @@ function AddressForm() {
           maximumFractionDigits: 0
         }).format(potentialValueIncrease);
 
-        // Calculate number of recommended upgrades based on property age
-        // Older homes typically need more upgrades
-        let upgradesNeeded = 5; // Default
+        // Calculate number of recommended upgrades based on property attributes
+        // Start with a higher default number for more recommendations
+        let upgradesNeeded = 8; // Default to higher number
+
+        // Adjust based on property age and features
         if (propertyAge > 30) {
-          upgradesNeeded = 6;
+          upgradesNeeded = 10; // Older homes need more improvements
         } else if (propertyAge < 10) {
-          upgradesNeeded = 4;
+          upgradesNeeded = 7; // Newer homes need fewer improvements
         }
+
+        // Cap max recommendations at 12
+        upgradesNeeded = Math.min(upgradesNeeded, 12);
         
         // Update form data with property information including equity fields
         updateFormData({
