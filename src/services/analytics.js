@@ -1,12 +1,6 @@
 import ReactGA from 'react-ga4';
 import TagManager from 'react-gtm-module';
-
-// Stub implementation for ReactPixel
-const ReactPixel = {
-  init: () => console.log('Pixel initialized (stub)'),
-  pageView: () => console.log('Pixel pageview (stub)'),
-  track: () => console.log('Pixel event (stub)')
-};
+import * as FacebookPixel from './facebook';
 
 // Configuration constants - use empty strings as fallbacks for security
 const GA_TRACKING_ID = process.env.REACT_APP_GA_TRACKING_ID || '';
@@ -18,7 +12,7 @@ const isDebug = process.env.NODE_ENV === 'development';
 // Initialize analytics services
 export function initializeAnalytics() {
   if (isDebug) console.log('Analytics - Initializing with:', { GA_TRACKING_ID, GTM_ID });
-  
+
   // Only initialize if IDs are provided
   if (GA_TRACKING_ID) {
     // Initialize Google Analytics 4
@@ -29,7 +23,7 @@ export function initializeAnalytics() {
 
   if (GTM_ID) {
     // Initialize Google Tag Manager
-    const tagManagerArgs = { 
+    const tagManagerArgs = {
       gtmId: GTM_ID,
       dataLayerName: 'dataLayer',
       auth: '',
@@ -40,16 +34,19 @@ export function initializeAnalytics() {
     console.log('Analytics - GTM initialization skipped: No container ID provided');
   }
 
+  // Initialize Facebook Pixel
+  FacebookPixel.initializeFacebookPixel();
+
   // Track initial page view
   trackPageView(window.location.pathname + window.location.search);
-  
+
   if (isDebug) console.log('Analytics - Initialization complete');
 }
 
 // Track page views (GA4-compliant)
 export function trackPageView(path) {
   if (isDebug) console.log('Analytics - Page View:', path);
-  
+
   // Only track if GA is initialized
   if (GA_TRACKING_ID) {
     // Google Analytics page view (Updated for GA4)
@@ -65,21 +62,24 @@ export function trackPageView(path) {
       title: document.title
     }
   });
+
+  // Track in Facebook Pixel
+  FacebookPixel.trackPageView(path);
 }
 
 // Track form submissions
 export function trackFormSubmission(formData) {
   if (isDebug) {
-    console.log('Analytics - Form Submission:', { 
+    console.log('Analytics - Form Submission:', {
       name: formData.name ? 'Provided' : 'Missing',
-      phone: formData.phone ? 'Provided' : 'Missing', 
+      phone: formData.phone ? 'Provided' : 'Missing',
       address: formData.street ? 'Provided' : 'Missing',
       propertyValue: formData.apiEstimatedValue || 'Not Available',
       campaignId: formData.campaignId || 'Not Available',
       keyword: formData.keyword || 'Not Available'
     });
   }
-  
+
   if (GA_TRACKING_ID) {
     ReactGA.event({
       category: 'Form',
@@ -126,18 +126,21 @@ export function trackFormSubmission(formData) {
     },
     conversionValue: formData.apiEstimatedValue ? Math.round(formData.apiEstimatedValue / 1000) : 0
   });
+
+  // Track in Facebook Pixel
+  FacebookPixel.trackFormSubmission(formData);
 }
 
 // Track form step completion
 export function trackFormStepComplete(stepNumber, stepName, formData) {
   if (isDebug) {
-    console.log('Analytics - Form Step Complete:', { 
-      stepNumber, 
+    console.log('Analytics - Form Step Complete:', {
+      stepNumber,
       stepName,
-      campaignId: formData?.campaignId || 'Not Available' 
+      campaignId: formData?.campaignId || 'Not Available'
     });
   }
-  
+
   if (GA_TRACKING_ID) {
     ReactGA.event({
       category: 'Form',
@@ -174,6 +177,9 @@ export function trackFormStepComplete(stepNumber, stepName, formData) {
       trafficSource: formData.trafficSource || 'Direct'
     } : {}
   });
+
+  // Track in Facebook Pixel
+  FacebookPixel.trackFormStepComplete(stepNumber, stepName, formData);
 }
 
 // Track form errors
@@ -234,5 +240,5 @@ export function trackAddressSelected(addressType) {
   });
 }
 
-// Export stub in case any code imports it
-export { ReactPixel };
+// Re-export Facebook Pixel for compatibility
+export { default as ReactPixel } from './facebook';
