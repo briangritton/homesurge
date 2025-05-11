@@ -624,7 +624,7 @@ function PersonalInfoForm() {
                   {addressError}
                 </div>
               )}
-              
+               
               <button 
                 className="registration-button" 
                 type="button" // Button type to handle custom logic
