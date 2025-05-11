@@ -36,16 +36,18 @@
   line-height: 3.5rem;
   font-weight: bold;
   padding-top: 2rem;
-  margin-bottom: 1rem;
+  margin-bottom: 5px;
   color: #333;
 }
 
 .vb-subheadline {
+  color: #555;
   font-size: 1.8rem;
   line-height: 2.2rem;
   margin: 1rem 0;
-  color: #555;
-}
+  margin-top: 0;
+  margin-bottom: 0px !important;
+  }
 
 /* Form input styles */
 .vb-form-container {
