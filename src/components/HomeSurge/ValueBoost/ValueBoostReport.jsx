@@ -900,16 +900,54 @@ function ValueBoostReport() {
             }}>
               {formData.formattedApiEstimatedValue || '$325,000'} → {
                 (() => {
-                  const currentValue = formData.apiEstimatedValue || 325000;
-                  const increaseValue = formData.potentialValueIncrease || 0;
-                  const newValue = currentValue + increaseValue;
+                  try {
+                    // Get numeric values only, not strings
+                    let currentValue;
+                    if (typeof formData.apiEstimatedValue === 'number') {
+                      currentValue = formData.apiEstimatedValue;
+                    } else {
+                      // Parse from formatted value if needed
+                      currentValue = parseInt((formData.formattedApiEstimatedValue || '').replace(/\D/g, ''));
+                      // Fallback
+                      if (isNaN(currentValue)) currentValue = 325000;
+                    }
 
-                  return new Intl.NumberFormat('en-US', {
-                    style: 'currency',
-                    currency: 'USD',
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0
-                  }).format(newValue);
+                    let increaseValue;
+                    if (typeof formData.potentialValueIncrease === 'number') {
+                      increaseValue = formData.potentialValueIncrease;
+                    } else {
+                      // Try to parse from formatted value
+                      increaseValue = parseInt((formData.formattedPotentialIncrease || '').replace(/\D/g, ''));
+                      // Fallback
+                      if (isNaN(increaseValue)) increaseValue = 65000;
+                    }
+
+                    // Ensure both are numbers and calculate
+                    const newValue = Number(currentValue) + Number(increaseValue);
+
+                    console.log('Value calculation:', {
+                      currentValue,
+                      increaseValue,
+                      newValue
+                    });
+
+                    return new Intl.NumberFormat('en-US', {
+                      style: 'currency',
+                      currency: 'USD',
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0
+                    }).format(newValue);
+                  } catch (e) {
+                    console.error('Error calculating new value:', e);
+                    return formData.formattedApiEstimatedValue ?
+                      new Intl.NumberFormat('en-US', {
+                        style: 'currency',
+                        currency: 'USD',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                      }).format(parseInt((formData.formattedApiEstimatedValue || '').replace(/\D/g, '')) * 1.2) :
+                      '$390,000';
+                  }
                 })()
               }
             </div>
