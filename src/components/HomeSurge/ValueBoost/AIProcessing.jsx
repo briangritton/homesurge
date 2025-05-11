@@ -76,32 +76,43 @@ function AIProcessing() {
       const { lat, lng } = formData.location;
       const location = new window.google.maps.LatLng(lat, lng);
 
-      // Create satellite view map centered on property
+      // Create map - using same settings as PersonalInfoForm
       const map = new window.google.maps.Map(mapContainerRef.current, {
         center: location,
-        zoom: 19, // Closer zoom to see the property better
-        mapTypeId: 'satellite', // Use satellite view instead of hybrid
-        disableDefaultUI: true,
-        zoomControl: false,
+        zoom: 18,
+        mapTypeId: window.google.maps.MapTypeId.ROADMAP,
         mapTypeControl: false,
         streetViewControl: false,
-        rotateControl: false,
         fullscreenControl: false,
-        tilt: 0 // Ensure top-down view
+        zoomControl: true,
+        zoomControlOptions: {
+          position: window.google.maps.ControlPosition.RIGHT_TOP
+        },
+        disableDefaultUI: true,
+        scrollwheel: false
       });
 
-      // Add marker at property location
+      // Add custom styles to hide unnecessary UI elements - matching PersonalInfoForm
+      const hideLabelsStyle = [
+        {
+          featureType: "poi",
+          elementType: "labels",
+          stylers: [{ visibility: "off" }]
+        },
+        {
+          featureType: "transit",
+          elementType: "labels",
+          stylers: [{ visibility: "off" }]
+        }
+      ];
+
+      map.setOptions({ styles: hideLabelsStyle });
+
+      // Add marker at property location - matching PersonalInfoForm
       new window.google.maps.Marker({
         position: location,
         map: map,
-        icon: {
-          path: window.google.maps.SymbolPath.CIRCLE,
-          fillColor: '#4285F4',
-          fillOpacity: 1,
-          strokeColor: '#FFFFFF',
-          strokeWeight: 2,
-          scale: 8
-        }
+        animation: window.google.maps.Animation.DROP
       });
 
       setMapLoaded(true);
@@ -158,6 +169,18 @@ function AIProcessing() {
     zIndex: 10 // Make sure scan line is on top of everything
   };
 
+  // Map container styles - matching PersonalInfoForm style
+  const mapStyles = {
+    height: '300px',
+    width: '100%',
+    maxWidth: '650px',
+    borderRadius: '8px',
+    border: '1px solid #ccc',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+    overflow: 'hidden',
+    margin: '0 auto 30px'
+  };
+
   // Circle indicators for steps
   const getCircleStyle = (index) => {
     return {
@@ -183,17 +206,7 @@ function AIProcessing() {
           </div>
           
           {/* Processing visualization container */}
-          <div style={{
-            position: 'relative',
-            height: '350px',
-            width: '90%',
-            maxWidth: '500px',
-            margin: '0 auto 30px',
-            border: '1px solid #ccc',
-            borderRadius: '10px',
-            backgroundColor: '#f9f9f9',
-            overflow: 'hidden'
-          }}>
+          <div style={mapStyles}>
             {/* Satellite Map container */}
             {formData.location && formData.location.lat && !mapError ? (
               <>
@@ -291,22 +304,20 @@ function AIProcessing() {
             {/* Animated scan line */}
             <div style={scanLineStyle}></div>
             
-            {/* Data points animation - overlay on top of the map */}
-            {Array.from({ length: 35 }).map((_, i) => (
+            {/* Data points animation - using the original static dots style */}
+            {Array.from({ length: 20 }).map((_, i) => (
               <div key={i} style={{
                 position: 'absolute',
                 left: `${Math.random() * 90 + 5}%`,
                 top: `${Math.random() * 90 + 5}%`,
-                width: '10px',
-                height: '10px',
+                width: '8px',
+                height: '8px',
                 borderRadius: '50%',
-                backgroundColor: processingStep > i/5 ? '#4caf50' : '#ffffff',
-                opacity: processingStep > i/5 ? 0.85 : 0.4,
-                transition: 'all 0.5s ease',
-                transform: `scale(${processingStep > i/5 ? 1.2 : 0.5})`,
-                zIndex: 5,
-                boxShadow: processingStep > i/5 ? '0 0 10px 2px rgba(76, 175, 80, 0.8)' : '0 0 4px rgba(255, 255, 255, 0.6)',
-                pointerEvents: 'none' // Ensure it doesn't interfere with map interaction
+                backgroundColor: processingStep > i/3 ? '#4caf50' : '#aaa',
+                opacity: processingStep > i/3 ? 0.8 : 0.3,
+                transition: 'background-color 0.5s ease, opacity 0.5s ease',
+                transform: `scale(${processingStep > i/3 ? 1 : 0.5})`,
+                zIndex: 5
               }} />
             ))}
           </div>
