@@ -852,55 +852,63 @@ function ValueBoostReport() {
           <div className="vb-headline">
             Value Scan Complete For:
           </div>
-          <div className="vb-subheadline" style={{ marginBottom: '25px' }}>
+          <div className="vb-subheadline" style={{ marginBottom: '10px' }}>
             {formData.street || '123 Main St'}
           </div>
-          
-          {/* Property info summary */}
-          <div style={{ 
-            backgroundColor: '#f8f9fa', 
-            borderRadius: '8px', 
-            padding: '20px', 
-            marginBottom: '30px',
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'space-between',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
-          }}>
-            <div style={{ flex: '1 1 300px', minWidth: '300px', marginBottom: '15px' }}>
-              <h3 style={{ margin: '0 0 15px 0', fontSize: '18px' }}>Property Details</h3>
-              <p style={{ margin: '5px 0', fontSize: '15px' }}><strong>Address:</strong> {formData.street || '123 Main St'}</p>
-              {formData.bedrooms && formData.bathrooms && (
-                <p style={{ margin: '5px 0', fontSize: '15px' }}>
-                  <strong>Size:</strong> {formData.bedrooms} beds, {formData.bathrooms} baths, {formData.finishedSquareFootage?.toLocaleString() || '1,500'} sq ft
-                </p>
-              )}
-              <p style={{ margin: '5px 0', fontSize: '15px' }}>
-                <strong>Current Value:</strong> {formData.formattedApiEstimatedValue || formatCurrency(formData.apiEstimatedValue) || '$325,000'}
+
+          {/* Property size details */}
+          <div style={{ fontSize: '16px', color: '#555', marginBottom: '25px', textAlign: 'center' }}>
+            {formData.bedrooms && formData.bathrooms ? (
+              <p style={{ margin: '5px 0' }}>
+                {formData.bedrooms} beds, {formData.bathrooms} baths, {formData.finishedSquareFootage?.toLocaleString() || '1,500'} sq ft
               </p>
-            </div>
-            
-            <div style={{ flex: '1 1 300px', minWidth: '300px', backgroundColor: '#e8f4ff', padding: '15px', borderRadius: '8px' }}>
-              <h3 style={{ margin: '0 0 10px 0', fontSize: '18px', color: '#0066cc' }}>Value Boost Potential</h3>
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                <div style={{ flex: '0 0 auto', fontSize: '28px', marginRight: '10px' }}>📈</div>
-                <div>
-                  <p style={{ margin: '0 0 5px 0', fontWeight: 'bold', fontSize: '22px', color: '#0066cc' }}>
-                    {formData.formattedPotentialIncrease || formatCurrency(potentialIncrease)}
-                  </p>
-                  <p style={{ margin: '0', fontSize: '14px' }}>Potential increase with recommended improvements</p>
-                </div>
+            ) : (
+              <p style={{ margin: '5px 0' }}>Single Family Home</p>
+            )}
+          </div>
+
+          {/* Property info summary (updated version) */}
+          <div style={{
+            backgroundColor: '#e8f4ff',
+            borderRadius: '8px',
+            padding: '20px',
+            marginBottom: '30px',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+            maxWidth: '500px',
+            margin: '0 auto 30px'
+          }}>
+            <h3 style={{ margin: '0 0 15px 0', fontSize: '18px', color: '#0066cc', textAlign: 'center' }}>Property Analysis</h3>
+
+            {/* Current Value */}
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+              <div style={{ flex: '0 0 auto', fontSize: '24px', marginRight: '10px' }}>🏠</div>
+              <div>
+                <p style={{ margin: '0 0 3px 0', fontSize: '14px' }}>Current Value:</p>
+                <p style={{ margin: '0', fontWeight: 'bold', fontSize: '20px' }}>
+                  {formData.formattedApiEstimatedValue || formatCurrency(formData.apiEstimatedValue) || '$325,000'}
+                </p>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ flex: '0 0 auto', fontSize: '22px', marginRight: '10px' }}>✨</div>
-                <div>
-                  <p style={{ margin: '0 0 3px 0', fontWeight: 'bold', fontSize: '16px' }}>
-                    {formData.valueIncreasePercentage || '18'}% Value Boost
-                  </p>
-                  <p style={{ margin: '0', fontSize: '14px' }}>
-                    {recommendations.length} customized recommendations
-                  </p>
-                </div>
+            </div>
+
+            {/* Value Boost Potential */}
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+              <div style={{ flex: '0 0 auto', fontSize: '24px', marginRight: '10px' }}>📈</div>
+              <div>
+                <p style={{ margin: '0 0 3px 0', fontSize: '14px' }}>Value Boost Potential:</p>
+                <p style={{ margin: '0', fontWeight: 'bold', fontSize: '20px', color: '#0066cc' }}>
+                  {formData.formattedPotentialIncrease || formatCurrency(potentialIncrease)}
+                </p>
+              </div>
+            </div>
+
+            {/* Value Boost Percentage */}
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div style={{ flex: '0 0 auto', fontSize: '24px', marginRight: '10px' }}>✨</div>
+              <div>
+                <p style={{ margin: '0 0 3px 0', fontSize: '14px' }}>Potential Increase:</p>
+                <p style={{ margin: '0', fontWeight: 'bold', fontSize: '18px' }}>
+                  {formData.valueIncreasePercentage || '18'}% ({recommendations.length} customized recommendations)
+                </p>
               </div>
             </div>
           </div>
