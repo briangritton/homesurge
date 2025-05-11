@@ -805,10 +805,27 @@ function AddressForm() {
     };
   }, [firstSuggestion, formData.street, isLoading]);
   
+  // Add a ::before override with empty content
+  useEffect(() => {
+    // Create a style element
+    const styleEl = document.createElement('style');
+    styleEl.innerHTML = `
+      .valueboost-content.hero-content::before {
+        content: none !important;
+        display: none !important;
+      }
+    `;
+    document.head.appendChild(styleEl);
+
+    return () => {
+      document.head.removeChild(styleEl);
+    };
+  }, []);
+
   return (
     <div className="hero-section">
       <div className="hero-middle-container">
-        <div className="hero-content fade-in">
+        <div className="hero-content valueboost-content fade-in">
           <div className="hero-headline">AI-Powered Home Value Boost Plan</div>
           <div className="hero-subheadline">Find out how to increase your home's value by up to 32% with personalized AI recommendations</div>
           

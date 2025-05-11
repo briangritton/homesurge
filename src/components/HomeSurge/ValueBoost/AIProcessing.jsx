@@ -196,10 +196,27 @@ function AIProcessing() {
     };
   };
 
+  // Add a ::before override with empty content
+  useEffect(() => {
+    // Create a style element
+    const styleEl = document.createElement('style');
+    styleEl.innerHTML = `
+      .valueboost-content.hero-content::before {
+        content: none !important;
+        display: none !important;
+      }
+    `;
+    document.head.appendChild(styleEl);
+
+    return () => {
+      document.head.removeChild(styleEl);
+    };
+  }, []);
+
   return (
     <div className="hero-section" style={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div className="hero-middle-container">
-        <div className="hero-content fade-in" style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
+        <div className="hero-content valueboost-content fade-in" style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
           <div className="hero-headline">AI Home Analysis in Progress</div>
           
           <div style={{ marginTop: '20px', marginBottom: '30px' }}>

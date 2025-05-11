@@ -822,10 +822,32 @@ function ValueBoostReport() {
   // Get split recommendations
   const { primaryRecs, secondaryRecs } = splitRecommendations();
   
+  // Create a style to override the ::before pseudo-element
+  const contentStyle = {
+    position: 'relative'
+  };
+
+  // Add a ::before override with empty content
+  useEffect(() => {
+    // Create a style element
+    const styleEl = document.createElement('style');
+    styleEl.innerHTML = `
+      .valueboost-content.hero-content::before {
+        content: none !important;
+        display: none !important;
+      }
+    `;
+    document.head.appendChild(styleEl);
+
+    return () => {
+      document.head.removeChild(styleEl);
+    };
+  }, []);
+
   return (
     <div className="hero-section" style={{ minHeight: '100vh', padding: '20px 0' }}>
       <div className="hero-middle-container" style={{ maxWidth: '900px' }}>
-        <div className="hero-content fade-in">
+        <div className="hero-content valueboost-content fade-in" style={contentStyle}>
           {/* Header */}
           <div className="hero-headline" style={{ textAlign: 'center', marginBottom: '10px' }}>
             Your AI-Powered Home Value Boost Plan
