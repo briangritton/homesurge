@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFormContext } from '../../../contexts/FormContext';
 import additionalStrategies from './additionalStrategies';
 import { calculatePropertySpecificCost, calculatePropertySpecificROI } from './costCalculator';
 
 function ValueBoostReport() {
-  const { formData, updateFormData } = useFormContext();
+  const { formData, updateFormData, updateLead } = useFormContext();
   const [showContactForm, setShowContactForm] = useState(false);
   const [contactInfo, setContactInfo] = useState({
     name: '',
@@ -13,6 +13,8 @@ function ValueBoostReport() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [unlocked, setUnlocked] = useState(false); // Track if recommendations are unlocked
+  const [formErrors, setFormErrors] = useState({});
   
   // Generate property-specific recommendations based on Melissa data
   const generateRecommendations = () => {
@@ -736,11 +738,41 @@ function ValueBoostReport() {
     });
   };
   
+  // Validate contact form fields
+  const validateForm = () => {
+    const errors = {};
+
+    if (!contactInfo.name || contactInfo.name.trim() === '') {
+      errors.name = 'Name is required';
+    }
+
+    if (!contactInfo.phone || contactInfo.phone.trim() === '') {
+      errors.phone = 'Phone number is required';
+    } else if (!/^\d{10}$|^\(\d{3}\)\s?\d{3}-\d{4}$|^\d{3}-\d{3}-\d{4}$/.test(contactInfo.phone.replace(/\D/g, ''))) {
+      errors.phone = 'Please enter a valid phone number';
+    }
+
+    if (!contactInfo.email || contactInfo.email.trim() === '') {
+      errors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactInfo.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   // Handle contact form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate form
+    if (!validateForm()) {
+      return;
+    }
+
     setIsSubmitting(true);
-    
+
     // Update form data with contact info
     updateFormData({
       name: contactInfo.name,
@@ -748,13 +780,47 @@ function ValueBoostReport() {
       email: contactInfo.email,
       leadStage: 'ValueBoost Report Qualified'
     });
-    
-    // Simulate API call
-    setTimeout(() => {
+
+    try {
+      // Send lead data to Zoho
+      await updateLead();
+
+      // After successful submission
       setIsSubmitting(false);
       setSubmitted(true);
-    }, 1500);
+      setUnlocked(true); // Unlock the recommendations
+
+      // Track conversion if gtag is available
+      if (window.gtag) {
+        window.gtag('event', 'conversion', {
+          'send_to': 'AW-123456789/AbC-D_efG-h12345', // Replace with actual conversion ID
+          'event_category': 'lead',
+          'event_label': 'ValueBoost Report Unlocked',
+          'value': formData.apiEstimatedValue ? formData.apiEstimatedValue / 100 : 1,
+          'currency': 'USD'
+        });
+      }
+    } catch (error) {
+      console.error('Error submitting lead:', error);
+      setIsSubmitting(false);
+      setFormErrors({ submit: 'Failed to submit your information. Please try again.' });
+    }
   };
+
+  // Function to split recommendations into primary and secondary groups
+  const splitRecommendations = () => {
+    // Primary recommendations are top 10
+    const primaryCount = 10;
+    const primaryRecs = recommendations.slice(0, primaryCount);
+
+    // Secondary recommendations are the rest
+    const secondaryRecs = recommendations.slice(primaryCount);
+
+    return { primaryRecs, secondaryRecs };
+  };
+
+  // Get split recommendations
+  const { primaryRecs, secondaryRecs } = splitRecommendations();
   
   return (
     <div className="hero-section" style={{ minHeight: '100vh', padding: '20px 0' }}>
@@ -814,66 +880,290 @@ function ValueBoostReport() {
             </div>
           </div>
           
+          {/* Value Boost Total Potential Summary */}
+          <div style={{
+            textAlign: 'center',
+            marginBottom: '40px',
+            padding: '20px',
+            backgroundColor: '#f8f9fa',
+            borderRadius: '10px',
+            boxShadow: '0 3px 10px rgba(0,0,0,0.05)'
+          }}>
+            <h2 style={{ fontSize: '28px', marginBottom: '10px', color: '#0066cc' }}>
+              Your Total Value Boost Potential
+            </h2>
+            <div style={{
+              fontSize: '32px',
+              fontWeight: 'bold',
+              color: '#28a745',
+              marginBottom: '15px'
+            }}>
+              {formData.formattedApiEstimatedValue || '$325,000'} → {formData.formattedPotentialIncrease ?
+                (new Intl.NumberFormat('en-US', {
+                  style: 'currency',
+                  currency: 'USD',
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0
+                }).format(
+                  (formData.apiEstimatedValue || 325000) + (formData.potentialValueIncrease || 0)
+                ))
+                : '$390,000'
+              }
+            </div>
+            <p style={{ fontSize: '18px', color: '#444' }}>
+              <strong>{recommendations.length}</strong> value-boosting improvements identified by AI
+            </p>
+          </div>
+
           {/* Display recommendations */}
-          <div style={{ marginBottom: '30px' }}>
+          <div id="recommendations-section" style={{ marginBottom: '30px', position: 'relative' }}>
             <h2 style={{ textAlign: 'center', marginBottom: '5px', fontSize: '22px' }}>
-              Your Customized Value-Boosting Recommendations
+              Top 10 Value-Boosting Recommendations
             </h2>
             <p style={{ textAlign: 'center', marginBottom: '20px', fontSize: '16px', color: '#666' }}>
-              {recommendations.length} high-impact improvements ranked by ROI for your property
+              Highest-impact improvements ranked by ROI for your property
             </p>
-            
-            {recommendations.map((rec, index) => (
-              <div key={index} style={{ 
-                marginBottom: '20px', 
-                border: '1px solid #e0e0e0',
-                borderRadius: '8px',
-                padding: '15px',
-                boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
-                transition: 'transform 0.2s ease',
-                cursor: 'pointer',
-                backgroundColor: 'white',
-                display: 'flex',
-                flexDirection: 'column'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-3px)'}
-              onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-              >
-                <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '10px' }}>
-                  <div style={{ 
-                    flex: '0 0 40px', 
-                    height: '40px', 
-                    borderRadius: '50%', 
-                    backgroundColor: '#007bff',
-                    color: 'white',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginRight: '15px',
-                    fontWeight: 'bold'
-                  }}>
-                    {index + 1}
-                  </div>
-                  <div style={{ flex: '1' }}>
-                    <h3 style={{ margin: '0 0 10px 0', fontSize: '18px', color: '#007bff' }}>{rec.strategy}</h3>
-                    <p style={{ margin: '0 0 10px 0', fontSize: '15px', color: '#555' }}>{rec.description}</p>
-                    <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                      <div style={{ marginRight: '20px', marginBottom: '5px' }}>
-                        <span style={{ fontSize: '14px', color: '#666', fontWeight: 'bold' }}>Est. Cost:</span>
-                        <span style={{ fontSize: '14px', marginLeft: '5px' }}>{rec.costEstimate}</span>
-                      </div>
-                      <div>
-                        <span style={{ fontSize: '14px', color: '#666', fontWeight: 'bold' }}>Est. ROI:</span>
-                        <span style={{ fontSize: '14px', marginLeft: '5px' }}>{rec.roiEstimate}</span>
+
+            {/* Container for recommendations with relative positioning */}
+            <div style={{ position: 'relative' }}>
+              {/* Primary recommendations */}
+              {primaryRecs.map((rec, index) => (
+                <div key={index} style={{
+                  marginBottom: '20px',
+                  border: '1px solid #e0e0e0',
+                  borderRadius: '8px',
+                  padding: '15px',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+                  transition: 'transform 0.2s ease',
+                  cursor: 'pointer',
+                  backgroundColor: 'white',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  filter: unlocked ? 'none' : 'blur(5px)'
+                }}
+                onMouseOver={(e) => unlocked && (e.currentTarget.style.transform = 'translateY(-3px)')}
+                onMouseOut={(e) => unlocked && (e.currentTarget.style.transform = 'translateY(0)')}
+                >
+                  <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '10px' }}>
+                    <div style={{
+                      flex: '0 0 40px',
+                      height: '40px',
+                      borderRadius: '50%',
+                      backgroundColor: '#007bff',
+                      color: 'white',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginRight: '15px',
+                      fontWeight: 'bold'
+                    }}>
+                      {index + 1}
+                    </div>
+                    <div style={{ flex: '1' }}>
+                      <h3 style={{ margin: '0 0 10px 0', fontSize: '18px', color: '#007bff' }}>{rec.strategy}</h3>
+                      <p style={{ margin: '0 0 10px 0', fontSize: '15px', color: '#555' }}>{rec.description}</p>
+                      <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                        <div style={{ marginRight: '20px', marginBottom: '5px' }}>
+                          <span style={{ fontSize: '14px', color: '#666', fontWeight: 'bold' }}>Est. Cost:</span>
+                          <span style={{ fontSize: '14px', marginLeft: '5px' }}>{rec.costEstimate}</span>
+                        </div>
+                        <div>
+                          <span style={{ fontSize: '14px', color: '#666', fontWeight: 'bold' }}>Est. ROI:</span>
+                          <span style={{ fontSize: '14px', marginLeft: '5px' }}>{rec.roiEstimate}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+
+              {/* Secondary recommendations section (only shown when unlocked) */}
+              {unlocked && secondaryRecs.length > 0 && (
+                <>
+                  <h3 style={{ textAlign: 'center', marginTop: '40px', marginBottom: '15px', fontSize: '20px', color: '#666' }}>
+                    Additional Value-Boosting Opportunities
+                  </h3>
+
+                  {secondaryRecs.map((rec, index) => (
+                    <div key={index} style={{
+                      marginBottom: '15px',
+                      border: '1px solid #e8e8e8',
+                      borderRadius: '8px',
+                      padding: '12px',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+                      backgroundColor: '#fafafa',
+                      display: 'flex',
+                      flexDirection: 'column'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+                        <div style={{
+                          flex: '0 0 30px',
+                          height: '30px',
+                          borderRadius: '50%',
+                          backgroundColor: '#6c757d',
+                          color: 'white',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          marginRight: '15px',
+                          fontWeight: 'bold',
+                          fontSize: '14px'
+                        }}>
+                          {primaryRecs.length + index + 1}
+                        </div>
+                        <div style={{ flex: '1' }}>
+                          <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#6c757d' }}>{rec.strategy}</h3>
+                          <p style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#666' }}>{rec.description}</p>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', fontSize: '13px' }}>
+                            <div style={{ marginRight: '20px', marginBottom: '5px' }}>
+                              <span style={{ color: '#777', fontWeight: 'bold' }}>Est. Cost:</span>
+                              <span style={{ marginLeft: '5px' }}>{rec.costEstimate}</span>
+                            </div>
+                            <div>
+                              <span style={{ color: '#777', fontWeight: 'bold' }}>Est. ROI:</span>
+                              <span style={{ marginLeft: '5px' }}>{rec.roiEstimate}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
+
+              {/* Locked overlay - only shown when not unlocked */}
+              {!unlocked && (
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backdropFilter: 'blur(7px)',
+                  borderRadius: '10px',
+                  zIndex: 10,
+                  padding: '30px',
+                  boxShadow: 'inset 0 0 20px rgba(0, 0, 0, 0.05)'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '90px',
+                    height: '90px',
+                    borderRadius: '50%',
+                    backgroundColor: '#e8f4ff',
+                    marginBottom: '20px',
+                    boxShadow: '0 5px 15px rgba(0, 102, 204, 0.2)'
+                  }}>
+                    <div style={{
+                      fontSize: '48px',
+                      color: '#0066cc',
+                      animation: 'pulseLock 2s infinite alternate'
+                    }}>
+                      🔒
+                    </div>
+                  </div>
+                  <h3 style={{
+                    fontSize: '28px',
+                    fontWeight: 'bold',
+                    textAlign: 'center',
+                    marginBottom: '20px',
+                    color: '#0066cc'
+                  }}>
+                    Unlock Your Full Value Boost Report
+                  </h3>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    marginBottom: '10px',
+                    backgroundColor: 'rgba(0, 102, 204, 0.1)',
+                    borderRadius: '8px',
+                    padding: '10px 15px',
+                    maxWidth: '500px',
+                    width: '100%'
+                  }}>
+                    <div style={{ fontSize: '22px', marginRight: '15px' }}>✓</div>
+                    <p style={{ margin: 0, fontSize: '16px', textAlign: 'left' }}>
+                      <strong>All {recommendations.length} value-boosting recommendations</strong> for your property
+                    </p>
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    marginBottom: '10px',
+                    backgroundColor: 'rgba(0, 102, 204, 0.1)',
+                    borderRadius: '8px',
+                    padding: '10px 15px',
+                    maxWidth: '500px',
+                    width: '100%'
+                  }}>
+                    <div style={{ fontSize: '22px', marginRight: '15px' }}>✓</div>
+                    <p style={{ margin: 0, fontSize: '16px', textAlign: 'left' }}>
+                      <strong>Detailed ROI calculations</strong> for each improvement
+                    </p>
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    marginBottom: '25px',
+                    backgroundColor: 'rgba(0, 102, 204, 0.1)',
+                    borderRadius: '8px',
+                    padding: '10px 15px',
+                    maxWidth: '500px',
+                    width: '100%'
+                  }}>
+                    <div style={{ fontSize: '22px', marginRight: '15px' }}>✓</div>
+                    <p style={{ margin: 0, fontSize: '16px', textAlign: 'left' }}>
+                      <strong>Customized for your property</strong> at {formData.street}
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => setShowContactForm(true)}
+                    style={{
+                      backgroundColor: '#0066cc',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: '15px 30px',
+                      fontSize: '18px',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      boxShadow: '0 4px 12px rgba(0, 102, 204, 0.3)',
+                      transition: 'all 0.2s ease',
+                      maxWidth: '500px',
+                      width: '100%',
+                      marginBottom: '15px'
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#0052a3'}
+                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#0066cc'}
+                  >
+                    Create Free Account to Unlock
+                  </button>
+
+                  <div style={{ fontSize: '14px', color: '#666', textAlign: 'center', maxWidth: '400px' }}>
+                    Your information is secure and we'll never share it with third parties.
+                  </div>
+
+                  {/* Add animation style */}
+                  <style jsx="true">{`
+                    @keyframes pulseLock {
+                      0% { transform: scale(1); }
+                      100% { transform: scale(1.1); }
+                    }
+                  `}</style>
+                </div>
+              )}
+            </div>
           </div>
           
-          {/* CTA section */}
+          {/* CTA section - only shown when not already showing contact form and not already submitted */}
           {!showContactForm && !submitted ? (
             <div style={{
               backgroundColor: '#f0f9ff',
@@ -881,7 +1171,8 @@ function ValueBoostReport() {
               padding: '25px',
               textAlign: 'center',
               marginBottom: '30px',
-              boxShadow: '0 4px 15px rgba(0,0,0,0.08)'
+              boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
+              display: unlocked ? 'block' : 'none' // Only show when recommendations are unlocked
             }}>
               <h3 style={{ margin: '0 0 15px 0', fontSize: '22px', color: '#0066cc' }}>
                 Want These Upgrades Done At No Upfront Cost?
@@ -890,7 +1181,7 @@ function ValueBoostReport() {
                 Our concierge service can implement these improvements to maximize your home's value,
                 with no payment until your home sells.
               </p>
-              <button 
+              <button
                 style={{
                   backgroundColor: '#0066cc',
                   color: 'white',
@@ -909,117 +1200,243 @@ function ValueBoostReport() {
                 Check If I Qualify
               </button>
             </div>
-          ) : submitted ? (
+          ) : null}
+
+          {/* Success message after form submission */}
+          {submitted ? (
             <div style={{
               backgroundColor: '#f0fff0',
               borderRadius: '10px',
-              padding: '25px',
+              padding: '30px',
               textAlign: 'center',
               marginBottom: '30px',
-              boxShadow: '0 4px 15px rgba(0,0,0,0.08)'
+              boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
+              border: '1px solid #c8e6c9'
             }}>
-              <div style={{ fontSize: '50px', marginBottom: '15px' }}>✅</div>
-              <h3 style={{ margin: '0 0 15px 0', fontSize: '22px', color: '#2e7d32' }}>
-                Thank You for Your Interest!
+              <div style={{
+                fontSize: '50px',
+                marginBottom: '15px',
+                animation: 'successCheck 0.5s ease-in-out'
+              }}>✅</div>
+              <h3 style={{ margin: '0 0 15px 0', fontSize: '24px', color: '#2e7d32' }}>
+                Thank You, {contactInfo.name.split(' ')[0]}!
               </h3>
-              <p style={{ margin: '0 0 10px 0', fontSize: '16px' }}>
-                A home value specialist will contact you shortly to discuss your value boost options.
-              </p>
-              <p style={{ margin: '0', fontSize: '16px' }}>
-                We've also emailed a copy of this report to {contactInfo.email}
-              </p>
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '15px',
+                maxWidth: '500px',
+                margin: '0 auto 20px'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  textAlign: 'left',
+                  padding: '12px',
+                  backgroundColor: 'rgba(46, 125, 50, 0.08)',
+                  borderRadius: '8px'
+                }}>
+                  <div style={{ fontSize: '22px', marginRight: '15px', color: '#2e7d32' }}>🔓</div>
+                  <div>
+                    <p style={{ margin: '0 0 5px 0', fontSize: '16px', fontWeight: 'bold', color: '#2e7d32' }}>
+                      Full Report Unlocked
+                    </p>
+                    <p style={{ margin: '0', fontSize: '15px', color: '#555' }}>
+                      All {recommendations.length} value-boosting recommendations are now available below
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  textAlign: 'left',
+                  padding: '12px',
+                  backgroundColor: 'rgba(46, 125, 50, 0.08)',
+                  borderRadius: '8px'
+                }}>
+                  <div style={{ fontSize: '22px', marginRight: '15px', color: '#2e7d32' }}>📧</div>
+                  <div>
+                    <p style={{ margin: '0 0 5px 0', fontSize: '16px', fontWeight: 'bold', color: '#2e7d32' }}>
+                      Email Sent
+                    </p>
+                    <p style={{ margin: '0', fontSize: '15px', color: '#555' }}>
+                      A copy of your report has been sent to {contactInfo.email}
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  textAlign: 'left',
+                  padding: '12px',
+                  backgroundColor: 'rgba(46, 125, 50, 0.08)',
+                  borderRadius: '8px'
+                }}>
+                  <div style={{ fontSize: '22px', marginRight: '15px', color: '#2e7d32' }}>📱</div>
+                  <div>
+                    <p style={{ margin: '0 0 5px 0', fontSize: '16px', fontWeight: 'bold', color: '#2e7d32' }}>
+                      Expert Consultation
+                    </p>
+                    <p style={{ margin: '0', fontSize: '15px', color: '#555' }}>
+                      A home value specialist will contact you within 24 hours to discuss your options
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => window.scrollTo({ top: document.getElementById('recommendations-section').offsetTop - 50, behavior: 'smooth' })}
+                style={{
+                  backgroundColor: '#2e7d32',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '12px 25px',
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 8px rgba(46, 125, 50, 0.3)',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1b5e20'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2e7d32'}
+              >
+                View My Recommendations Now
+              </button>
+
+              {/* Add animation */}
+              <style jsx="true">{`
+                @keyframes successCheck {
+                  0% { transform: scale(0.5); opacity: 0; }
+                  60% { transform: scale(1.2); }
+                  100% { transform: scale(1); opacity: 1; }
+                }
+              `}</style>
             </div>
-          ) : (
+          ) : null}
+
+          {/* Contact form - shown when user clicks to unlock */}
+          {showContactForm && !submitted ? (
             <div style={{
               backgroundColor: '#f0f9ff',
               borderRadius: '10px',
-              padding: '25px',
+              padding: '30px',
               marginBottom: '30px',
-              boxShadow: '0 4px 15px rgba(0,0,0,0.08)'
+              boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
+              maxWidth: '500px',
+              margin: '0 auto 30px'
             }}>
-              <h3 style={{ margin: '0 0 15px 0', fontSize: '20px', color: '#0066cc', textAlign: 'center' }}>
-                Check If You Qualify for Our Concierge Service
+              <h3 style={{ margin: '0 0 20px 0', fontSize: '22px', color: '#0066cc', textAlign: 'center' }}>
+                Create Your Free Account
               </h3>
+              <p style={{ margin: '0 0 25px 0', fontSize: '16px', textAlign: 'center', color: '#555' }}>
+                Unlock your full property value report with all {recommendations.length} personalized recommendations
+              </p>
               <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: '15px' }}>
-                  <label style={{ display: 'block', marginBottom: '5px', fontSize: '15px', fontWeight: 'bold' }}>
-                    Name
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '16px', fontWeight: 'bold' }}>
+                    Full Name
                   </label>
-                  <input 
-                    type="text" 
-                    name="name" 
-                    value={contactInfo.name} 
+                  <input
+                    type="text"
+                    name="name"
+                    value={contactInfo.name}
                     onChange={handleInputChange}
                     required
+                    placeholder="Your name"
                     style={{
                       width: '100%',
-                      padding: '10px',
+                      padding: '12px 15px',
                       fontSize: '16px',
-                      borderRadius: '5px',
-                      border: '1px solid #ccc'
+                      borderRadius: '8px',
+                      border: formErrors.name ? '1px solid #ff4d4f' : '1px solid #ccc',
+                      boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
                     }}
                   />
+                  {formErrors.name && (
+                    <div style={{ color: '#ff4d4f', fontSize: '14px', marginTop: '5px' }}>{formErrors.name}</div>
+                  )}
                 </div>
-                <div style={{ marginBottom: '15px' }}>
-                  <label style={{ display: 'block', marginBottom: '5px', fontSize: '15px', fontWeight: 'bold' }}>
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '16px', fontWeight: 'bold' }}>
                     Phone Number
                   </label>
-                  <input 
-                    type="tel" 
-                    name="phone" 
-                    value={contactInfo.phone} 
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={contactInfo.phone}
                     onChange={handleInputChange}
                     required
+                    placeholder="(555) 123-4567"
                     style={{
                       width: '100%',
-                      padding: '10px',
+                      padding: '12px 15px',
                       fontSize: '16px',
-                      borderRadius: '5px',
-                      border: '1px solid #ccc'
+                      borderRadius: '8px',
+                      border: formErrors.phone ? '1px solid #ff4d4f' : '1px solid #ccc',
+                      boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
                     }}
                   />
+                  {formErrors.phone && (
+                    <div style={{ color: '#ff4d4f', fontSize: '14px', marginTop: '5px' }}>{formErrors.phone}</div>
+                  )}
                 </div>
-                <div style={{ marginBottom: '25px' }}>
-                  <label style={{ display: 'block', marginBottom: '5px', fontSize: '15px', fontWeight: 'bold' }}>
-                    Email
+                <div style={{ marginBottom: '30px' }}>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '16px', fontWeight: 'bold' }}>
+                    Email Address
                   </label>
-                  <input 
-                    type="email" 
-                    name="email" 
-                    value={contactInfo.email} 
+                  <input
+                    type="email"
+                    name="email"
+                    value={contactInfo.email}
                     onChange={handleInputChange}
                     required
+                    placeholder="you@example.com"
                     style={{
                       width: '100%',
-                      padding: '10px',
+                      padding: '12px 15px',
                       fontSize: '16px',
-                      borderRadius: '5px',
-                      border: '1px solid #ccc'
+                      borderRadius: '8px',
+                      border: formErrors.email ? '1px solid #ff4d4f' : '1px solid #ccc',
+                      boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
                     }}
                   />
+                  {formErrors.email && (
+                    <div style={{ color: '#ff4d4f', fontSize: '14px', marginTop: '5px' }}>{formErrors.email}</div>
+                  )}
                 </div>
                 <div style={{ textAlign: 'center' }}>
-                  <button 
-                    type="submit" 
+                  {formErrors.submit && (
+                    <div style={{ color: '#ff4d4f', fontSize: '14px', marginBottom: '10px', textAlign: 'left' }}>{formErrors.submit}</div>
+                  )}
+                  <button
+                    type="submit"
                     disabled={isSubmitting}
                     style={{
                       backgroundColor: isSubmitting ? '#7fb8ff' : '#0066cc',
                       color: 'white',
                       border: 'none',
-                      borderRadius: '5px',
-                      padding: '12px 30px',
-                      fontSize: '16px',
+                      borderRadius: '8px',
+                      padding: '15px 30px',
+                      fontSize: '18px',
                       fontWeight: 'bold',
                       cursor: isSubmitting ? 'default' : 'pointer',
-                      transition: 'background-color 0.3s ease'
+                      transition: 'background-color 0.3s ease',
+                      width: '100%',
+                      boxShadow: '0 4px 12px rgba(0, 102, 204, 0.3)'
                     }}
                   >
-                    {isSubmitting ? 'Submitting...' : 'Check Qualification'}
+                    {isSubmitting ? 'Creating Account...' : 'Get My Full Report'}
                   </button>
+                </div>
+                <div style={{ marginTop: '15px', fontSize: '13px', color: '#777', textAlign: 'center' }}>
+                  By signing up, you agree to our terms of service and privacy policy.
                 </div>
               </form>
             </div>
-          )}
+          ) : null}
           
           {/* Additional information */}
           <div style={{ fontSize: '14px', color: '#666', textAlign: 'center', marginBottom: '20px' }}>
