@@ -13,6 +13,7 @@ import ThankYou from './components/Form/ThankYou';
 import Privacy from './components/common/Privacy';
 import ZohoTest from './components/ZohoTest';
 import SalesPage from './components/SalesPage';
+import ValueBoostContainer from './components/HomeSurge/ValueBoost/ValueBoostContainer';
 
 // Styles
 import './styles/main.css';
@@ -94,6 +95,7 @@ function App() {
             <Route path="/privacy" element={<Privacy handleTermsClick={() => {}} />} />
             <Route path="/thank-you" element={<ThankYou />} />
             <Route path="/sales" element={<SalesPage />} />
+            <Route path="/valueboost" element={<ValueBoostContainer />} />
           </Routes>
           <Footer />
         </BrowserRouter>

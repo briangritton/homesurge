@@ -1,0 +1,299 @@
+{
+  "seller": {
+    "description": "AI is provided with full property data for a seller, such as from Melissa.com or public records. It must analyze the data to generate a personalized home value improvement report. For each top improvement strategy (see 'value_boost_strategies'), the AI determines whether the suggestion is relevant based on the property attributes, prioritizes them by potential ROI, and generates estimated value add descriptions. Suggestions should reference local comps or trends if available.",
+    "required_data": [
+      "Full Address",
+      "Bedrooms",
+      "Bathrooms",
+      "Square Footage",
+      "Lot Size",
+      "Year Built",
+      "Last Sold Date and Price",
+      "Property Type (Single Family, Condo, etc.)",
+      "Exterior Materials",
+      "Roof Type",
+      "Interior Features",
+      "Appliance Age",
+      "HVAC/Plumbing/Electrical System Age",
+      "Renovation History",
+      "Owner-Occupied Status",
+      "Google Street View or photo data if available",
+      "Comparable sales in area"
+    ],
+    "value_boost_strategies": [
+      {
+        "rank": 1,
+        "strategy": "Paint Interior with Neutral Colors",
+        "customizable": true
+      },
+      {
+        "rank": 2,
+        "strategy": "Refresh Landscaping & Curb Appeal",
+        "customizable": true
+      },
+      {
+        "rank": 3,
+        "strategy": "Deep Clean & Declutter Entire Home",
+        "customizable": true
+      },
+      {
+        "rank": 4,
+        "strategy": "Replace or Modernize Light Fixtures",
+        "customizable": true
+      },
+      {
+        "rank": 5,
+        "strategy": "Stage Living and Primary Bedroom",
+        "customizable": true
+      },
+      {
+        "rank": 6,
+        "strategy": "Refinish or Replace Flooring",
+        "customizable": true
+      },
+      {
+        "rank": 7,
+        "strategy": "Kitchen Cosmetic Upgrades",
+        "customizable": true
+      },
+      {
+        "rank": 8,
+        "strategy": "Bathroom Touch-Ups",
+        "customizable": true
+      },
+      {
+        "rank": 9,
+        "strategy": "Fresh Exterior Paint or Power Wash",
+        "customizable": true
+      },
+      {
+        "rank": 10,
+        "strategy": "Update Entry Door or Garage Door",
+        "customizable": true
+      },
+      {
+        "rank": 11,
+        "strategy": "Fix Inspection Red Flags Preemptively",
+        "customizable": true
+      },
+      {
+        "rank": 12,
+        "strategy": "Highlight Energy-Efficient Features",
+        "customizable": true
+      },
+      {
+        "rank": 13,
+        "strategy": "Upgrade Appliances",
+        "customizable": true
+      },
+      {
+        "rank": 14,
+        "strategy": "Minor Kitchen Layout Tweaks",
+        "customizable": true
+      },
+      {
+        "rank": 15,
+        "strategy": "Organize Closets & Storage Areas",
+        "customizable": true
+      },
+      {
+        "rank": 16,
+        "strategy": "Paint/Refinish Front Door",
+        "customizable": true
+      },
+      {
+        "rank": 17,
+        "strategy": "Install Modern House Numbers & Fixtures",
+        "customizable": true
+      },
+      {
+        "rank": 18,
+        "strategy": "Add a Home Office Setup/Space",
+        "customizable": true
+      },
+      {
+        "rank": 19,
+        "strategy": "Replace Worn Baseboards or Trim",
+        "customizable": true
+      },
+      {
+        "rank": 20,
+        "strategy": "Mention Recent Upgrades in Marketing Materials",
+        "customizable": true
+      }
+    ]
+  },
+  "buyer": {
+    "description": "AI receives a completed form from a prospective buyer and generates a personalized offer boost strategy report. Each strategy is selected based on the user\u2019s answers and ranked by potential impact. Some strategies are universally useful; others depend on buyer-specific constraints. If market ZIP or loan type affects competitiveness, tailor advice accordingly.",
+    "required_questions": [
+      {
+        "question": "What\u2019s your homebuying timeline?",
+        "type": "choice",
+        "answers": [
+          "Ready now",
+          "Next 3 months",
+          "3\u20136 months",
+          "Just looking"
+        ]
+      },
+      {
+        "question": "Are you already pre-approved by a lender?",
+        "type": "yes/no"
+      },
+      {
+        "question": "Are you also selling a home before you buy?",
+        "type": "yes/no"
+      },
+      {
+        "question": "What zip codes or cities are you searching in?",
+        "type": "text"
+      },
+      {
+        "question": "What\u2019s your estimated budget or purchase range?",
+        "type": "number"
+      },
+      {
+        "question": "How much do you have available for down payment?",
+        "type": "number"
+      },
+      {
+        "question": "What type of financing are you planning to use?",
+        "type": "choice",
+        "answers": [
+          "FHA",
+          "VA",
+          "Conventional",
+          "Jumbo",
+          "Not sure"
+        ]
+      },
+      {
+        "question": "Have you made any offers yet?",
+        "type": "yes/no"
+      },
+      {
+        "question": "Are you working with a buyer\u2019s agent yet?",
+        "type": "yes/no"
+      },
+      {
+        "question": "Are you open to waiving contingencies (e.g. inspection)?",
+        "type": "yes/no"
+      },
+      {
+        "question": "Would you consider a leaseback to help the seller move?",
+        "type": "yes/no"
+      },
+      {
+        "question": "What\u2019s your current living situation?",
+        "type": "choice",
+        "answers": [
+          "Renting",
+          "Owning",
+          "Living with family"
+        ]
+      }
+    ],
+    "offer_boost_strategies": [
+      {
+        "rank": 1,
+        "strategy": "Get Pre-Underwritten",
+        "customizable": false
+      },
+      {
+        "rank": 2,
+        "strategy": "Increase Down Payment or Show Stronger Cash Reserves",
+        "customizable": true
+      },
+      {
+        "rank": 3,
+        "strategy": "Improve Credit Score",
+        "customizable": true
+      },
+      {
+        "rank": 4,
+        "strategy": "Lock in a Lower Mortgage Rate",
+        "customizable": false
+      },
+      {
+        "rank": 5,
+        "strategy": "Use a Local or Known Lender",
+        "customizable": false
+      },
+      {
+        "rank": 6,
+        "strategy": "Shorten or Waive Financing Contingency",
+        "customizable": false
+      },
+      {
+        "rank": 7,
+        "strategy": "Make a Clean, Simple Offer",
+        "customizable": true
+      },
+      {
+        "rank": 8,
+        "strategy": "Write a Personalized Cover Letter with Your Offer",
+        "customizable": true
+      },
+      {
+        "rank": 9,
+        "strategy": "Offer a Leaseback Option",
+        "customizable": false
+      },
+      {
+        "rank": 10,
+        "strategy": "Use Escalation Clauses Strategically",
+        "customizable": true
+      },
+      {
+        "rank": 11,
+        "strategy": "Adjust Debt-to-Income (DTI) Ratio",
+        "customizable": true
+      },
+      {
+        "rank": 12,
+        "strategy": "Buy Points to Lower Monthly Payment",
+        "customizable": true
+      },
+      {
+        "rank": 13,
+        "strategy": "Time Offers Based on Listing Psychology",
+        "customizable": false
+      },
+      {
+        "rank": 14,
+        "strategy": "Avoid FHA/VA If Possible",
+        "customizable": false
+      },
+      {
+        "rank": 15,
+        "strategy": "Waive Minor Repairs or Offer As-Is",
+        "customizable": false
+      },
+      {
+        "rank": 16,
+        "strategy": "Show Proof of Funds for Earnest Money + Reserves",
+        "customizable": false
+      },
+      {
+        "rank": 17,
+        "strategy": "Get Gift Funds Documented Correctly",
+        "customizable": true
+      },
+      {
+        "rank": 18,
+        "strategy": "Use an Experienced Agent With Local Reputation",
+        "customizable": false
+      },
+      {
+        "rank": 19,
+        "strategy": "Prepare Your Home for Sale Early",
+        "customizable": true
+      },
+      {
+        "rank": 20,
+        "strategy": "Avoid Big Financial Moves Pre-Offer",
+        "customizable": false
+      }
+    ]
+  }
+}
