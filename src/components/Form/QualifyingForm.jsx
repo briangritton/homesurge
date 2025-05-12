@@ -24,11 +24,8 @@ function QualifyingForm() {
   const [finishedSquareFootage, setFinishedSquareFootage] = useState(formData.finishedSquareFootage || 1000);
   const [basementSquareFootage, setBasementSquareFootage] = useState(formData.basementSquareFootage || 0);
   
-  // Track the component load for analytics
+  // Component initialization
   useEffect(() => {
-    // Track form step for analytics with campaign data
-    trackFormStepComplete(3, 'Qualifying Form Loaded', formData);
-    
     // Check if we're using a temp ID and show a message
     if (leadId && leadId.startsWith('temp_') && !saveAttempted) {
       setSaveAttempted(true);
