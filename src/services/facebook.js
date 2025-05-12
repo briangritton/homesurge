@@ -199,10 +199,72 @@ export function trackCustomEvent(eventName, eventParams = {}) {
   }
 }
 
+/**
+ * Track property value event when Melissa API returns an estimate
+ * @param {object} propertyData - The property data from Melissa API
+ */
+export function trackPropertyValue(propertyData) {
+  if (!PIXEL_ID) return;
+
+  // Only track if we have an actual value
+  if (!propertyData || !propertyData.apiEstimatedValue || propertyData.apiEstimatedValue <= 0) {
+    return;
+  }
+
+  const value = propertyData.apiEstimatedValue;
+  const formattedValue = propertyData.formattedApiEstimatedValue ||
+    new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(value);
+
+  // Prepare event parameters
+  const eventParams = {
+    content_type: 'real_estate',
+    content_name: 'Property Value Obtained',
+    content_category: 'Real Estate',
+    value: value / 100, // Convert to dollars for Facebook
+    currency: 'USD',
+    property_address: propertyData.address || '',
+    estimated_value: value,
+    formatted_value: formattedValue
+  };
+
+  // Add value tiers for easier audience segmentation
+  if (value < 200000) {
+    eventParams.value_tier = 'under_200k';
+  } else if (value < 300000) {
+    eventParams.value_tier = '200k_300k';
+  } else if (value < 400000) {
+    eventParams.value_tier = '300k_400k';
+  } else if (value < 500000) {
+    eventParams.value_tier = '400k_500k';
+  } else if (value < 750000) {
+    eventParams.value_tier = '500k_750k';
+  } else if (value < 1000000) {
+    eventParams.value_tier = '750k_1m';
+  } else {
+    eventParams.value_tier = 'over_1m';
+  }
+
+  // Track custom event in browser
+  ReactPixel.trackCustom('PropertyValueObtained', eventParams);
+
+  if (DEBUG_MODE) {
+    console.log('Facebook Pixel - PropertyValueObtained:', {
+      value: eventParams.value,
+      value_tier: eventParams.value_tier
+    });
+  }
+}
+
 export default {
   initializeFacebookPixel,
   trackPageView,
   trackFormStepComplete,
   trackFormSubmission,
-  trackCustomEvent
+  trackCustomEvent,
+  trackPropertyValue
 };

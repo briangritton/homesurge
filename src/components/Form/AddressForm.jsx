@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import { validateAddress } from '../../utils/validation.js';
 import { trackAddressSelected, trackFormStepComplete, trackFormError } from '../../services/analytics';
+import { trackPropertyValue } from '../../services/facebook';
 import { lookupPropertyInfo } from '../../services/maps.js';
 import { createSuggestionLead } from '../../services/zoho.js';
 import axios from 'axios';
@@ -180,6 +181,30 @@ function AddressForm() {
           }).format(estimatedValue);
         }
         
+        // Track property value obtained for Facebook audience creation
+        if (propertyData.apiEstimatedValue && propertyData.apiEstimatedValue > 0) {
+          // Send the property data to Facebook for value-based audiences
+          trackPropertyValue({
+            ...propertyData,
+            formattedApiEstimatedValue: formattedValue,
+            address: address // Include the address the user entered
+          });
+
+          // Also send to Google Analytics via dataLayer
+          if (window.dataLayer) {
+            window.dataLayer.push({
+              event: 'propertyValueObtained',
+              propertyData: {
+                address: address,
+                value: propertyData.apiEstimatedValue,
+                formattedValue: formattedValue,
+                equity: propertyData.apiEquity || 0,
+                percentageEquity: propertyData.apiPercentage || 0
+              }
+            });
+          }
+        }
+
         // Update form data with property information including equity fields
         updateFormData({
           apiOwnerName: propertyData.apiOwnerName || '',
