@@ -141,8 +141,8 @@ function QualifyingForm() {
     // Update form data locally first
     updateFormData({ [fieldName]: value });
     
-    // Track analytics for current qualifying step with campaign data
-    trackFormStepComplete(qualifyingStep + 2, `Qualifying Question ${qualifyingStep}: ${fieldName} = ${value}`, formData);
+    // We're removing this tracking to avoid too many events
+    // These intermediate steps don't need to be tracked for Facebook
     
     // Move to next step immediately
     const nextQuestionStep = qualifyingStep + 1;

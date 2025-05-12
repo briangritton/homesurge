@@ -130,13 +130,25 @@ export function trackFormStepComplete(stepNumber, stepName, formData) {
   }
 }
 
+// Tracking state to prevent duplicate submission events
+let hasTrackedFormSubmission = false;
+
 /**
  * Track form submission in Facebook
  * @param {object} formData - Submitted form data
  */
 export function trackFormSubmission(formData) {
   if (!PIXEL_ID) return;
-  
+
+  // Prevent duplicate tracking
+  if (hasTrackedFormSubmission) {
+    if (DEBUG_MODE) console.log('Facebook Pixel - Skipping duplicate form submission tracking');
+    return;
+  }
+
+  // Mark as tracked
+  hasTrackedFormSubmission = true;
+
   // Prepare event parameters
   const eventParams = {
     content_name: 'Lead Form Submission',
@@ -145,16 +157,16 @@ export function trackFormSubmission(formData) {
     currency: 'USD',
     status: true
   };
-  
+
   // Add campaign data if available
   if (formData.campaignId) {
     eventParams.campaign_id = formData.campaignId;
     eventParams.campaign_name = formData.campaignName;
   }
-  
+
   // Track Lead event in browser
   ReactPixel.track('Lead', eventParams);
-  
+
   // Also track CompleteRegistration for funnel completion
   ReactPixel.track('CompleteRegistration', {
     content_name: 'Form Completed',
@@ -162,9 +174,9 @@ export function trackFormSubmission(formData) {
     value: eventParams.value,
     currency: 'USD'
   });
-  
+
   if (DEBUG_MODE) {
-    console.log('Facebook Pixel - Lead:', {
+    console.log('Facebook Pixel - Lead and CompleteRegistration events fired:', {
       value: eventParams.value,
       campaign: formData.campaignId
     });
