@@ -1,12 +1,10 @@
 /**
- * Facebook Pixel and Conversions API integration
- * This service handles both browser-side pixel events and server-side conversions API
+ * Facebook Pixel integration (simplified client-side only approach)
+ * This service handles browser-side pixel events
  */
 
-// Import config (during development - will be replaced with env vars)
-// IMPORTANT: Remove this import and use env vars in production
+// Import Facebook Pixel library
 import ReactPixel from 'react-facebook-pixel';
-import axios from 'axios';
 
 // Constants
 const PIXEL_ID = process.env.REACT_APP_FB_PIXEL_ID || '';
@@ -57,8 +55,6 @@ export function trackPageView(path) {
   });
   
   if (DEBUG_MODE) console.log('Facebook Pixel - Page View:', path);
-  
-  // No server-side call for basic page views to reduce API usage
 }
 
 /**
@@ -110,13 +106,10 @@ export function trackFormStepComplete(stepNumber, stepName, formData) {
   
   // Track in browser
   ReactPixel.track(eventName, eventParams);
-
+  
   if (DEBUG_MODE) {
     console.log(`Facebook Pixel - ${eventName}:`, eventParams);
   }
-
-  // Server-side event tracking
-  sendServerEvent(eventName, eventParams, formData);
 }
 
 /**
@@ -158,9 +151,6 @@ export function trackFormSubmission(formData) {
       campaign: formData.campaignId
     });
   }
-  
-  // Server-side event tracking
-  sendServerEvent('Lead', eventParams, formData);
 }
 
 /**
@@ -173,91 +163,9 @@ export function trackCustomEvent(eventName, eventParams = {}) {
   
   // Track in browser
   ReactPixel.trackCustom(eventName, eventParams);
-
+  
   if (DEBUG_MODE) {
     console.log(`Facebook Pixel - ${eventName}:`, eventParams);
-  }
-
-  // Server-side event tracking
-  sendServerEvent(eventName, eventParams);
-}
-
-/**
- * Send event to Facebook Conversions API (server-side)
- * This calls our Vercel serverless function endpoint
- * @param {string} eventName - Facebook standard event name
- * @param {object} eventParams - Event parameters
- * @param {object} userData - User data for matching
- */
-async function sendServerEvent(eventName, eventParams = {}, userData = {}) {
-  if (!PIXEL_ID) return;
-
-  try {
-    // Get browser metadata to help with user matching
-    const cookies = document.cookie.split(';').reduce((acc, cookie) => {
-      const [key, value] = cookie.trim().split('=');
-      acc[key] = value;
-      return acc;
-    }, {});
-
-    // Prepare event data for server
-    const eventData = {
-      eventName,
-      eventTime: Date.now(),
-      eventSourceUrl: window.location.href,
-      eventId: `${eventName}_${Date.now()}`, // Create a unique event ID for deduplication
-      userData: {
-        ...userData,
-        userAgent: navigator.userAgent,
-        // Extract Facebook browser cookies if they exist
-        fbp: cookies._fbp || cookies.fbp || undefined,
-        fbc: cookies._fbc || cookies.fbc || undefined,
-        // Use the client's IP address (will be captured by server)
-        ip: '' // Will be captured by the server
-      },
-      customData: {
-        ...eventParams,
-        value: eventParams.value || 0,
-        currency: eventParams.currency || 'USD',
-        content_category: eventParams.content_category || 'Real Estate',
-        page_title: document.title,
-      }
-    };
-
-    // Log what we're sending in development
-    if (DEBUG_MODE) {
-      console.log('Facebook CAPI - Sending event:', {
-        event_name: eventName,
-        event_params: eventParams,
-        user_data: {
-          email: userData.email ? '[PRESENT]' : undefined,
-          phone: userData.phone ? '[PRESENT]' : undefined,
-          address: userData.street ? '[PRESENT]' : undefined
-        }
-      });
-    }
-
-    // Send to our API endpoint
-    const response = await fetch('/api/facebook-events', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(eventData)
-    });
-
-    const result = await response.json();
-
-    if (!result.success) {
-      console.error('Error sending Facebook CAPI event:', result.error);
-    } else if (DEBUG_MODE) {
-      console.log('Facebook CAPI event sent successfully:', result);
-    }
-
-    return result.success;
-  } catch (error) {
-    console.error('Error sending Facebook CAPI event:', error);
-    return false;
   }
 }
 
