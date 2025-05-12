@@ -153,7 +153,7 @@ export function trackFormSubmission(formData) {
   const eventParams = {
     content_name: 'Lead Form Submission',
     content_category: 'Real Estate',
-    value: formData.apiEstimatedValue ? formData.apiEstimatedValue / 100 : 0,
+    value: formData.apiEstimatedValue ? formData.apiEstimatedValue : 0,
     currency: 'USD',
     status: true
   };
@@ -171,7 +171,7 @@ export function trackFormSubmission(formData) {
   ReactPixel.track('CompleteRegistration', {
     content_name: 'Form Completed',
     status: true,
-    value: eventParams.value,
+    value: eventParams.value, // This now contains the full value
     currency: 'USD'
   });
 
@@ -225,7 +225,7 @@ export function trackPropertyValue(propertyData) {
     content_type: 'real_estate',
     content_name: 'Property Value Obtained',
     content_category: 'Real Estate',
-    value: value / 100, // Convert to dollars for Facebook
+    value: value, // Use the full value - already in dollars
     currency: 'USD',
     property_address: propertyData.address || '',
     estimated_value: value,
