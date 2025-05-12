@@ -21,13 +21,10 @@ function PersonalInfoForm() {
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   
-  // Scroll to top when component mounts and track page view
+  // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
-    
-    // Track form step for analytics
-    trackFormStepComplete(2, 'Personal Info Form Loaded');
-    
+
     // Initialize edited address with current address
     setEditedAddress(formData.street || '');
     

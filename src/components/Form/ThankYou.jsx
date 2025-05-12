@@ -8,11 +8,9 @@ function ThankYou() {
   
   // Track successful form completion on page load
   useEffect(() => {
-    // Track one last time with all completed data
+    // Track just ONE completion event - we'll use trackFormSubmission which includes
+    // both Lead and CompleteRegistration events
     trackFormSubmission(formData);
-    
-    // Track final form step completion with campaign data
-    trackFormStepComplete(4, 'Form Completion - Thank You Page', formData);
     
     // Track conversion in Zoho based on appointment status
     if (leadId) {
