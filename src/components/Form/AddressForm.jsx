@@ -190,17 +190,15 @@ function AddressForm() {
             address: address // Include the address the user entered
           });
 
-          // Also send to Google Analytics via dataLayer
+          // Also send to Google Analytics via dataLayer - using your updated naming conventions
           if (window.dataLayer) {
             window.dataLayer.push({
-              event: 'propertyValueObtained',
-              propertyData: {
-                address: address,
-                value: propertyData.apiEstimatedValue,
-                formattedValue: formattedValue,
-                equity: propertyData.apiEquity || 0,
-                percentageEquity: propertyData.apiPercentage || 0
-              }
+              event: 'api_value', // Matches your trigger name
+              apiValue: propertyData.apiEstimatedValue, // Matches your updated variable name (camelCase)
+              propertyAddress: address,
+              formattedValue: formattedValue,
+              propertyEquity: propertyData.apiEquity || 0,
+              propertyEquityPercentage: propertyData.apiPercentage || 0
             });
           }
         }
