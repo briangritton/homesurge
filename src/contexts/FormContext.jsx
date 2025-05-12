@@ -207,9 +207,17 @@ export function FormProvider({ children }) {
 
   // Handle form step navigation
   const nextStep = () => {
+    // Track the current step before moving to the next
+    // Import from analytics service
+    const { trackFormStepComplete } = require('../services/analytics');
+
+    // Track the current step completion
+    trackFormStepComplete(formData.formStep, `Form Step ${formData.formStep} Completed`, formData);
+
+    // Then move to the next step
     const newStep = formData.formStep + 1;
     setFormData(prev => ({ ...prev, formStep: newStep }));
-    
+
     // Save current step to localStorage to persist across page refreshes
     localStorage.setItem('formStep', newStep.toString());
   };
