@@ -37,23 +37,41 @@ export function initializeFacebookPixel() {
   if (DEBUG_MODE) console.log('Facebook Pixel - Initialized with ID:', PIXEL_ID);
 }
 
+// Keep track of the last path we tracked to avoid duplicates
+let lastTrackedPath = '';
+let lastTrackedTime = 0;
+
 /**
  * Track page view in Facebook Pixel
  * @param {string} path - Current page path
  */
 export function trackPageView(path) {
   if (!PIXEL_ID) return;
-  
+
+  // Avoid duplicate tracking - only track if path changed or 30 seconds elapsed
+  const now = Date.now();
+  const timeSinceLastTrack = now - lastTrackedTime;
+
+  // If this is the same path and it's been less than 30 seconds, skip tracking
+  if (path === lastTrackedPath && timeSinceLastTrack < 30000) {
+    if (DEBUG_MODE) console.log('Facebook Pixel - Skipping duplicate page view for:', path);
+    return;
+  }
+
+  // Update tracking state
+  lastTrackedPath = path;
+  lastTrackedTime = now;
+
   // Track page view
   ReactPixel.pageView();
-  
+
   // Also track as ViewContent event with page path
   ReactPixel.track('ViewContent', {
     content_name: document.title,
     content_type: 'product',
     content_ids: [path]
   });
-  
+
   if (DEBUG_MODE) console.log('Facebook Pixel - Page View:', path);
 }
 

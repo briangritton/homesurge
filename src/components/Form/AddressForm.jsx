@@ -659,7 +659,10 @@ function AddressForm() {
           
           // Process the selected address but don't wait for it to complete
           processAddressSelection(place);
-          
+
+          // Track the form step completion for address
+          trackFormStepComplete(1, 'Address Form Completed (Suggestion)', formData);
+
           // Proceed to next step immediately
           nextStep();
           
