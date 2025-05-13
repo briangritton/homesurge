@@ -14,6 +14,7 @@ function PersonalInfoForm() {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [editMode, setEditMode] = useState('address');
   const [editedAddress, setEditedAddress] = useState(formData.street || '');
+  const [valueLoading, setValueLoading] = useState(!formData.apiEstimatedValue);
 
   const nameRef = useRef(null);
   const phoneRef = useRef(null);
@@ -39,9 +40,47 @@ function PersonalInfoForm() {
     if (confirmationBox) {
       confirmationBox.style.display = 'none';
     }
-  }, [formData.street]);
+    
+    // If we have the apiEstimatedValue, stop the loading state
+    if (formData.apiEstimatedValue) {
+      setValueLoading(false);
+    } else {
+      // If no value yet, set a timeout to stop loading after 3 seconds
+      const valueTimeout = setTimeout(() => {
+        setValueLoading(false);
+      }, 3000);
+      
+      return () => clearTimeout(valueTimeout);
+    }
+  }, [formData.street, formData.apiEstimatedValue]);
   
   // Initialize Google Map when component mounts
+  // Add CSS for animated dots
+  useEffect(() => {
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+      @keyframes loadingDots {
+        0% { content: "."; }
+        33% { content: ".."; }
+        66% { content: "..."; }
+        100% { content: ""; }
+      }
+      
+      .loading-dots::after {
+        content: "";
+        animation: loadingDots 1.5s infinite;
+        display: inline-block;
+        width: 20px;
+        text-align: left;
+      }
+    `;
+    document.head.appendChild(styleElement);
+
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
+
   useEffect(() => {
     // Track map loading attempts to prevent infinite retries
     let mapLoadAttempted = false;
@@ -149,6 +188,11 @@ function PersonalInfoForm() {
           console.warn('Map initialization taking too long, marking as loaded anyway');
           setMapLoaded(true);
         }
+        
+        // Also set value loading to false after a delay regardless of API response
+        setTimeout(() => {
+          setValueLoading(false);
+        }, 2000);
       }, 5000);
       
       // If we have location from Google Maps autocomplete
@@ -649,7 +693,11 @@ function PersonalInfoForm() {
             {formData.street}
           </div>
           
-          {formData.apiMaxHomeValue ? (
+          {valueLoading ? (
+            <div className="hero-property-estimate">
+              <span className="loading-dots">Retrieving Maximum Value</span>
+            </div>
+          ) : formData.apiMaxHomeValue ? (
             <div className="hero-property-estimate">
               Maximum Value: {new Intl.NumberFormat('en-US', {
                 style: 'currency',
