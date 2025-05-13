@@ -1,0 +1,49 @@
+Google Tracking
+-----------------
+Google Tag: G-L1BJWHLFF6
+GA4 Configuration
+GA4 - Address Selected:  
+GA4 - Api Value:  
+GA4 - Contract Conversion:  
+GA4 - Form Error:
+GA4 - Form Step Complete
+GA4 - Form Submission
+GA4 - Phone Number lead
+GA4 - Revenue Conversion
+GA4 - Transaction Conversion
+
+
+Facebook Tracking
+--------------------
+Pixel ID: 230683406108508
+
+Standard Events:
+- ViewContent: Fires on each page view with page details
+- InitiateCheckout: Fires when address form is submitted (step 1)
+- AddPaymentInfo: Fires when name/phone info is submitted (step 2)
+- Lead: Fires when qualifying form is completed (step 3)
+- CompleteRegistration: Fires on thank you page (step 4)
+
+Custom Events:
+- PropertyValueObtained: Fires when Melissa API returns property value
+  Parameters: value (property value), value_tier (property value range)
+  Value tiers:
+  * under_200k
+  * 200k_300k
+  * 300k_400k
+  * 400k_500k
+  * 500k_750k
+  * 750k_1m
+  * over_1m
+
+Audience Building Recommendations:
+1. All Website Visitors: Users who triggered ViewContent
+2. Started Form: Users who triggered InitiateCheckout
+3. Provided Contact: Users who triggered AddPaymentInfo
+4. Complete Leads: Users who triggered Lead
+5. High-Value Properties: PropertyValueObtained with value_tier = over_1m or 750k_1m
+6. Mid-Value Properties: PropertyValueObtained with value_tier = 300k-750k
+7. Budget Properties: PropertyValueObtained with value_tier = under_300k
+8. Address Abandonment: Include InitiateCheckout, Exclude AddPaymentInfo
+9. Contact Abandonment: Include AddPaymentInfo, Exclude Lead
+

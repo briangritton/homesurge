@@ -192,14 +192,25 @@ function AddressForm() {
 
           // Also send to Google Analytics via dataLayer - using your updated naming conventions
           if (window.dataLayer) {
-            window.dataLayer.push({
+            // Log for debugging - you can remove this later
+            console.log('SENDING API_VALUE EVENT TO DATALAYER:', {
+              apiEstimatedValue: propertyData.apiEstimatedValue,
+              address: address
+            });
+
+            const dataLayerEvent = {
               event: 'api_value', // Matches your trigger name
               apiValue: propertyData.apiEstimatedValue, // Matches your updated variable name (camelCase)
               propertyAddress: address,
               formattedValue: formattedValue,
               propertyEquity: propertyData.apiEquity || 0,
               propertyEquityPercentage: propertyData.apiPercentage || 0
-            });
+            };
+
+            window.dataLayer.push(dataLayerEvent);
+
+            // Additional debug log
+            console.log('DataLayer after push:', [...window.dataLayer]);
           }
         }
 
