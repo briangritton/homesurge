@@ -447,7 +447,7 @@ function AddressForm() {
     try {
       // Make sure we have enough characters to get suggestions
       if (formData.street.length < 2) {
-        setErrorMessage('Please enter at least 2 characters to search for an address');
+        setErrorMessage('Please enter a valid address');
         setIsLoading(false);
         return;
       }
@@ -522,7 +522,7 @@ function AddressForm() {
     try {
       // Make sure we have enough characters to get suggestions
       if (formData.street.length < 2) {
-        setErrorMessage('Please enter at least 2 characters to search for an address');
+        setErrorMessage('Please enter a valid address');
         setIsLoading(false);
         return;
       }
@@ -797,7 +797,7 @@ function AddressForm() {
       
       <div className="hero-middle-container">
         <div className="hero-content fade-in">
-          <div className="hero-headline">{formData.dynamicHeadline || "Sell Your House For Cash Fast!"}</div>
+          <div className="hero-headline">{formData.dynamicHeadline || "Sell Your House For Cash\u00A0Fast!"}</div>
           <div className="hero-subheadline">{formData.dynamicSubHeadline || "Get a Great Cash Offer For Your House and Close Fast!"}</div>
           
           {/* This is now a div, not a form! We don't want form submission at all */}
