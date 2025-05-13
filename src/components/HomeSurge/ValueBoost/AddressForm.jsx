@@ -512,10 +512,20 @@ function AddressForm() {
         }
       }
       
-      // If we don't have a suggestion yet or there was an error, 
-      // show an error message
-      setErrorMessage('Please select an address from the dropdown or wait for suggestions to load');
-      setIsLoading(false);
+      // If address text is reasonable length, allow form to proceed anyway
+      // This provides a fallback if Google Places API fails
+      if (formData.street && formData.street.length > 10 && validateAddress(formData.street)) {
+        console.log('No suggestion available, but address text is reasonable - proceeding anyway');
+        await fetchPropertyData(formData.street);
+        trackFormStepComplete(1, 'Address Form Completed (Fallback)', formData);
+        nextStep();
+        setIsLoading(false);
+        return;
+      } else {
+        // Only show error for short addresses
+        setErrorMessage('Please enter a complete address or select from dropdown suggestions');
+        setIsLoading(false);
+      }
     } catch (error) {
       console.error('Error handling Enter key:', error);
       setIsLoading(false);
