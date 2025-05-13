@@ -72,7 +72,7 @@ body {
   margin-top: 20px;
   flex-wrap: wrap;
   position: relative;
-  z-index: 10;
+ 
 }
 
 .header-left {
@@ -1387,14 +1387,14 @@ body {
   }
   
   .overlay-form-input {
-    height: 45px;
-    font-size: 1rem;
+    /* height: 45px;
+    font-size: 1rem; */
   }
   
   .registration-button {
-    height: 50px;
-    font-size: 1.1rem;
-  }
+    font-size: 1.2rem;
+    height: 60px;
+}
 
   .pac-container {
     z-index: 9999 !important;
