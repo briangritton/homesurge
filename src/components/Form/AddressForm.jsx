@@ -743,18 +743,24 @@ function AddressForm() {
       }
       .pac-item {
         padding: 8px 15px;
-        font-size: 1.2rem;
+        font-size: 1.5rem; /* Increased font size to match input */
         cursor: pointer !important;
       }
       .pac-item:hover {
         background-color: #f5f5f5;
       }
       .pac-item-query {
-        font-size: 1.2rem;
+        font-size: 1.5rem; /* Increased font size to match input */
         color: #333;
       }
       .pac-matched {
         font-weight: bold;
+      }
+      
+      /* Make sure the suggestions container has enough width */
+      .pac-container {
+        width: auto !important;
+        min-width: 300px;
       }
     `;
     
