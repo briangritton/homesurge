@@ -1411,14 +1411,14 @@ body {
   
   .pac-item {
     padding: 8px 15px;
-    font-size: 1rem;
+    font-size: 1rem !important;
     cursor: pointer !important;
     border-top: 1px solid #e6e6e6;
   }
   
   .pac-item:first-child {
     border-top: none;
-    font-size: 1rem;
+    font-size: 1rem !important;
   }
   
   .pac-item:hover {
@@ -1427,7 +1427,7 @@ body {
   }
   
   .pac-item-query {
-    font-size: 1rem;
+    font-size: 1rem !important;
     color: #333;
   }
 
