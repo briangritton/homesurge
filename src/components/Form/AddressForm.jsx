@@ -190,18 +190,35 @@ function AddressForm() {
             address: address // Include the address the user entered
           });
 
-          // Also send to Google Analytics via dataLayer
+          // Also send to Google Analytics via dataLayer with a delay to ensure GTM is loaded
           if (window.dataLayer) {
-            window.dataLayer.push({
-              event: 'propertyValueObtained',
-              propertyData: {
-                address: address,
-                value: propertyData.apiEstimatedValue,
-                formattedValue: formattedValue,
-                equity: propertyData.apiEquity || 0,
-                percentageEquity: propertyData.apiPercentage || 0
-              }
+            // Log for debugging - you can remove this later
+            console.log('PREPARING API_VALUE EVENT FOR DATALAYER (with delay):', {
+              apiEstimatedValue: propertyData.apiEstimatedValue,
+              address: address
             });
+
+            const dataLayerEvent = {
+              event: 'api_value', // Matches your trigger name
+              apiValue: propertyData.apiEstimatedValue, // Matches your updated variable name (camelCase)
+              propertyAddress: address,
+              formattedValue: formattedValue,
+              propertyEquity: propertyData.apiEquity || 0,
+              propertyEquityPercentage: propertyData.apiPercentage || 0
+            };
+
+            // Add a 1-second delay to ensure GTM is fully loaded
+            setTimeout(() => {
+              console.log('SENDING DELAYED API_VALUE EVENT TO DATALAYER:', dataLayerEvent);
+              window.dataLayer.push(dataLayerEvent);
+
+              // Log the actual value for verification
+              console.log('PROPERTY VALUE SENT TO GTM:', {
+                rawValue: propertyData.apiEstimatedValue,
+                formattedValue: formattedValue,
+                dataLayerContents: [...window.dataLayer]
+              });
+            }, 1000);
           }
         }
 

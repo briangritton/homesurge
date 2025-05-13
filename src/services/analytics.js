@@ -124,7 +124,7 @@ export function trackFormSubmission(formData) {
       gclid: formData.gclid || '',
       trafficSource: formData.trafficSource || 'Direct'
     },
-    conversionValue: formData.apiEstimatedValue ? Math.round(formData.apiEstimatedValue / 1000) : 0
+    conversionValue: formData.apiEstimatedValue ? Math.round(formData.apiEstimatedValue / 1000) : 0 // Intentionally dividing by 1000 for a "K" value scale
   });
 
   // Track in Facebook Pixel

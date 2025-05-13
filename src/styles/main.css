@@ -40,7 +40,7 @@ body {
 
 /* Only show "Please confirm" text on the map confirmation page */
 .app > .form-main > .form-inner-content > .hero-section > .hero-middle-container > .hero-content.max-width-500::before {
-  content: "Please confirm your address is correct";
+  content: "Please confirm your address and home value:";
   display: block;
   font-size: 2.5rem;
   font-weight: bold;
@@ -219,7 +219,7 @@ body {
 
 
 .hero-content::before {
-  content: "Please confirm your address is correct";
+  content: "Please confirm your address and home value";
   display: block;
   font-size: 2.5rem;
   font-weight: bold;
@@ -1213,7 +1213,9 @@ body {
 /* Extra small screens (mobile, 560px and below) */
 @media only screen and (max-width: 560px) {
 
-
+  .form-inner-content {
+    max-width: 100%;
+}
   .thank-you-section {
  
     width: 100%;
@@ -1229,14 +1231,14 @@ body {
 }
 
 
-  .form-main {
-    align-items: center;
-    display: flex
+.form-main {
+  align-items: center;
+  display: flex
 ;
-    justify-content: center;
-    min-height: calc(100vh - 50px);
-    width: 100%;
-    max-width: 90%;
+  justify-content: center;
+  max-width: 75%;
+  min-height: calc(100vh - 50px);
+  width: 100%;
 }
 .form-container {
   flex-direction: column;
@@ -1543,11 +1545,14 @@ button:disabled,
 }
 
 .error-message {
-  color: #dc3545;
-  background-color: #f8d7da;
-  padding: 10px;
+  /* background-color: #f8d7da; */
+  color: #3490d1;
+}
+
+.error-message, .success-message {
   border-radius: 4px;
   margin-top: 15px;
+  padding: 10px;
 }
 
 .loading-indicator {
