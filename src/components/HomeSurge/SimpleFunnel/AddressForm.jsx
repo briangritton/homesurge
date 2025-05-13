@@ -415,7 +415,7 @@ function AddressForm() {
     try {
       // Make sure we have enough characters to get suggestions
       if (formData.street.length < 2) {
-        setErrorMessage('Please enter at least 2 characters to search for an address');
+        setErrorMessage('Please enter a valid address');
         setIsLoading(false);
         return;
       }
@@ -490,7 +490,7 @@ function AddressForm() {
     try {
       // Make sure we have enough characters to get suggestions
       if (formData.street.length < 2) {
-        setErrorMessage('Please enter at least 2 characters to search for an address');
+        setErrorMessage('Please enter a valid address');
         setIsLoading(false);
         return;
       }
