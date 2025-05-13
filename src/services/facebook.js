@@ -113,7 +113,7 @@ export function trackFormStepComplete(stepNumber, stepName, formData) {
       eventName = 'CompleteRegistration';
       eventParams.content_name = 'Form Completed';
       if (formData?.apiEstimatedValue) {
-        eventParams.value = formData.apiEstimatedValue / 100; // Convert to dollars
+        eventParams.value = formData.apiEstimatedValue; // Value is already in dollars
         eventParams.currency = 'USD';
       }
       break;
@@ -229,7 +229,10 @@ export function trackPropertyValue(propertyData) {
     currency: 'USD',
     property_address: propertyData.address || '',
     estimated_value: value,
-    formatted_value: formattedValue
+    formatted_value: formattedValue,
+    // Add equity information for audience segmentation
+    property_equity: propertyData.apiEquity || 0,
+    property_equity_percentage: propertyData.apiPercentage || 0
   };
 
   // Add value tiers for easier audience segmentation
@@ -249,13 +252,51 @@ export function trackPropertyValue(propertyData) {
     eventParams.value_tier = 'over_1m';
   }
 
+  // Add equity tiers for targeted marketing
+  const equity = propertyData.apiEquity || 0;
+  if (equity <= 0) {
+    eventParams.equity_tier = 'no_equity';
+  } else if (equity < 50000) {
+    eventParams.equity_tier = 'under_50k';
+  } else if (equity < 100000) {
+    eventParams.equity_tier = '50k_100k';
+  } else if (equity < 200000) {
+    eventParams.equity_tier = '100k_200k';
+  } else if (equity < 300000) {
+    eventParams.equity_tier = '200k_300k';
+  } else {
+    eventParams.equity_tier = 'over_300k';
+  }
+
+  // Add equity percentage tiers
+  const equityPercentage = propertyData.apiPercentage || 0;
+  if (equityPercentage <= 0) {
+    eventParams.equity_percentage_tier = 'no_equity';
+  } else if (equityPercentage < 10) {
+    eventParams.equity_percentage_tier = 'under_10_percent';
+  } else if (equityPercentage < 20) {
+    eventParams.equity_percentage_tier = '10_20_percent';
+  } else if (equityPercentage < 30) {
+    eventParams.equity_percentage_tier = '20_30_percent';
+  } else if (equityPercentage < 50) {
+    eventParams.equity_percentage_tier = '30_50_percent';
+  } else if (equityPercentage < 75) {
+    eventParams.equity_percentage_tier = '50_75_percent';
+  } else {
+    eventParams.equity_percentage_tier = 'over_75_percent';
+  }
+
   // Track custom event in browser
   ReactPixel.trackCustom('PropertyValueObtained', eventParams);
 
   if (DEBUG_MODE) {
     console.log('Facebook Pixel - PropertyValueObtained:', {
       value: eventParams.value,
-      value_tier: eventParams.value_tier
+      value_tier: eventParams.value_tier,
+      property_equity: eventParams.property_equity,
+      equity_tier: eventParams.equity_tier,
+      property_equity_percentage: eventParams.property_equity_percentage,
+      equity_percentage_tier: eventParams.equity_percentage_tier
     });
   }
 }
