@@ -122,6 +122,17 @@ function getConversionValue(event, customValue = null) {
  * @returns {Promise<string>} - The ID of the created lead
  */
 export async function submitLeadToZoho(formData) {
+  console.log("%c SUBMIT LEAD TO ZOHO CALLED", "background: #4caf50; color: white; font-size: 16px; padding: 5px;");
+  console.log("Form data provided:", {
+    name: formData.name,
+    address: formData.street,
+    campaignName: formData.campaignName,
+    campaignId: formData.campaignId,
+    adgroupName: formData.adgroupName,
+    keyword: formData.keyword,
+    templateType: formData.templateType
+  });
+  
   try {
     // Get list of fields that should only be sent if they have been interacted with
     const qualifyingFields = [
@@ -295,7 +306,30 @@ export async function submitLeadToZoho(formData) {
         },
         timestamp: new Date().toISOString()
       };
+      
+      // Store in sessionStorage
       sessionStorage.setItem('zohoDataSent', JSON.stringify(zohoDataSent));
+      
+      // Log detailed information about what's being sent to Zoho
+      console.log("%c ZOHO DATA BEING SENT - VERIFY CAMPAIGN INFO", "background: #e91e63; color: white; font-size: 14px; padding: 5px;");
+      console.log("Contact Info:", {
+        name: preparedData.name,
+        phone: preparedData.phone,
+        email: preparedData.email
+      });
+      console.log("Campaign Data:", {
+        campaignName: preparedData.campaignName,
+        campaignId: preparedData.campaignId, 
+        adgroupName: preparedData.adgroupName,
+        adgroupId: preparedData.adgroupId,
+        keyword: preparedData.keyword,
+        gclid: preparedData.gclid,
+        device: preparedData.device,
+        templateType: preparedData.templateType
+      });
+      console.log("URL:", preparedData.url);
+      console.log("Complete prepared data:", preparedData);
+      
     } catch (e) {
       console.error("Error storing Zoho data in sessionStorage:", e);
     }

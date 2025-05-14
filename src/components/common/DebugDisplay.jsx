@@ -41,7 +41,18 @@ const DebugDisplay = () => {
         // Get Zoho data from sessionStorage
         const zohoDataSent = sessionStorage.getItem('zohoDataSent');
         if (zohoDataSent) {
-          setZohoData(JSON.parse(zohoDataSent));
+          try {
+            const parsedData = JSON.parse(zohoDataSent);
+            setZohoData(parsedData);
+            
+            // Log whenever we get new data to verify it's being read
+            console.log("%c Debug Display - Zoho Data Found in Session", "background: #9c27b0; color: white; font-size: 12px;");
+            console.log("Zoho data from session:", parsedData);
+          } catch (parseError) {
+            console.error("Error parsing Zoho data:", parseError, zohoDataSent);
+          }
+        } else {
+          console.log("No zohoDataSent found in sessionStorage");
         }
       } catch (e) {
         console.error("Error parsing localStorage/sessionStorage data:", e);
@@ -95,7 +106,7 @@ const DebugDisplay = () => {
   const hasZohoData = zohoData !== null;
   
   // State for active tab
-  const [activeTab, setActiveTab] = useState('url');
+  const [activeTab, setActiveTab] = useState('zoho');
   
   return (
     <div style={debugStyles}>

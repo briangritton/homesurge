@@ -332,6 +332,22 @@ function AddressForm() {
     
     // Create or update lead with the final selection and address data
     try {
+      // Get campaign data from formContext
+      const { campaignName, campaignId, adgroupId, adgroupName, keyword, gclid, device, trafficSource, templateType } = formData;
+      
+      console.log("%c AddressForm - Campaign Data Check", "background: #ff9800; color: black; font-size: 12px; padding: 4px;");
+      console.log("Campaign Data in FormContext:", {
+        campaignName,
+        campaignId,
+        adgroupId, 
+        adgroupName,
+        keyword,
+        gclid,
+        device,
+        trafficSource,
+        templateType
+      });
+      
       // Prepare data for the lead
       const finalSelectionData = {
         // Use the proper field names that will map to Zoho
@@ -348,7 +364,21 @@ function AddressForm() {
         suggestionFour: addressSuggestions[3]?.description || '',
         suggestionFive: addressSuggestions[4]?.description || '',
         addressSelectionType: 'Google',
-        leadStage: 'Address Selected'
+        leadStage: 'Address Selected',
+        
+        // Explicitly add campaign data to ensure it's passed to Zoho
+        campaignName: campaignName || '',
+        campaignId: campaignId || '',
+        adgroupId: adgroupId || '',
+        adgroupName: adgroupName || '',
+        keyword: keyword || '',
+        gclid: gclid || '',
+        device: device || '',
+        trafficSource: trafficSource || 'Direct',
+        templateType: templateType || '',
+        dynamicHeadline: formData.dynamicHeadline || '',
+        dynamicSubHeadline: formData.dynamicSubHeadline || '',
+        buttonText: formData.buttonText || ''
       };
       
       console.log('Sending address components to Zoho:', {
