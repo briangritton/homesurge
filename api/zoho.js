@@ -265,7 +265,10 @@ module.exports = async (req, res) => {
             Campaign_Name: formData.campaignName || "",
             Ad_Group: formData.adgroupName || "",  
             Device_Used: formData.device || "",
-            Keyword: formData.keyword || "",
+            Keyword: formData.keyword || "", // Zoho system field
+            keywords: formData.keyword || "", // Custom field for redundancy
+            search_term: formData.keyword || "", // Alternative field name
+            search_query: formData.keyword || "", // Another alternative
             GCLID: formData.gclid || "",
             URL: formData.url || "",
             Template_Type: formData.templateType || "",
@@ -318,7 +321,7 @@ module.exports = async (req, res) => {
         ]
       };
       
-      // Log the data being sent for debugging
+      // Log the data being sent for debugging - include campaign data
       console.log("Creating lead with key fields:", 
         JSON.stringify({
           needsRepairs: formData.needsRepairs,
@@ -339,6 +342,17 @@ module.exports = async (req, res) => {
             city: formData.city,
             state: formData.state,
             zip: formData.zip
+          },
+          campaignData: {
+            campaignName: formData.campaignName || "Not provided",
+            campaignId: formData.campaignId || "Not provided", 
+            adgroupName: formData.adgroupName || "Not provided",
+            adgroupId: formData.adgroupId || "Not provided",
+            keyword: formData.keyword || "Not provided",
+            trafficSource: formData.trafficSource || "Not provided",
+            templateType: formData.templateType || "Not provided",
+            gclid: formData.gclid || "Not provided",
+            device: formData.device || "Not provided"
           }
         }, null, 2)
       );
@@ -494,7 +508,10 @@ module.exports = async (req, res) => {
             Campaign_Name: formData.campaignName || "",
             Ad_Group: formData.adgroupName || "",  
             Device_Used: formData.device || "",
-            Keyword: formData.keyword || "",
+            Keyword: formData.keyword || "", // Zoho system field
+            keywords: formData.keyword || "", // Custom field for redundancy
+            search_term: formData.keyword || "", // Alternative field name
+            search_query: formData.keyword || "", // Another alternative
             GCLID: formData.gclid || "",
             URL: formData.url || "",
             Template_Type: formData.templateType || "",
@@ -541,7 +558,7 @@ module.exports = async (req, res) => {
         ]
       };
       
-      // Log the data being updated for debugging
+      // Log the data being updated for debugging - include campaign data
       console.log("Updating lead with key fields:", 
         JSON.stringify({
           needsRepairs: formData.needsRepairs,
@@ -558,6 +575,22 @@ module.exports = async (req, res) => {
             city: formData.city,
             state: formData.state,
             zip: formData.zip
+          },
+          campaignData: {
+            zohoFields: {
+              campaignSource: formData.Campaign_Source,
+              campaignName: formData.Campaign_Name,
+              adGroup: formData.Ad_Group,
+              keyword: formData.Keyword, 
+              keywords: formData.keywords,
+              searchTerm: formData.search_term
+            },
+            ourFields: {
+              trafficSource: formData.trafficSource,
+              campaignName: formData.campaignName,
+              adgroupName: formData.adgroupName,
+              keyword: formData.keyword
+            }
           }
         }, null, 2)
       );
