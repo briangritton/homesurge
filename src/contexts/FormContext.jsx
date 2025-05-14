@@ -453,18 +453,13 @@ export function FormProvider({ children }) {
     }
   };
 
-  // Enhanced dynamic content handler based on campaign name, ID, and keyword
+  // Simplified dynamic content handler based only on campaign name
   const setDynamicContent = (keyword, campaignId, adgroupId) => {
     // Get the campaign name from form state (should be set by now)
     const campaignName = formData.campaignName || '';
     
-    // Log detailed debugging info
-    console.log('Setting dynamic content with:', { 
-      keyword, 
-      campaignId, 
-      adgroupId,
-      campaignName
-    });
+    // Log information about the current campaign
+    console.log('Setting dynamic content based on campaign name:', campaignName);
     
     // Campaign templates organized by campaign names
     const campaignTemplates = {
@@ -533,14 +528,14 @@ export function FormProvider({ children }) {
       thankYouSubHeadline: 'You\'ll be receiving your requested details at your contact number shortly, thank you!'
     };
     
-    // First try to match by campaign name (primary method)
+    // Try to find an exact match for the campaign name
     let contentTemplate = null;
     
     if (campaignName && campaignTemplates[campaignName]) {
       console.log('Found exact match for campaign name:', campaignName);
       contentTemplate = campaignTemplates[campaignName];
-    } else {
-      // Try substring matching if exact match fails
+    } else if (campaignName) {
+      // Try substring matching for campaign name if we have a name but no exact match
       const campaignNameLower = campaignName.toLowerCase();
       
       // Campaign name partial matching with priorities
@@ -553,40 +548,15 @@ export function FormProvider({ children }) {
       } else if (campaignNameLower.includes('fast')) {
         console.log('Campaign name contains "fast" - using fast template');
         contentTemplate = campaignTemplates["Sell Fast, On Own, No Agent, Form Submit (Google only)"];
-      } else if (campaignId === "20196006239") {
-        // Fallback to Campaign ID if name matching fails
-        console.log('Using template based on campaign ID:', campaignId);
-        contentTemplate = campaignTemplates["Sell For Cash Form Submit (Google only)"];
-      } else if (campaignId === "20311247419") {
-        console.log('Using template based on campaign ID:', campaignId);
-        contentTemplate = campaignTemplates["Sell Fast, On Own, No Agent, Form Submit (Google only)"];
       } else {
-        // If all else fails, fall back to keyword matching
-        if (!keyword) {
-          console.log('No campaign match and no keyword - using default template');
-          contentTemplate = defaultContent;
-        } else {
-          // Convert to lowercase and clean keyword for matching
-          const sanitizedKeyword = keyword.replace(/[^a-z0-9\s]/gi, "").toLowerCase();
-          const keywordWords = sanitizedKeyword.split(" ");
-          console.log('Falling back to keyword matching with words:', keywordWords);
-          
-          // Keyword fallback matching with priorities (cash > value > fast)
-          if (keywordWords.includes('cash')) {
-            console.log('Keyword contains "cash" - using cash template');
-            contentTemplate = campaignTemplates["Sell For Cash Form Submit (Google only)"];
-          } else if (keywordWords.includes('value')) {
-            console.log('Keyword contains "value" - using value template');
-            contentTemplate = campaignTemplates["T3 - fvalue (Google only)"];
-          } else if (keywordWords.includes('fast')) {
-            console.log('Keyword contains "fast" - using fast template');
-            contentTemplate = campaignTemplates["Sell Fast, On Own, No Agent, Form Submit (Google only)"];
-          } else {
-            console.log('No matching keyword - using default content');
-            contentTemplate = defaultContent;
-          }
-        }
+        // No matching substring in campaign name
+        console.log('No matching pattern in campaign name - using default template');
+        contentTemplate = defaultContent;
       }
+    } else {
+      // No campaign name at all
+      console.log('No campaign name available - using default template');
+      contentTemplate = defaultContent;
     }
     
     // If we still don't have a template, use default
@@ -603,8 +573,7 @@ export function FormProvider({ children }) {
       dynamicSubHeadline: contentTemplate.subHeadline,
       thankYouHeadline: contentTemplate.thankYouHeadline || 'Request Completed!',
       thankYouSubHeadline: contentTemplate.thankYouSubHeadline || 'You\'ll be receiving your requested details at your contact number shortly, thank you!',
-      buttonText: contentTemplate.buttonText || 'CHECK OFFER',
-      trafficSource: 'Google Search'
+      buttonText: contentTemplate.buttonText || 'CHECK OFFER'
     }));
   };
   
@@ -627,23 +596,34 @@ export function FormProvider({ children }) {
     const device = urlParams.get('device') || '';
     const gclid = urlParams.get('gclid') || '';
     
-    // Try to get campaign_name directly from URL if present
-    let campaignName = urlParams.get('campaign_name') || '';
+    // Try to get campaign_name from URL, checking all possible parameter names
+    let campaignName = '';
     
-    // If not present, try alternate format
-    if (!campaignName) {
-      campaignName = urlParams.get('campaignname') || '';
+    // Check multiple possible parameter names for campaign name
+    const possibleParamNames = [
+      'campaign_name',
+      'campaignname',
+      'campaign name',
+      'campaign-name',
+      'utm_campaign',
+      'utmcampaign'
+    ];
+    
+    for (const paramName of possibleParamNames) {
+      const value = urlParams.get(paramName);
+      if (value) {
+        campaignName = value;
+        console.log(`Found campaign name in parameter "${paramName}": ${value}`);
+        break;
+      }
     }
     
-    // If still not found, try with underscores
-    if (!campaignName) {
-      campaignName = urlParams.get('campaign_name') || '';
-    }
-    
-    // Normalize campaign name if it's in a different format
-    if (campaignName.includes('%20')) {
+    // Normalize campaign name if needed
+    if (campaignName.includes('%20') || campaignName.includes('+')) {
       campaignName = decodeURIComponent(campaignName);
     }
+    
+    console.log('Final processed campaign name:', campaignName);
     
     // If we have a direct campaign name from the URL, use it
     // Otherwise, determine campaign name based on campaignId
