@@ -837,7 +837,7 @@ function AddressForm() {
               disabled={isLoading}
               onClick={handleButtonClick}
             >
-              {isLoading ? 'CHECKING...' : 'CHECK OFFER'}
+              {isLoading ? 'CHECKING...' : formData.buttonText || 'CHECK OFFER'}
             </button>
           </div>
           

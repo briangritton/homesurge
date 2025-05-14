@@ -14,6 +14,7 @@ import Privacy from './components/common/Privacy';
 import ZohoTest from './components/ZohoTest';
 import SalesPage from './components/SalesPage';
 import ValueBoostContainer from './components/HomeSurge/ValueBoost/ValueBoostContainer';
+import DebugDisplay from './components/common/DebugDisplay';
 
 // Styles
 import './styles/main.css';
@@ -46,7 +47,7 @@ function FormContainer() {
     console.log('Dynamic content and campaign tracking initialized from URL parameters');
     
     // Delay logging parameters to ensure state updates have been applied
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       console.log('Current campaign parameters:', {
         campaignId: formData.campaignId || 'Not set',
         campaignName: formData.campaignName || 'Not set',
@@ -55,7 +56,9 @@ function FormContainer() {
         keyword: formData.keyword || 'Not set',
         trafficSource: formData.trafficSource || 'Direct'
       });
-    }, 100);
+    }, 500); // Longer delay to ensure state updates complete
+    
+    return () => clearTimeout(timer); // Cleanup on unmount
     
     // No dependencies - only run once on mount
   }, []);
@@ -102,6 +105,7 @@ function App() {
             <Route path="/valueboost" element={<ValueBoostContainer />} />
           </Routes>
           <Footer />
+          <DebugDisplay /> {/* Add debug display to show campaign data */}
         </BrowserRouter>
       </FormProvider>
     </div>

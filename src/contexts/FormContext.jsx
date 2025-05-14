@@ -129,24 +129,11 @@ export function FormProvider({ children }) {
       localStorage.setItem('userId', userId);
     }
     
-    // Get URL parameters for tracking
-    const urlParams = new URLSearchParams(window.location.search);
-    const campaignId = urlParams.get('campaignid');
-    const adgroupId = urlParams.get('adgroupid');
-    const keyword = urlParams.get('keyword');
-    const device = urlParams.get('device');
-    const gclid = urlParams.get('gclid');
-    
-    // Update form data with user ID and tracking parameters
+    // ONLY SET USER ID - NOT CAMPAIGN DATA
+    // Campaign data will be handled by initFromUrlParams
     setFormData(prev => ({
       ...prev,
       userId,
-      campaignId: campaignId || '',
-      adgroupId: adgroupId || '',
-      keyword: keyword || '',
-      device: device || '',
-      gclid: gclid || '',
-      trafficSource: urlParams.get('source') || 'Direct',
       url: window.location.href
     }));
     
@@ -155,7 +142,16 @@ export function FormProvider({ children }) {
     if (storedFormData) {
       try {
         const parsedData = JSON.parse(storedFormData);
-        setFormData(prev => ({...prev, ...parsedData}));
+        
+        // Filter out campaign tracking fields to prevent duplicated or conflicting updates
+        // We'll handle those separately in initFromUrlParams
+        const {
+          campaignId, campaignName, adgroupId, adgroupName, 
+          keyword, device, gclid, trafficSource, ...otherData
+        } = parsedData;
+        
+        // Only update non-campaign data
+        setFormData(prev => ({...prev, ...otherData}));
       } catch (e) {
         console.error('Error parsing stored form data:', e);
       }
@@ -459,11 +455,31 @@ export function FormProvider({ children }) {
 
   // Enhanced dynamic content handler based on campaign ID and keyword
   const setDynamicContent = (keyword, campaignId, adgroupId) => {
-    if (!keyword) return;
+    // Log detailed debugging info
+    console.log('Setting dynamic content with:', { keyword, campaignId, adgroupId });
+    
+    // Early return if no keyword provided
+    if (!keyword) {
+      console.log('No keyword provided, using default content');
+      
+      // Set defaults even when no keyword is provided
+      setFormData(prev => ({
+        ...prev,
+        dynamicHeadline: 'Sell Your House For Cash Fast!',
+        dynamicSubHeadline: 'We Buy Houses In Any Condition. Get an Instant Cash Offer Now!',
+        buttonText: 'CHECK OFFER',
+        thankYouHeadline: 'Request Completed!',
+        thankYouSubHeadline: 'You\'ll be receiving your requested details at your contact number shortly, thank you!'
+      }));
+      
+      return;
+    }
     
     // Convert to lowercase and clean keyword for matching
     const sanitizedKeyword = keyword.replace(/[^a-z0-9\s]/gi, "").toLowerCase();
     const keywordWords = sanitizedKeyword.split(" ");
+    
+    console.log('Processed keywords:', keywordWords);
     
     // Create a config object for the cash offer campaign (20196006239)
     const cashOfferConfig = {
@@ -535,65 +551,77 @@ export function FormProvider({ children }) {
     let campaignConfig;
     if (campaignId === "20196006239") {
       campaignConfig = cashOfferConfig;
+      console.log('Using cash offer config for campaign ID:', campaignId);
     } else {
+      console.log('Using general campaign handling for campaign ID:', campaignId);
+      
       // For all other campaigns, use a simpler approach
-      if (keywordWords.includes('cash') && keywordWords.includes('sell')) {
-        updateFormData({
+      let contentUpdates = {};
+      
+      // Check for keywords in priority order (cash takes precedence over fast)
+      if (keywordWords.includes('cash')) {
+        console.log('Keyword "cash" found - using cash headline');
+        contentUpdates = {
           dynamicHeadline: 'Sell Your House For Cash Fast!',
           dynamicSubHeadline: 'Get a great cash offer for your house and close fast!',
           thankYouHeadline: 'Cash Offer Request Completed!',
           thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!',
           buttonText: 'CHECK OFFER',
-          trafficSource: 'Google Search',
-          url: window.location.href
-        });
+          trafficSource: 'Google Search'
+        };
       } else if (keywordWords.includes('value')) {
-        updateFormData({
+        console.log('Keyword "value" found - using value headline');
+        contentUpdates = {
           dynamicHeadline: 'Check The Value Of Your House!',
           dynamicSubHeadline: 'Find out how much your home is worth today.',
           thankYouHeadline: 'Home Value Request Completed!',
           thankYouSubHeadline: 'You\'ll be receiving your home value details at your contact number shortly, thank you!',
           buttonText: 'CHECK VALUE',
-          trafficSource: 'Google Search',
-          url: window.location.href
-        });
+          trafficSource: 'Google Search'
+        };
       } else if (keywordWords.includes('fast')) {
-        updateFormData({
+        console.log('Keyword "fast" found - using fast headline');
+        contentUpdates = {
           dynamicHeadline: 'Sell Your House Fast!',
           dynamicSubHeadline: 'Get a cash offer and close in as little as 10 days!',
           thankYouHeadline: 'Fast Sale Request Completed!',
           thankYouSubHeadline: 'You\'ll be receiving your fast sale details at your contact number shortly, thank you!',
           buttonText: 'CHECK OFFER',
-          trafficSource: 'Google Search',
-          url: window.location.href
-        });
+          trafficSource: 'Google Search'
+        };
+      } else {
+        console.log('No specific keywords found - using default headline');
+        // Default for other keywords
+        contentUpdates = {
+          dynamicHeadline: 'Sell Your House For Cash Fast!',
+          dynamicSubHeadline: 'Get a great cash offer for your house and close fast!',
+          buttonText: 'CHECK OFFER',
+          thankYouHeadline: 'Request Completed!',
+          thankYouSubHeadline: 'You\'ll be receiving your requested details at your contact number shortly, thank you!',
+          trafficSource: 'Google Search'
+        };
       }
+      
+      // Use direct state update
+      console.log('Setting content for non-cash campaign:', contentUpdates);
+      setFormData(prevData => ({
+        ...prevData,
+        ...contentUpdates
+      }));
+      
       return; // Exit here for non-cash-offer campaigns
     }
     
     // For the cash offer campaign, use the detailed keyword matching
     let matched = false;
+    let contentToUse = null;
     
     // Try to match keyword sets in order (more specific first)
     for (const keywordSet of campaignConfig.keywordSets) {
       // Check if ALL words in this set are in the keyword
       if (keywordSet.words.every(word => keywordWords.includes(word))) {
-        const content = keywordSet.content;
-        
-        // Update form data with the matched content
-        updateFormData({
-          dynamicHeadline: content.headline,
-          dynamicSubHeadline: content.subHeadline,
-          thankYouHeadline: content.thankYouHeadline,
-          thankYouSubHeadline: content.thankYouSubHeadline,
-          buttonText: content.buttonText,
-          trafficSource: 'Google Search',
-          url: window.location.href,
-          campaignName: 'Sell For Cash Form Submit (Google only)',
-          adgroupName: adgroupId === '149782006756' ? '(exact)' : 
-                        adgroupId === '153620745798' ? '(phrase)' : 'not set'
-        });
-        
+        console.log('Matched keyword set:', keywordSet.words);
+        contentToUse = keywordSet.content;
         matched = true;
         break;
       }
@@ -601,20 +629,24 @@ export function FormProvider({ children }) {
     
     // If no match, use default content
     if (!matched) {
-      const defaultContent = campaignConfig.defaultContent;
-      updateFormData({
-        dynamicHeadline: defaultContent.headline,
-        dynamicSubHeadline: defaultContent.subHeadline,
-        thankYouHeadline: defaultContent.thankYouHeadline,
-        thankYouSubHeadline: defaultContent.thankYouSubHeadline,
-        buttonText: defaultContent.buttonText,
-        trafficSource: 'Google Search',
-        url: window.location.href,
-        campaignName: 'Sell For Cash Form Submit (Google only)',
-        adgroupName: adgroupId === '149782006756' ? '(exact)' : 
-                      adgroupId === '153620745798' ? '(phrase)' : 'not set'
-      });
+      console.log('No keyword match, using default content');
+      contentToUse = campaignConfig.defaultContent;
     }
+    
+    // Always use direct state update to ensure consistency
+    console.log('Final content to set:', contentToUse);
+    setFormData(prevData => ({
+      ...prevData,
+      dynamicHeadline: contentToUse.headline,
+      dynamicSubHeadline: contentToUse.subHeadline,
+      thankYouHeadline: contentToUse.thankYouHeadline,
+      thankYouSubHeadline: contentToUse.thankYouSubHeadline,
+      buttonText: contentToUse.buttonText,
+      trafficSource: 'Google Search',
+      campaignName: 'Sell For Cash Form Submit (Google only)',
+      adgroupName: adgroupId === '149782006756' ? '(exact)' : 
+                    adgroupId === '153620745798' ? '(phrase)' : 'not set'
+    }));
   };
   
   // Clear all form data (for testing or resetting)
@@ -709,13 +741,7 @@ export function FormProvider({ children }) {
         'traffic_source': 'paid_search'
       });
       
-      console.log('Campaign tracking initialized:', {
-        campaignId,
-        campaignName,
-        adgroupId,
-        adgroupName,
-        keyword
-      });
+      console.log('Campaign tracking initialized:', campaignData);
     } else {
       // If no campaign parameters, track as direct traffic
       window.dataLayer = window.dataLayer || [];
@@ -729,10 +755,45 @@ export function FormProvider({ children }) {
   // Track whether URL parameters have already been processed
   const [urlParamsProcessed, setUrlParamsProcessed] = useState(false);
   
+  // Use ref to store campaign data for persistence
+  const campaignDataRef = React.useRef(null);
+  
+  // Initialize from localStorage if available
+  useEffect(() => {
+    try {
+      // Check for campaign data in localStorage
+      const storedCampaignData = localStorage.getItem('campaignData');
+      if (storedCampaignData) {
+        const parsedData = JSON.parse(storedCampaignData);
+        console.log("Found stored campaign data:", parsedData);
+        
+        // Store in ref for persistence
+        campaignDataRef.current = parsedData;
+        
+        // Update form data directly
+        setFormData(prevData => ({
+          ...prevData,
+          ...parsedData,
+          trafficSource: parsedData.campaignId ? 'Google Search' : 'Direct'
+        }));
+      }
+    } catch (e) {
+      console.error("Failed to retrieve campaign data from localStorage:", e);
+    }
+  }, []);
+  
   // Initialize dynamic content from URL parameters and setup analytics tracking
   const initFromUrlParams = () => {
-    // Only process URL parameters once
+    // Log the current URL for debugging
+    console.log("Processing URL:", window.location.href);
+    
+    // Only process URL parameters once per session
     if (urlParamsProcessed) {
+      // If we already processed but need to access the campaign data again,
+      // return it from our persistent ref
+      if (campaignDataRef.current) {
+        console.log("Using cached campaign data:", campaignDataRef.current);
+      }
       return true; // Already processed
     }
     
@@ -742,27 +803,81 @@ export function FormProvider({ children }) {
     // Get URL parameters once
     const urlParams = new URLSearchParams(window.location.search);
     
+    // Check if we have any campaign parameters
+    const hasCampaignParams = urlParams.has('campaignid') || urlParams.has('keyword');
+    console.log("Has campaign parameters:", hasCampaignParams);
+    
+    // If we don't have campaign params in URL but do have them in localStorage, use those
+    if (!hasCampaignParams) {
+      try {
+        const storedData = localStorage.getItem('campaignData');
+        if (storedData) {
+          console.log("No URL params but found stored campaign data, using that instead");
+          const parsedData = JSON.parse(storedData);
+          if (parsedData && parsedData.campaignId) {
+            campaignDataRef.current = parsedData;
+            
+            // Update form state with stored data
+            setFormData(prevData => ({
+              ...prevData,
+              ...parsedData,
+              trafficSource: 'Google Search'
+            }));
+            
+            return true;
+          }
+        }
+      } catch (e) {
+        console.error("Error reading stored campaign data:", e);
+      }
+    }
+    
     // Extract and process campaign data 
     const campaignData = extractCampaignData(urlParams);
     
-    // Track in analytics
-    trackCampaignView(campaignData);
+    // Check if we found valid campaign data from URL
+    const hasValidCampaignData = campaignData && campaignData.campaignId;
+    console.log("Has valid campaign data:", hasValidCampaignData, campaignData);
     
-    // Always update form data with campaign info (even if empty)
-    // This ensures consistent state updates
-    setFormData(prevData => ({
-      ...prevData,
-      ...campaignData,
-      trafficSource: campaignData.campaignId ? 'Google Search' : 'Direct'
-    }));
-    
-    // Set dynamic content if we have campaign parameters
-    if (campaignData.keyword || campaignData.campaignId) {
+    if (hasValidCampaignData) {
+      // Store campaign data in ref for persistence
+      campaignDataRef.current = campaignData;
+      
+      // Track in analytics
+      trackCampaignView(campaignData);
+      
+      // Create update object with campaign data
+      const updateObj = {
+        ...campaignData,
+        trafficSource: 'Google Search'
+      };
+      
+      console.log("Updating form state with campaign data:", updateObj);
+      
+      // Update form state directly
+      setFormData(prevData => {
+        const newData = {
+          ...prevData,
+          ...updateObj
+        };
+        
+        // Store in localStorage for persistence
+        try {
+          localStorage.setItem('campaignData', JSON.stringify(campaignData));
+          console.log("Stored campaign data in localStorage");
+        } catch (e) {
+          console.error("Failed to store campaign data in localStorage:", e);
+        }
+        
+        return newData;
+      });
+      
       // Set the dynamic content based on these parameters
       setDynamicContent(campaignData.keyword, campaignData.campaignId, campaignData.adgroupId);
       return true;
     }
     
+    console.log("No valid campaign data found");
     return false;
   };
 
