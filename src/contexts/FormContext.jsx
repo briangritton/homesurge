@@ -748,17 +748,18 @@ export function FormProvider({ children }) {
     // Track in analytics
     trackCampaignView(campaignData);
     
-    // Only proceed with content updates if we have campaign data
+    // Always update form data with campaign info (even if empty)
+    // This ensures consistent state updates
+    setFormData(prevData => ({
+      ...prevData,
+      ...campaignData,
+      trafficSource: campaignData.campaignId ? 'Google Search' : 'Direct'
+    }));
+    
+    // Set dynamic content if we have campaign parameters
     if (campaignData.keyword || campaignData.campaignId) {
-      // Update the tracking parameters in form data in a single operation
-      updateFormData({
-        ...campaignData,
-        trafficSource: campaignData.campaignId ? 'Google Search' : 'Direct'
-      });
-      
       // Set the dynamic content based on these parameters
       setDynamicContent(campaignData.keyword, campaignData.campaignId, campaignData.adgroupId);
-      
       return true;
     }
     
