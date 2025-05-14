@@ -101,7 +101,7 @@ const DebugDisplay = () => {
       
       <div style={sectionStyles}>
         <h3 style={{ margin: '0 0 5px 0', fontSize: '14px', color: '#4caf50' }}>
-          Dynamic Content
+          Dynamic Content - Template Type: {formData.templateType || 'Not set'}
         </h3>
         <pre>
           {JSON.stringify({

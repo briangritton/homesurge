@@ -461,56 +461,27 @@ export function FormProvider({ children }) {
     // Log information about the current campaign
     console.log('Setting dynamic content based on campaign name:', campaignName);
     
-    // Campaign templates organized by campaign names
+    // Simplified campaign templates by type
     const campaignTemplates = {
-      // Cash campaigns
-      "T1 - fcash sell (Google only)": {
+      // Template types
+      "cash": {
+        type: 'CASH',
         headline: 'Sell Your House For Cash Fast!',
         subHeadline: 'Get a great cash offer for your house and close fast!',
         thankYouHeadline: 'Cash Offer Request Completed!',
         thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!',
         buttonText: 'CHECK OFFER'
       },
-      "Sell For Cash Form Submit (Google only)": {
-        headline: 'Sell Your House For Cash Fast!',
-        subHeadline: 'Get a great cash offer for your house and close fast!',
-        thankYouHeadline: 'Cash Offer Request Completed!',
-        thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!',
-        buttonText: 'CHECK OFFER'
-      },
-      "Sell For Cash Form Submit (Search Partners)": {
-        headline: 'Sell Your House For Cash Fast!',
-        subHeadline: 'Get a great cash offer for your house and close fast!',
-        thankYouHeadline: 'Cash Offer Request Completed!',
-        thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!',
-        buttonText: 'CHECK OFFER'
-      },
-      
-      // Fast selling campaigns
-      "T2 - ffast sell (Google only)": {
+      "fast": {
+        type: 'FAST',
         headline: 'Sell Your House Fast!',
         subHeadline: 'Get a cash offer and close in as little as 10 days!',
         thankYouHeadline: 'Fast Sale Request Completed!',
         thankYouSubHeadline: 'You\'ll be receiving your fast sale details at your contact number shortly, thank you!',
         buttonText: 'CHECK OFFER'
       },
-      "Sell Fast, On Own, No Agent, Form Submit (Google only)": {
-        headline: 'Sell Your House Fast!',
-        subHeadline: 'Get a cash offer and close in as little as 10 days!',
-        thankYouHeadline: 'Fast Sale Request Completed!',
-        thankYouSubHeadline: 'You\'ll be receiving your fast sale details at your contact number shortly, thank you!',
-        buttonText: 'CHECK OFFER'
-      },
-      "Sell Fast, On Own, No Agent, Form Submit (Search Partners)": {
-        headline: 'Sell Your House Fast!',
-        subHeadline: 'Get a cash offer and close in as little as 10 days!',
-        thankYouHeadline: 'Fast Sale Request Completed!',
-        thankYouSubHeadline: 'You\'ll be receiving your fast sale details at your contact number shortly, thank you!',
-        buttonText: 'CHECK OFFER'
-      },
-      
-      // Value campaigns
-      "T3 - fvalue (Google only)": {
+      "value": {
+        type: 'VALUE',
         headline: 'Check The Value Of Your House!',
         subHeadline: 'Find out how much your home is worth today.',
         thankYouHeadline: 'Home Value Request Completed!',
@@ -528,29 +499,30 @@ export function FormProvider({ children }) {
       thankYouSubHeadline: 'You\'ll be receiving your requested details at your contact number shortly, thank you!'
     };
     
-    // Try to find an exact match for the campaign name
+    // Identify which template to use based on campaign name
     let contentTemplate = null;
+    let templateType = 'DEFAULT'; // For debugging
     
-    if (campaignName && campaignTemplates[campaignName]) {
-      console.log('Found exact match for campaign name:', campaignName);
-      contentTemplate = campaignTemplates[campaignName];
-    } else if (campaignName) {
-      // Try substring matching for campaign name if we have a name but no exact match
+    if (campaignName) {
+      // Convert to lowercase for case-insensitive matching
       const campaignNameLower = campaignName.toLowerCase();
       
-      // Campaign name partial matching with priorities
+      // Campaign name keyword matching with priorities (cash > value > fast)
       if (campaignNameLower.includes('cash')) {
         console.log('Campaign name contains "cash" - using cash template');
-        contentTemplate = campaignTemplates["Sell For Cash Form Submit (Google only)"];
+        contentTemplate = campaignTemplates.cash;
+        templateType = 'CASH';
       } else if (campaignNameLower.includes('value')) {
         console.log('Campaign name contains "value" - using value template');
-        contentTemplate = campaignTemplates["T3 - fvalue (Google only)"];
+        contentTemplate = campaignTemplates.value;
+        templateType = 'VALUE';
       } else if (campaignNameLower.includes('fast')) {
         console.log('Campaign name contains "fast" - using fast template');
-        contentTemplate = campaignTemplates["Sell Fast, On Own, No Agent, Form Submit (Google only)"];
+        contentTemplate = campaignTemplates.fast;
+        templateType = 'FAST';
       } else {
-        // No matching substring in campaign name
-        console.log('No matching pattern in campaign name - using default template');
+        // No matching keyword in campaign name
+        console.log('No matching keyword in campaign name - using default template');
         contentTemplate = defaultContent;
       }
     } else {
@@ -573,7 +545,8 @@ export function FormProvider({ children }) {
       dynamicSubHeadline: contentTemplate.subHeadline,
       thankYouHeadline: contentTemplate.thankYouHeadline || 'Request Completed!',
       thankYouSubHeadline: contentTemplate.thankYouSubHeadline || 'You\'ll be receiving your requested details at your contact number shortly, thank you!',
-      buttonText: contentTemplate.buttonText || 'CHECK OFFER'
+      buttonText: contentTemplate.buttonText || 'CHECK OFFER',
+      templateType: templateType // Store template type for debugging
     }));
   };
   
