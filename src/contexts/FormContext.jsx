@@ -510,6 +510,13 @@ export function FormProvider({ children }) {
         .replace(/[^\x20-\x7E]/g, '') // Remove non-ASCII characters
         .trim();                      // Remove leading/trailing whitespace
       
+      // FORCE THE CAMPAIGN NAME DIRECTLY FROM URL PARAMS
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlCampaignName = urlParams.get('campaign_name');
+      const forcedCleanName = urlCampaignName 
+        ? urlCampaignName.toLowerCase().replace(/[\s\-_\.]/g, '').trim()
+        : '';
+      
       // For comparison, explicitly replace any odd hyphens, decode URL components, etc.
       const campaignNameCleaned = cleanCampaignName
         .toLowerCase()               // Lowercase everything
@@ -519,10 +526,13 @@ export function FormProvider({ children }) {
       // Convert to lowercase for case-insensitive matching
       const campaignNameLower = cleanCampaignName.toLowerCase();
       
-      // Explicit hardcoded string checks (useful for debugging)
-      const campaignHasCash = campaignNameCleaned.indexOf('cash') >= 0;
-      const campaignHasFast = campaignNameCleaned.indexOf('fast') >= 0;
-      const campaignHasValue = campaignNameCleaned.indexOf('value') >= 0;
+      // Check both the localStorage campaign name AND the direct URL parameter
+      const campaignHasCash = campaignNameCleaned.indexOf('cash') >= 0 || forcedCleanName.indexOf('cash') >= 0;
+      const campaignHasFast = campaignNameCleaned.indexOf('fast') >= 0 || forcedCleanName.indexOf('fast') >= 0;
+      const campaignHasValue = campaignNameCleaned.indexOf('value') >= 0 || forcedCleanName.indexOf('value') >= 0;
+      
+      console.log('URL PARAM campaign_name:', urlCampaignName);
+      console.log('Forced clean name:', forcedCleanName);
       
       console.log('Original campaign name:', campaignName);
       console.log('Super-cleaned campaign name:', campaignNameCleaned);
@@ -566,10 +576,17 @@ export function FormProvider({ children }) {
       contentTemplate = defaultContent;
     }
     
-    // Apply the selected template
+    // Update campaign name from URL for direct override
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlCampaignName = urlParams.get('campaign_name') || '';
+    
+    // Apply the selected template and ensure campaign name matches URL
     console.log('Applying content template:', contentTemplate);
     setFormData(prevData => ({
       ...prevData,
+      // Override campaign name from URL directly
+      campaignName: urlCampaignName || prevData.campaignName,
+      // Set dynamic content
       dynamicHeadline: contentTemplate.headline,
       dynamicSubHeadline: contentTemplate.subHeadline,
       thankYouHeadline: contentTemplate.thankYouHeadline || 'Request Completed!',
