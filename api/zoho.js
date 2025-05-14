@@ -260,6 +260,28 @@ module.exports = async (req, res) => {
             apiEquity: formData.apiEquity?.toString() || "0",
             apiPercentage: formData.apiPercentage?.toString() || "0",
             
+            // Marketing & Campaign information - EXACT ZOHO FIELD NAMES
+            Campaign_Source: formData.trafficSource || "",
+            Campaign_Name: formData.campaignName || "",
+            Ad_Group: formData.adgroupName || "",  
+            Device_Used: formData.device || "",
+            Keyword: formData.keyword || "",
+            GCLID: formData.gclid || "",
+            URL: formData.url || "",
+            Template_Type: formData.templateType || "",
+            
+            // Our local tracking fields as well (duplicate to ensure we use the right ones)
+            trafficSource: formData.trafficSource || "",
+            campaignName: formData.campaignName || "",
+            adgroupName: formData.adgroupName || "",
+            device: formData.device || "",
+            keyword: formData.keyword || "",
+            gclid: formData.gclid || "",
+            url: formData.url || "",
+            templateType: formData.templateType || "",
+            campaignId: formData.campaignId || "",
+            adgroupId: formData.adgroupId || "",
+            
             // Appointment information - make sure these are explicitly set with string values
             wantToSetAppointment: formData.wantToSetAppointment ? formData.wantToSetAppointment.toString() : "false",
             selectedAppointmentDate: formData.selectedAppointmentDate || "",
@@ -281,15 +303,6 @@ module.exports = async (req, res) => {
             knownIssues: formData.knownIssues || "",
             reasonForSelling: formData.reasonForSelling || "",
             
-            // Marketing information
-            trafficSource: formData.trafficSource || "",
-            campaignName: formData.campaignName || "",
-            adgroupName: formData.adgroupName || "",
-            device: formData.device || "",
-            keyword: formData.keyword || "",
-            gclid: formData.gclid || "",
-            url: formData.url || "",
-            
             // Dynamic content
             dynamicHeadline: formData.dynamicHeadline || "",
             dynamicSubHeadline: formData.dynamicSubHeadline || "",
@@ -299,7 +312,8 @@ module.exports = async (req, res) => {
             // Metadata
             addressSelectionType: formData.addressSelectionType || "Manual",
             qualifyingQuestionStep: formData.qualifyingQuestionStep?.toString() || "",
-            userInputtedStreet: formData.userInputtedStreet || ""
+            userInputtedStreet: formData.userInputtedStreet || "",
+            dataSourceComplete: formData.dataSourceComplete ? "true" : ""
           }
         ]
       };
@@ -475,6 +489,30 @@ module.exports = async (req, res) => {
             apiEquity: formData.apiEquity?.toString() || "",
             apiPercentage: formData.apiPercentage?.toString() || "",
             
+            // Marketing & Campaign information - EXACT ZOHO FIELD NAMES
+            Campaign_Source: formData.trafficSource || "",
+            Campaign_Name: formData.campaignName || "",
+            Ad_Group: formData.adgroupName || "",  
+            Device_Used: formData.device || "",
+            Keyword: formData.keyword || "",
+            GCLID: formData.gclid || "",
+            URL: formData.url || "",
+            Template_Type: formData.templateType || "",
+            
+            // Our local tracking fields as well (duplicate to ensure we use the right ones)
+            trafficSource: formData.trafficSource || "",
+            campaignName: formData.campaignName || "",
+            adgroupName: formData.adgroupName || "",
+            device: formData.device || "",
+            keyword: formData.keyword || "",
+            gclid: formData.gclid || "",
+            url: formData.url || "",
+            templateType: formData.templateType || "",
+            
+            // Dynamic content for debugging
+            dynamicHeadline: formData.dynamicHeadline || "",
+            dynamicSubHeadline: formData.dynamicSubHeadline || "",
+            
             // Appointment information - make sure these are explicitly set as strings
             wantToSetAppointment: formData.wantToSetAppointment ? formData.wantToSetAppointment.toString() : "",
             selectedAppointmentDate: formData.selectedAppointmentDate || "",
@@ -497,7 +535,8 @@ module.exports = async (req, res) => {
             reasonForSelling: formData.reasonForSelling || "",
             
             // Metadata
-            qualifyingQuestionStep: formData.qualifyingQuestionStep?.toString() || ""
+            qualifyingQuestionStep: formData.qualifyingQuestionStep?.toString() || "",
+            dataSourceComplete: formData.dataSourceComplete ? "true" : ""
           }
         ]
       };
