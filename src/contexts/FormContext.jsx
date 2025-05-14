@@ -521,30 +521,40 @@ export function FormProvider({ children }) {
       console.log('Contains "fast":', campaignNameLower.includes('fast'));
       console.log('Contains "value":', campaignNameLower.includes('value'));
       
-      // Explicit check for various keywords with direct equality tests for debugging
-      const hasCash = campaignNameLower.indexOf('cash') !== -1;
-      const hasFast = campaignNameLower.indexOf('fast') !== -1;
-      const hasValue = campaignNameLower.indexOf('value') !== -1;
-      
-      console.log('More thorough checks:');
-      console.log('- indexOf("cash"):', campaignNameLower.indexOf('cash'));
-      console.log('- indexOf("fast"):', campaignNameLower.indexOf('fast'));
-      console.log('- indexOf("value"):', campaignNameLower.indexOf('value'));
-      
-      // Campaign name keyword matching with priorities
-      if (hasCash) {
+      // DIRECT FORCE BASED ON PREFIX:
+      // Check for specific prefixes instead of substring matching
+      if (campaignNameLower.startsWith('t1')) {
+        console.log('Campaign starts with "T1" - FORCING CASH template');
+        contentTemplate = campaignTemplates.cash;
+        templateType = 'CASH';
+      }
+      else if (campaignNameLower.startsWith('t2')) {
+        console.log('Campaign starts with "T2" - FORCING FAST template');
+        contentTemplate = campaignTemplates.fast;
+        templateType = 'FAST';
+      }
+      else if (campaignNameLower.startsWith('t3')) {
+        console.log('Campaign starts with "T3" - FORCING VALUE template');
+        contentTemplate = campaignTemplates.value;
+        templateType = 'VALUE';
+      }
+      // Fallback to keyword checking if prefixes don't match
+      else if (campaignNameLower.indexOf('cash') !== -1) {
         console.log('Campaign name contains "cash" - using cash template');
         contentTemplate = campaignTemplates.cash;
         templateType = 'CASH';
-      } else if (hasValue) {
+      } 
+      else if (campaignNameLower.indexOf('value') !== -1) {
         console.log('Campaign name contains "value" - using value template');
         contentTemplate = campaignTemplates.value;
         templateType = 'VALUE';
-      } else if (hasFast) {
+      } 
+      else if (campaignNameLower.indexOf('fast') !== -1) {
         console.log('Campaign name contains "fast" - using fast template');
         contentTemplate = campaignTemplates.fast;
         templateType = 'FAST';
-      } else {
+      } 
+      else {
         // No matching keyword in campaign name
         console.log('No matching keyword in campaign name - using default template');
         contentTemplate = defaultContent;
