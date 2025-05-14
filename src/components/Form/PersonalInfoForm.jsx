@@ -580,7 +580,11 @@ function PersonalInfoForm() {
             </button>
             
             <div className="overlay-form-headline">
-              Where should we send your cash offer?
+              {formData.templateType === 'VALUE' 
+                ? 'Where should we send your home value report?' 
+                : formData.templateType === 'FAST' 
+                  ? 'Where should we send your fast sale offer?' 
+                  : 'Where should we send your cash offer?'}
             </div>
             
             <form className="overlay-form-fields" onSubmit={handleSubmit}>
@@ -628,7 +632,7 @@ function PersonalInfoForm() {
                 type="submit"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'PROCESSING...' : 'CHECK OFFER'}
+                {isSubmitting ? 'PROCESSING...' : formData.buttonText || 'CHECK OFFER'}
               </button>
             </form>
           </div>
@@ -686,7 +690,11 @@ function PersonalInfoForm() {
       <div className="hero-middle-container">
         <div className="hero-content fade-in max-width-500">
           <div className="hero-middle-map-headline">
-            Please confirm your address and home value:
+            {formData.templateType === 'VALUE' 
+              ? 'Please confirm your address and home value:' 
+              : formData.templateType === 'FAST' 
+                ? 'Please confirm your address for your fast sale offer:' 
+                : 'Please confirm your address for your cash offer:'}
           </div>
           
           <div className="hero-1-api-address">
@@ -727,7 +735,12 @@ function PersonalInfoForm() {
             maxWidth: '425px',
             textAlign: 'center'
           }}>
-            <strong> Please confirm your address and home value:
+            <strong> 
+              {formData.templateType === 'VALUE' 
+                ? 'Please confirm your address and home value:' 
+                : formData.templateType === 'FAST' 
+                  ? 'Please confirm your address for your fast sale offer:' 
+                  : 'Please confirm your address for your cash offer:'}
             </strong>
           </div>
           
