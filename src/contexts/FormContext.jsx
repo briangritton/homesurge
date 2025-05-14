@@ -453,204 +453,158 @@ export function FormProvider({ children }) {
     }
   };
 
-  // Enhanced dynamic content handler based on campaign ID and keyword
+  // Enhanced dynamic content handler based on campaign name, ID, and keyword
   const setDynamicContent = (keyword, campaignId, adgroupId) => {
+    // Get the campaign name from form state (should be set by now)
+    const campaignName = formData.campaignName || '';
+    
     // Log detailed debugging info
-    console.log('Setting dynamic content with:', { keyword, campaignId, adgroupId });
+    console.log('Setting dynamic content with:', { 
+      keyword, 
+      campaignId, 
+      adgroupId,
+      campaignName
+    });
     
-    // Early return if no keyword provided
-    if (!keyword) {
-      console.log('No keyword provided, using default content');
-      
-      // Set defaults even when no keyword is provided
-      setFormData(prev => ({
-        ...prev,
-        dynamicHeadline: 'Sell Your House For Cash Fast!',
-        dynamicSubHeadline: 'We Buy Houses In Any Condition. Get an Instant Cash Offer Now!',
-        buttonText: 'CHECK OFFER',
-        thankYouHeadline: 'Request Completed!',
-        thankYouSubHeadline: 'You\'ll be receiving your requested details at your contact number shortly, thank you!'
-      }));
-      
-      return;
-    }
-    
-    // Convert to lowercase and clean keyword for matching
-    const sanitizedKeyword = keyword.replace(/[^a-z0-9\s]/gi, "").toLowerCase();
-    const keywordWords = sanitizedKeyword.split(" ");
-    
-    console.log('Processed keywords:', keywordWords);
-    
-    // Create a config object for the cash offer campaign (20196006239)
-    const cashOfferConfig = {
-      // Map of keyword sets to content variations - ordered by specificity (more specific first)
-      keywordSets: [
-        {
-          // Specific case - has both 'sell', 'cash', and 'fast' together
-          words: ['sell', 'cash', 'fast'],
-          content: {
-            headline: 'Sell Your House For Cash Fast',
-            subHeadline: 'Get a great cash offer for your house and close fast! Enter your address below to generate your cash offer',
-            buttonText: 'CHECK OFFER',
-            thankYouHeadline: 'Cash Offer Request Completed!',
-            thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!'
-          }
-        },
-        {
-          // 'get' and 'cash' together
-          words: ['get', 'cash'],
-          content: {
-            headline: 'Get Cash For Your House Fast!',
-            subHeadline: 'Get a great cash offer for your house and close fast! Enter your address below to generate your cash offer',
-            buttonText: 'CHECK OFFER',
-            thankYouHeadline: 'Cash Offer Request Completed!',
-            thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!'
-          }
-        },
-        {
-          // 'cash out' specific phrase
-          words: ['cash', 'out'],
-          content: {
-            headline: 'Check Your Home Cash Out Amount',
-            subHeadline: 'Get a great cash out offer for your house and close fast! Enter your address below to generate your cash amount',
-            buttonText: 'CHECK OFFER',
-            thankYouHeadline: 'Cash Offer Request Completed!',
-            thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!'
-          }
-        },
-        {
-          // 'sell' and 'cash' together
-          words: ['sell', 'cash'],
-          content: {
-            headline: 'Sell Your House For Cash Fast',
-            subHeadline: 'Get a great cash offer for your house and close fast! Enter your address below to generate your cash offer',
-            buttonText: 'CHECK OFFER',
-            thankYouHeadline: 'Cash Offer Request Completed!',
-            thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!'
-          }
-        },
-        {
-          // Any mention of 'cash' - this is the fallback for any other cash-related keywords
-          words: ['cash'],
-          content: {
-            headline: 'Sell Your House For Cash Fast',
-            subHeadline: 'Get a great cash offer for your house and close fast! Enter your address below to generate your cash offer',
-            buttonText: 'CHECK OFFER',
-            thankYouHeadline: 'Cash Offer Request Completed!',
-            thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!'
-          }
-        }
-      ],
-      // Default content if no keywords match
-      defaultContent: {
+    // Campaign templates organized by campaign names
+    const campaignTemplates = {
+      // Cash campaigns
+      "T1 - fcash sell (Google only)": {
         headline: 'Sell Your House For Cash Fast!',
-        subHeadline: 'We Buy Houses In Any Condition. Get an Instant Cash Offer Now!',
-        buttonText: 'CHECK OFFER',
-        thankYouHeadline: 'Request Completed!',
-        thankYouSubHeadline: 'You\'ll be receiving your requested details at your contact number shortly, thank you!'
+        subHeadline: 'Get a great cash offer for your house and close fast!',
+        thankYouHeadline: 'Cash Offer Request Completed!',
+        thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!',
+        buttonText: 'CHECK OFFER'
+      },
+      "Sell For Cash Form Submit (Google only)": {
+        headline: 'Sell Your House For Cash Fast!',
+        subHeadline: 'Get a great cash offer for your house and close fast!',
+        thankYouHeadline: 'Cash Offer Request Completed!',
+        thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!',
+        buttonText: 'CHECK OFFER'
+      },
+      "Sell For Cash Form Submit (Search Partners)": {
+        headline: 'Sell Your House For Cash Fast!',
+        subHeadline: 'Get a great cash offer for your house and close fast!',
+        thankYouHeadline: 'Cash Offer Request Completed!',
+        thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!',
+        buttonText: 'CHECK OFFER'
+      },
+      
+      // Fast selling campaigns
+      "T2 - ffast sell (Google only)": {
+        headline: 'Sell Your House Fast!',
+        subHeadline: 'Get a cash offer and close in as little as 10 days!',
+        thankYouHeadline: 'Fast Sale Request Completed!',
+        thankYouSubHeadline: 'You\'ll be receiving your fast sale details at your contact number shortly, thank you!',
+        buttonText: 'CHECK OFFER'
+      },
+      "Sell Fast, On Own, No Agent, Form Submit (Google only)": {
+        headline: 'Sell Your House Fast!',
+        subHeadline: 'Get a cash offer and close in as little as 10 days!',
+        thankYouHeadline: 'Fast Sale Request Completed!',
+        thankYouSubHeadline: 'You\'ll be receiving your fast sale details at your contact number shortly, thank you!',
+        buttonText: 'CHECK OFFER'
+      },
+      "Sell Fast, On Own, No Agent, Form Submit (Search Partners)": {
+        headline: 'Sell Your House Fast!',
+        subHeadline: 'Get a cash offer and close in as little as 10 days!',
+        thankYouHeadline: 'Fast Sale Request Completed!',
+        thankYouSubHeadline: 'You\'ll be receiving your fast sale details at your contact number shortly, thank you!',
+        buttonText: 'CHECK OFFER'
+      },
+      
+      // Value campaigns
+      "T3 - fvalue (Google only)": {
+        headline: 'Check The Value Of Your House!',
+        subHeadline: 'Find out how much your home is worth today.',
+        thankYouHeadline: 'Home Value Request Completed!',
+        thankYouSubHeadline: 'You\'ll be receiving your home value details at your contact number shortly, thank you!',
+        buttonText: 'CHECK VALUE'
       }
     };
     
-    // Select the appropriate campaign config based on campaignId
-    let campaignConfig;
-    if (campaignId === "20196006239") {
-      campaignConfig = cashOfferConfig;
-      console.log('Using cash offer config for campaign ID:', campaignId);
+    // Default content if no campaign matches
+    const defaultContent = {
+      headline: 'Sell Your House For Cash Fast!',
+      subHeadline: 'Get a great cash offer for your house and close fast!',
+      buttonText: 'CHECK OFFER',
+      thankYouHeadline: 'Request Completed!',
+      thankYouSubHeadline: 'You\'ll be receiving your requested details at your contact number shortly, thank you!'
+    };
+    
+    // First try to match by campaign name (primary method)
+    let contentTemplate = null;
+    
+    if (campaignName && campaignTemplates[campaignName]) {
+      console.log('Found exact match for campaign name:', campaignName);
+      contentTemplate = campaignTemplates[campaignName];
     } else {
-      console.log('Using general campaign handling for campaign ID:', campaignId);
+      // Try substring matching if exact match fails
+      const campaignNameLower = campaignName.toLowerCase();
       
-      // For all other campaigns, use a simpler approach
-      let contentUpdates = {};
-      
-      // Check for keywords in priority order (cash takes precedence over fast)
-      if (keywordWords.includes('cash')) {
-        console.log('Keyword "cash" found - using cash headline');
-        contentUpdates = {
-          dynamicHeadline: 'Sell Your House For Cash Fast!',
-          dynamicSubHeadline: 'Get a great cash offer for your house and close fast!',
-          thankYouHeadline: 'Cash Offer Request Completed!',
-          thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!',
-          buttonText: 'CHECK OFFER',
-          trafficSource: 'Google Search'
-        };
-      } else if (keywordWords.includes('value')) {
-        console.log('Keyword "value" found - using value headline');
-        contentUpdates = {
-          dynamicHeadline: 'Check The Value Of Your House!',
-          dynamicSubHeadline: 'Find out how much your home is worth today.',
-          thankYouHeadline: 'Home Value Request Completed!',
-          thankYouSubHeadline: 'You\'ll be receiving your home value details at your contact number shortly, thank you!',
-          buttonText: 'CHECK VALUE',
-          trafficSource: 'Google Search'
-        };
-      } else if (keywordWords.includes('fast')) {
-        console.log('Keyword "fast" found - using fast headline');
-        contentUpdates = {
-          dynamicHeadline: 'Sell Your House Fast!',
-          dynamicSubHeadline: 'Get a cash offer and close in as little as 10 days!',
-          thankYouHeadline: 'Fast Sale Request Completed!',
-          thankYouSubHeadline: 'You\'ll be receiving your fast sale details at your contact number shortly, thank you!',
-          buttonText: 'CHECK OFFER',
-          trafficSource: 'Google Search'
-        };
+      // Campaign name partial matching with priorities
+      if (campaignNameLower.includes('cash')) {
+        console.log('Campaign name contains "cash" - using cash template');
+        contentTemplate = campaignTemplates["Sell For Cash Form Submit (Google only)"];
+      } else if (campaignNameLower.includes('value')) {
+        console.log('Campaign name contains "value" - using value template');
+        contentTemplate = campaignTemplates["T3 - fvalue (Google only)"];
+      } else if (campaignNameLower.includes('fast')) {
+        console.log('Campaign name contains "fast" - using fast template');
+        contentTemplate = campaignTemplates["Sell Fast, On Own, No Agent, Form Submit (Google only)"];
+      } else if (campaignId === "20196006239") {
+        // Fallback to Campaign ID if name matching fails
+        console.log('Using template based on campaign ID:', campaignId);
+        contentTemplate = campaignTemplates["Sell For Cash Form Submit (Google only)"];
+      } else if (campaignId === "20311247419") {
+        console.log('Using template based on campaign ID:', campaignId);
+        contentTemplate = campaignTemplates["Sell Fast, On Own, No Agent, Form Submit (Google only)"];
       } else {
-        console.log('No specific keywords found - using default headline');
-        // Default for other keywords
-        contentUpdates = {
-          dynamicHeadline: 'Sell Your House For Cash Fast!',
-          dynamicSubHeadline: 'Get a great cash offer for your house and close fast!',
-          buttonText: 'CHECK OFFER',
-          thankYouHeadline: 'Request Completed!',
-          thankYouSubHeadline: 'You\'ll be receiving your requested details at your contact number shortly, thank you!',
-          trafficSource: 'Google Search'
-        };
-      }
-      
-      // Use direct state update
-      console.log('Setting content for non-cash campaign:', contentUpdates);
-      setFormData(prevData => ({
-        ...prevData,
-        ...contentUpdates
-      }));
-      
-      return; // Exit here for non-cash-offer campaigns
-    }
-    
-    // For the cash offer campaign, use the detailed keyword matching
-    let matched = false;
-    let contentToUse = null;
-    
-    // Try to match keyword sets in order (more specific first)
-    for (const keywordSet of campaignConfig.keywordSets) {
-      // Check if ALL words in this set are in the keyword array
-      // This checks if each word in keywordSet.words exists in the keywordWords array
-      if (keywordSet.words.every(word => keywordWords.includes(word))) {
-        console.log('Matched keyword set:', keywordSet.words, 'in keyword:', sanitizedKeyword);
-        contentToUse = keywordSet.content;
-        matched = true;
-        break;
+        // If all else fails, fall back to keyword matching
+        if (!keyword) {
+          console.log('No campaign match and no keyword - using default template');
+          contentTemplate = defaultContent;
+        } else {
+          // Convert to lowercase and clean keyword for matching
+          const sanitizedKeyword = keyword.replace(/[^a-z0-9\s]/gi, "").toLowerCase();
+          const keywordWords = sanitizedKeyword.split(" ");
+          console.log('Falling back to keyword matching with words:', keywordWords);
+          
+          // Keyword fallback matching with priorities (cash > value > fast)
+          if (keywordWords.includes('cash')) {
+            console.log('Keyword contains "cash" - using cash template');
+            contentTemplate = campaignTemplates["Sell For Cash Form Submit (Google only)"];
+          } else if (keywordWords.includes('value')) {
+            console.log('Keyword contains "value" - using value template');
+            contentTemplate = campaignTemplates["T3 - fvalue (Google only)"];
+          } else if (keywordWords.includes('fast')) {
+            console.log('Keyword contains "fast" - using fast template');
+            contentTemplate = campaignTemplates["Sell Fast, On Own, No Agent, Form Submit (Google only)"];
+          } else {
+            console.log('No matching keyword - using default content');
+            contentTemplate = defaultContent;
+          }
+        }
       }
     }
     
-    // If no match, use default content
-    if (!matched) {
-      console.log('No keyword match, using default content');
-      contentToUse = campaignConfig.defaultContent;
+    // If we still don't have a template, use default
+    if (!contentTemplate) {
+      console.log('No template match found - using default content');
+      contentTemplate = defaultContent;
     }
     
-    // Always use direct state update to ensure consistency
-    console.log('Final content to set:', contentToUse);
+    // Apply the selected template
+    console.log('Applying content template:', contentTemplate);
     setFormData(prevData => ({
       ...prevData,
-      dynamicHeadline: contentToUse.headline,
-      dynamicSubHeadline: contentToUse.subHeadline,
-      thankYouHeadline: contentToUse.thankYouHeadline,
-      thankYouSubHeadline: contentToUse.thankYouSubHeadline,
-      buttonText: contentToUse.buttonText,
-      trafficSource: 'Google Search',
-      campaignName: 'Sell For Cash Form Submit (Google only)',
-      adgroupName: adgroupId === '149782006756' ? '(exact)' : 
-                    adgroupId === '153620745798' ? '(phrase)' : 'not set'
+      dynamicHeadline: contentTemplate.headline,
+      dynamicSubHeadline: contentTemplate.subHeadline,
+      thankYouHeadline: contentTemplate.thankYouHeadline || 'Request Completed!',
+      thankYouSubHeadline: contentTemplate.thankYouSubHeadline || 'You\'ll be receiving your requested details at your contact number shortly, thank you!',
+      buttonText: contentTemplate.buttonText || 'CHECK OFFER',
+      trafficSource: 'Google Search'
     }));
   };
   
@@ -673,26 +627,64 @@ export function FormProvider({ children }) {
     const device = urlParams.get('device') || '';
     const gclid = urlParams.get('gclid') || '';
     
-    // Determine campaign name based on campaignId
-    let campaignName = 'Organic';
-    if (campaignId === "20196006239") {
-      campaignName = "Sell For Cash Form Submit (Google only)";
-    } else if (campaignId === "20490389456") {
-      campaignName = "Sell For Cash Form Submit (Search Partners)";
-    } else if (campaignId === "20311247419") {
-      campaignName = "Sell Fast, On Own, No Agent, Form Submit (Google only)";
-    } else if (campaignId === "20490511649") {
-      campaignName = "Sell Fast, On Own, No Agent, Form Submit (Search Partners)";
+    // Try to get campaign_name directly from URL if present
+    let campaignName = urlParams.get('campaign_name') || '';
+    
+    // If not present, try alternate format
+    if (!campaignName) {
+      campaignName = urlParams.get('campaignname') || '';
     }
     
-    // Determine adgroup name based on adgroupId
-    let adgroupName = '';
-    if (adgroupId === "149782006756" || adgroupId === "151670982418" || 
-        adgroupId === "153325247952" || adgroupId === "156355988601") {
-      adgroupName = "(exact)";
-    } else if (adgroupId === "153620745798" || adgroupId === "156658963430" || 
-               adgroupId === "153325247992" || adgroupId === "156355988761") {
-      adgroupName = "(phrase)";
+    // If still not found, try with underscores
+    if (!campaignName) {
+      campaignName = urlParams.get('campaign_name') || '';
+    }
+    
+    // Normalize campaign name if it's in a different format
+    if (campaignName.includes('%20')) {
+      campaignName = decodeURIComponent(campaignName);
+    }
+    
+    // If we have a direct campaign name from the URL, use it
+    // Otherwise, determine campaign name based on campaignId
+    if (!campaignName) {
+      if (campaignId === "20196006239") {
+        campaignName = "Sell For Cash Form Submit (Google only)";
+      } else if (campaignId === "20490389456") {
+        campaignName = "Sell For Cash Form Submit (Search Partners)";
+      } else if (campaignId === "20311247419") {
+        campaignName = "Sell Fast, On Own, No Agent, Form Submit (Google only)";
+      } else if (campaignId === "20490511649") {
+        campaignName = "Sell Fast, On Own, No Agent, Form Submit (Search Partners)";
+      } else {
+        campaignName = 'Organic'; 
+      }
+    }
+    
+    console.log('Extracted campaign name:', campaignName);
+    
+    // Try to get adgroup name directly from URL
+    let adgroupName = urlParams.get('adgroup_name') || '';
+    
+    // If not present, try alternate format
+    if (!adgroupName) {
+      adgroupName = urlParams.get('adgroupname') || '';
+    }
+    
+    // Normalize adgroup name if needed
+    if (adgroupName.includes('%20')) {
+      adgroupName = decodeURIComponent(adgroupName);
+    }
+    
+    // If we don't have an adgroup name from URL, determine it based on adgroupId
+    if (!adgroupName) {
+      if (adgroupId === "149782006756" || adgroupId === "151670982418" || 
+          adgroupId === "153325247952" || adgroupId === "156355988601") {
+        adgroupName = "(exact)";
+      } else if (adgroupId === "153620745798" || adgroupId === "156658963430" || 
+                adgroupId === "153325247992" || adgroupId === "156355988761") {
+        adgroupName = "(phrase)";
+      }
     }
     
     return {
@@ -877,8 +869,12 @@ export function FormProvider({ children }) {
         return newData;
       });
       
-      // Set the dynamic content based on these parameters
-      setDynamicContent(campaignData.keyword, campaignData.campaignId, campaignData.adgroupId);
+      // Wait a tick for form state to update before setting dynamic content
+      setTimeout(() => {
+        // Now form state should include campaign name from URL
+        console.log("Setting dynamic content with campaign name:", campaignData.campaignName);
+        setDynamicContent(campaignData.keyword, campaignData.campaignId, campaignData.adgroupId);
+      }, 0);
       return true;
     }
     

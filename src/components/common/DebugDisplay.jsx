@@ -16,7 +16,12 @@ const DebugDisplay = () => {
       
       // Convert URLSearchParams to a plain object
       for (const [key, value] of params.entries()) {
-        paramObject[key] = value;
+        // Special handling for campaign_name to ensure it's decoded
+        if (key === 'campaign_name' || key === 'campaignname') {
+          paramObject[key] = decodeURIComponent(value);
+        } else {
+          paramObject[key] = value;
+        }
       }
       
       setUrlParams(paramObject);
@@ -90,6 +95,21 @@ const DebugDisplay = () => {
             adgroupName: formData.adgroupName || 'Not set',
             keyword: formData.keyword || 'Not set',
             trafficSource: formData.trafficSource || 'Direct'
+          }, null, 2)}
+        </pre>
+      </div>
+      
+      <div style={sectionStyles}>
+        <h3 style={{ margin: '0 0 5px 0', fontSize: '14px', color: '#4caf50' }}>
+          Dynamic Content
+        </h3>
+        <pre>
+          {JSON.stringify({
+            dynamicHeadline: formData.dynamicHeadline || 'Not set',
+            dynamicSubHeadline: formData.dynamicSubHeadline || 'Not set',
+            buttonText: formData.buttonText || 'Not set',
+            thankYouHeadline: formData.thankYouHeadline || 'Not set',
+            thankYouSubHeadline: formData.thankYouSubHeadline || 'Not set'
           }, null, 2)}
         </pre>
       </div>
