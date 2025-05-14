@@ -510,52 +510,45 @@ export function FormProvider({ children }) {
         .replace(/[^\x20-\x7E]/g, '') // Remove non-ASCII characters
         .trim();                      // Remove leading/trailing whitespace
       
+      // For comparison, explicitly replace any odd hyphens, decode URL components, etc.
+      const campaignNameCleaned = cleanCampaignName
+        .toLowerCase()               // Lowercase everything
+        .replace(/[\s\-_\.]/g, '')  // Remove all spaces, hyphens, underscores, dots
+        .trim();                     // Final trim
+      
       // Convert to lowercase for case-insensitive matching
       const campaignNameLower = cleanCampaignName.toLowerCase();
       
+      // Explicit hardcoded string checks (useful for debugging)
+      const campaignHasCash = campaignNameCleaned.indexOf('cash') >= 0;
+      const campaignHasFast = campaignNameCleaned.indexOf('fast') >= 0;
+      const campaignHasValue = campaignNameCleaned.indexOf('value') >= 0;
+      
       console.log('Original campaign name:', campaignName);
-      console.log('Cleaned campaign name:', cleanCampaignName);
+      console.log('Super-cleaned campaign name:', campaignNameCleaned);
+      console.log('Contains "cash":', campaignHasCash);
+      console.log('Contains "fast":', campaignHasFast);
+      console.log('Contains "value":', campaignHasValue);
       
-      console.log('Checking campaign name for keywords:', campaignNameLower);
-      console.log('Contains "cash":', campaignNameLower.includes('cash'));
-      console.log('Contains "fast":', campaignNameLower.includes('fast'));
-      console.log('Contains "value":', campaignNameLower.includes('value'));
-      
-      // DIRECT FORCE BASED ON PREFIX:
-      // Check for specific prefixes instead of substring matching
-      if (campaignNameLower.startsWith('t1')) {
-        console.log('Campaign starts with "T1" - FORCING CASH template');
-        contentTemplate = campaignTemplates.cash;
-        templateType = 'CASH';
-      }
-      else if (campaignNameLower.startsWith('t2')) {
-        console.log('Campaign starts with "T2" - FORCING FAST template');
-        contentTemplate = campaignTemplates.fast;
-        templateType = 'FAST';
-      }
-      else if (campaignNameLower.startsWith('t3')) {
-        console.log('Campaign starts with "T3" - FORCING VALUE template');
-        contentTemplate = campaignTemplates.value;
-        templateType = 'VALUE';
-      }
-      // Fallback to keyword checking if prefixes don't match
-      else if (campaignNameLower.indexOf('cash') !== -1) {
-        console.log('Campaign name contains "cash" - using cash template');
+      // Simple, straightforward content selection by keyword in campaign name
+      // Priority: cash > value > fast (as requested)
+      if (campaignHasCash) {
+        console.log('Campaign name contains "cash" - using CASH template');
         contentTemplate = campaignTemplates.cash;
         templateType = 'CASH';
       } 
-      else if (campaignNameLower.indexOf('value') !== -1) {
-        console.log('Campaign name contains "value" - using value template');
+      else if (campaignHasValue) {
+        console.log('Campaign name contains "value" - using VALUE template');
         contentTemplate = campaignTemplates.value;
         templateType = 'VALUE';
       } 
-      else if (campaignNameLower.indexOf('fast') !== -1) {
-        console.log('Campaign name contains "fast" - using fast template');
+      else if (campaignHasFast) {
+        console.log('Campaign name contains "fast" - using FAST template');
         contentTemplate = campaignTemplates.fast;
         templateType = 'FAST';
       } 
       else {
-        // No matching keyword in campaign name
+        // No keyword match
         console.log('No matching keyword in campaign name - using default template');
         contentTemplate = defaultContent;
       }
@@ -780,6 +773,9 @@ export function FormProvider({ children }) {
       if (campaignDataRef.current) {
         console.log("Using cached campaign data:", campaignDataRef.current);
       }
+      // Force a dynamic content refresh even for cached data
+      console.log("==== RE-RUNNING CONTENT MATCHING WITH CACHED DATA ====");
+      setDynamicContent(formData.keyword, formData.campaignId, formData.adgroupId);
       return true; // Already processed
     }
     
