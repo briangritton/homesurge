@@ -402,6 +402,20 @@ export async function updateLeadInZoho(leadId, formData) {
     return true;
   }
   
+  // Add detailed logging for campaign data
+  console.log("%c UPDATE LEAD IN ZOHO - Campaign Data Check", "background: #673ab7; color: white; font-size: 14px; padding: 5px;");
+  console.log("Campaign data in update:", {
+    campaignName: formData.campaignName || 'NOT PROVIDED',
+    campaignId: formData.campaignId || 'NOT PROVIDED',
+    adgroupName: formData.adgroupName || 'NOT PROVIDED', 
+    adgroupId: formData.adgroupId || 'NOT PROVIDED',
+    keyword: formData.keyword || 'NOT PROVIDED',
+    gclid: formData.gclid || 'NOT PROVIDED',
+    device: formData.device || 'NOT PROVIDED',
+    templateType: formData.templateType || 'NOT PROVIDED',
+    dataSourceComplete: formData.dataSourceComplete || false
+  });
+  
   try {
     // List of fields that should only be sent if they have been explicitly set
     const qualifyingFields = [
@@ -478,13 +492,32 @@ export async function updateLeadInZoho(leadId, formData) {
       apiEquity: formData.apiEquity?.toString() || '',
       apiPercentage: formData.apiPercentage?.toString() || '',
       
+      // CRITICAL: Include all campaign data in every update
+      campaignName: formData.campaignName || '',
+      campaignId: formData.campaignId || '',
+      adgroupId: formData.adgroupId || '',
+      adgroupName: formData.adgroupName || '',
+      keyword: formData.keyword || '',
+      gclid: formData.gclid || '',
+      device: formData.device || '',
+      trafficSource: formData.trafficSource || '',
+      templateType: formData.templateType || '',
+      url: formData.url || '',
+      
+      // Dynamic content data
+      dynamicHeadline: formData.dynamicHeadline || '',
+      dynamicSubHeadline: formData.dynamicSubHeadline || '',
+      
       // Lead tracking info
       leadSource: formData.leadSource || '',
       leadStage: formData.leadStage || '',
       addressSelectionType: formData.addressSelectionType || '',
       
       // Progress tracking
-      qualifyingQuestionStep: formData.qualifyingQuestionStep?.toString() || ''
+      qualifyingQuestionStep: formData.qualifyingQuestionStep?.toString() || '',
+      
+      // Debug tracking flag
+      dataSourceComplete: formData.dataSourceComplete || false
     };
     
     // Only include qualifying fields if they have values or have been interacted with
@@ -546,6 +579,22 @@ export async function updateLeadInZoho(leadId, formData) {
           city: updateData.city,
           state: updateData.state,
           zip: updateData.zip
+        },
+        campaign: {
+          campaignName: updateData.campaignName,
+          campaignId: updateData.campaignId,
+          adgroupName: updateData.adgroupName,
+          adgroupId: updateData.adgroupId,
+          keyword: updateData.keyword,
+          gclid: updateData.gclid,
+          device: updateData.device,
+          templateType: updateData.templateType,
+          trafficSource: updateData.trafficSource
+        },
+        dynamic: {
+          dynamicHeadline: updateData.dynamicHeadline,
+          dynamicSubHeadline: updateData.dynamicSubHeadline,
+          templateType: updateData.templateType
         }
       } 
     });

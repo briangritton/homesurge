@@ -428,7 +428,24 @@ function AddressForm() {
     const updatedLeadId = localStorage.getItem('leadId') || suggestionLeadId;
     if (propertyData && updatedLeadId) {
       try {
-        // Update the lead with property data
+        // Get campaign data from formContext
+        const { campaignName, campaignId, adgroupId, adgroupName, keyword, gclid, device, trafficSource, templateType } = formData;
+        
+        console.log("%c CRITICAL ADDRESS + PROPERTY DATA UPDATE TO ZOHO", "background: #ff0000; color: white; font-size: 14px; padding: 5px;");
+        console.log("This is where URL campaign data MUST be sent to Zoho");
+        console.log("Campaign Data in form context:", {
+          campaignName,
+          campaignId,
+          adgroupId, 
+          adgroupName,
+          keyword,
+          gclid,
+          device,
+          trafficSource,
+          templateType
+        });
+        
+        // Update the lead with property data AND campaign data
         const propertyUpdateData = {
           // Include the address components again to ensure they are saved
           street: place.formatted_address,
@@ -442,16 +459,102 @@ function AddressForm() {
           apiMaxHomeValue: propertyData.apiMaxValue?.toString() || '0',
           apiEquity: propertyData.apiEquity?.toString() || '0',
           apiPercentage: propertyData.apiPercentage?.toString() || '0',
-          apiHomeValue: propertyData.apiEstimatedValue?.toString() || '0'
+          apiHomeValue: propertyData.apiEstimatedValue?.toString() || '0',
+          
+          // CRITICAL: Include campaign data with property update
+          campaignName: campaignName || '',
+          campaignId: campaignId || '',
+          adgroupId: adgroupId || '',
+          adgroupName: adgroupName || '',
+          keyword: keyword || '',
+          gclid: gclid || '',
+          device: device || '',
+          trafficSource: trafficSource || 'Direct',
+          templateType: templateType || '',
+          
+          // Include dynamic content information
+          dynamicHeadline: formData.dynamicHeadline || '',
+          dynamicSubHeadline: formData.dynamicSubHeadline || '',
+          buttonText: formData.buttonText || '',
+          
+          // Set a special flag for debugging
+          dataSourceComplete: true
         };
         
-        await axios.post('/api/zoho', {
+        // Log what we're sending
+        console.log("Property + Campaign data being sent to Zoho:", {
+          leadId: updatedLeadId,
+          address: {
+            street: propertyUpdateData.street,
+            city: propertyUpdateData.city,
+            state: propertyUpdateData.state,
+            zip: propertyUpdateData.zip
+          },
+          property: {
+            apiOwnerName: propertyUpdateData.apiOwnerName,
+            apiEstimatedValue: propertyUpdateData.apiEstimatedValue,
+            apiEquity: propertyUpdateData.apiEquity,
+            apiPercentage: propertyUpdateData.apiPercentage
+          },
+          campaign: {
+            campaignName: propertyUpdateData.campaignName,
+            campaignId: propertyUpdateData.campaignId,
+            adgroupName: propertyUpdateData.adgroupName,
+            keyword: propertyUpdateData.keyword,
+            templateType: propertyUpdateData.templateType
+          }
+        });
+        
+        // Store this data in sessionStorage for the debugger
+        try {
+          const zohoDataSent = {
+            leadData: {
+              contact: {
+                name: formData.name || '',
+                phone: formData.phone || '',
+                email: formData.email || ''
+              },
+              address: {
+                street: propertyUpdateData.street,
+                city: propertyUpdateData.city,
+                state: propertyUpdateData.state,
+                zip: propertyUpdateData.zip
+              },
+              property: {
+                apiOwnerName: propertyUpdateData.apiOwnerName,
+                apiEstimatedValue: propertyUpdateData.apiEstimatedValue,
+                apiMaxHomeValue: propertyUpdateData.apiMaxHomeValue,
+                apiEquity: propertyUpdateData.apiEquity,
+                apiPercentage: propertyUpdateData.apiPercentage
+              },
+              campaign: {
+                campaignName: propertyUpdateData.campaignName,
+                campaignId: propertyUpdateData.campaignId,
+                adgroupName: propertyUpdateData.adgroupName,
+                adgroupId: propertyUpdateData.adgroupId,
+                keyword: propertyUpdateData.keyword,
+                trafficSource: propertyUpdateData.trafficSource,
+                templateType: propertyUpdateData.templateType,
+                gclid: propertyUpdateData.gclid,
+                device: propertyUpdateData.device
+              }
+            },
+            timestamp: new Date().toISOString()
+          };
+          sessionStorage.setItem('zohoDataSent', JSON.stringify(zohoDataSent));
+          console.log("Stored Zoho data in sessionStorage for debugger");
+        } catch (e) {
+          console.error("Error storing Zoho data in sessionStorage:", e);
+        }
+        
+        // Send the update to Zoho
+        const response = await axios.post('/api/zoho', {
           action: 'update',
           leadId: updatedLeadId,
           formData: propertyUpdateData
         });
         
-        console.log('Updated lead with property data from Melissa API');
+        console.log('Updated lead with property data AND campaign data from URL:', response.data);
       } catch (error) {
         console.error('Error updating lead with property data:', error);
       }
