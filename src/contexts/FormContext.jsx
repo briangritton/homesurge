@@ -709,13 +709,7 @@ export function FormProvider({ children }) {
         'traffic_source': 'paid_search'
       });
       
-      console.log('Campaign tracking initialized:', {
-        campaignId,
-        campaignName,
-        adgroupId,
-        adgroupName,
-        keyword
-      });
+      console.log('Campaign tracking initialized:', campaignData);
     } else {
       // If no campaign parameters, track as direct traffic
       window.dataLayer = window.dataLayer || [];
@@ -729,10 +723,42 @@ export function FormProvider({ children }) {
   // Track whether URL parameters have already been processed
   const [urlParamsProcessed, setUrlParamsProcessed] = useState(false);
   
+  // Use ref to store campaign data for persistence
+  const campaignDataRef = React.useRef(null);
+  
+  // Initialize from localStorage if available
+  useEffect(() => {
+    try {
+      // Check for campaign data in localStorage
+      const storedCampaignData = localStorage.getItem('campaignData');
+      if (storedCampaignData) {
+        const parsedData = JSON.parse(storedCampaignData);
+        console.log("Found stored campaign data:", parsedData);
+        
+        // Store in ref for persistence
+        campaignDataRef.current = parsedData;
+        
+        // Update form data directly
+        setFormData(prevData => ({
+          ...prevData,
+          ...parsedData,
+          trafficSource: parsedData.campaignId ? 'Google Search' : 'Direct'
+        }));
+      }
+    } catch (e) {
+      console.error("Failed to retrieve campaign data from localStorage:", e);
+    }
+  }, []);
+  
   // Initialize dynamic content from URL parameters and setup analytics tracking
   const initFromUrlParams = () => {
     // Only process URL parameters once
     if (urlParamsProcessed) {
+      // If we already processed but need to access the campaign data again,
+      // return it from our persistent ref
+      if (campaignDataRef.current) {
+        console.log("Using cached campaign data:", campaignDataRef.current);
+      }
       return true; // Already processed
     }
     
@@ -745,19 +771,33 @@ export function FormProvider({ children }) {
     // Extract and process campaign data 
     const campaignData = extractCampaignData(urlParams);
     
+    // Store campaign data in ref for persistence
+    campaignDataRef.current = campaignData;
+    
     // Track in analytics
     trackCampaignView(campaignData);
     
     // Always update form data with campaign info (even if empty)
     // This ensures consistent state updates
-    setFormData(prevData => ({
-      ...prevData,
-      ...campaignData,
-      trafficSource: campaignData.campaignId ? 'Google Search' : 'Direct'
-    }));
-    
-    // Set dynamic content if we have campaign parameters
-    if (campaignData.keyword || campaignData.campaignId) {
+    if (campaignData.campaignId) {
+      // Use direct state update instead of updateFormData to ensure immediate update
+      setFormData(prevData => {
+        const newData = {
+          ...prevData,
+          ...campaignData,
+          trafficSource: campaignData.campaignId ? 'Google Search' : 'Direct'
+        };
+        
+        // Store in localStorage for persistence across refreshes
+        try {
+          localStorage.setItem('campaignData', JSON.stringify(campaignData));
+        } catch (e) {
+          console.error("Failed to store campaign data in localStorage:", e);
+        }
+        
+        return newData;
+      });
+      
       // Set the dynamic content based on these parameters
       setDynamicContent(campaignData.keyword, campaignData.campaignId, campaignData.adgroupId);
       return true;
