@@ -455,11 +455,28 @@ export function FormProvider({ children }) {
 
   // Simplified dynamic content handler based only on campaign name
   const setDynamicContent = (keyword, campaignId, adgroupId) => {
-    // Get the campaign name from form state (should be set by now)
-    const campaignName = formData.campaignName || '';
+    // Always get campaign name directly from URL
+    const urlParams = new URLSearchParams(window.location.search);
     
-    // Log information about the current campaign
-    console.log('Setting dynamic content based on campaign name:', campaignName);
+    // Try various parameter naming conventions
+    let campaignName = '';
+    const possibleParamNames = ['campaign_name', 'campaignname', 'campaign-name', 'utm_campaign'];
+    
+    for (const paramName of possibleParamNames) {
+      const value = urlParams.get(paramName);
+      if (value) {
+        campaignName = value;
+        break;
+      }
+    }
+    
+    // If no campaign name in URL, use the one in form state
+    if (!campaignName) {
+      campaignName = formData.campaignName || '';
+    }
+    
+    // Log information about the current campaign name we'll use for matching
+    console.log('Using campaign name for template selection:', campaignName);
     
     // Simplified campaign templates by type
     const campaignTemplates = {
@@ -510,49 +527,36 @@ export function FormProvider({ children }) {
         .replace(/[^\x20-\x7E]/g, '') // Remove non-ASCII characters
         .trim();                      // Remove leading/trailing whitespace
       
-      // FORCE THE CAMPAIGN NAME DIRECTLY FROM URL PARAMS
-      const urlParams = new URLSearchParams(window.location.search);
-      const urlCampaignName = urlParams.get('campaign_name');
-      const forcedCleanName = urlCampaignName 
-        ? urlCampaignName.toLowerCase().replace(/[\s\-_\.]/g, '').trim()
-        : '';
+      // Simplify campaign name for matching (remove spaces, convert to lowercase)
+      const simplifiedCampaignName = cleanCampaignName.toLowerCase().replace(/[\s\-_\.]/g, '');
       
-      // For comparison, explicitly replace any odd hyphens, decode URL components, etc.
-      const campaignNameCleaned = cleanCampaignName
-        .toLowerCase()               // Lowercase everything
-        .replace(/[\s\-_\.]/g, '')  // Remove all spaces, hyphens, underscores, dots
-        .trim();                     // Final trim
-      
-      // Convert to lowercase for case-insensitive matching
-      const campaignNameLower = cleanCampaignName.toLowerCase();
-      
-      // Check both the localStorage campaign name AND the direct URL parameter
-      const campaignHasCash = campaignNameCleaned.indexOf('cash') >= 0 || forcedCleanName.indexOf('cash') >= 0;
-      const campaignHasFast = campaignNameCleaned.indexOf('fast') >= 0 || forcedCleanName.indexOf('fast') >= 0;
-      const campaignHasValue = campaignNameCleaned.indexOf('value') >= 0 || forcedCleanName.indexOf('value') >= 0;
-      
-      console.log('URL PARAM campaign_name:', urlCampaignName);
-      console.log('Forced clean name:', forcedCleanName);
-      
+      // Log each step of the process
       console.log('Original campaign name:', campaignName);
-      console.log('Super-cleaned campaign name:', campaignNameCleaned);
-      console.log('Contains "cash":', campaignHasCash);
-      console.log('Contains "fast":', campaignHasFast);
-      console.log('Contains "value":', campaignHasValue);
+      console.log('Cleaned campaign name:', cleanCampaignName);
+      console.log('Simplified campaign name for matching:', simplifiedCampaignName);
+      
+      // Simple keyword checks on the simplified name
+      const hasCash = simplifiedCampaignName.includes('cash');
+      const hasFast = simplifiedCampaignName.includes('fast');
+      const hasValue = simplifiedCampaignName.includes('value');
+      
+      console.log('Contains "cash":', hasCash);
+      console.log('Contains "fast":', hasFast);
+      console.log('Contains "value":', hasValue);
       
       // Simple, straightforward content selection by keyword in campaign name
       // Priority: cash > value > fast (as requested)
-      if (campaignHasCash) {
+      if (hasCash) {
         console.log('Campaign name contains "cash" - using CASH template');
         contentTemplate = campaignTemplates.cash;
         templateType = 'CASH';
       } 
-      else if (campaignHasValue) {
+      else if (hasValue) {
         console.log('Campaign name contains "value" - using VALUE template');
         contentTemplate = campaignTemplates.value;
         templateType = 'VALUE';
       } 
-      else if (campaignHasFast) {
+      else if (hasFast) {
         console.log('Campaign name contains "fast" - using FAST template');
         contentTemplate = campaignTemplates.fast;
         templateType = 'FAST';
@@ -576,16 +580,24 @@ export function FormProvider({ children }) {
       contentTemplate = defaultContent;
     }
     
-    // Update campaign name from URL for direct override
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlCampaignName = urlParams.get('campaign_name') || '';
-    
-    // Apply the selected template and ensure campaign name matches URL
+    // Apply the selected template and update form state
     console.log('Applying content template:', contentTemplate);
+    
+    // Create a summary of the decision process
+    console.log('Template selection summary:', {
+      campaignName,
+      matchedKeywords: {
+        cash: campaignName && campaignName.toLowerCase().includes('cash'),
+        fast: campaignName && campaignName.toLowerCase().includes('fast'),
+        value: campaignName && campaignName.toLowerCase().includes('value')
+      },
+      selectedTemplate: templateType
+    });
+    
     setFormData(prevData => ({
       ...prevData,
-      // Override campaign name from URL directly
-      campaignName: urlCampaignName || prevData.campaignName,
+      // Ensure campaign name is stored in form state
+      campaignName: campaignName || prevData.campaignName,
       // Set dynamic content
       dynamicHeadline: contentTemplate.headline,
       dynamicSubHeadline: contentTemplate.subHeadline,
@@ -631,18 +643,17 @@ export function FormProvider({ children }) {
     for (const paramName of possibleParamNames) {
       const value = urlParams.get(paramName);
       if (value) {
-        campaignName = value;
-        console.log(`Found campaign name in parameter "${paramName}": ${value}`);
+        // Properly decode the campaign name to handle any special characters
+        try {
+          campaignName = decodeURIComponent(value);
+        } catch (e) {
+          campaignName = value;
+          console.warn(`Error decoding campaign name from ${paramName}:`, e);
+        }
+        console.log(`Found campaign name in parameter "${paramName}": ${campaignName}`);
         break;
       }
     }
-    
-    // Normalize campaign name if needed
-    if (campaignName.includes('%20') || campaignName.includes('+')) {
-      campaignName = decodeURIComponent(campaignName);
-    }
-    
-    console.log('Final processed campaign name:', campaignName);
     
     // If we have a direct campaign name from the URL, use it
     // Otherwise, determine campaign name based on campaignId
@@ -660,7 +671,17 @@ export function FormProvider({ children }) {
       }
     }
     
-    console.log('Extracted campaign name:', campaignName);
+    console.log('Final processed campaign name:', campaignName);
+    
+    // Check for keywords in the campaign name for debugging
+    if (campaignName) {
+      const lcName = campaignName.toLowerCase();
+      console.log('Campaign name keyword checks:', {
+        hasCash: lcName.includes('cash'),
+        hasFast: lcName.includes('fast'),
+        hasValue: lcName.includes('value')
+      });
+    }
     
     // Try to get adgroup name directly from URL
     let adgroupName = urlParams.get('adgroup_name') || '';
@@ -672,7 +693,11 @@ export function FormProvider({ children }) {
     
     // Normalize adgroup name if needed
     if (adgroupName.includes('%20')) {
-      adgroupName = decodeURIComponent(adgroupName);
+      try {
+        adgroupName = decodeURIComponent(adgroupName);
+      } catch (e) {
+        console.warn('Error decoding adgroup name:', e);
+      }
     }
     
     // If we don't have an adgroup name from URL, determine it based on adgroupId
@@ -875,12 +900,12 @@ export function FormProvider({ children }) {
       setTimeout(() => {
         // Debug the exact campaign name string character by character
         console.log("Raw campaign name before setting dynamic content:", campaignData.campaignName);
-        console.log("Campaign name character codes:", Array.from(campaignData.campaignName).map(c => c.charCodeAt(0)));
         
         // Now form state should include campaign name from URL
         console.log("Setting dynamic content with campaign name:", campaignData.campaignName);
         
-        // Call setDynamicContent with campaign name directly
+        // Explicitly call setDynamicContent - this will get the campaign name directly 
+        // from URL params and form state, so we don't need to pass it here
         setDynamicContent(campaignData.keyword, campaignData.campaignId, campaignData.adgroupId);
       }, 0);
       return true;
