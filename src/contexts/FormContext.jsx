@@ -558,7 +558,9 @@ export function FormProvider({ children }) {
       // For all other campaigns, use a simpler approach
       let contentUpdates = {};
       
-      if (keywordWords.includes('cash') && keywordWords.includes('sell')) {
+      // Check for keywords in priority order (cash takes precedence over fast)
+      if (keywordWords.includes('cash')) {
+        console.log('Keyword "cash" found - using cash headline');
         contentUpdates = {
           dynamicHeadline: 'Sell Your House For Cash Fast!',
           dynamicSubHeadline: 'Get a great cash offer for your house and close fast!',
@@ -568,6 +570,7 @@ export function FormProvider({ children }) {
           trafficSource: 'Google Search'
         };
       } else if (keywordWords.includes('value')) {
+        console.log('Keyword "value" found - using value headline');
         contentUpdates = {
           dynamicHeadline: 'Check The Value Of Your House!',
           dynamicSubHeadline: 'Find out how much your home is worth today.',
@@ -577,6 +580,7 @@ export function FormProvider({ children }) {
           trafficSource: 'Google Search'
         };
       } else if (keywordWords.includes('fast')) {
+        console.log('Keyword "fast" found - using fast headline');
         contentUpdates = {
           dynamicHeadline: 'Sell Your House Fast!',
           dynamicSubHeadline: 'Get a cash offer and close in as little as 10 days!',
@@ -586,6 +590,7 @@ export function FormProvider({ children }) {
           trafficSource: 'Google Search'
         };
       } else {
+        console.log('No specific keywords found - using default headline');
         // Default for other keywords
         contentUpdates = {
           dynamicHeadline: 'Sell Your House For Cash Fast!',
