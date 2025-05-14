@@ -726,8 +726,19 @@ export function FormProvider({ children }) {
     }
   };
 
+  // Track whether URL parameters have already been processed
+  const [urlParamsProcessed, setUrlParamsProcessed] = useState(false);
+  
   // Initialize dynamic content from URL parameters and setup analytics tracking
   const initFromUrlParams = () => {
+    // Only process URL parameters once
+    if (urlParamsProcessed) {
+      return true; // Already processed
+    }
+    
+    // Mark as processed immediately to prevent future calls
+    setUrlParamsProcessed(true);
+    
     // Get URL parameters once
     const urlParams = new URLSearchParams(window.location.search);
     

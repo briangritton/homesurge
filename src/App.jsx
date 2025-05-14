@@ -34,13 +34,13 @@ function AnalyticsTracker() {
 function FormContainer() {
   const { formData, initFromUrlParams } = useFormContext();
   
-  // Initialize analytics and dynamic content from URL params
+  // Initialize analytics and dynamic content from URL params (only once)
   useEffect(() => {
     // Initialize analytics
     initializeAnalytics();
     
-    // Initialize dynamic content from URL parameters (only once)
-    initFromUrlParams();
+    // Initialize dynamic content from URL parameters (using a synchronous API to avoid loops)
+    const urlParamsProcessed = initFromUrlParams();
     
     // Log that dynamic content has been initialized
     console.log('Dynamic content and campaign tracking initialized from URL parameters');
@@ -54,8 +54,9 @@ function FormContainer() {
       keyword: formData.keyword || 'Not set',
       trafficSource: formData.trafficSource || 'Direct'
     });
-    // Remove formData from dependencies to prevent infinite loop
-  }, [initFromUrlParams]);
+    
+    // No dependencies - only run once on mount, never again
+  }, []);
   
   // Render the appropriate form step based on form state
   const renderFormStep = () => {
