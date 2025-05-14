@@ -705,7 +705,11 @@ function QualifyingForm() {
   return (
     <div className="qualifying-section">
       <div className="qualifying-headline">
-        Help us prepare your best cash offer
+        {formData.templateType === 'VALUE' 
+          ? 'Help us prepare your detailed home value report' 
+          : formData.templateType === 'FAST' 
+            ? 'Help us prepare your fast sale offer'
+            : 'Help us prepare your best cash offer'}
       </div>
       <div className="qualifying-form-container">
         {renderCurrentQuestion()}
