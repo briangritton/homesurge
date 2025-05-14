@@ -14,6 +14,7 @@ import Privacy from './components/common/Privacy';
 import ZohoTest from './components/ZohoTest';
 import SalesPage from './components/SalesPage';
 import ValueBoostContainer from './components/HomeSurge/ValueBoost/ValueBoostContainer';
+import DebugDisplay from './components/common/DebugDisplay';
 
 // Styles
 import './styles/main.css';
@@ -104,6 +105,7 @@ function App() {
             <Route path="/valueboost" element={<ValueBoostContainer />} />
           </Routes>
           <Footer />
+          <DebugDisplay /> {/* Add debug display to show campaign data */}
         </BrowserRouter>
       </FormProvider>
     </div>

@@ -129,24 +129,11 @@ export function FormProvider({ children }) {
       localStorage.setItem('userId', userId);
     }
     
-    // Get URL parameters for tracking
-    const urlParams = new URLSearchParams(window.location.search);
-    const campaignId = urlParams.get('campaignid');
-    const adgroupId = urlParams.get('adgroupid');
-    const keyword = urlParams.get('keyword');
-    const device = urlParams.get('device');
-    const gclid = urlParams.get('gclid');
-    
-    // Update form data with user ID and tracking parameters
+    // ONLY SET USER ID - NOT CAMPAIGN DATA
+    // Campaign data will be handled by initFromUrlParams
     setFormData(prev => ({
       ...prev,
       userId,
-      campaignId: campaignId || '',
-      adgroupId: adgroupId || '',
-      keyword: keyword || '',
-      device: device || '',
-      gclid: gclid || '',
-      trafficSource: urlParams.get('source') || 'Direct',
       url: window.location.href
     }));
     
@@ -155,7 +142,16 @@ export function FormProvider({ children }) {
     if (storedFormData) {
       try {
         const parsedData = JSON.parse(storedFormData);
-        setFormData(prev => ({...prev, ...parsedData}));
+        
+        // Filter out campaign tracking fields to prevent duplicated or conflicting updates
+        // We'll handle those separately in initFromUrlParams
+        const {
+          campaignId, campaignName, adgroupId, adgroupName, 
+          keyword, device, gclid, trafficSource, ...otherData
+        } = parsedData;
+        
+        // Only update non-campaign data
+        setFormData(prev => ({...prev, ...otherData}));
       } catch (e) {
         console.error('Error parsing stored form data:', e);
       }
@@ -752,7 +748,10 @@ export function FormProvider({ children }) {
   
   // Initialize dynamic content from URL parameters and setup analytics tracking
   const initFromUrlParams = () => {
-    // Only process URL parameters once
+    // Log the current URL for debugging
+    console.log("Processing URL:", window.location.href);
+    
+    // Only process URL parameters once per session
     if (urlParamsProcessed) {
       // If we already processed but need to access the campaign data again,
       // return it from our persistent ref
@@ -768,29 +767,68 @@ export function FormProvider({ children }) {
     // Get URL parameters once
     const urlParams = new URLSearchParams(window.location.search);
     
+    // Check if we have any campaign parameters
+    const hasCampaignParams = urlParams.has('campaignid') || urlParams.has('keyword');
+    console.log("Has campaign parameters:", hasCampaignParams);
+    
+    // If we don't have campaign params in URL but do have them in localStorage, use those
+    if (!hasCampaignParams) {
+      try {
+        const storedData = localStorage.getItem('campaignData');
+        if (storedData) {
+          console.log("No URL params but found stored campaign data, using that instead");
+          const parsedData = JSON.parse(storedData);
+          if (parsedData && parsedData.campaignId) {
+            campaignDataRef.current = parsedData;
+            
+            // Update form state with stored data
+            setFormData(prevData => ({
+              ...prevData,
+              ...parsedData,
+              trafficSource: 'Google Search'
+            }));
+            
+            return true;
+          }
+        }
+      } catch (e) {
+        console.error("Error reading stored campaign data:", e);
+      }
+    }
+    
     // Extract and process campaign data 
     const campaignData = extractCampaignData(urlParams);
     
-    // Store campaign data in ref for persistence
-    campaignDataRef.current = campaignData;
+    // Check if we found valid campaign data from URL
+    const hasValidCampaignData = campaignData && campaignData.campaignId;
+    console.log("Has valid campaign data:", hasValidCampaignData, campaignData);
     
-    // Track in analytics
-    trackCampaignView(campaignData);
-    
-    // Always update form data with campaign info (even if empty)
-    // This ensures consistent state updates
-    if (campaignData.campaignId) {
-      // Use direct state update instead of updateFormData to ensure immediate update
+    if (hasValidCampaignData) {
+      // Store campaign data in ref for persistence
+      campaignDataRef.current = campaignData;
+      
+      // Track in analytics
+      trackCampaignView(campaignData);
+      
+      // Create update object with campaign data
+      const updateObj = {
+        ...campaignData,
+        trafficSource: 'Google Search'
+      };
+      
+      console.log("Updating form state with campaign data:", updateObj);
+      
+      // Update form state directly
       setFormData(prevData => {
         const newData = {
           ...prevData,
-          ...campaignData,
-          trafficSource: campaignData.campaignId ? 'Google Search' : 'Direct'
+          ...updateObj
         };
         
-        // Store in localStorage for persistence across refreshes
+        // Store in localStorage for persistence
         try {
           localStorage.setItem('campaignData', JSON.stringify(campaignData));
+          console.log("Stored campaign data in localStorage");
         } catch (e) {
           console.error("Failed to store campaign data in localStorage:", e);
         }
@@ -803,6 +841,7 @@ export function FormProvider({ children }) {
       return true;
     }
     
+    console.log("No valid campaign data found");
     return false;
   };
 
