@@ -179,6 +179,15 @@ export async function submitLeadToZoho(formData) {
       campaignName: formData.campaignName || '',
       adgroupName: formData.adgroupName || '',
       keyword: formData.keyword || '',
+      campaignId: formData.campaignId || '',
+      adgroupId: formData.adgroupId || '',
+      templateType: formData.templateType || '',
+      
+      // Include dynamic content information
+      dynamicHeadline: formData.dynamicHeadline || '',
+      dynamicSubHeadline: formData.dynamicSubHeadline || '',
+      
+      // Metadata and selection type
       addressSelectionType: formData.addressSelectionType || 'Manual',
       leadSource: formData.leadSource || 'Website',
       leadStage: formData.leadStage || 'New'
@@ -236,8 +245,60 @@ export async function submitLeadToZoho(formData) {
         city: preparedData.city,
         state: preparedData.state,
         zip: preparedData.zip
+      },
+      campaignData: {
+        campaignName: preparedData.campaignName,
+        campaignId: preparedData.campaignId,
+        adgroupName: preparedData.adgroupName,
+        adgroupId: preparedData.adgroupId,
+        keyword: preparedData.keyword,
+        trafficSource: preparedData.trafficSource,
+        gclid: preparedData.gclid,
+        device: preparedData.device,
+        templateType: preparedData.templateType
       }
     });
+    
+    // Store Zoho data sent in sessionStorage for debugging
+    try {
+      const zohoDataSent = {
+        leadData: {
+          contact: {
+            name: preparedData.name,
+            phone: preparedData.phone,
+            email: preparedData.email
+          },
+          address: {
+            street: preparedData.street,
+            city: preparedData.city,
+            state: preparedData.state,
+            zip: preparedData.zip
+          },
+          property: {
+            apiOwnerName: preparedData.apiOwnerName,
+            apiEstimatedValue: preparedData.apiEstimatedValue,
+            apiMaxHomeValue: preparedData.apiMaxHomeValue,
+            apiEquity: preparedData.apiEquity,
+            apiPercentage: preparedData.apiPercentage
+          },
+          campaign: {
+            campaignName: preparedData.campaignName,
+            campaignId: preparedData.campaignId,
+            adgroupName: preparedData.adgroupName,
+            adgroupId: preparedData.adgroupId,
+            keyword: preparedData.keyword,
+            trafficSource: preparedData.trafficSource,
+            templateType: preparedData.templateType,
+            gclid: preparedData.gclid,
+            device: preparedData.device
+          }
+        },
+        timestamp: new Date().toISOString()
+      };
+      sessionStorage.setItem('zohoDataSent', JSON.stringify(zohoDataSent));
+    } catch (e) {
+      console.error("Error storing Zoho data in sessionStorage:", e);
+    }
     
     // Set debug flag to get more info from API
     const response = await axios.post('/api/zoho', {
