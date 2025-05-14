@@ -492,6 +492,7 @@ export function FormProvider({ children }) {
     
     // Default content if no campaign matches
     const defaultContent = {
+      type: 'DEFAULT',
       headline: 'Sell Your House For Cash Fast!',
       subHeadline: 'Get a great cash offer for your house and close fast!',
       buttonText: 'CHECK OFFER',
@@ -504,19 +505,42 @@ export function FormProvider({ children }) {
     let templateType = 'DEFAULT'; // For debugging
     
     if (campaignName) {
-      // Convert to lowercase for case-insensitive matching
-      const campaignNameLower = campaignName.toLowerCase();
+      // Clean the campaign name to handle any encoding issues or special characters
+      const cleanCampaignName = campaignName
+        .replace(/[^\x20-\x7E]/g, '') // Remove non-ASCII characters
+        .trim();                      // Remove leading/trailing whitespace
       
-      // Campaign name keyword matching with priorities (cash > value > fast)
-      if (campaignNameLower.includes('cash')) {
+      // Convert to lowercase for case-insensitive matching
+      const campaignNameLower = cleanCampaignName.toLowerCase();
+      
+      console.log('Original campaign name:', campaignName);
+      console.log('Cleaned campaign name:', cleanCampaignName);
+      
+      console.log('Checking campaign name for keywords:', campaignNameLower);
+      console.log('Contains "cash":', campaignNameLower.includes('cash'));
+      console.log('Contains "fast":', campaignNameLower.includes('fast'));
+      console.log('Contains "value":', campaignNameLower.includes('value'));
+      
+      // Explicit check for various keywords with direct equality tests for debugging
+      const hasCash = campaignNameLower.indexOf('cash') !== -1;
+      const hasFast = campaignNameLower.indexOf('fast') !== -1;
+      const hasValue = campaignNameLower.indexOf('value') !== -1;
+      
+      console.log('More thorough checks:');
+      console.log('- indexOf("cash"):', campaignNameLower.indexOf('cash'));
+      console.log('- indexOf("fast"):', campaignNameLower.indexOf('fast'));
+      console.log('- indexOf("value"):', campaignNameLower.indexOf('value'));
+      
+      // Campaign name keyword matching with priorities
+      if (hasCash) {
         console.log('Campaign name contains "cash" - using cash template');
         contentTemplate = campaignTemplates.cash;
         templateType = 'CASH';
-      } else if (campaignNameLower.includes('value')) {
+      } else if (hasValue) {
         console.log('Campaign name contains "value" - using value template');
         contentTemplate = campaignTemplates.value;
         templateType = 'VALUE';
-      } else if (campaignNameLower.includes('fast')) {
+      } else if (hasFast) {
         console.log('Campaign name contains "fast" - using fast template');
         contentTemplate = campaignTemplates.fast;
         templateType = 'FAST';
@@ -525,6 +549,8 @@ export function FormProvider({ children }) {
         console.log('No matching keyword in campaign name - using default template');
         contentTemplate = defaultContent;
       }
+      
+      console.log('Selected template type:', templateType);
     } else {
       // No campaign name at all
       console.log('No campaign name available - using default template');
@@ -824,8 +850,14 @@ export function FormProvider({ children }) {
       
       // Wait a tick for form state to update before setting dynamic content
       setTimeout(() => {
+        // Debug the exact campaign name string character by character
+        console.log("Raw campaign name before setting dynamic content:", campaignData.campaignName);
+        console.log("Campaign name character codes:", Array.from(campaignData.campaignName).map(c => c.charCodeAt(0)));
+        
         // Now form state should include campaign name from URL
         console.log("Setting dynamic content with campaign name:", campaignData.campaignName);
+        
+        // Call setDynamicContent with campaign name directly
         setDynamicContent(campaignData.keyword, campaignData.campaignId, campaignData.adgroupId);
       }, 0);
       return true;
