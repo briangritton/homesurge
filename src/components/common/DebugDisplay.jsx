@@ -103,6 +103,14 @@ const DebugDisplay = () => {
         <h3 style={{ margin: '0 0 5px 0', fontSize: '14px', color: '#4caf50' }}>
           Dynamic Content - Template Type: {formData.templateType || 'Not set'}
         </h3>
+        <div style={{ fontSize: '11px', marginBottom: '3px', color: '#ffeb3b' }}>
+          Campaign Name: "{formData.campaignName || 'Not set'}"
+        </div>
+        <div style={{ fontSize: '11px', marginBottom: '3px', color: '#ffeb3b' }}>
+          Keywords: {formData.campaignName && formData.campaignName.toLowerCase().includes('cash') ? '✓ has "cash"' : '✗ no "cash"'} | 
+          {formData.campaignName && formData.campaignName.toLowerCase().includes('fast') ? ' ✓ has "fast"' : ' ✗ no "fast"'} | 
+          {formData.campaignName && formData.campaignName.toLowerCase().includes('value') ? ' ✓ has "value"' : ' ✗ no "value"'}
+        </div>
         <pre>
           {JSON.stringify({
             dynamicHeadline: formData.dynamicHeadline || 'Not set',
