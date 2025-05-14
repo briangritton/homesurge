@@ -815,6 +815,11 @@ function AddressForm() {
         <div className="hero-content fade-in">
           <div className="hero-headline">{formData.dynamicHeadline || "Sell Your House For Cash\u00A0Fast!"}</div>
           <div className="hero-subheadline">{formData.dynamicSubHeadline || "Get a Great Cash Offer For Your House and Close Fast!"}</div>
+          {/* Debug info - remove after testing */}
+          <div style={{fontSize: '10px', color: '#888', marginBottom: '10px'}}>
+            Campaign: {formData.campaignId || 'None'} | 
+            Headline from: {formData.dynamicHeadline ? 'Dynamic' : 'Default'}
+          </div>
           
           {/* This is now a div, not a form! We don't want form submission at all */}
           <div className="form-container">
@@ -837,7 +842,7 @@ function AddressForm() {
               disabled={isLoading}
               onClick={handleButtonClick}
             >
-              {isLoading ? 'CHECKING...' : 'CHECK OFFER'}
+              {isLoading ? 'CHECKING...' : formData.buttonText || 'CHECK OFFER'}
             </button>
           </div>
           
