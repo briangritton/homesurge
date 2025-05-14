@@ -483,40 +483,10 @@ export function FormProvider({ children }) {
     
     // Create a config object for the cash offer campaign (20196006239)
     const cashOfferConfig = {
-      // Map of keyword sets to content variations
+      // Map of keyword sets to content variations - ordered by specificity (more specific first)
       keywordSets: [
         {
-          // Match if ALL these words are in the keyword
-          words: ['get', 'cash'],
-          content: {
-            headline: 'Get Cash For Your House Fast!',
-            subHeadline: 'Get a great cash offer for your house and close fast! Enter your address below to generate your cash offer',
-            buttonText: 'CHECK OFFER',
-            thankYouHeadline: 'Cash Offer Request Completed!',
-            thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!'
-          }
-        },
-        {
-          words: ['cash', 'out'],
-          content: {
-            headline: 'Check Your Home Cash Out Amount',
-            subHeadline: 'Get a great cash out offer for your house and close fast! Enter your address below to generate your cash amount',
-            buttonText: 'CHECK OFFER',
-            thankYouHeadline: 'Cash Offer Request Completed!',
-            thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!'
-          }
-        },
-        {
-          words: ['sell', 'cash'],
-          content: {
-            headline: 'Sell Your House For Cash Fast',
-            subHeadline: 'Get a great cash offer for your house and close fast! Enter your address below to generate your cash offer',
-            buttonText: 'CHECK OFFER',
-            thankYouHeadline: 'Cash Offer Request Completed!',
-            thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!'
-          }
-        },
-        {
+          // Specific case - has both 'sell', 'cash', and 'fast' together
           words: ['sell', 'cash', 'fast'],
           content: {
             headline: 'Sell Your House For Cash Fast',
@@ -527,6 +497,40 @@ export function FormProvider({ children }) {
           }
         },
         {
+          // 'get' and 'cash' together
+          words: ['get', 'cash'],
+          content: {
+            headline: 'Get Cash For Your House Fast!',
+            subHeadline: 'Get a great cash offer for your house and close fast! Enter your address below to generate your cash offer',
+            buttonText: 'CHECK OFFER',
+            thankYouHeadline: 'Cash Offer Request Completed!',
+            thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!'
+          }
+        },
+        {
+          // 'cash out' specific phrase
+          words: ['cash', 'out'],
+          content: {
+            headline: 'Check Your Home Cash Out Amount',
+            subHeadline: 'Get a great cash out offer for your house and close fast! Enter your address below to generate your cash amount',
+            buttonText: 'CHECK OFFER',
+            thankYouHeadline: 'Cash Offer Request Completed!',
+            thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!'
+          }
+        },
+        {
+          // 'sell' and 'cash' together
+          words: ['sell', 'cash'],
+          content: {
+            headline: 'Sell Your House For Cash Fast',
+            subHeadline: 'Get a great cash offer for your house and close fast! Enter your address below to generate your cash offer',
+            buttonText: 'CHECK OFFER',
+            thankYouHeadline: 'Cash Offer Request Completed!',
+            thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!'
+          }
+        },
+        {
+          // Any mention of 'cash' - this is the fallback for any other cash-related keywords
           words: ['cash'],
           content: {
             headline: 'Sell Your House For Cash Fast',
@@ -618,9 +622,10 @@ export function FormProvider({ children }) {
     
     // Try to match keyword sets in order (more specific first)
     for (const keywordSet of campaignConfig.keywordSets) {
-      // Check if ALL words in this set are in the keyword
+      // Check if ALL words in this set are in the keyword array
+      // This checks if each word in keywordSet.words exists in the keywordWords array
       if (keywordSet.words.every(word => keywordWords.includes(word))) {
-        console.log('Matched keyword set:', keywordSet.words);
+        console.log('Matched keyword set:', keywordSet.words, 'in keyword:', sanitizedKeyword);
         contentToUse = keywordSet.content;
         matched = true;
         break;
