@@ -122,6 +122,17 @@ function getConversionValue(event, customValue = null) {
  * @returns {Promise<string>} - The ID of the created lead
  */
 export async function submitLeadToZoho(formData) {
+  console.log("%c SUBMIT LEAD TO ZOHO CALLED", "background: #4caf50; color: white; font-size: 16px; padding: 5px;");
+  console.log("Form data provided:", {
+    name: formData.name,
+    address: formData.street,
+    campaignName: formData.campaignName,
+    campaignId: formData.campaignId,
+    adgroupName: formData.adgroupName,
+    keyword: formData.keyword,
+    templateType: formData.templateType
+  });
+  
   try {
     // Get list of fields that should only be sent if they have been interacted with
     const qualifyingFields = [
@@ -179,6 +190,15 @@ export async function submitLeadToZoho(formData) {
       campaignName: formData.campaignName || '',
       adgroupName: formData.adgroupName || '',
       keyword: formData.keyword || '',
+      campaignId: formData.campaignId || '',
+      adgroupId: formData.adgroupId || '',
+      templateType: formData.templateType || '',
+      
+      // Include dynamic content information
+      dynamicHeadline: formData.dynamicHeadline || '',
+      dynamicSubHeadline: formData.dynamicSubHeadline || '',
+      
+      // Metadata and selection type
       addressSelectionType: formData.addressSelectionType || 'Manual',
       leadSource: formData.leadSource || 'Website',
       leadStage: formData.leadStage || 'New'
@@ -236,8 +256,83 @@ export async function submitLeadToZoho(formData) {
         city: preparedData.city,
         state: preparedData.state,
         zip: preparedData.zip
+      },
+      campaignData: {
+        campaignName: preparedData.campaignName,
+        campaignId: preparedData.campaignId,
+        adgroupName: preparedData.adgroupName,
+        adgroupId: preparedData.adgroupId,
+        keyword: preparedData.keyword,
+        trafficSource: preparedData.trafficSource,
+        gclid: preparedData.gclid,
+        device: preparedData.device,
+        templateType: preparedData.templateType
       }
     });
+    
+    // Store Zoho data sent in sessionStorage for debugging
+    try {
+      const zohoDataSent = {
+        leadData: {
+          contact: {
+            name: preparedData.name,
+            phone: preparedData.phone,
+            email: preparedData.email
+          },
+          address: {
+            street: preparedData.street,
+            city: preparedData.city,
+            state: preparedData.state,
+            zip: preparedData.zip
+          },
+          property: {
+            apiOwnerName: preparedData.apiOwnerName,
+            apiEstimatedValue: preparedData.apiEstimatedValue,
+            apiMaxHomeValue: preparedData.apiMaxHomeValue,
+            apiEquity: preparedData.apiEquity,
+            apiPercentage: preparedData.apiPercentage
+          },
+          campaign: {
+            campaignName: preparedData.campaignName,
+            campaignId: preparedData.campaignId,
+            adgroupName: preparedData.adgroupName,
+            adgroupId: preparedData.adgroupId,
+            keyword: preparedData.keyword,
+            trafficSource: preparedData.trafficSource,
+            templateType: preparedData.templateType,
+            gclid: preparedData.gclid,
+            device: preparedData.device
+          }
+        },
+        timestamp: new Date().toISOString()
+      };
+      
+      // Store in sessionStorage
+      sessionStorage.setItem('zohoDataSent', JSON.stringify(zohoDataSent));
+      
+      // Log detailed information about what's being sent to Zoho
+      console.log("%c ZOHO DATA BEING SENT - VERIFY CAMPAIGN INFO", "background: #e91e63; color: white; font-size: 14px; padding: 5px;");
+      console.log("Contact Info:", {
+        name: preparedData.name,
+        phone: preparedData.phone,
+        email: preparedData.email
+      });
+      console.log("Campaign Data:", {
+        campaignName: preparedData.campaignName,
+        campaignId: preparedData.campaignId, 
+        adgroupName: preparedData.adgroupName,
+        adgroupId: preparedData.adgroupId,
+        keyword: preparedData.keyword,
+        gclid: preparedData.gclid,
+        device: preparedData.device,
+        templateType: preparedData.templateType
+      });
+      console.log("URL:", preparedData.url);
+      console.log("Complete prepared data:", preparedData);
+      
+    } catch (e) {
+      console.error("Error storing Zoho data in sessionStorage:", e);
+    }
     
     // Set debug flag to get more info from API
     const response = await axios.post('/api/zoho', {
@@ -306,6 +401,20 @@ export async function updateLeadInZoho(leadId, formData) {
     console.log("Using temporary ID - update operation skipped");
     return true;
   }
+  
+  // Add detailed logging for campaign data
+  console.log("%c UPDATE LEAD IN ZOHO - Campaign Data Check", "background: #673ab7; color: white; font-size: 14px; padding: 5px;");
+  console.log("Campaign data in update:", {
+    campaignName: formData.campaignName || 'NOT PROVIDED',
+    campaignId: formData.campaignId || 'NOT PROVIDED',
+    adgroupName: formData.adgroupName || 'NOT PROVIDED', 
+    adgroupId: formData.adgroupId || 'NOT PROVIDED',
+    keyword: formData.keyword || 'NOT PROVIDED',
+    gclid: formData.gclid || 'NOT PROVIDED',
+    device: formData.device || 'NOT PROVIDED',
+    templateType: formData.templateType || 'NOT PROVIDED',
+    dataSourceComplete: formData.dataSourceComplete || false
+  });
   
   try {
     // List of fields that should only be sent if they have been explicitly set
@@ -383,13 +492,32 @@ export async function updateLeadInZoho(leadId, formData) {
       apiEquity: formData.apiEquity?.toString() || '',
       apiPercentage: formData.apiPercentage?.toString() || '',
       
+      // CRITICAL: Include all campaign data in every update
+      campaignName: formData.campaignName || '',
+      campaignId: formData.campaignId || '',
+      adgroupId: formData.adgroupId || '',
+      adgroupName: formData.adgroupName || '',
+      keyword: formData.keyword || '',
+      gclid: formData.gclid || '',
+      device: formData.device || '',
+      trafficSource: formData.trafficSource || '',
+      templateType: formData.templateType || '',
+      url: formData.url || '',
+      
+      // Dynamic content data
+      dynamicHeadline: formData.dynamicHeadline || '',
+      dynamicSubHeadline: formData.dynamicSubHeadline || '',
+      
       // Lead tracking info
       leadSource: formData.leadSource || '',
       leadStage: formData.leadStage || '',
       addressSelectionType: formData.addressSelectionType || '',
       
       // Progress tracking
-      qualifyingQuestionStep: formData.qualifyingQuestionStep?.toString() || ''
+      qualifyingQuestionStep: formData.qualifyingQuestionStep?.toString() || '',
+      
+      // Debug tracking flag
+      dataSourceComplete: formData.dataSourceComplete || false
     };
     
     // Only include qualifying fields if they have values or have been interacted with
@@ -451,6 +579,22 @@ export async function updateLeadInZoho(leadId, formData) {
           city: updateData.city,
           state: updateData.state,
           zip: updateData.zip
+        },
+        campaign: {
+          campaignName: updateData.campaignName,
+          campaignId: updateData.campaignId,
+          adgroupName: updateData.adgroupName,
+          adgroupId: updateData.adgroupId,
+          keyword: updateData.keyword,
+          gclid: updateData.gclid,
+          device: updateData.device,
+          templateType: updateData.templateType,
+          trafficSource: updateData.trafficSource
+        },
+        dynamic: {
+          dynamicHeadline: updateData.dynamicHeadline,
+          dynamicSubHeadline: updateData.dynamicSubHeadline,
+          templateType: updateData.templateType
         }
       } 
     });
