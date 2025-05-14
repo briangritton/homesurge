@@ -382,7 +382,7 @@ body {
   color: #6d6d6d;
   box-sizing: border-box;
 }
-
+  
 .overlay-form-input.error {
   border-color: #ff0000;
   background-color: rgba(255, 0, 0, 0.05);

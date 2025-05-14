@@ -627,9 +627,9 @@ export function FormProvider({ children }) {
     setFormData(initialFormState);
   };
 
-  // Initialize dynamic content from URL parameters and setup analytics tracking
-  const initFromUrlParams = () => {
-    const urlParams = new URLSearchParams(window.location.search);
+  // Helper function to extract and process campaign data from URL params
+  const extractCampaignData = (urlParams) => {
+    // Extract URL parameters
     const keyword = urlParams.get('keyword') || '';
     const campaignId = urlParams.get('campaignid') || '';
     const adgroupId = urlParams.get('adgroupid') || '';
@@ -658,23 +658,23 @@ export function FormProvider({ children }) {
       adgroupName = "(phrase)";
     }
     
-    if (keyword || campaignId) {
-      // Update the tracking parameters in form data
-      updateFormData({
-        keyword: keyword,
-        campaignId: campaignId,
-        adgroupId: adgroupId,
-        device: device,
-        gclid: gclid,
-        url: window.location.href,
-        campaignName: campaignName,
-        adgroupName: adgroupName,
-        trafficSource: campaignId ? 'Google Search' : 'Direct'
-      });
-      
-      // Set the dynamic content based on these parameters
-      setDynamicContent(keyword, campaignId, adgroupId);
-      
+    return {
+      keyword,
+      campaignId,
+      campaignName,
+      adgroupId,
+      adgroupName,
+      device,
+      gclid,
+      url: window.location.href
+    };
+  };
+
+  // Helper function to push campaign data to analytics platforms
+  const trackCampaignView = (campaignData) => {
+    const { keyword, campaignId, campaignName, adgroupId, adgroupName, device, gclid } = campaignData;
+    
+    if (campaignId) {
       // Push event to Google Analytics (gtag)
       if (window.gtag) {
         window.gtag('set', {
@@ -689,7 +689,6 @@ export function FormProvider({ children }) {
           'gclid': gclid
         });
         
-        // Send page view event with campaign data
         window.gtag('event', 'page_view', {
           'campaign_data_available': 'yes'
         });
@@ -717,16 +716,51 @@ export function FormProvider({ children }) {
         adgroupName,
         keyword
       });
+    } else {
+      // If no campaign parameters, track as direct traffic
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        'event': 'organic_page_view',
+        'traffic_source': 'direct'
+      });
+    }
+  };
+
+  // Track whether URL parameters have already been processed
+  const [urlParamsProcessed, setUrlParamsProcessed] = useState(false);
+  
+  // Initialize dynamic content from URL parameters and setup analytics tracking
+  const initFromUrlParams = () => {
+    // Only process URL parameters once
+    if (urlParamsProcessed) {
+      return true; // Already processed
+    }
+    
+    // Mark as processed immediately to prevent future calls
+    setUrlParamsProcessed(true);
+    
+    // Get URL parameters once
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Extract and process campaign data 
+    const campaignData = extractCampaignData(urlParams);
+    
+    // Track in analytics
+    trackCampaignView(campaignData);
+    
+    // Only proceed with content updates if we have campaign data
+    if (campaignData.keyword || campaignData.campaignId) {
+      // Update the tracking parameters in form data in a single operation
+      updateFormData({
+        ...campaignData,
+        trafficSource: campaignData.campaignId ? 'Google Search' : 'Direct'
+      });
+      
+      // Set the dynamic content based on these parameters
+      setDynamicContent(campaignData.keyword, campaignData.campaignId, campaignData.adgroupId);
       
       return true;
     }
-    
-    // If no campaign parameters, track as direct traffic
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({
-      'event': 'organic_page_view',
-      'traffic_source': 'direct'
-    });
     
     return false;
   };
