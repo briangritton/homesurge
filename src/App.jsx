@@ -39,7 +39,7 @@ function FormContainer() {
     // Initialize analytics
     initializeAnalytics();
     
-    // Initialize dynamic content from URL parameters (including campaign tracking)
+    // Initialize dynamic content from URL parameters (only once)
     initFromUrlParams();
     
     // Log that dynamic content has been initialized
@@ -54,7 +54,8 @@ function FormContainer() {
       keyword: formData.keyword || 'Not set',
       trafficSource: formData.trafficSource || 'Direct'
     });
-  }, [initFromUrlParams, formData]);
+    // Remove formData from dependencies to prevent infinite loop
+  }, [initFromUrlParams]);
   
   // Render the appropriate form step based on form state
   const renderFormStep = () => {
