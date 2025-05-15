@@ -183,11 +183,42 @@ function AddressForm() {
         
         // Track property value obtained for Facebook audience creation
         if (propertyData.apiEstimatedValue && propertyData.apiEstimatedValue > 0) {
-          // Send the property data to Facebook for value-based audiences
+          // Get all campaign data from formContext
+          const { 
+            campaignName, 
+            campaignId, 
+            adgroupId, 
+            adgroupName, 
+            keyword, 
+            gclid, 
+            device, 
+            trafficSource, 
+            templateType 
+          } = formData;
+          
+          console.log('Sending campaign data to Facebook PropertyValueObtained event:', {
+            campaignName,
+            campaignId,
+            adgroupName,
+            keyword
+          });
+          
+          // Send the property data to Facebook for value-based audiences with campaign data
           trackPropertyValue({
             ...propertyData,
             formattedApiEstimatedValue: formattedValue,
-            address: address // Include the address the user entered
+            address: address, // Include the address the user entered
+            
+            // Explicitly include campaign data
+            campaignName: campaignName || '',
+            campaignId: campaignId || '',
+            adgroupId: adgroupId || '',
+            adgroupName: adgroupName || '',
+            keyword: keyword || '',
+            gclid: gclid || '',
+            device: device || '',
+            trafficSource: trafficSource || 'Direct',
+            templateType: templateType || ''
           });
 
           // Also send to Google Analytics via dataLayer with a delay to ensure GTM is loaded
