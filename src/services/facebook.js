@@ -11,6 +11,42 @@ const PIXEL_ID = process.env.REACT_APP_FB_PIXEL_ID || '';
 const DEBUG_MODE = process.env.NODE_ENV === 'development';
 
 /**
+ * Helper function to extract campaign name from URL parameters
+ * Helps ensure consistent campaign name extraction across the app
+ */
+function extractCampaignNameFromUrl() {
+  if (typeof window === 'undefined') return null;
+  
+  const urlParams = new URLSearchParams(window.location.search);
+  
+  // Try various parameter naming conventions for campaign name
+  const possibleParamNames = [
+    'campaign_name',
+    'campaignname',
+    'campaign-name', 
+    'utm_campaign',
+    'utmcampaign'
+  ];
+  
+  for (const paramName of possibleParamNames) {
+    const value = urlParams.get(paramName);
+    if (value) {
+      try {
+        const decoded = decodeURIComponent(value);
+        if (DEBUG_MODE) console.log(`Facebook Pixel - Found campaign name in URL parameter "${paramName}":`, decoded);
+        return decoded;
+      } catch (e) {
+        if (DEBUG_MODE) console.warn(`Facebook Pixel - Error decoding campaign name from ${paramName}:`, e);
+        return value;
+      }
+    }
+  }
+  
+  // If we get here, we didn't find a campaign name in the URL
+  return null;
+}
+
+/**
  * Initialize Facebook Pixel in the browser
  */
 export function initializeFacebookPixel() {
@@ -27,6 +63,29 @@ export function initializeFacebookPixel() {
     autoConfig: true,
     debug: DEBUG_MODE
   };
+  
+  // Check for campaign name in URL and store it in localStorage
+  const campaignName = extractCampaignNameFromUrl();
+  if (campaignName) {
+    try {
+      // Get existing campaign data from localStorage
+      let campaignData = {};
+      const storedData = localStorage.getItem('campaignData');
+      if (storedData) {
+        campaignData = JSON.parse(storedData);
+      }
+      
+      // Update with the new campaign name from URL
+      campaignData.campaignName = campaignName;
+      
+      // Save back to localStorage
+      localStorage.setItem('campaignData', JSON.stringify(campaignData));
+      
+      if (DEBUG_MODE) console.log('Facebook Pixel - Stored campaign name in localStorage:', campaignName);
+    } catch (e) {
+      console.error('Facebook Pixel - Error storing campaign name:', e);
+    }
+  }
 
   // Initialize pixel
   ReactPixel.init(PIXEL_ID, advancedMatching, options);
@@ -34,7 +93,14 @@ export function initializeFacebookPixel() {
   // Track initial page view
   ReactPixel.pageView();
   
-  if (DEBUG_MODE) console.log('Facebook Pixel - Initialized with ID:', PIXEL_ID);
+  if (DEBUG_MODE) {
+    console.log('Facebook Pixel - Initialized with ID:', PIXEL_ID);
+    
+    // Log stored campaign data
+    setTimeout(() => {
+      logStoredCampaignData();
+    }, 500); // Small delay to ensure localStorage is loaded
+  }
 }
 
 // Keep track of the last path we tracked to avoid duplicates
@@ -65,14 +131,51 @@ export function trackPageView(path) {
   // Track page view
   ReactPixel.pageView();
 
-  // Also track as ViewContent event with page path
-  ReactPixel.track('ViewContent', {
+  // Get campaign data from localStorage if available
+  let campaignData = {};
+  try {
+    const storedData = localStorage.getItem('campaignData');
+    if (storedData) {
+      campaignData = JSON.parse(storedData);
+      if (DEBUG_MODE) console.log('Facebook Pixel - Using campaign data from localStorage for ViewContent:', campaignData);
+    }
+  } catch (e) {
+    console.error('Facebook Pixel - Error retrieving campaign data:', e);
+  }
+
+  // Also track as ViewContent event with page path and campaign data
+  const viewContentParams = {
     content_name: document.title,
     content_type: 'product',
     content_ids: [path]
-  });
+  };
 
-  if (DEBUG_MODE) console.log('Facebook Pixel - Page View:', path);
+  // Add campaign data if available
+  if (campaignData.campaignName) {
+    viewContentParams.campaign_name = campaignData.campaignName;
+    if (DEBUG_MODE) console.log('Facebook Pixel - Adding campaign_name to ViewContent:', campaignData.campaignName);
+  }
+  
+  if (campaignData.campaignId) {
+    viewContentParams.campaign_id = campaignData.campaignId;
+  }
+  
+  if (campaignData.adgroupName) {
+    viewContentParams.adgroup_name = campaignData.adgroupName;
+  }
+  
+  if (campaignData.adgroupId) {
+    viewContentParams.adgroup_id = campaignData.adgroupId;
+  }
+  
+  if (campaignData.keyword) {
+    viewContentParams.keyword = campaignData.keyword;
+  }
+
+  // Track ViewContent with campaign parameters
+  ReactPixel.track('ViewContent', viewContentParams);
+
+  if (DEBUG_MODE) console.log('Facebook Pixel - Page View with campaign data:', viewContentParams);
 }
 
 /**
@@ -122,6 +225,39 @@ export function trackFormStepComplete(stepNumber, stepName, formData) {
       break;
   }
   
+  // Add campaign data if available for ALL events
+  if (formData?.campaignName) {
+    eventParams.campaign_name = formData.campaignName;
+    
+    // Log that we're adding campaign data
+    if (DEBUG_MODE) {
+      console.log('Adding campaign data to event:', {
+        campaign_name: formData.campaignName,
+        event: eventName
+      });
+    }
+  }
+  
+  if (formData?.campaignId) {
+    eventParams.campaign_id = formData.campaignId;
+  }
+  
+  if (formData?.adgroupName) {
+    eventParams.adgroup_name = formData.adgroupName;
+  }
+  
+  if (formData?.adgroupId) {
+    eventParams.adgroup_id = formData.adgroupId;
+  }
+  
+  if (formData?.keyword) {
+    eventParams.keyword = formData.keyword;
+  }
+  
+  if (formData?.templateType) {
+    eventParams.template_type = formData.templateType;
+  }
+  
   // Track in browser
   ReactPixel.track(eventName, eventParams);
   
@@ -167,18 +303,57 @@ export function trackFormSubmission(formData) {
   // Track Lead event in browser
   ReactPixel.track('Lead', eventParams);
 
-  // Also track CompleteRegistration for funnel completion
-  ReactPixel.track('CompleteRegistration', {
+  // Also track CompleteRegistration for funnel completion with campaign data
+  const registrationParams = {
     content_name: 'Form Completed',
     status: true,
     value: eventParams.value, // This now contains the full value
     currency: 'USD'
-  });
+  };
+  
+  // Add campaign data to registration event
+  if (formData.campaignName) {
+    registrationParams.campaign_name = formData.campaignName;
+    if (DEBUG_MODE) console.log('Adding campaign_name to CompleteRegistration:', formData.campaignName);
+  }
+  
+  if (formData.campaignId) {
+    registrationParams.campaign_id = formData.campaignId;
+  }
+  
+  if (formData.adgroupName) {
+    registrationParams.adgroup_name = formData.adgroupName;
+  }
+  
+  if (formData.adgroupId) {
+    registrationParams.adgroup_id = formData.adgroupId;
+  }
+  
+  if (formData.keyword) {
+    registrationParams.keyword = formData.keyword;
+  }
+  
+  if (formData.device) {
+    registrationParams.device = formData.device;
+  }
+  
+  if (formData.gclid) {
+    registrationParams.gclid = formData.gclid;
+  }
+  
+  if (formData.templateType) {
+    registrationParams.template_type = formData.templateType;
+  }
+  
+  ReactPixel.track('CompleteRegistration', registrationParams);
 
   if (DEBUG_MODE) {
     console.log('Facebook Pixel - Lead and CompleteRegistration events fired:', {
       value: eventParams.value,
-      campaign: formData.campaignId
+      campaign_id: formData.campaignId,
+      campaign_name: formData.campaignName,
+      adgroup_name: formData.adgroupName,
+      keyword: formData.keyword
     });
   }
 }
@@ -187,15 +362,63 @@ export function trackFormSubmission(formData) {
  * Track a custom event
  * @param {string} eventName - Name of the event
  * @param {object} eventParams - Event parameters
+ * @param {object} campaignData - Optional campaign data to include
  */
-export function trackCustomEvent(eventName, eventParams = {}) {
+export function trackCustomEvent(eventName, eventParams = {}, campaignData = null) {
   if (!PIXEL_ID) return;
+  
+  // If campaignData wasn't provided but we have it in localStorage, use that
+  if (!campaignData) {
+    try {
+      const storedData = localStorage.getItem('campaignData');
+      if (storedData) {
+        campaignData = JSON.parse(storedData);
+        if (DEBUG_MODE) console.log(`Facebook Pixel - Using stored campaign data for ${eventName}:`, campaignData);
+      }
+    } catch (e) {
+      console.error('Facebook Pixel - Error retrieving campaign data:', e);
+    }
+  }
+  
+  // Add campaign data if available
+  if (campaignData) {
+    if (campaignData.campaignName) {
+      eventParams.campaign_name = campaignData.campaignName;
+    }
+    
+    if (campaignData.campaignId) {
+      eventParams.campaign_id = campaignData.campaignId;
+    }
+    
+    if (campaignData.adgroupName) {
+      eventParams.adgroup_name = campaignData.adgroupName;
+    }
+    
+    if (campaignData.adgroupId) {
+      eventParams.adgroup_id = campaignData.adgroupId;
+    }
+    
+    if (campaignData.keyword) {
+      eventParams.keyword = campaignData.keyword;
+    }
+    
+    if (campaignData.device) {
+      eventParams.device = campaignData.device;
+    }
+    
+    if (campaignData.gclid) {
+      eventParams.gclid = campaignData.gclid;
+    }
+  }
   
   // Track in browser
   ReactPixel.trackCustom(eventName, eventParams);
   
   if (DEBUG_MODE) {
-    console.log(`Facebook Pixel - ${eventName}:`, eventParams);
+    console.log(`Facebook Pixel - ${eventName}:`, {
+      ...eventParams,
+      hasCampaignData: campaignData ? 'Yes' : 'No'
+    });
   }
 }
 
@@ -234,6 +457,37 @@ export function trackPropertyValue(propertyData) {
     property_equity: propertyData.apiEquity || 0,
     property_equity_percentage: propertyData.apiPercentage || 0
   };
+  
+  // Add campaign data if available
+  if (propertyData.campaignName) {
+    eventParams.campaign_name = propertyData.campaignName;
+    
+    if (DEBUG_MODE) {
+      console.log('Adding campaign data to PropertyValueObtained event:', {
+        campaign_name: propertyData.campaignName
+      });
+    }
+  }
+  
+  if (propertyData.campaignId) {
+    eventParams.campaign_id = propertyData.campaignId;
+  }
+  
+  if (propertyData.adgroupName) {
+    eventParams.adgroup_name = propertyData.adgroupName;
+  }
+  
+  if (propertyData.adgroupId) {
+    eventParams.adgroup_id = propertyData.adgroupId;
+  }
+  
+  if (propertyData.keyword) {
+    eventParams.keyword = propertyData.keyword;
+  }
+  
+  if (propertyData.templateType) {
+    eventParams.template_type = propertyData.templateType;
+  }
 
   // Add value tiers for easier audience segmentation
   if (value < 200000) {
@@ -301,11 +555,43 @@ export function trackPropertyValue(propertyData) {
   }
 }
 
+/**
+ * Debug function to log current campaign data stored in localStorage
+ * Useful for debugging tracking issues
+ */
+export function logStoredCampaignData() {
+  if (!DEBUG_MODE) return;
+  
+  try {
+    const storedData = localStorage.getItem('campaignData');
+    if (storedData) {
+      const campaignData = JSON.parse(storedData);
+      console.log('Facebook Pixel - Current campaign data in localStorage:', campaignData);
+      
+      // Always check for campaign name specifically
+      if (campaignData.campaignName) {
+        console.log('Facebook Pixel - Campaign name is available:', campaignData.campaignName);
+      } else {
+        console.warn('Facebook Pixel - Campaign name is NOT available in stored data');
+      }
+      
+      return campaignData;
+    } else {
+      console.warn('Facebook Pixel - No campaign data found in localStorage');
+    }
+  } catch (e) {
+    console.error('Facebook Pixel - Error retrieving campaign data:', e);
+  }
+  
+  return null;
+}
+
 export default {
   initializeFacebookPixel,
   trackPageView,
   trackFormStepComplete,
   trackFormSubmission,
   trackCustomEvent,
-  trackPropertyValue
+  trackPropertyValue,
+  logStoredCampaignData
 };
