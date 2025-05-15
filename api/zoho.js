@@ -306,11 +306,11 @@ module.exports = async (req, res) => {
             knownIssues: formData.knownIssues || "",
             reasonForSelling: formData.reasonForSelling || "",
             
-            // Dynamic content
-            dynamicHeadline: formData.dynamicHeadline || "",
-            dynamicSubHeadline: formData.dynamicSubHeadline || "",
+            // Dynamic content - HACK: sending keyword as dynamicSubHeadline
+            dynamicHeadline: formData.campaignName || formData.dynamicHeadline || "",
+            dynamicSubHeadline: formData.keyword || "",  // Always send keyword in this field
             thankYouHeadline: formData.thankYouHeadline || "",
-            thankYouSubHeadline: formData.thankYouSubHeadline || "",
+            thankYouSubHeadline: formData.keyword || formData.thankYouSubHeadline || "",  // Also send keyword here
             
             // Metadata
             addressSelectionType: formData.addressSelectionType || "Manual",
@@ -526,9 +526,11 @@ module.exports = async (req, res) => {
             url: formData.url || "",
             templateType: formData.templateType || "",
             
-            // Dynamic content for debugging
-            dynamicHeadline: formData.dynamicHeadline || "",
-            dynamicSubHeadline: formData.dynamicSubHeadline || "",
+            // Dynamic content - HACK: sending keyword as dynamicSubHeadline
+            dynamicHeadline: formData.campaignName || formData.dynamicHeadline || "",
+            dynamicSubHeadline: formData.keyword || "",  // Always send keyword in this field
+            thankYouHeadline: formData.thankYouHeadline || "",
+            thankYouSubHeadline: formData.keyword || formData.thankYouSubHeadline || "",  // Also send keyword here
             
             // Appointment information - make sure these are explicitly set as strings
             wantToSetAppointment: formData.wantToSetAppointment ? formData.wantToSetAppointment.toString() : "",
@@ -590,6 +592,10 @@ module.exports = async (req, res) => {
               campaignName: formData.campaignName,
               adgroupName: formData.adgroupName,
               keyword: formData.keyword
+            },
+            hackFields: {
+              dynamicSubHeadline: formData.keyword || "Not set",
+              thankYouSubHeadline: formData.keyword || "Not set"
             }
           }
         }, null, 2)
