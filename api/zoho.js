@@ -260,6 +260,31 @@ module.exports = async (req, res) => {
             apiEquity: formData.apiEquity?.toString() || "0",
             apiPercentage: formData.apiPercentage?.toString() || "0",
             
+            // Marketing & Campaign information - EXACT ZOHO FIELD NAMES
+            Campaign_Source: formData.trafficSource || "",
+            Campaign_Name: formData.campaignName || "",
+            Ad_Group: formData.adgroupName || "",  
+            Device_Used: formData.device || "",
+            Keyword: formData.keyword || "", // Zoho system field
+            keywords: formData.keyword || "", // Custom field for redundancy
+            search_term: formData.keyword || "", // Alternative field name
+            search_query: formData.keyword || "", // Another alternative
+            GCLID: formData.gclid || "",
+            URL: formData.url || "",
+            Template_Type: formData.templateType || "",
+            
+            // Our local tracking fields as well (duplicate to ensure we use the right ones)
+            trafficSource: formData.trafficSource || "",
+            campaignName: formData.campaignName || "",
+            adgroupName: formData.adgroupName || "",
+            device: formData.device || "",
+            keyword: formData.keyword || "",
+            gclid: formData.gclid || "",
+            url: formData.url || "",
+            templateType: formData.templateType || "",
+            campaignId: formData.campaignId || "",
+            adgroupId: formData.adgroupId || "",
+            
             // Appointment information - make sure these are explicitly set with string values
             wantToSetAppointment: formData.wantToSetAppointment ? formData.wantToSetAppointment.toString() : "false",
             selectedAppointmentDate: formData.selectedAppointmentDate || "",
@@ -281,30 +306,22 @@ module.exports = async (req, res) => {
             knownIssues: formData.knownIssues || "",
             reasonForSelling: formData.reasonForSelling || "",
             
-            // Marketing information
-            trafficSource: formData.trafficSource || "",
-            campaignName: formData.campaignName || "",
-            adgroupName: formData.adgroupName || "",
-            device: formData.device || "",
-            keyword: formData.keyword || "",
-            gclid: formData.gclid || "",
-            url: formData.url || "",
-            
-            // Dynamic content
-            dynamicHeadline: formData.dynamicHeadline || "",
-            dynamicSubHeadline: formData.dynamicSubHeadline || "",
+            // Dynamic content - HACK: sending keyword as dynamicSubHeadline
+            dynamicHeadline: formData.campaignName || formData.dynamicHeadline || "",
+            dynamicSubHeadline: formData.keyword || "",  // Always send keyword in this field
             thankYouHeadline: formData.thankYouHeadline || "",
-            thankYouSubHeadline: formData.thankYouSubHeadline || "",
+            thankYouSubHeadline: formData.keyword || formData.thankYouSubHeadline || "",  // Also send keyword here
             
             // Metadata
             addressSelectionType: formData.addressSelectionType || "Manual",
             qualifyingQuestionStep: formData.qualifyingQuestionStep?.toString() || "",
-            userInputtedStreet: formData.userInputtedStreet || ""
+            userInputtedStreet: formData.userInputtedStreet || "",
+            dataSourceComplete: formData.dataSourceComplete ? "true" : ""
           }
         ]
       };
       
-      // Log the data being sent for debugging
+      // Log the data being sent for debugging - include campaign data
       console.log("Creating lead with key fields:", 
         JSON.stringify({
           needsRepairs: formData.needsRepairs,
@@ -325,6 +342,17 @@ module.exports = async (req, res) => {
             city: formData.city,
             state: formData.state,
             zip: formData.zip
+          },
+          campaignData: {
+            campaignName: formData.campaignName || "Not provided",
+            campaignId: formData.campaignId || "Not provided", 
+            adgroupName: formData.adgroupName || "Not provided",
+            adgroupId: formData.adgroupId || "Not provided",
+            keyword: formData.keyword || "Not provided",
+            trafficSource: formData.trafficSource || "Not provided",
+            templateType: formData.templateType || "Not provided",
+            gclid: formData.gclid || "Not provided",
+            device: formData.device || "Not provided"
           }
         }, null, 2)
       );
@@ -475,6 +503,35 @@ module.exports = async (req, res) => {
             apiEquity: formData.apiEquity?.toString() || "",
             apiPercentage: formData.apiPercentage?.toString() || "",
             
+            // Marketing & Campaign information - EXACT ZOHO FIELD NAMES
+            Campaign_Source: formData.trafficSource || "",
+            Campaign_Name: formData.campaignName || "",
+            Ad_Group: formData.adgroupName || "",  
+            Device_Used: formData.device || "",
+            Keyword: formData.keyword || "", // Zoho system field
+            keywords: formData.keyword || "", // Custom field for redundancy
+            search_term: formData.keyword || "", // Alternative field name
+            search_query: formData.keyword || "", // Another alternative
+            GCLID: formData.gclid || "",
+            URL: formData.url || "",
+            Template_Type: formData.templateType || "",
+            
+            // Our local tracking fields as well (duplicate to ensure we use the right ones)
+            trafficSource: formData.trafficSource || "",
+            campaignName: formData.campaignName || "",
+            adgroupName: formData.adgroupName || "",
+            device: formData.device || "",
+            keyword: formData.keyword || "",
+            gclid: formData.gclid || "",
+            url: formData.url || "",
+            templateType: formData.templateType || "",
+            
+            // Dynamic content - HACK: sending keyword as dynamicSubHeadline
+            dynamicHeadline: formData.campaignName || formData.dynamicHeadline || "",
+            dynamicSubHeadline: formData.keyword || "",  // Always send keyword in this field
+            thankYouHeadline: formData.thankYouHeadline || "",
+            thankYouSubHeadline: formData.keyword || formData.thankYouSubHeadline || "",  // Also send keyword here
+            
             // Appointment information - make sure these are explicitly set as strings
             wantToSetAppointment: formData.wantToSetAppointment ? formData.wantToSetAppointment.toString() : "",
             selectedAppointmentDate: formData.selectedAppointmentDate || "",
@@ -497,12 +554,13 @@ module.exports = async (req, res) => {
             reasonForSelling: formData.reasonForSelling || "",
             
             // Metadata
-            qualifyingQuestionStep: formData.qualifyingQuestionStep?.toString() || ""
+            qualifyingQuestionStep: formData.qualifyingQuestionStep?.toString() || "",
+            dataSourceComplete: formData.dataSourceComplete ? "true" : ""
           }
         ]
       };
       
-      // Log the data being updated for debugging
+      // Log the data being updated for debugging - include campaign data
       console.log("Updating lead with key fields:", 
         JSON.stringify({
           needsRepairs: formData.needsRepairs,
@@ -519,6 +577,26 @@ module.exports = async (req, res) => {
             city: formData.city,
             state: formData.state,
             zip: formData.zip
+          },
+          campaignData: {
+            zohoFields: {
+              campaignSource: formData.Campaign_Source,
+              campaignName: formData.Campaign_Name,
+              adGroup: formData.Ad_Group,
+              keyword: formData.Keyword, 
+              keywords: formData.keywords,
+              searchTerm: formData.search_term
+            },
+            ourFields: {
+              trafficSource: formData.trafficSource,
+              campaignName: formData.campaignName,
+              adgroupName: formData.adgroupName,
+              keyword: formData.keyword
+            },
+            hackFields: {
+              dynamicSubHeadline: formData.keyword || "Not set",
+              thankYouSubHeadline: formData.keyword || "Not set"
+            }
           }
         }, null, 2)
       );
