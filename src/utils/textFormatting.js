@@ -11,6 +11,15 @@
 export function formatText(text, phrasesToProtect = []) {
   if (!text) return '';
   
+  // Special case for the cash template headline
+  if (text === 'Need to Sell Your House For Cash Fast?') {
+    return (
+      <>
+        Need to Sell Your House <span className="nowrap-phrase">For Cash Fast?</span>
+      </>
+    );
+  }
+  
   // Default phrases to protect
   const defaultProtectedPhrases = [
     'close on your terms',
@@ -18,7 +27,8 @@ export function formatText(text, phrasesToProtect = []) {
     '10 Days or Less',
     'Get a great cash offer today',
     'Close in 7 days',
-    'No agents, no repairs, no stress'
+    'No agents, no repairs, no stress',
+    'For Cash Fast'
   ];
   
   // Combine default phrases with any additional phrases
