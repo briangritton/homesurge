@@ -236,7 +236,31 @@ function AddressForm() {
               propertyAddress: address,
               formattedValue: formattedValue,
               propertyEquity: propertyData.apiEquity || 0,
-              propertyEquityPercentage: propertyData.apiPercentage || 0
+              propertyEquityPercentage: propertyData.apiPercentage || 0,
+              
+              // Add campaign parameters - make them visible for GTM variables
+              campaign: {
+                name: formData.campaignName || '',
+                id: formData.campaignId || '',
+                adgroup_name: formData.adgroupName || '',
+                adgroup_id: formData.adgroupId || '',
+                keyword: formData.keyword || '',
+                gclid: formData.gclid || '',
+                device: formData.device || '',
+                source: formData.trafficSource || 'Direct',
+                template: formData.templateType || ''
+              },
+              
+              // Duplicated at top level for compatibility with existing GTM setup
+              campaignName: formData.campaignName || '',
+              campaignId: formData.campaignId || '',
+              adgroupName: formData.adgroupName || '',
+              adgroupId: formData.adgroupId || '',
+              keyword: formData.keyword || '',
+              gclid: formData.gclid || '',
+              device: formData.device || '',
+              trafficSource: formData.trafficSource || 'Direct',
+              templateType: formData.templateType || ''
             };
 
             // Add a 1-second delay to ensure GTM is fully loaded
@@ -248,7 +272,17 @@ function AddressForm() {
               console.log('PROPERTY VALUE SENT TO GTM:', {
                 rawValue: propertyData.apiEstimatedValue,
                 formattedValue: formattedValue,
-                dataLayerContents: [...window.dataLayer]
+                campaignName: dataLayerEvent.campaignName,
+                campaignId: dataLayerEvent.campaignId
+              });
+              
+              // Log campaign data for debugging
+              console.log('CAMPAIGN DATA IN api_value EVENT:', {
+                campaignName: dataLayerEvent.campaignName,
+                campaignId: dataLayerEvent.campaignId,
+                keyword: dataLayerEvent.keyword,
+                adgroupName: dataLayerEvent.adgroupName,
+                campaign: dataLayerEvent.campaign
               });
             }, 1000);
           }
