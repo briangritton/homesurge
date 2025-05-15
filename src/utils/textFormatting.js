@@ -3,76 +3,113 @@
  */
 
 /**
+ * Protects specific phrases from breaking across lines
+ * @param {string} text - The text to format (headline or subheadline)
+ * @param {Array<string>} phrasesToProtect - Optional list of additional phrases to protect
+ * @returns {JSX.Element|string} - Formatted JSX with protected phrases or the original string
+ */
+export function formatText(text, phrasesToProtect = []) {
+  if (!text) return '';
+  
+  // Default phrases to protect
+  const defaultProtectedPhrases = [
+    'close on your terms',
+    'No fees, no stress',
+    '10 Days or Less',
+    'Get a great cash offer today',
+    'Close in 7 days',
+    'No agents, no repairs, no stress'
+  ];
+  
+  // Combine default phrases with any additional phrases
+  const allProtectedPhrases = [...defaultProtectedPhrases, ...phrasesToProtect];
+  
+  // Check if any phrases need protection
+  const phrasesFound = allProtectedPhrases.filter(phrase => 
+    text.includes(phrase)
+  );
+  
+  if (phrasesFound.length === 0) {
+    return text;
+  }
+  
+  // Process the text to protect the phrases
+  let segments = [text];
+  
+  // For each phrase to protect, split and wrap it
+  phrasesFound.forEach((phrase, phraseIndex) => {
+    // Process each segment we have so far
+    const newSegments = [];
+    
+    segments.forEach(segment => {
+      // Only process string segments
+      if (typeof segment !== 'string') {
+        newSegments.push(segment);
+        return;
+      }
+      
+      if (segment.includes(phrase)) {
+        // Split this segment by the phrase
+        const parts = segment.split(phrase);
+        
+        // Add each part with the protected phrase in between
+        for (let i = 0; i < parts.length; i++) {
+          if (i > 0) {
+            // Add the protected phrase
+            newSegments.push(
+              <span key={`${phraseIndex}-${i}`} className="nowrap-phrase">{phrase}</span>
+            );
+          }
+          
+          // Add the part if it's not empty
+          if (parts[i]) {
+            newSegments.push(parts[i]);
+          }
+        }
+      } else {
+        // This segment doesn't contain the phrase, keep it as is
+        newSegments.push(segment);
+      }
+    });
+    
+    // Update segments for the next phrase
+    segments = newSegments;
+  });
+  
+  // Return the segments as a React fragment
+  return <>{segments}</>;
+}
+
+/**
  * Formats a subheadline to protect specific phrases from breaking across lines
  * @param {string} text - The subheadline text to format
  * @returns {JSX.Element|string} - Formatted JSX with protected phrases or the original string
  */
 export function formatSubheadline(text) {
-  if (!text) return '';
-  
-  // Check if the text contains any of our protected phrases
-  const hasCloseOnYourTerms = text.includes('close on your terms');
-  const hasNoFeesNoStress = text.includes('No fees, no stress');
-  
-  // If neither phrase is present, return the text as is
-  if (!hasCloseOnYourTerms && !hasNoFeesNoStress) {
-    return text;
-  }
-  
-  // If we have the specific subheadline we know about, return the pre-formatted version
-  if (text.includes('Skip the repairs listings') && 
+  // If we have the specific fast template subheadline
+  if (text && text.includes('Skip the repairs') && 
       text.includes('close on your terms') && 
       text.includes('No fees, no stress')) {
     return (
       <>
-        Skip the repairs listings. Get a no-obligation cash offer today and{' '}
+        Skip the repairs and listings. Get a no-obligation cash offer today and{' '}
         <span className="nowrap-phrase">close on your terms</span>.{' '}
         <span className="nowrap-phrase">No fees, no stress.</span>
       </>
     );
   }
   
-  // For other text that contains our phrases, replace them with wrapped versions
-  let formattedText = text;
-  
-  // This is a simplified approach - for more complex cases, you would use a regex-based solution
-  // or React's dangerouslySetInnerHTML, but for our specific needs this works well
-  
-  if (hasCloseOnYourTerms || hasNoFeesNoStress) {
-    // Split into segments that we can wrap
-    const segments = [];
-    let currentText = text;
-    
-    // Process "close on your terms"
-    if (hasCloseOnYourTerms) {
-      const parts = currentText.split('close on your terms');
-      if (parts.length > 1) {
-        segments.push(parts[0]);
-        segments.push(<span key="close" className="nowrap-phrase">close on your terms</span>);
-        currentText = parts.slice(1).join('close on your terms');
-      }
-    }
-    
-    // Process "No fees, no stress"
-    if (hasNoFeesNoStress && currentText) {
-      const parts = currentText.split('No fees, no stress');
-      if (parts.length > 1) {
-        segments.push(parts[0]);
-        segments.push(<span key="fees" className="nowrap-phrase">No fees, no stress</span>);
-        if (parts.length > 2) {
-          segments.push(parts.slice(1).join('No fees, no stress'));
-        }
-      } else {
-        segments.push(currentText);
-      }
-    } else if (currentText) {
-      segments.push(currentText);
-    }
-    
-    // Return the segments as a React fragment
-    return <>{segments}</>;
+  // If we have the specific cash template subheadline
+  if (text && text === 'Get a great cash offer today. Close in 7 days. No agents, no repairs, no stress.') {
+    return (
+      <>
+        <span className="nowrap-phrase">Get a great cash offer today</span>.{' '}
+        <span className="nowrap-phrase">Close in 7 days</span>.{' '}
+        <span className="nowrap-phrase">No agents, no repairs, no stress</span>.
+      </>
+    );
   }
   
-  // Fallback - return the original text
-  return text;
+  // Otherwise use the generic formatter
+  return formatText(text);
 }
