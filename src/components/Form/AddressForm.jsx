@@ -5,7 +5,7 @@ import { trackAddressSelected, trackFormStepComplete, trackFormError } from '../
 import { trackPropertyValue } from '../../services/facebook';
 import { lookupPropertyInfo } from '../../services/maps.js';
 import { createSuggestionLead } from '../../services/zoho.js';
-import { formatSubheadline } from '../../utils/textFormatting';
+import { formatSubheadline, formatText } from '../../utils/textFormatting';
 import axios from 'axios';
 
 function AddressForm() {
@@ -978,7 +978,9 @@ function AddressForm() {
       
       <div className="hero-middle-container">
         <div className="hero-content fade-in">
-          <div className="hero-headline">{formData.dynamicHeadline || "Sell Your House For Cash\u00A0Fast!"}</div>
+          <div className="hero-headline">
+            {formatText(formData.dynamicHeadline || "Sell Your House For Cash\u00A0Fast!")}
+          </div>
           <div className="hero-subheadline">
             {formatSubheadline(formData.dynamicSubHeadline || "Get a Great Cash Offer For Your House and Close Fast!")}
           </div>
