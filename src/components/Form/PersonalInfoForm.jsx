@@ -528,6 +528,19 @@ function PersonalInfoForm() {
     }
   };
   
+  // Helper function to format text with nowrap spans
+  const formatConfirmText = (text) => {
+    if (text && text.includes('and home value')) {
+      const parts = text.split('and home value');
+      return (
+        <>
+          {parts[0]}<span className="nowrap-phrase">and home value</span>{parts[1]}
+        </>
+      );
+    }
+    return text;
+  };
+  
   // Handle "edit info" button click
   const handleEditClick = () => {
     setEditMode('address'); // Set to address edit mode
@@ -689,7 +702,7 @@ function PersonalInfoForm() {
     <div className="hero-section">
       <div className="hero-middle-container">
         <div className="hero-content fade-in max-width-500">
-          <div className="hero-middle-map-headline">
+          <div className="confirmation-header">
             {formData.templateType === 'VALUE' 
               ? <>Please confirm your address <span className="nowrap-phrase">and home value</span>:</> 
               : formData.templateType === 'FAST' 
@@ -735,7 +748,7 @@ function PersonalInfoForm() {
             maxWidth: '425px',
             textAlign: 'center'
           }}>
-            <strong> 
+            <strong className="confirmation-header"> 
               {formData.templateType === 'VALUE' 
                 ? <>Please confirm your address <span className="nowrap-phrase">and home value</span>:</> 
                 : formData.templateType === 'FAST' 
