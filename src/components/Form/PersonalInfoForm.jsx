@@ -706,8 +706,8 @@ function PersonalInfoForm() {
             {formData.templateType === 'VALUE' 
               ? <>Please confirm your address <span className="nowrap-phrase">and home value</span>:</> 
               : formData.templateType === 'FAST' 
-                ? 'Please confirm your address for your fast sale offer:' 
-                : 'Please confirm your address for your cash offer:'}
+                ? 'Please confirm your address and home value:' 
+                : 'Please confirm your address and home value:'}
           </div>
           
           <div className="hero-1-api-address">
@@ -752,8 +752,8 @@ function PersonalInfoForm() {
               {formData.templateType === 'VALUE' 
                 ? <>Please confirm your address <span className="nowrap-phrase">and home value</span>:</> 
                 : formData.templateType === 'FAST' 
-                  ? 'Please confirm your address for your fast sale offer:' 
-                  : 'Please confirm your address for your cash offer:'}
+                  ? 'Please confirm your address and home value:' 
+                  : 'Please confirm your address and home value:'}
             </strong>
           </div>
           
