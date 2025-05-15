@@ -1235,7 +1235,9 @@ body {
 
 /* Extra small screens (mobile, 560px and below) */
 @media only screen and (max-width: 560px) {
-
+  .confirmation-header {
+    font-size: 1.6rem !important;
+}
   .form-inner-content {
     max-width: 100%;
 }
