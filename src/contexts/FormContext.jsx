@@ -484,7 +484,7 @@ export function FormProvider({ children }) {
       "cash": {
         type: 'CASH',
         headline: 'Sell Your House For Cash Fast!',
-        subHeadline: 'Get a great cash offer for your house and close fast!',
+        subHeadline: 'Skip the repairs listings. Get a no-obligation cash offer today and close on your terms. No fees, no stress.',
         thankYouHeadline: 'Cash Offer Request Completed!',
         thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!',
         buttonText: 'CHECK OFFER'
@@ -511,7 +511,7 @@ export function FormProvider({ children }) {
     const defaultContent = {
       type: 'DEFAULT',
       headline: 'Sell Your House For Cash Fast!',
-      subHeadline: 'Get a great cash offer for your house and close fast!',
+      subHeadline: 'Skip the repairs listings. Get a no-obligation cash offer today and close on your terms. No fees, no stress.',
       buttonText: 'CHECK OFFER',
       thankYouHeadline: 'Request Completed!',
       thankYouSubHeadline: 'You\'ll be receiving your requested details at your contact number shortly, thank you!'

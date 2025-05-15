@@ -60,6 +60,12 @@ body {
   animation: fadeInAnimation ease 0.5s forwards;
 }
 
+/* === Text phrase protection === */
+.nowrap-phrase {
+  white-space: nowrap;
+  display: inline-block;
+}
+
 /* === HEADER STYLES === */
 .header {
   display: flex !important;
