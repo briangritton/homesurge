@@ -1,6 +1,7 @@
 import ReactGA from 'react-ga4';
 import TagManager from 'react-gtm-module';
 import * as FacebookPixel from './facebook';
+import { debugCampaignData } from './campaign-debug';
 
 // Configuration constants - use empty strings as fallbacks for security
 const GA_TRACKING_ID = process.env.REACT_APP_GA_TRACKING_ID || '';
@@ -40,7 +41,14 @@ export function initializeAnalytics() {
   // Track initial page view
   trackPageView(window.location.pathname + window.location.search);
 
-  if (isDebug) console.log('Analytics - Initialization complete');
+  if (isDebug) {
+    console.log('Analytics - Initialization complete');
+    
+    // Debug campaign data after a small delay to ensure everything is loaded
+    setTimeout(() => {
+      debugCampaignData();
+    }, 1000);
+  }
 }
 
 // Track page views (GA4-compliant)
@@ -240,5 +248,13 @@ export function trackAddressSelected(addressType) {
   });
 }
 
+// Export debugging tool for use in development
+export function debugCampaignTracking() {
+  return debugCampaignData();
+}
+
 // Re-export Facebook Pixel for compatibility
 export { default as ReactPixel } from './facebook';
+
+// Export campaign debugging utilities
+export { default as CampaignDebug } from './campaign-debug';
