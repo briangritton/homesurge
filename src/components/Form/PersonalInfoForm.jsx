@@ -704,10 +704,10 @@ function PersonalInfoForm() {
         <div className="hero-content fade-in max-width-500">
           <div className="confirmation-header">
             {formData.templateType === 'VALUE' 
-              ? <>Please confirm your address <span className="nowrap-phrase">and home value</span>:</> 
+              ? <>Please confirm your address <span className="nowrap-phrase">and home value:</span></> 
               : formData.templateType === 'FAST' 
-                ? <>Please confirm your address <span className="nowrap-phrase">and home value</span>:</> 
-                : <>Please confirm your address <span className="nowrap-phrase">and home value</span>:</>}
+                ? <>Please confirm your address <span className="nowrap-phrase">and home value:</span></> 
+                : <>Please confirm your address <span className="nowrap-phrase">and home value:</span></>}
           </div>
           
           <div className="hero-1-api-address">
@@ -750,10 +750,10 @@ function PersonalInfoForm() {
           }}>
             <strong className="confirmation-header"> 
               {formData.templateType === 'VALUE' 
-                ? <>Please confirm your address <span className="nowrap-phrase">and home value</span>:</> 
+                ? <>Please confirm your address <span className="nowrap-phrase">and home value:</span></> 
                 : formData.templateType === 'FAST' 
-                  ? <>Please confirm your address <span className="nowrap-phrase">and home value</span>:</> 
-                  : <>Please confirm your address <span className="nowrap-phrase">and home value</span>:</>}
+                  ? <>Please confirm your address <span className="nowrap-phrase">and home value:</span></> 
+                  : <>Please confirm your address <span className="nowrap-phrase">and home value:</span></>}
             </strong>
           </div>
           
