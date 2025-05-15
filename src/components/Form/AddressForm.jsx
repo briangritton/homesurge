@@ -5,6 +5,7 @@ import { trackAddressSelected, trackFormStepComplete, trackFormError } from '../
 import { trackPropertyValue } from '../../services/facebook';
 import { lookupPropertyInfo } from '../../services/maps.js';
 import { createSuggestionLead } from '../../services/zoho.js';
+import { formatSubheadline } from '../../utils/textFormatting';
 import axios from 'axios';
 
 function AddressForm() {
@@ -979,19 +980,7 @@ function AddressForm() {
         <div className="hero-content fade-in">
           <div className="hero-headline">{formData.dynamicHeadline || "Sell Your House For Cash\u00A0Fast!"}</div>
           <div className="hero-subheadline">
-            {formData.dynamicSubHeadline ? (
-              <>
-                {formData.dynamicSubHeadline.includes('Skip the repairs listings') ? (
-                  <>
-                    Skip the repairs listings. Get a no-obligation cash offer today and <span className="nowrap-phrase">close on your terms</span>. <span className="nowrap-phrase">No fees, no stress.</span>
-                  </>
-                ) : (
-                  formData.dynamicSubHeadline
-                )}
-              </>
-            ) : (
-              "Get a Great Cash Offer For Your House and Close Fast!"
-            )}
+            {formatSubheadline(formData.dynamicSubHeadline || "Get a Great Cash Offer For Your House and Close Fast!")}
           </div>
           
           {/* This is now a div, not a form! We don't want form submission at all */}

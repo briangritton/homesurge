@@ -64,6 +64,7 @@ body {
 .nowrap-phrase {
   white-space: nowrap;
   display: inline-block;
+  font-weight: inherit;
 }
 
 /* === HEADER STYLES === */
