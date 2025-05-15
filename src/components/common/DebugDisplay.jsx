@@ -82,7 +82,8 @@ const DebugDisplay = () => {
     zIndex: 9999,
     fontSize: '12px',
     fontFamily: 'monospace',
-    boxShadow: '0 0 10px rgba(0, 0, 0, 0.5)'
+    boxShadow: '0 0 10px rgba(0, 0, 0, 0.5)',
+    display: 'none' // Hide the debugger
   };
   
   const sectionStyles = {
