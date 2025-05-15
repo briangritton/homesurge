@@ -29,6 +29,7 @@ export function formatText(text, phrasesToProtect = []) {
     'Close in 7 days',
     'No agents, no repairs, no stress',
     'For Cash Fast',
+    'and home value:',
     'and home value'
   ];
   

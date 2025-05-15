@@ -1192,7 +1192,8 @@ body {
   
   .overlay-close-button {
     margin-right: -5%;
-  }
+    margin-top: -10%;
+}
   
   .hero-middle-map-buttons {
     flex-direction: column;
@@ -1235,7 +1236,9 @@ body {
 
 /* Extra small screens (mobile, 560px and below) */
 @media only screen and (max-width: 560px) {
-
+  .confirmation-header {
+    font-size: 1.6rem !important;
+}
   .form-inner-content {
     max-width: 100%;
 }
@@ -1378,7 +1381,8 @@ body {
   .overlay-form-headline {
     font-size: 1.3rem;
     margin-bottom: 15px;
-  }
+    margin-top: 5%;
+}
   
   .overlay-form-input {
     /* height: 45px;
