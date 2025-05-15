@@ -458,35 +458,74 @@ export function trackPropertyValue(propertyData) {
     property_equity_percentage: propertyData.apiPercentage || 0
   };
   
-  // Add campaign data if available
-  if (propertyData.campaignName) {
-    eventParams.campaign_name = propertyData.campaignName;
+  // Try to get campaign data from multiple sources
+  let campaignName = propertyData.campaignName || '';
+  let campaignId = propertyData.campaignId || '';
+  let adgroupName = propertyData.adgroupName || '';
+  let adgroupId = propertyData.adgroupId || '';
+  let keyword = propertyData.keyword || '';
+  let templateType = propertyData.templateType || '';
+  
+  // If campaign data not in propertyData, try to get from localStorage
+  if (!campaignName || !campaignId) {
+    try {
+      const storedCampaignData = localStorage.getItem('campaignData');
+      if (storedCampaignData) {
+        const campaignData = JSON.parse(storedCampaignData);
+        if (DEBUG_MODE) console.log('PropertyValueObtained - Found campaign data in localStorage:', campaignData);
+        
+        // Use data from localStorage if not already present in propertyData
+        campaignName = campaignName || campaignData.campaignName || '';
+        campaignId = campaignId || campaignData.campaignId || '';
+        adgroupName = adgroupName || campaignData.adgroupName || '';
+        adgroupId = adgroupId || campaignData.adgroupId || '';
+        keyword = keyword || campaignData.keyword || '';
+      }
+    } catch (e) {
+      console.error('PropertyValueObtained - Error retrieving campaign data from localStorage:', e);
+    }
+  }
+  
+  // If still no campaign data, try to get from URL
+  if (!campaignName) {
+    const urlParams = new URLSearchParams(window.location.search);
+    campaignName = urlParams.get('campaign_name') || urlParams.get('campaignname') || urlParams.get('utm_campaign') || '';
+    
+    if (campaignName && DEBUG_MODE) {
+      console.log('PropertyValueObtained - Using campaign name from URL:', campaignName);
+    }
+  }
+  
+  // Add campaign data to event params if available
+  if (campaignName) {
+    eventParams.campaign_name = campaignName;
     
     if (DEBUG_MODE) {
       console.log('Adding campaign data to PropertyValueObtained event:', {
-        campaign_name: propertyData.campaignName
+        campaign_name: campaignName,
+        source: propertyData.campaignName ? 'propertyData' : 'localStorage/URL'
       });
     }
   }
   
-  if (propertyData.campaignId) {
-    eventParams.campaign_id = propertyData.campaignId;
+  if (campaignId) {
+    eventParams.campaign_id = campaignId;
   }
   
-  if (propertyData.adgroupName) {
-    eventParams.adgroup_name = propertyData.adgroupName;
+  if (adgroupName) {
+    eventParams.adgroup_name = adgroupName;
   }
   
-  if (propertyData.adgroupId) {
-    eventParams.adgroup_id = propertyData.adgroupId;
+  if (adgroupId) {
+    eventParams.adgroup_id = adgroupId;
   }
   
-  if (propertyData.keyword) {
-    eventParams.keyword = propertyData.keyword;
+  if (keyword) {
+    eventParams.keyword = keyword;
   }
   
-  if (propertyData.templateType) {
-    eventParams.template_type = propertyData.templateType;
+  if (templateType) {
+    eventParams.template_type = templateType;
   }
 
   // Add value tiers for easier audience segmentation
@@ -550,7 +589,12 @@ export function trackPropertyValue(propertyData) {
       property_equity: eventParams.property_equity,
       equity_tier: eventParams.equity_tier,
       property_equity_percentage: eventParams.property_equity_percentage,
-      equity_percentage_tier: eventParams.equity_percentage_tier
+      equity_percentage_tier: eventParams.equity_percentage_tier,
+      // Include campaign data in logs to verify it's being sent
+      campaign_name: eventParams.campaign_name || 'Not set',
+      campaign_id: eventParams.campaign_id || 'Not set',
+      adgroup_name: eventParams.adgroup_name || 'Not set',
+      keyword: eventParams.keyword || 'Not set'
     });
   }
 }

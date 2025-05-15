@@ -5,6 +5,7 @@ import { trackAddressSelected, trackFormStepComplete, trackFormError } from '../
 import { trackPropertyValue } from '../../services/facebook';
 import { lookupPropertyInfo } from '../../services/maps.js';
 import { createSuggestionLead } from '../../services/zoho.js';
+import { formatSubheadline } from '../../utils/textFormatting';
 import axios from 'axios';
 
 function AddressForm() {
@@ -183,11 +184,42 @@ function AddressForm() {
         
         // Track property value obtained for Facebook audience creation
         if (propertyData.apiEstimatedValue && propertyData.apiEstimatedValue > 0) {
-          // Send the property data to Facebook for value-based audiences
+          // Get all campaign data from formContext
+          const { 
+            campaignName, 
+            campaignId, 
+            adgroupId, 
+            adgroupName, 
+            keyword, 
+            gclid, 
+            device, 
+            trafficSource, 
+            templateType 
+          } = formData;
+          
+          console.log('Sending campaign data to Facebook PropertyValueObtained event:', {
+            campaignName,
+            campaignId,
+            adgroupName,
+            keyword
+          });
+          
+          // Send the property data to Facebook for value-based audiences with campaign data
           trackPropertyValue({
             ...propertyData,
             formattedApiEstimatedValue: formattedValue,
-            address: address // Include the address the user entered
+            address: address, // Include the address the user entered
+            
+            // Explicitly include campaign data
+            campaignName: campaignName || '',
+            campaignId: campaignId || '',
+            adgroupId: adgroupId || '',
+            adgroupName: adgroupName || '',
+            keyword: keyword || '',
+            gclid: gclid || '',
+            device: device || '',
+            trafficSource: trafficSource || 'Direct',
+            templateType: templateType || ''
           });
 
           // Also send to Google Analytics via dataLayer with a delay to ensure GTM is loaded
@@ -947,7 +979,9 @@ function AddressForm() {
       <div className="hero-middle-container">
         <div className="hero-content fade-in">
           <div className="hero-headline">{formData.dynamicHeadline || "Sell Your House For Cash\u00A0Fast!"}</div>
-          <div className="hero-subheadline">{formData.dynamicSubHeadline || "Get a Great Cash Offer For Your House and Close Fast!"}</div>
+          <div className="hero-subheadline">
+            {formatSubheadline(formData.dynamicSubHeadline || "Get a Great Cash Offer For Your House and Close Fast!")}
+          </div>
           
           {/* This is now a div, not a form! We don't want form submission at all */}
           <div className="form-container">

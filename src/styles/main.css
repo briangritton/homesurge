@@ -60,6 +60,13 @@ body {
   animation: fadeInAnimation ease 0.5s forwards;
 }
 
+/* === Text phrase protection === */
+.nowrap-phrase {
+  white-space: nowrap;
+  display: inline-block;
+  font-weight: inherit;
+}
+
 /* === HEADER STYLES === */
 .header {
   display: flex !important;
@@ -370,7 +377,7 @@ body {
   align-items: center;
   justify-content: center;
 }
-    
+     
 .overlay-form-input {
   width: 100%;
   padding: 12px 15px;

@@ -491,9 +491,9 @@ export function FormProvider({ children }) {
       },
       "fast": {
         type: 'FAST',
-        headline: 'Sell Your House Fast!',
-        subHeadline: 'Get a cash offer and close in as little as 10 days!',
-        thankYouHeadline: 'Fast Sale Request Completed!',
+        headline: 'Sell Your House In 10 Days or Less',
+        subHeadline: 'Skip the repairs listings. Get a no-obligation cash offer today and close on your terms. No fees, no stress.',
+        thankYouHeadline: 'Request Completed!',
         thankYouSubHeadline: 'You\'ll be receiving your fast sale details at your contact number shortly, thank you!',
         buttonText: 'CHECK OFFER'
       },
