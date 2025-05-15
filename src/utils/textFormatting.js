@@ -28,7 +28,8 @@ export function formatText(text, phrasesToProtect = []) {
     'Get a great cash offer today',
     'Close in 7 days',
     'No agents, no repairs, no stress',
-    'For Cash Fast'
+    'For Cash Fast',
+    'and home value'
   ];
   
   // Combine default phrases with any additional phrases

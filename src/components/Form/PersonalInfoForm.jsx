@@ -691,14 +691,14 @@ function PersonalInfoForm() {
         <div className="hero-content fade-in max-width-500">
           <div className="hero-middle-map-headline">
             {formData.templateType === 'VALUE' 
-              ? 'Please confirm your address and home value:' 
+              ? <>Please confirm your address <span className="nowrap-phrase">and home value</span>:</> 
               : formData.templateType === 'FAST' 
                 ? 'Please confirm your address for your fast sale offer:' 
                 : 'Please confirm your address for your cash offer:'}
           </div>
           
           <div className="hero-1-api-address">
-            {formData.street}
+            {formData.street && formData.street.replace(/, USA$/, '')}
           </div>
           
           {valueLoading ? (
@@ -737,7 +737,7 @@ function PersonalInfoForm() {
           }}>
             <strong> 
               {formData.templateType === 'VALUE' 
-                ? 'Please confirm your address and home value:' 
+                ? <>Please confirm your address <span className="nowrap-phrase">and home value</span>:</> 
                 : formData.templateType === 'FAST' 
                   ? 'Please confirm your address for your fast sale offer:' 
                   : 'Please confirm your address for your cash offer:'}
