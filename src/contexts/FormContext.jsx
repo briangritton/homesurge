@@ -650,6 +650,33 @@ export function FormProvider({ children }) {
     setFormData(initialFormState);
   };
 
+  // Helper function to search for all potential variations of a URL parameter
+  const findParameterAllFormats = (urlParams, baseNames) => {
+    // Try all the different variations of parameter naming
+    for (const baseName of baseNames) {
+      // Try with different casings and formats
+      const variations = [
+        baseName,                       // e.g., "adgroupname"
+        baseName.replace(/([A-Z])/g, '_$1').toLowerCase(), // camelCase to snake_case
+        baseName.replace(/_/g, '-'),    // snake_case to kebab-case
+        baseName.replace(/_/g, ''),     // remove underscores
+        'utm_' + baseName.replace(/_/g, '') // UTM format
+      ];
+      
+      // Try all variations
+      for (const variant of variations) {
+        const value = urlParams.get(variant);
+        if (value) {
+          console.log(`Found parameter ${baseName} as ${variant}: "${value}"`);
+          return value;
+        }
+      }
+    }
+    
+    console.log(`Parameter not found with any variation of ${baseNames.join(', ')}`);
+    return '';
+  };
+
   // Helper function to extract and process campaign data from URL params
   const extractCampaignData = (urlParams) => {
     // Extract URL parameters directly from tracking template format
@@ -667,8 +694,8 @@ export function FormProvider({ children }) {
     const gclid = urlParams.get('gclid') || '';
     const matchtype = urlParams.get('matchtype') || '';
     
-    // Get campaign name directly from the tracking template parameter
-    let campaign_name = urlParams.get('campaignname') || '';
+    // Get campaign name using our robust parameter finder
+    let campaign_name = findParameterAllFormats(urlParams, ['campaignname', 'campaign_name', 'campaignName', 'campaign']);
     
     // Properly decode the campaign name to handle any special characters
     if (campaign_name) {
@@ -697,13 +724,18 @@ export function FormProvider({ children }) {
       });
     }
     
-    // Get adgroup name directly from URL
-    let adgroup_name = urlParams.get('adgroupname') || '';
+    // Get adgroup name using our robust parameter finder
+    // This will check all possible variations of the parameter name
+    let adgroup_name = findParameterAllFormats(urlParams, ['adgroupname', 'adgroup_name', 'adgroupName', 'adgroup']);
+    
+    // Log the raw adgroup name for debugging
+    console.log('Final adgroup_name from URL:', adgroup_name);
     
     // Normalize adgroup name if needed
     if (adgroup_name.includes('%20')) {
       try {
         adgroup_name = decodeURIComponent(adgroup_name);
+        console.log('Decoded adgroup_name:', adgroup_name);
       } catch (e) {
         console.warn('Error decoding adgroup name:', e);
       }
@@ -840,6 +872,13 @@ export function FormProvider({ children }) {
       console.log(`URL param - ${key}: "${value}"`);
     }
     
+    // Specifically check for adgroup name parameter
+    console.log("ADGROUP NAME PARAM CHECK:");
+    console.log("adgroupname:", urlParams.get('adgroupname'));
+    console.log("adgroup_name:", urlParams.get('adgroup_name'));
+    console.log("adgroup-name:", urlParams.get('adgroup-name'));
+    console.log("utm_adgroup:", urlParams.get('utm_adgroup'));
+    
     // If we don't have campaign params in URL but do have them in localStorage, use those
     if (!hasCampaignParams) {
       try {
@@ -894,12 +933,26 @@ export function FormProvider({ children }) {
           ...updateObj
         };
         
-        // Store in localStorage for persistence
+        // Store in both localStorage and sessionStorage for persistence
         try {
-          localStorage.setItem('campaignData', JSON.stringify(campaignData));
-          console.log("Stored campaign data in localStorage");
+          // Enhanced version with debug info
+          const storableData = {
+            ...campaignData,
+            timestamp: new Date().toISOString(),
+            debugInfo: {
+              adgroup_nameDetected: !!campaignData.adgroup_name,
+              adgroup_nameLength: campaignData.adgroup_name ? campaignData.adgroup_name.length : 0,
+              keywordDetected: !!campaignData.keyword,
+              keywordLength: campaignData.keyword ? campaignData.keyword.length : 0
+            }
+          };
+          
+          // Store in both localStorage (long term) and sessionStorage (for debugging)
+          localStorage.setItem('campaignData', JSON.stringify(storableData));
+          sessionStorage.setItem('campaignData', JSON.stringify(storableData));
+          console.log("Stored campaign data in localStorage and sessionStorage with debug info");
         } catch (e) {
-          console.error("Failed to store campaign data in localStorage:", e);
+          console.error("Failed to store campaign data in storage:", e);
         }
         
         return newData;
