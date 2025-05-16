@@ -224,23 +224,21 @@ function AddressForm() {
 
           // Send to Google Analytics via dataLayer - IMMEDIATELY (no delay)
           if (window.dataLayer) {
-            console.log('%c SENDING API_VALUE EVENTS TO GTM - NO DELAY', 'background: #FF5722; color: white; font-weight: bold; padding: 4px;', {
+            console.log('%c SENDING API_VALUE EVENT TO GTM', 'background: #4CAF50; color: white; font-weight: bold; padding: 4px;', {
               apiEstimatedValue: propertyData.apiEstimatedValue,
               address: address
             });
 
-            // Try multiple event names and formats to see which one works
-            
-            // FORMAT 1: Original format with lowercase event name
-            const dataLayerEvent1 = {
-              event: 'api_value',
+            // Create dataLayer event with the confirmed working format
+            const dataLayerEvent = {
+              event: 'api_value', // This exact name is expected by GTM trigger
               apiValue: propertyData.apiEstimatedValue,
               propertyAddress: address,
               formattedValue: formattedValue,
               propertyEquity: propertyData.apiEquity || 0,
               propertyEquityPercentage: propertyData.apiPercentage || 0,
               
-              // Campaign parameters at top level
+              // Campaign parameters at top level for GTM variables
               campaign_name: formData.campaign_name || '',
               campaign_id: formData.campaign_id || '',
               adgroup_name: formData.adgroup_name || '',
@@ -253,52 +251,12 @@ function AddressForm() {
               template_type: formData.template_type || ''
             };
             
-            // FORMAT 2: Uppercase event name
-            const dataLayerEvent2 = {
-              ...dataLayerEvent1,
-              event: 'API_VALUE'
-            };
+            // Push event IMMEDIATELY with no delay
+            console.log('Pushing api_value event to dataLayer:', dataLayerEvent);
+            window.dataLayer.push(dataLayerEvent);
             
-            // FORMAT 3: Event name "apiValue" matching the property name
-            const dataLayerEvent3 = {
-              ...dataLayerEvent1,
-              event: 'apiValue'
-            };
-            
-            // FORMAT 4: PropertyValueObtained - same as Facebook event
-            const dataLayerEvent4 = {
-              ...dataLayerEvent1,
-              event: 'PropertyValueObtained'
-            };
-            
-            // FORMAT 5: Simpler format
-            const dataLayerEvent5 = {
-              event: 'api_value',
-              value: propertyData.apiEstimatedValue,
-              campaign_name: formData.campaign_name || '',
-              campaign_id: formData.campaign_id || '',
-              keyword: formData.keyword || '',
-              matchtype: formData.matchtype || ''
-            };
-            
-            // Push all events IMMEDIATELY with no delay
-            console.log('Pushing api_value event to dataLayer (format 1):', dataLayerEvent1);
-            window.dataLayer.push(dataLayerEvent1);
-            
-            console.log('Pushing API_VALUE event to dataLayer (format 2):', dataLayerEvent2);
-            window.dataLayer.push(dataLayerEvent2);
-            
-            console.log('Pushing apiValue event to dataLayer (format 3):', dataLayerEvent3);
-            window.dataLayer.push(dataLayerEvent3);
-            
-            console.log('Pushing PropertyValueObtained event to dataLayer (format 4):', dataLayerEvent4);
-            window.dataLayer.push(dataLayerEvent4);
-            
-            console.log('Pushing simplified api_value event to dataLayer (format 5):', dataLayerEvent5);
-            window.dataLayer.push(dataLayerEvent5);
-            
-            // Log all campaign data for debugging
-            console.log('CAMPAIGN DATA IN EVENTS:', {
+            // Log campaign data for debugging
+            console.log('CAMPAIGN DATA IN API_VALUE EVENT:', {
               campaign_name: formData.campaign_name || '',
               campaign_id: formData.campaign_id || '',
               keyword: formData.keyword || '',

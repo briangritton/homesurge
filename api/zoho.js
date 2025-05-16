@@ -216,6 +216,8 @@ module.exports = async (req, res) => {
             Phone: formData.phone || "", // Ensure phone is never undefined
             Email: formData.email || "",
             
+            // We'll update this field later once we have the lead ID
+            
             // Address - Make sure we're using exact Zoho field names with proper capitalization
             Street: formData.street,
             City: formData.city || "",
@@ -381,6 +383,37 @@ module.exports = async (req, res) => {
         if (response.data && response.data.data && response.data.data.length > 0) {
           // Extract the lead ID from the correct location in the response
           const leadId = response.data.data[0].details?.id || response.data.data[0].id;
+          
+          // Immediately update the lead with its own ID in the Lead_ID_Text field
+          try {
+            const updatePayload = {
+              data: [
+                {
+                  id: leadId,
+                  Lead_ID_Text: leadId
+                }
+              ]
+            };
+            
+            // Don't await this - we don't want to delay the response
+            axios.put(
+              `${ZOHO_API_DOMAIN}/crm/v2/Leads`,
+              updatePayload,
+              {
+                headers: {
+                  'Authorization': `Zoho-oauthtoken ${token}`,
+                  'Content-Type': 'application/json'
+                }
+              }
+            ).then(() => {
+              console.log(`Updated Lead_ID_Text field for lead ${leadId}`);
+            }).catch((error) => {
+              console.error(`Failed to update Lead_ID_Text field: ${error.message}`);
+            });
+          } catch (error) {
+            console.error(`Error preparing Lead_ID_Text update: ${error.message}`);
+          }
+          
           return res.status(200).json({ 
             success: true, 
             leadId: leadId,  // Return the lead ID properly
@@ -456,6 +489,9 @@ module.exports = async (req, res) => {
         data: [
           {
             id: leadId,
+            
+            // Add Lead ID Text field explicitly
+            Lead_ID_Text: leadId,
             
             // Always include these fields to ensure they get updated
             // Even if empty strings, this ensures old values are replaced
