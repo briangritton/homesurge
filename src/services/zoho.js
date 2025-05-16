@@ -126,10 +126,12 @@ export async function submitLeadToZoho(formData) {
   console.log("Form data provided:", {
     name: formData.name,
     address: formData.street,
-    campaignName: formData.campaignName,
-    campaignId: formData.campaignId,
-    adgroupName: formData.adgroupName,
+    campaign_name: formData.campaign_name,
+    campaign_id: formData.campaign_id,
+    adgroup_name: formData.adgroup_name,
+    adgroup_id: formData.adgroup_id,
     keyword: formData.keyword,
+    matchtype: formData.matchtype,
     templateType: formData.templateType
   });
   
@@ -183,15 +185,16 @@ export async function submitLeadToZoho(formData) {
       location: formData.location ? JSON.stringify(formData.location) : '',
       
       // Tracking parameters - always include these
-      trafficSource: formData.trafficSource || 'Direct',
+      traffic_source: formData.traffic_source || 'Direct',
       url: formData.url || '',
       gclid: formData.gclid || '',
       device: formData.device || '',
-      campaignName: formData.campaignName || '',
-      adgroupName: formData.adgroupName || '',
+      campaign_name: formData.campaign_name || '',
+      adgroup_name: formData.adgroup_name || '',
       keyword: formData.keyword || '',
-      campaignId: formData.campaignId || '',
-      adgroupId: formData.adgroupId || '',
+      matchtype: formData.matchtype || '',
+      campaign_id: formData.campaign_id || '',
+      adgroup_id: formData.adgroup_id || '',
       templateType: formData.templateType || '',
       
       // Include dynamic content information
@@ -293,12 +296,13 @@ export async function submitLeadToZoho(formData) {
             apiPercentage: preparedData.apiPercentage
           },
           campaign: {
-            campaignName: preparedData.campaignName,
-            campaignId: preparedData.campaignId,
-            adgroupName: preparedData.adgroupName,
-            adgroupId: preparedData.adgroupId,
+            campaign_name: preparedData.campaign_name,
+            campaign_id: preparedData.campaign_id,
+            adgroup_name: preparedData.adgroup_name,
+            adgroup_id: preparedData.adgroup_id,
             keyword: preparedData.keyword,
-            trafficSource: preparedData.trafficSource,
+            matchtype: preparedData.matchtype,
+            traffic_source: preparedData.traffic_source,
             templateType: preparedData.templateType,
             gclid: preparedData.gclid,
             device: preparedData.device
@@ -318,11 +322,12 @@ export async function submitLeadToZoho(formData) {
         email: preparedData.email
       });
       console.log("Campaign Data:", {
-        campaignName: preparedData.campaignName,
-        campaignId: preparedData.campaignId, 
-        adgroupName: preparedData.adgroupName,
-        adgroupId: preparedData.adgroupId,
+        campaign_name: preparedData.campaign_name,
+        campaign_id: preparedData.campaign_id, 
+        adgroup_name: preparedData.adgroup_name,
+        adgroup_id: preparedData.adgroup_id,
         keyword: preparedData.keyword,
+        matchtype: preparedData.matchtype,
         gclid: preparedData.gclid,
         device: preparedData.device,
         templateType: preparedData.templateType
@@ -405,11 +410,12 @@ export async function updateLeadInZoho(leadId, formData) {
   // Add detailed logging for campaign data
   console.log("%c UPDATE LEAD IN ZOHO - Campaign Data Check", "background: #673ab7; color: white; font-size: 14px; padding: 5px;");
   console.log("Campaign data in update:", {
-    campaignName: formData.campaignName || 'NOT PROVIDED',
-    campaignId: formData.campaignId || 'NOT PROVIDED',
-    adgroupName: formData.adgroupName || 'NOT PROVIDED', 
-    adgroupId: formData.adgroupId || 'NOT PROVIDED',
+    campaign_name: formData.campaign_name || 'NOT PROVIDED',
+    campaign_id: formData.campaign_id || 'NOT PROVIDED',
+    adgroup_name: formData.adgroup_name || 'NOT PROVIDED', 
+    adgroup_id: formData.adgroup_id || 'NOT PROVIDED',
     keyword: formData.keyword || 'NOT PROVIDED',
+    matchtype: formData.matchtype || 'NOT PROVIDED',
     gclid: formData.gclid || 'NOT PROVIDED',
     device: formData.device || 'NOT PROVIDED',
     templateType: formData.templateType || 'NOT PROVIDED',
@@ -493,14 +499,15 @@ export async function updateLeadInZoho(leadId, formData) {
       apiPercentage: formData.apiPercentage?.toString() || '',
       
       // CRITICAL: Include all campaign data in every update
-      campaignName: formData.campaignName || '',
-      campaignId: formData.campaignId || '',
-      adgroupId: formData.adgroupId || '',
-      adgroupName: formData.adgroupName || '',
+      campaign_name: formData.campaign_name || '',
+      campaign_id: formData.campaign_id || '',
+      adgroup_id: formData.adgroup_id || '',
+      adgroup_name: formData.adgroup_name || '',
       keyword: formData.keyword || '',
+      matchtype: formData.matchtype || '',
       gclid: formData.gclid || '',
       device: formData.device || '',
-      trafficSource: formData.trafficSource || '',
+      traffic_source: formData.traffic_source || '',
       templateType: formData.templateType || '',
       url: formData.url || '',
       
@@ -581,15 +588,16 @@ export async function updateLeadInZoho(leadId, formData) {
           zip: updateData.zip
         },
         campaign: {
-          campaignName: updateData.campaignName,
-          campaignId: updateData.campaignId,
-          adgroupName: updateData.adgroupName,
-          adgroupId: updateData.adgroupId,
+          campaign_name: updateData.campaign_name,
+          campaign_id: updateData.campaign_id,
+          adgroup_name: updateData.adgroup_name,
+          adgroup_id: updateData.adgroup_id,
           keyword: updateData.keyword,
+          matchtype: updateData.matchtype,
           gclid: updateData.gclid,
           device: updateData.device,
           templateType: updateData.templateType,
-          trafficSource: updateData.trafficSource
+          traffic_source: updateData.traffic_source
         },
         dynamic: {
           dynamicHeadline: updateData.dynamicHeadline,

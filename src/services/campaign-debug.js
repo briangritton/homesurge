@@ -11,13 +11,14 @@ export function debugCampaignData() {
     // Check URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const urlCampaignParams = {
-      campaign_name: urlParams.get('campaign_name') || urlParams.get('campaignname') || urlParams.get('utm_campaign'),
-      campaignid: urlParams.get('campaignid'),
-      adgroupid: urlParams.get('adgroupid'),
-      adgroup_name: urlParams.get('adgroup_name') || urlParams.get('adgroupname'),
+      campaign_name: urlParams.get('campaignname') || urlParams.get('campaign_name') || urlParams.get('utm_campaign'),
+      campaign_id: urlParams.get('campaignid'),
+      adgroup_name: urlParams.get('adgroupname') || urlParams.get('adgroup_name'),
+      adgroup_id: urlParams.get('adgroupid'),
       keyword: urlParams.get('keyword'),
       device: urlParams.get('device'),
-      gclid: urlParams.get('gclid')
+      gclid: urlParams.get('gclid'),
+      matchtype: urlParams.get('matchtype')
     };
     
     console.log('URL Parameters:', urlCampaignParams);
@@ -35,14 +36,15 @@ export function debugCampaignData() {
     if (storedFormData) {
       const formData = JSON.parse(storedFormData);
       console.log('Campaign data in formData:', {
-        campaignName: formData.campaignName,
-        campaignId: formData.campaignId,
-        adgroupName: formData.adgroupName,
-        adgroupId: formData.adgroupId,
+        campaign_name: formData.campaign_name,
+        campaign_id: formData.campaign_id,
+        adgroup_name: formData.adgroup_name,
+        adgroup_id: formData.adgroup_id,
         keyword: formData.keyword,
         device: formData.device,
         gclid: formData.gclid,
-        trafficSource: formData.trafficSource
+        matchtype: formData.matchtype,
+        traffic_source: formData.traffic_source
       });
     } else {
       console.warn('No formData found in localStorage');
@@ -103,24 +105,28 @@ export function manuallyTriggerFacebookEventWithCampaign(eventName = 'ManualDebu
       };
       
       // Add campaign data if available
-      if (campaignData.campaignName) {
-        eventParams.campaign_name = campaignData.campaignName;
+      if (campaignData.campaign_name) {
+        eventParams.campaign_name = campaignData.campaign_name;
       }
       
-      if (campaignData.campaignId) {
-        eventParams.campaign_id = campaignData.campaignId;
+      if (campaignData.campaign_id) {
+        eventParams.campaign_id = campaignData.campaign_id;
       }
       
-      if (campaignData.adgroupName) {
-        eventParams.adgroup_name = campaignData.adgroupName;
+      if (campaignData.adgroup_name) {
+        eventParams.adgroup_name = campaignData.adgroup_name;
       }
       
-      if (campaignData.adgroupId) {
-        eventParams.adgroup_id = campaignData.adgroupId;
+      if (campaignData.adgroup_id) {
+        eventParams.adgroup_id = campaignData.adgroup_id;
       }
       
       if (campaignData.keyword) {
         eventParams.keyword = campaignData.keyword;
+      }
+      
+      if (campaignData.matchtype) {
+        eventParams.matchtype = campaignData.matchtype;
       }
       
       // Trigger the event

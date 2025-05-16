@@ -63,11 +63,34 @@ export function trackPageView(path) {
 
   // Ensure `window.dataLayer` exists before pushing data
   window.dataLayer = window.dataLayer || [];
+  
+  // Try to get campaign data from localStorage
+  let campaignData = {};
+  try {
+    const storedData = localStorage.getItem('campaignData');
+    if (storedData) {
+      campaignData = JSON.parse(storedData);
+    }
+  } catch (e) {
+    console.error('Error retrieving campaign data for pageView:', e);
+  }
+  
   window.dataLayer.push({
     event: 'pageView',
     page: {
       path: path,
       title: document.title
+    },
+    campaignData: {
+      campaign_id: campaignData.campaign_id || '',
+      campaign_name: campaignData.campaign_name || '',
+      adgroup_id: campaignData.adgroup_id || '',
+      adgroup_name: campaignData.adgroup_name || '',
+      keyword: campaignData.keyword || '',
+      device: campaignData.device || '',
+      gclid: campaignData.gclid || '',
+      matchtype: campaignData.matchtype || '',
+      traffic_source: campaignData.traffic_source || 'Direct'
     }
   });
 
@@ -83,7 +106,7 @@ export function trackFormSubmission(formData) {
       phone: formData.phone ? 'Provided' : 'Missing',
       address: formData.street ? 'Provided' : 'Missing',
       propertyValue: formData.apiEstimatedValue || 'Not Available',
-      campaignId: formData.campaignId || 'Not Available',
+      campaign_id: formData.campaign_id || 'Not Available',
       keyword: formData.keyword || 'Not Available'
     });
   }
@@ -98,12 +121,20 @@ export function trackFormSubmission(formData) {
         dimension1: 'campaign_id',
         dimension2: 'campaign_name',
         dimension3: 'adgroup_id',
-        dimension4: 'keyword'
+        dimension4: 'adgroup_name',
+        dimension5: 'keyword',
+        dimension6: 'device',
+        dimension7: 'gclid',
+        dimension8: 'matchtype'
       },
-      campaign_id: formData.campaignId || '',
-      campaign_name: formData.campaignName || '',
-      adgroup_id: formData.adgroupId || '',
-      keyword: formData.keyword || ''
+      campaign_id: formData.campaign_id || '',
+      campaign_name: formData.campaign_name || '',
+      adgroup_id: formData.adgroup_id || '',
+      adgroup_name: formData.adgroup_name || '',
+      keyword: formData.keyword || '',
+      device: formData.device || '',
+      gclid: formData.gclid || '',
+      matchtype: formData.matchtype || ''
     });
   }
 
@@ -123,14 +154,14 @@ export function trackFormSubmission(formData) {
       selectedAppointmentTime: formData.selectedAppointmentTime || ''
     },
     campaignData: {
-      campaignId: formData.campaignId || '',
-      campaignName: formData.campaignName || '',
-      adgroupId: formData.adgroupId || '',
-      adgroupName: formData.adgroupName || '',
+      campaign_id: formData.campaign_id || '',
+      campaign_name: formData.campaign_name || '',
+      adgroup_id: formData.adgroup_id || '',
+      adgroup_name: formData.adgroup_name || '',
       keyword: formData.keyword || '',
       device: formData.device || '',
       gclid: formData.gclid || '',
-      trafficSource: formData.trafficSource || 'Direct'
+      traffic_source: formData.traffic_source || 'Direct'
     },
     conversionValue: formData.apiEstimatedValue ? Math.round(formData.apiEstimatedValue / 1000) : 0 // Intentionally dividing by 1000 for a "K" value scale
   });
@@ -145,7 +176,7 @@ export function trackFormStepComplete(stepNumber, stepName, formData) {
     console.log('Analytics - Form Step Complete:', {
       stepNumber,
       stepName,
-      campaignId: formData?.campaignId || 'Not Available'
+      campaign_id: formData?.campaign_id || 'Not Available'
     });
   }
 
@@ -160,12 +191,20 @@ export function trackFormStepComplete(stepNumber, stepName, formData) {
         dimension1: 'campaign_id',
         dimension2: 'campaign_name',
         dimension3: 'adgroup_id',
-        dimension4: 'keyword'
+        dimension4: 'adgroup_name',
+        dimension5: 'keyword',
+        dimension6: 'device',
+        dimension7: 'gclid',
+        dimension8: 'matchtype'
       },
-      campaign_id: formData?.campaignId || '',
-      campaign_name: formData?.campaignName || '',
-      adgroup_id: formData?.adgroupId || '',
-      keyword: formData?.keyword || ''
+      campaign_id: formData?.campaign_id || '',
+      campaign_name: formData?.campaign_name || '',
+      adgroup_id: formData?.adgroup_id || '',
+      adgroup_name: formData?.adgroup_name || '',
+      keyword: formData?.keyword || '',
+      device: formData?.device || '',
+      gclid: formData?.gclid || '',
+      matchtype: formData?.matchtype || ''
     });
   }
 
@@ -175,14 +214,15 @@ export function trackFormStepComplete(stepNumber, stepName, formData) {
     formStep: stepNumber,
     stepName: stepName,
     campaignData: formData ? {
-      campaignId: formData.campaignId || '',
-      campaignName: formData.campaignName || '',
-      adgroupId: formData.adgroupId || '',
-      adgroupName: formData.adgroupName || '',
+      campaign_id: formData.campaign_id || '',
+      campaign_name: formData.campaign_name || '',
+      adgroup_id: formData.adgroup_id || '',
+      adgroup_name: formData.adgroup_name || '',
       keyword: formData.keyword || '',
       device: formData.device || '',
       gclid: formData.gclid || '',
-      trafficSource: formData.trafficSource || 'Direct'
+      matchtype: formData.matchtype || '',
+      traffic_source: formData.traffic_source || 'Direct'
     } : {}
   });
 
