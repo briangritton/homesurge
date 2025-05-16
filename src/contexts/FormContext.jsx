@@ -719,6 +719,7 @@ export function FormProvider({ children }) {
         'keyword': keyword,
         'device': device,
         'gclid': gclid,
+        'matchtype': matchtype,
         'template': 'cash_offer',
         'traffic_source': 'paid_search'
       });
