@@ -273,17 +273,25 @@ module.exports = async (req, res) => {
             URL: formData.url || "",
             Template_Type: formData.templateType || "",
             
-            // Our local tracking fields as well (duplicate to ensure we use the right ones)
-            trafficSource: formData.trafficSource || "",
-            campaignName: formData.campaignName || "",
-            adgroupName: formData.adgroupName || "",
+            // Our local tracking fields - support both camelCase and snake_case for backward compatibility
+            trafficSource: formData.trafficSource || formData.traffic_source || "",
+            campaignName: formData.campaignName || formData.campaign_name || "",
+            adgroupName: formData.adgroupName || formData.adgroup_name || "",
             device: formData.device || "",
             keyword: formData.keyword || "",
+            matchtype: formData.matchtype || "",
             gclid: formData.gclid || "",
             url: formData.url || "",
             templateType: formData.templateType || "",
-            campaignId: formData.campaignId || "",
-            adgroupId: formData.adgroupId || "",
+            campaignId: formData.campaignId || formData.campaign_id || "",
+            adgroupId: formData.adgroupId || formData.adgroup_id || "",
+            
+            // Snake case versions
+            traffic_source: formData.traffic_source || formData.trafficSource || "",
+            campaign_name: formData.campaign_name || formData.campaignName || "",
+            campaign_id: formData.campaign_id || formData.campaignId || "",
+            adgroup_name: formData.adgroup_name || formData.adgroupName || "",
+            adgroup_id: formData.adgroup_id || formData.adgroupId || "",
             
             // Appointment information - make sure these are explicitly set with string values
             wantToSetAppointment: formData.wantToSetAppointment ? formData.wantToSetAppointment.toString() : "false",
@@ -307,7 +315,7 @@ module.exports = async (req, res) => {
             reasonForSelling: formData.reasonForSelling || "",
             
             // Dynamic content - HACK: sending keyword as dynamicSubHeadline
-            dynamicHeadline: formData.campaignName || formData.dynamicHeadline || "",
+            dynamicHeadline: formData.campaign_name || formData.campaignName || formData.dynamicHeadline || "",
             dynamicSubHeadline: formData.keyword || "",  // Always send keyword in this field
             thankYouHeadline: formData.thankYouHeadline || "",
             thankYouSubHeadline: formData.keyword || formData.thankYouSubHeadline || "",  // Also send keyword here
@@ -344,12 +352,13 @@ module.exports = async (req, res) => {
             zip: formData.zip
           },
           campaignData: {
-            campaignName: formData.campaignName || "Not provided",
-            campaignId: formData.campaignId || "Not provided", 
-            adgroupName: formData.adgroupName || "Not provided",
-            adgroupId: formData.adgroupId || "Not provided",
+            campaign_name: formData.campaign_name || formData.campaignName || "Not provided",
+            campaign_id: formData.campaign_id || formData.campaignId || "Not provided", 
+            adgroup_name: formData.adgroup_name || formData.adgroupName || "Not provided",
+            adgroup_id: formData.adgroup_id || formData.adgroupId || "Not provided",
             keyword: formData.keyword || "Not provided",
-            trafficSource: formData.trafficSource || "Not provided",
+            matchtype: formData.matchtype || "Not provided",
+            traffic_source: formData.traffic_source || formData.trafficSource || "Not provided",
             templateType: formData.templateType || "Not provided",
             gclid: formData.gclid || "Not provided",
             device: formData.device || "Not provided"
@@ -516,18 +525,26 @@ module.exports = async (req, res) => {
             URL: formData.url || "",
             Template_Type: formData.templateType || "",
             
-            // Our local tracking fields as well (duplicate to ensure we use the right ones)
-            trafficSource: formData.trafficSource || "",
-            campaignName: formData.campaignName || "",
-            adgroupName: formData.adgroupName || "",
+            // Our local tracking fields - support both camelCase and snake_case for backward compatibility
+            trafficSource: formData.trafficSource || formData.traffic_source || "",
+            campaignName: formData.campaignName || formData.campaign_name || "",
+            adgroupName: formData.adgroupName || formData.adgroup_name || "",
             device: formData.device || "",
             keyword: formData.keyword || "",
+            matchtype: formData.matchtype || "",
             gclid: formData.gclid || "",
             url: formData.url || "",
             templateType: formData.templateType || "",
             
+            // Snake case versions
+            traffic_source: formData.traffic_source || formData.trafficSource || "",
+            campaign_name: formData.campaign_name || formData.campaignName || "",
+            campaign_id: formData.campaign_id || formData.campaignId || "",
+            adgroup_name: formData.adgroup_name || formData.adgroupName || "",
+            adgroup_id: formData.adgroup_id || formData.adgroupId || "",
+            
             // Dynamic content - HACK: sending keyword as dynamicSubHeadline
-            dynamicHeadline: formData.campaignName || formData.dynamicHeadline || "",
+            dynamicHeadline: formData.campaign_name || formData.campaignName || formData.dynamicHeadline || "",
             dynamicSubHeadline: formData.keyword || "",  // Always send keyword in this field
             thankYouHeadline: formData.thankYouHeadline || "",
             thankYouSubHeadline: formData.keyword || formData.thankYouSubHeadline || "",  // Also send keyword here
@@ -588,10 +605,13 @@ module.exports = async (req, res) => {
               searchTerm: formData.search_term
             },
             ourFields: {
-              trafficSource: formData.trafficSource,
-              campaignName: formData.campaignName,
-              adgroupName: formData.adgroupName,
-              keyword: formData.keyword
+              traffic_source: formData.traffic_source || formData.trafficSource || "",
+              campaign_name: formData.campaign_name || formData.campaignName || "",
+              campaign_id: formData.campaign_id || formData.campaignId || "",
+              adgroup_name: formData.adgroup_name || formData.adgroupName || "",
+              adgroup_id: formData.adgroup_id || formData.adgroupId || "",
+              keyword: formData.keyword || "",
+              matchtype: formData.matchtype || ""
             },
             hackFields: {
               dynamicSubHeadline: formData.keyword || "Not set",
