@@ -245,6 +245,7 @@ function AddressForm() {
                 adgroup_name: formData.adgroup_name || '',
                 adgroup_id: formData.adgroup_id || '',
                 keyword: formData.keyword || '',
+                matchtype: formData.matchtype || '',
                 gclid: formData.gclid || '',
                 device: formData.device || '',
                 source: formData.traffic_source || 'Direct',
@@ -257,6 +258,7 @@ function AddressForm() {
               adgroup_name: formData.adgroup_name || '',
               adgroup_id: formData.adgroup_id || '',
               keyword: formData.keyword || '',
+              matchtype: formData.matchtype || '',
               gclid: formData.gclid || '',
               device: formData.device || '',
               traffic_source: formData.traffic_source || 'Direct',
@@ -281,7 +283,9 @@ function AddressForm() {
                 campaign_name: dataLayerEvent.campaign_name,
                 campaign_id: dataLayerEvent.campaign_id,
                 keyword: dataLayerEvent.keyword,
+                matchtype: dataLayerEvent.matchtype,
                 adgroup_name: dataLayerEvent.adgroup_name,
+                adgroup_id: dataLayerEvent.adgroup_id,
                 campaign: dataLayerEvent.campaign
               });
             }, 1000);
