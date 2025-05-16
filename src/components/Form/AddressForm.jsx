@@ -186,21 +186,21 @@ function AddressForm() {
         if (propertyData.apiEstimatedValue && propertyData.apiEstimatedValue > 0) {
           // Get all campaign data from formContext
           const { 
-            campaignName, 
-            campaignId, 
-            adgroupId, 
-            adgroupName, 
+            campaign_name, 
+            campaign_id, 
+            adgroup_id, 
+            adgroup_name, 
             keyword, 
             gclid, 
             device, 
-            trafficSource, 
-            templateType 
+            traffic_source, 
+            template_type 
           } = formData;
           
           console.log('Sending campaign data to Facebook PropertyValueObtained event:', {
-            campaignName,
-            campaignId,
-            adgroupName,
+            campaign_name,
+            campaign_id,
+            adgroup_name,
             keyword
           });
           
@@ -211,15 +211,15 @@ function AddressForm() {
             address: address, // Include the address the user entered
             
             // Explicitly include campaign data
-            campaignName: campaignName || '',
-            campaignId: campaignId || '',
-            adgroupId: adgroupId || '',
-            adgroupName: adgroupName || '',
+            campaign_name: campaign_name || '',
+            campaign_id: campaign_id || '',
+            adgroup_id: adgroup_id || '',
+            adgroup_name: adgroup_name || '',
             keyword: keyword || '',
             gclid: gclid || '',
             device: device || '',
-            trafficSource: trafficSource || 'Direct',
-            templateType: templateType || ''
+            traffic_source: traffic_source || 'Direct',
+            template_type: template_type || ''
           });
 
           // Also send to Google Analytics via dataLayer with a delay to ensure GTM is loaded
@@ -240,27 +240,27 @@ function AddressForm() {
               
               // Add campaign parameters - make them visible for GTM variables
               campaign: {
-                name: formData.campaignName || '',
-                id: formData.campaignId || '',
-                adgroup_name: formData.adgroupName || '',
-                adgroup_id: formData.adgroupId || '',
+                name: formData.campaign_name || '',
+                id: formData.campaign_id || '',
+                adgroup_name: formData.adgroup_name || '',
+                adgroup_id: formData.adgroup_id || '',
                 keyword: formData.keyword || '',
                 gclid: formData.gclid || '',
                 device: formData.device || '',
-                source: formData.trafficSource || 'Direct',
-                template: formData.templateType || ''
+                source: formData.traffic_source || 'Direct',
+                template: formData.template_type || ''
               },
               
               // Duplicated at top level for compatibility with existing GTM setup
-              campaignName: formData.campaignName || '',
-              campaignId: formData.campaignId || '',
-              adgroupName: formData.adgroupName || '',
-              adgroupId: formData.adgroupId || '',
+              campaign_name: formData.campaign_name || '',
+              campaign_id: formData.campaign_id || '',
+              adgroup_name: formData.adgroup_name || '',
+              adgroup_id: formData.adgroup_id || '',
               keyword: formData.keyword || '',
               gclid: formData.gclid || '',
               device: formData.device || '',
-              trafficSource: formData.trafficSource || 'Direct',
-              templateType: formData.templateType || ''
+              traffic_source: formData.traffic_source || 'Direct',
+              template_type: formData.template_type || ''
             };
 
             // Add a 1-second delay to ensure GTM is fully loaded
@@ -272,16 +272,16 @@ function AddressForm() {
               console.log('PROPERTY VALUE SENT TO GTM:', {
                 rawValue: propertyData.apiEstimatedValue,
                 formattedValue: formattedValue,
-                campaignName: dataLayerEvent.campaignName,
-                campaignId: dataLayerEvent.campaignId
+                campaign_name: dataLayerEvent.campaign_name,
+                campaign_id: dataLayerEvent.campaign_id
               });
               
               // Log campaign data for debugging
               console.log('CAMPAIGN DATA IN api_value EVENT:', {
-                campaignName: dataLayerEvent.campaignName,
-                campaignId: dataLayerEvent.campaignId,
+                campaign_name: dataLayerEvent.campaign_name,
+                campaign_id: dataLayerEvent.campaign_id,
                 keyword: dataLayerEvent.keyword,
-                adgroupName: dataLayerEvent.adgroupName,
+                adgroup_name: dataLayerEvent.adgroup_name,
                 campaign: dataLayerEvent.campaign
               });
             }, 1000);
@@ -399,19 +399,19 @@ function AddressForm() {
     // Create or update lead with the final selection and address data
     try {
       // Get campaign data from formContext
-      const { campaignName, campaignId, adgroupId, adgroupName, keyword, gclid, device, trafficSource, templateType } = formData;
+      const { campaign_name, campaign_id, adgroup_id, adgroup_name, keyword, gclid, device, traffic_source, template_type } = formData;
       
       console.log("%c AddressForm - Campaign Data Check", "background: #ff9800; color: black; font-size: 12px; padding: 4px;");
       console.log("Campaign Data in FormContext:", {
-        campaignName,
-        campaignId,
-        adgroupId, 
-        adgroupName,
+        campaign_name,
+        campaign_id,
+        adgroup_id, 
+        adgroup_name,
         keyword,
         gclid,
         device,
-        trafficSource,
-        templateType
+        traffic_source,
+        template_type
       });
       
       // Prepare data for the lead
@@ -433,15 +433,15 @@ function AddressForm() {
         leadStage: 'Address Selected',
         
         // Explicitly add campaign data to ensure it's passed to Zoho
-        campaignName: campaignName || '',
-        campaignId: campaignId || '',
-        adgroupId: adgroupId || '',
-        adgroupName: adgroupName || '',
+        campaign_name: campaign_name || '',
+        campaign_id: campaign_id || '',
+        adgroup_id: adgroup_id || '',
+        adgroup_name: adgroup_name || '',
         keyword: keyword || '',
         gclid: gclid || '',
         device: device || '',
-        trafficSource: trafficSource || 'Direct',
-        templateType: templateType || '',
+        traffic_source: traffic_source || 'Direct',
+        template_type: template_type || '',
         dynamicHeadline: formData.dynamicHeadline || '',
         dynamicSubHeadline: formData.dynamicSubHeadline || '',
         buttonText: formData.buttonText || ''
@@ -495,20 +495,20 @@ function AddressForm() {
     if (propertyData && updatedLeadId) {
       try {
         // Get campaign data from formContext
-        const { campaignName, campaignId, adgroupId, adgroupName, keyword, gclid, device, trafficSource, templateType } = formData;
+        const { campaign_name, campaign_id, adgroup_id, adgroup_name, keyword, gclid, device, traffic_source, template_type } = formData;
         
         console.log("%c CRITICAL ADDRESS + PROPERTY DATA UPDATE TO ZOHO", "background: #ff0000; color: white; font-size: 14px; padding: 5px;");
         console.log("This is where URL campaign data MUST be sent to Zoho");
         console.log("Campaign Data in form context:", {
-          campaignName,
-          campaignId,
-          adgroupId, 
-          adgroupName,
+          campaign_name,
+          campaign_id,
+          adgroup_id, 
+          adgroup_name,
           keyword,
           gclid,
           device,
-          trafficSource,
-          templateType
+          traffic_source,
+          template_type
         });
         
         // Update the lead with property data AND campaign data
@@ -528,15 +528,15 @@ function AddressForm() {
           apiHomeValue: propertyData.apiEstimatedValue?.toString() || '0',
           
           // CRITICAL: Include campaign data with property update
-          campaignName: campaignName || '',
-          campaignId: campaignId || '',
-          adgroupId: adgroupId || '',
-          adgroupName: adgroupName || '',
+          campaign_name: campaign_name || '',
+          campaign_id: campaign_id || '',
+          adgroup_id: adgroup_id || '',
+          adgroup_name: adgroup_name || '',
           keyword: keyword || '',
           gclid: gclid || '',
           device: device || '',
-          trafficSource: trafficSource || 'Direct',
-          templateType: templateType || '',
+          traffic_source: traffic_source || 'Direct',
+          template_type: template_type || '',
           
           // Include dynamic content information
           dynamicHeadline: formData.dynamicHeadline || '',
@@ -563,11 +563,11 @@ function AddressForm() {
             apiPercentage: propertyUpdateData.apiPercentage
           },
           campaign: {
-            campaignName: propertyUpdateData.campaignName,
-            campaignId: propertyUpdateData.campaignId,
-            adgroupName: propertyUpdateData.adgroupName,
+            campaign_name: propertyUpdateData.campaign_name,
+            campaign_id: propertyUpdateData.campaign_id,
+            adgroup_name: propertyUpdateData.adgroup_name,
             keyword: propertyUpdateData.keyword,
-            templateType: propertyUpdateData.templateType
+            template_type: propertyUpdateData.template_type
           }
         });
         
@@ -594,13 +594,13 @@ function AddressForm() {
                 apiPercentage: propertyUpdateData.apiPercentage
               },
               campaign: {
-                campaignName: propertyUpdateData.campaignName,
-                campaignId: propertyUpdateData.campaignId,
-                adgroupName: propertyUpdateData.adgroupName,
-                adgroupId: propertyUpdateData.adgroupId,
+                campaign_name: propertyUpdateData.campaign_name,
+                campaign_id: propertyUpdateData.campaign_id,
+                adgroup_name: propertyUpdateData.adgroup_name,
+                adgroup_id: propertyUpdateData.adgroup_id,
                 keyword: propertyUpdateData.keyword,
-                trafficSource: propertyUpdateData.trafficSource,
-                templateType: propertyUpdateData.templateType,
+                traffic_source: propertyUpdateData.traffic_source,
+                template_type: propertyUpdateData.template_type,
                 gclid: propertyUpdateData.gclid,
                 device: propertyUpdateData.device
               }

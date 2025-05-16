@@ -44,11 +44,11 @@ const initialFormState = {
   dynamicSubHeadline: 'Get a Great Cash Offer For Your House and Close Fast!',
   thankYouHeadline: 'Request Completed!',
   thankYouSubHeadline: 'You\'ll be receiving your requested details at your contact number shortly, thank you!',
-  trafficSource: 'Direct',
-  campaignId: '',
-  campaignName: '',
-  adgroupId: '',
-  adgroupName: '',
+  traffic_source: 'Direct',
+  campaign_id: '',
+  campaign_name: '',
+  adgroup_id: '',
+  adgroup_name: '',
   keyword: '',
   device: '',
   gclid: '',
@@ -146,8 +146,8 @@ export function FormProvider({ children }) {
         // Filter out campaign tracking fields to prevent duplicated or conflicting updates
         // We'll handle those separately in initFromUrlParams
         const {
-          campaignId, campaignName, adgroupId, adgroupName, 
-          keyword, device, gclid, trafficSource, ...otherData
+          campaign_id, campaign_name, adgroup_id, adgroup_name, 
+          keyword, device, gclid, traffic_source, ...otherData
         } = parsedData;
         
         // Only update non-campaign data
@@ -454,7 +454,7 @@ export function FormProvider({ children }) {
   };
 
   // Simplified dynamic content handler based only on campaign name
-  const setDynamicContent = (keyword, campaignId, adgroupId) => {
+  const setDynamicContent = (keyword, campaign_id, adgroup_id) => {
     // Always get campaign name directly from URL
     const urlParams = new URLSearchParams(window.location.search);
     
@@ -472,7 +472,7 @@ export function FormProvider({ children }) {
     
     // If no campaign name in URL, use the one in form state
     if (!campaignName) {
-      campaignName = formData.campaignName || '';
+      campaignName = formData.campaign_name || '';
     }
     
     // Log information about the current campaign name we'll use for matching
@@ -597,7 +597,7 @@ export function FormProvider({ children }) {
     setFormData(prevData => ({
       ...prevData,
       // Ensure campaign name is stored in form state
-      campaignName: campaignName || prevData.campaignName,
+      campaign_name: campaignName || prevData.campaign_name,
       // Set dynamic content
       dynamicHeadline: contentTemplate.headline,
       dynamicSubHeadline: contentTemplate.subHeadline,
@@ -622,8 +622,8 @@ export function FormProvider({ children }) {
   const extractCampaignData = (urlParams) => {
     // Extract URL parameters
     const keyword = urlParams.get('keyword') || '';
-    const campaignId = urlParams.get('campaignid') || '';
-    const adgroupId = urlParams.get('adgroupid') || '';
+    const campaign_id = urlParams.get('campaignid') || '';
+    const adgroup_id = urlParams.get('adgroupid') || '';
     const device = urlParams.get('device') || '';
     const gclid = urlParams.get('gclid') || '';
     
@@ -656,15 +656,15 @@ export function FormProvider({ children }) {
     }
     
     // If we have a direct campaign name from the URL, use it
-    // Otherwise, determine campaign name based on campaignId
+    // Otherwise, determine campaign name based on campaign_id
     if (!campaignName) {
-      if (campaignId === "20196006239") {
+      if (campaign_id === "20196006239") {
         campaignName = "Sell For Cash Form Submit (Google only)";
-      } else if (campaignId === "20490389456") {
+      } else if (campaign_id === "20490389456") {
         campaignName = "Sell For Cash Form Submit (Search Partners)";
-      } else if (campaignId === "20311247419") {
+      } else if (campaign_id === "20311247419") {
         campaignName = "Sell Fast, On Own, No Agent, Form Submit (Google only)";
-      } else if (campaignId === "20490511649") {
+      } else if (campaign_id === "20490511649") {
         campaignName = "Sell Fast, On Own, No Agent, Form Submit (Search Partners)";
       } else {
         campaignName = 'Organic'; 
@@ -684,39 +684,39 @@ export function FormProvider({ children }) {
     }
     
     // Try to get adgroup name directly from URL
-    let adgroupName = urlParams.get('adgroup_name') || '';
+    let adgroup_name = urlParams.get('adgroup_name') || '';
     
     // If not present, try alternate format
-    if (!adgroupName) {
-      adgroupName = urlParams.get('adgroupname') || '';
+    if (!adgroup_name) {
+      adgroup_name = urlParams.get('adgroupname') || '';
     }
     
     // Normalize adgroup name if needed
-    if (adgroupName.includes('%20')) {
+    if (adgroup_name.includes('%20')) {
       try {
-        adgroupName = decodeURIComponent(adgroupName);
+        adgroup_name = decodeURIComponent(adgroup_name);
       } catch (e) {
         console.warn('Error decoding adgroup name:', e);
       }
     }
     
-    // If we don't have an adgroup name from URL, determine it based on adgroupId
-    if (!adgroupName) {
-      if (adgroupId === "149782006756" || adgroupId === "151670982418" || 
-          adgroupId === "153325247952" || adgroupId === "156355988601") {
-        adgroupName = "(exact)";
-      } else if (adgroupId === "153620745798" || adgroupId === "156658963430" || 
-                adgroupId === "153325247992" || adgroupId === "156355988761") {
-        adgroupName = "(phrase)";
+    // If we don't have an adgroup name from URL, determine it based on adgroup_id
+    if (!adgroup_name) {
+      if (adgroup_id === "149782006756" || adgroup_id === "151670982418" || 
+          adgroup_id === "153325247952" || adgroup_id === "156355988601") {
+        adgroup_name = "(exact)";
+      } else if (adgroup_id === "153620745798" || adgroup_id === "156658963430" || 
+                adgroup_id === "153325247992" || adgroup_id === "156355988761") {
+        adgroup_name = "(phrase)";
       }
     }
     
     return {
       keyword,
-      campaignId,
-      campaignName,
-      adgroupId,
-      adgroupName,
+      campaign_id,
+      campaign_name: campaignName,
+      adgroup_id,
+      adgroup_name,
       device,
       gclid,
       url: window.location.href
@@ -725,19 +725,19 @@ export function FormProvider({ children }) {
 
   // Helper function to push campaign data to analytics platforms
   const trackCampaignView = (campaignData) => {
-    const { keyword, campaignId, campaignName, adgroupId, adgroupName, device, gclid } = campaignData;
+    const { keyword, campaign_id, campaign_name, adgroup_id, adgroup_name, device, gclid } = campaignData;
     
-    if (campaignId) {
+    if (campaign_id) {
       // Push event to Google Analytics (gtag)
       if (window.gtag) {
         window.gtag('set', {
-          'campaign_id': campaignId,
-          'campaign_name': campaignName,
+          'campaign_id': campaign_id,
+          'campaign_name': campaign_name,
           'campaign_source': 'google',
           'campaign_medium': 'cpc',
           'campaign_keyword': keyword,
-          'adgroup_id': adgroupId,
-          'adgroup_name': adgroupName,
+          'adgroup_id': adgroup_id,
+          'adgroup_name': adgroup_name,
           'device': device,
           'gclid': gclid
         });
@@ -751,10 +751,10 @@ export function FormProvider({ children }) {
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({
         'event': 'campaign_page_view',
-        'campaignId': campaignId,
-        'campaignName': campaignName,
-        'adgroupId': adgroupId,
-        'adgroupName': adgroupName,
+        'campaign_id': campaign_id,
+        'campaign_name': campaign_name,
+        'adgroup_id': adgroup_id,
+        'adgroup_name': adgroup_name,
         'keyword': keyword,
         'device': device,
         'gclid': gclid,
@@ -795,7 +795,7 @@ export function FormProvider({ children }) {
         setFormData(prevData => ({
           ...prevData,
           ...parsedData,
-          trafficSource: parsedData.campaignId ? 'Google Search' : 'Direct'
+          traffic_source: parsedData.campaign_id ? 'Google Search' : 'Direct'
         }));
       }
     } catch (e) {
@@ -817,7 +817,7 @@ export function FormProvider({ children }) {
       }
       // Force a dynamic content refresh even for cached data
       console.log("==== RE-RUNNING CONTENT MATCHING WITH CACHED DATA ====");
-      setDynamicContent(formData.keyword, formData.campaignId, formData.adgroupId);
+      setDynamicContent(formData.keyword, formData.campaign_id, formData.adgroup_id);
       return true; // Already processed
     }
     
@@ -838,14 +838,14 @@ export function FormProvider({ children }) {
         if (storedData) {
           console.log("No URL params but found stored campaign data, using that instead");
           const parsedData = JSON.parse(storedData);
-          if (parsedData && parsedData.campaignId) {
+          if (parsedData && parsedData.campaign_id) {
             campaignDataRef.current = parsedData;
             
             // Update form state with stored data
             setFormData(prevData => ({
               ...prevData,
               ...parsedData,
-              trafficSource: 'Google Search'
+              traffic_source: 'Google Search'
             }));
             
             return true;
@@ -860,7 +860,7 @@ export function FormProvider({ children }) {
     const campaignData = extractCampaignData(urlParams);
     
     // Check if we found valid campaign data from URL
-    const hasValidCampaignData = campaignData && campaignData.campaignId;
+    const hasValidCampaignData = campaignData && campaignData.campaign_id;
     console.log("Has valid campaign data:", hasValidCampaignData, campaignData);
     
     if (hasValidCampaignData) {
@@ -873,7 +873,7 @@ export function FormProvider({ children }) {
       // Create update object with campaign data
       const updateObj = {
         ...campaignData,
-        trafficSource: 'Google Search'
+        traffic_source: 'Google Search'
       };
       
       console.log("Updating form state with campaign data:", updateObj);
@@ -899,14 +899,14 @@ export function FormProvider({ children }) {
       // Wait a tick for form state to update before setting dynamic content
       setTimeout(() => {
         // Debug the exact campaign name string character by character
-        console.log("Raw campaign name before setting dynamic content:", campaignData.campaignName);
+        console.log("Raw campaign name before setting dynamic content:", campaignData.campaign_name);
         
         // Now form state should include campaign name from URL
-        console.log("Setting dynamic content with campaign name:", campaignData.campaignName);
+        console.log("Setting dynamic content with campaign name:", campaignData.campaign_name);
         
         // Explicitly call setDynamicContent - this will get the campaign name directly 
         // from URL params and form state, so we don't need to pass it here
-        setDynamicContent(campaignData.keyword, campaignData.campaignId, campaignData.adgroupId);
+        setDynamicContent(campaignData.keyword, campaignData.campaign_id, campaignData.adgroup_id);
       }, 0);
       return true;
     }

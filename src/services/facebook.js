@@ -76,7 +76,7 @@ export function initializeFacebookPixel() {
       }
       
       // Update with the new campaign name from URL
-      campaignData.campaignName = campaignName;
+      campaignData.campaign_name = campaignName;
       
       // Save back to localStorage
       localStorage.setItem('campaignData', JSON.stringify(campaignData));
@@ -151,21 +151,21 @@ export function trackPageView(path) {
   };
 
   // Add campaign data if available
-  if (campaignData.campaignName) {
-    viewContentParams.campaign_name = campaignData.campaignName;
-    if (DEBUG_MODE) console.log('Facebook Pixel - Adding campaign_name to ViewContent:', campaignData.campaignName);
+  if (campaignData.campaign_name) {
+    viewContentParams.campaign_name = campaignData.campaign_name;
+    if (DEBUG_MODE) console.log('Facebook Pixel - Adding campaign_name to ViewContent:', campaignData.campaign_name);
   }
   
-  if (campaignData.campaignId) {
-    viewContentParams.campaign_id = campaignData.campaignId;
+  if (campaignData.campaign_id) {
+    viewContentParams.campaign_id = campaignData.campaign_id;
   }
   
-  if (campaignData.adgroupName) {
-    viewContentParams.adgroup_name = campaignData.adgroupName;
+  if (campaignData.adgroup_name) {
+    viewContentParams.adgroup_name = campaignData.adgroup_name;
   }
   
-  if (campaignData.adgroupId) {
-    viewContentParams.adgroup_id = campaignData.adgroupId;
+  if (campaignData.adgroup_id) {
+    viewContentParams.adgroup_id = campaignData.adgroup_id;
   }
   
   if (campaignData.keyword) {
@@ -226,28 +226,28 @@ export function trackFormStepComplete(stepNumber, stepName, formData) {
   }
   
   // Add campaign data if available for ALL events
-  if (formData?.campaignName) {
-    eventParams.campaign_name = formData.campaignName;
+  if (formData?.campaign_name) {
+    eventParams.campaign_name = formData.campaign_name;
     
     // Log that we're adding campaign data
     if (DEBUG_MODE) {
       console.log('Adding campaign data to event:', {
-        campaign_name: formData.campaignName,
+        campaign_name: formData.campaign_name,
         event: eventName
       });
     }
   }
   
-  if (formData?.campaignId) {
-    eventParams.campaign_id = formData.campaignId;
+  if (formData?.campaign_id) {
+    eventParams.campaign_id = formData.campaign_id;
   }
   
-  if (formData?.adgroupName) {
-    eventParams.adgroup_name = formData.adgroupName;
+  if (formData?.adgroup_name) {
+    eventParams.adgroup_name = formData.adgroup_name;
   }
   
-  if (formData?.adgroupId) {
-    eventParams.adgroup_id = formData.adgroupId;
+  if (formData?.adgroup_id) {
+    eventParams.adgroup_id = formData.adgroup_id;
   }
   
   if (formData?.keyword) {
@@ -295,9 +295,9 @@ export function trackFormSubmission(formData) {
   };
 
   // Add campaign data if available
-  if (formData.campaignId) {
-    eventParams.campaign_id = formData.campaignId;
-    eventParams.campaign_name = formData.campaignName;
+  if (formData.campaign_id) {
+    eventParams.campaign_id = formData.campaign_id;
+    eventParams.campaign_name = formData.campaign_name;
   }
 
   // Track Lead event in browser
@@ -312,21 +312,21 @@ export function trackFormSubmission(formData) {
   };
   
   // Add campaign data to registration event
-  if (formData.campaignName) {
-    registrationParams.campaign_name = formData.campaignName;
-    if (DEBUG_MODE) console.log('Adding campaign_name to CompleteRegistration:', formData.campaignName);
+  if (formData.campaign_name) {
+    registrationParams.campaign_name = formData.campaign_name;
+    if (DEBUG_MODE) console.log('Adding campaign_name to CompleteRegistration:', formData.campaign_name);
   }
   
-  if (formData.campaignId) {
-    registrationParams.campaign_id = formData.campaignId;
+  if (formData.campaign_id) {
+    registrationParams.campaign_id = formData.campaign_id;
   }
   
-  if (formData.adgroupName) {
-    registrationParams.adgroup_name = formData.adgroupName;
+  if (formData.adgroup_name) {
+    registrationParams.adgroup_name = formData.adgroup_name;
   }
   
-  if (formData.adgroupId) {
-    registrationParams.adgroup_id = formData.adgroupId;
+  if (formData.adgroup_id) {
+    registrationParams.adgroup_id = formData.adgroup_id;
   }
   
   if (formData.keyword) {
@@ -350,9 +350,9 @@ export function trackFormSubmission(formData) {
   if (DEBUG_MODE) {
     console.log('Facebook Pixel - Lead and CompleteRegistration events fired:', {
       value: eventParams.value,
-      campaign_id: formData.campaignId,
-      campaign_name: formData.campaignName,
-      adgroup_name: formData.adgroupName,
+      campaign_id: formData.campaign_id,
+      campaign_name: formData.campaign_name,
+      adgroup_name: formData.adgroup_name,
       keyword: formData.keyword
     });
   }
@@ -382,20 +382,20 @@ export function trackCustomEvent(eventName, eventParams = {}, campaignData = nul
   
   // Add campaign data if available
   if (campaignData) {
-    if (campaignData.campaignName) {
-      eventParams.campaign_name = campaignData.campaignName;
+    if (campaignData.campaign_name) {
+      eventParams.campaign_name = campaignData.campaign_name;
     }
     
-    if (campaignData.campaignId) {
-      eventParams.campaign_id = campaignData.campaignId;
+    if (campaignData.campaign_id) {
+      eventParams.campaign_id = campaignData.campaign_id;
     }
     
-    if (campaignData.adgroupName) {
-      eventParams.adgroup_name = campaignData.adgroupName;
+    if (campaignData.adgroup_name) {
+      eventParams.adgroup_name = campaignData.adgroup_name;
     }
     
-    if (campaignData.adgroupId) {
-      eventParams.adgroup_id = campaignData.adgroupId;
+    if (campaignData.adgroup_id) {
+      eventParams.adgroup_id = campaignData.adgroup_id;
     }
     
     if (campaignData.keyword) {
@@ -459,15 +459,15 @@ export function trackPropertyValue(propertyData) {
   };
   
   // Try to get campaign data from multiple sources
-  let campaignName = propertyData.campaignName || '';
-  let campaignId = propertyData.campaignId || '';
-  let adgroupName = propertyData.adgroupName || '';
-  let adgroupId = propertyData.adgroupId || '';
+  let campaign_name = propertyData.campaign_name || '';
+  let campaign_id = propertyData.campaign_id || '';
+  let adgroup_name = propertyData.adgroup_name || '';
+  let adgroup_id = propertyData.adgroup_id || '';
   let keyword = propertyData.keyword || '';
   let templateType = propertyData.templateType || '';
   
   // If campaign data not in propertyData, try to get from localStorage
-  if (!campaignName || !campaignId) {
+  if (!campaign_name || !campaign_id) {
     try {
       const storedCampaignData = localStorage.getItem('campaignData');
       if (storedCampaignData) {
@@ -475,10 +475,10 @@ export function trackPropertyValue(propertyData) {
         if (DEBUG_MODE) console.log('PropertyValueObtained - Found campaign data in localStorage:', campaignData);
         
         // Use data from localStorage if not already present in propertyData
-        campaignName = campaignName || campaignData.campaignName || '';
-        campaignId = campaignId || campaignData.campaignId || '';
-        adgroupName = adgroupName || campaignData.adgroupName || '';
-        adgroupId = adgroupId || campaignData.adgroupId || '';
+        campaign_name = campaign_name || campaignData.campaign_name || '';
+        campaign_id = campaign_id || campaignData.campaign_id || '';
+        adgroup_name = adgroup_name || campaignData.adgroup_name || '';
+        adgroup_id = adgroup_id || campaignData.adgroup_id || '';
         keyword = keyword || campaignData.keyword || '';
       }
     } catch (e) {
@@ -487,37 +487,37 @@ export function trackPropertyValue(propertyData) {
   }
   
   // If still no campaign data, try to get from URL
-  if (!campaignName) {
+  if (!campaign_name) {
     const urlParams = new URLSearchParams(window.location.search);
-    campaignName = urlParams.get('campaign_name') || urlParams.get('campaignname') || urlParams.get('utm_campaign') || '';
+    campaign_name = urlParams.get('campaign_name') || urlParams.get('campaignname') || urlParams.get('utm_campaign') || '';
     
-    if (campaignName && DEBUG_MODE) {
-      console.log('PropertyValueObtained - Using campaign name from URL:', campaignName);
+    if (campaign_name && DEBUG_MODE) {
+      console.log('PropertyValueObtained - Using campaign name from URL:', campaign_name);
     }
   }
   
   // Add campaign data to event params if available
-  if (campaignName) {
-    eventParams.campaign_name = campaignName;
+  if (campaign_name) {
+    eventParams.campaign_name = campaign_name;
     
     if (DEBUG_MODE) {
       console.log('Adding campaign data to PropertyValueObtained event:', {
-        campaign_name: campaignName,
-        source: propertyData.campaignName ? 'propertyData' : 'localStorage/URL'
+        campaign_name: campaign_name,
+        source: propertyData.campaign_name ? 'propertyData' : 'localStorage/URL'
       });
     }
   }
   
-  if (campaignId) {
-    eventParams.campaign_id = campaignId;
+  if (campaign_id) {
+    eventParams.campaign_id = campaign_id;
   }
   
-  if (adgroupName) {
-    eventParams.adgroup_name = adgroupName;
+  if (adgroup_name) {
+    eventParams.adgroup_name = adgroup_name;
   }
   
-  if (adgroupId) {
-    eventParams.adgroup_id = adgroupId;
+  if (adgroup_id) {
+    eventParams.adgroup_id = adgroup_id;
   }
   
   if (keyword) {
@@ -613,8 +613,8 @@ export function logStoredCampaignData() {
       console.log('Facebook Pixel - Current campaign data in localStorage:', campaignData);
       
       // Always check for campaign name specifically
-      if (campaignData.campaignName) {
-        console.log('Facebook Pixel - Campaign name is available:', campaignData.campaignName);
+      if (campaignData.campaign_name) {
+        console.log('Facebook Pixel - Campaign name is available:', campaignData.campaign_name);
       } else {
         console.warn('Facebook Pixel - Campaign name is NOT available in stored data');
       }
