@@ -1412,7 +1412,7 @@ body {
     font-size: 1rem !important;
     cursor: pointer !important;
     border-top: 1px solid #e6e6e6;
-  }
+  } 
   
   .pac-item:first-child {
     border-top: none;
