@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test API Value Event</title>
+  <script>
+    // Initialize dataLayer
+    window.dataLayer = window.dataLayer || [];
+    
+    // Function to push api_value event with campaign parameters
+    function pushApiValueEvent() {
+      const dataLayerEvent = {
+        event: 'api_value',
+        apiValue: 250000,
+        propertyAddress: '123 Test Street, Atlanta, GA 30303',
+        formattedValue: '$250,000',
+        propertyEquity: 100000,
+        propertyEquityPercentage: 40,
+        
+        // Add campaign parameters - make them visible for GTM variables
+        campaign: {
+          name: 'test_campaign',
+          id: '12345',
+          adgroup_name: 'test_adgroup',
+          adgroup_id: '67890',
+          keyword: 'test keyword',
+          gclid: 'test_gclid',
+          device: 'desktop',
+          source: 'test',
+          template: 'test_template'
+        },
+        
+        // Duplicated at top level for compatibility with existing GTM setup
+        campaign_name: 'test_campaign',
+        campaign_id: '12345',
+        adgroup_name: 'test_adgroup',
+        adgroup_id: '67890',
+        keyword: 'test keyword',
+        gclid: 'test_gclid',
+        device: 'desktop',
+        traffic_source: 'test',
+        template_type: 'test_template',
+        matchtype: 'exact'
+      };
+      
+      console.log('Pushing api_value event to dataLayer:', dataLayerEvent);
+      window.dataLayer.push(dataLayerEvent);
+      document.getElementById('status').innerHTML = 'Event pushed to dataLayer! Check GTM preview.';
+    }
+  </script>
+</head>
+<body style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
+  <h1>Test API Value Event</h1>
+  <p>This page helps test the api_value event with campaign parameters.</p>
+  
+  <button onclick="pushApiValueEvent()" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">
+    Push api_value Event
+  </button>
+  
+  <div id="status" style="margin-top: 20px; padding: 10px; background-color: #f0f0f0; border-radius: 4px;"></div>
+  
+  <h2>Event Details (for reference)</h2>
+  <pre style="background-color: #f5f5f5; padding: 15px; border-radius: 4px; overflow: auto;">
+{
+  event: 'api_value',
+  apiValue: 250000,
+  propertyAddress: '123 Test Street, Atlanta, GA 30303',
+  formattedValue: '$250,000',
+  propertyEquity: 100000,
+  propertyEquityPercentage: 40,
+  
+  campaign: {
+    name: 'test_campaign',
+    id: '12345',
+    adgroup_name: 'test_adgroup',
+    adgroup_id: '67890',
+    keyword: 'test keyword',
+    gclid: 'test_gclid',
+    device: 'desktop',
+    source: 'test',
+    template: 'test_template'
+  },
+  
+  campaign_name: 'test_campaign',
+  campaign_id: '12345',
+  adgroup_name: 'test_adgroup',
+  adgroup_id: '67890',
+  keyword: 'test keyword',
+  gclid: 'test_gclid',
+  device: 'desktop',
+  traffic_source: 'test',
+  template_type: 'test_template',
+  matchtype: 'exact'
+}
+  </pre>
+  
+  <p><strong>Instructions:</strong></p>
+  <ol>
+    <li>Open GTM Preview mode for your site</li>
+    <li>Navigate to this test page</li>
+    <li>Click the button to push the api_value event</li>
+    <li>Check GTM preview to see if the event is registered</li>
+    <li>Verify that all campaign parameters are available in the event</li>
+  </ol>
+</body>
+</html>

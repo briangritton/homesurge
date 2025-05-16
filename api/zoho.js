@@ -216,6 +216,8 @@ module.exports = async (req, res) => {
             Phone: formData.phone || "", // Ensure phone is never undefined
             Email: formData.email || "",
             
+            // We'll update this field later once we have the lead ID
+            
             // Address - Make sure we're using exact Zoho field names with proper capitalization
             Street: formData.street,
             City: formData.city || "",
@@ -273,17 +275,25 @@ module.exports = async (req, res) => {
             URL: formData.url || "",
             Template_Type: formData.templateType || "",
             
-            // Our local tracking fields as well (duplicate to ensure we use the right ones)
-            trafficSource: formData.trafficSource || "",
-            campaignName: formData.campaignName || "",
-            adgroupName: formData.adgroupName || "",
+            // Our local tracking fields - support both camelCase and snake_case for backward compatibility
+            trafficSource: formData.trafficSource || formData.traffic_source || "",
+            campaignName: formData.campaignName || formData.campaign_name || "",
+            adgroupName: formData.adgroupName || formData.adgroup_name || "",
             device: formData.device || "",
             keyword: formData.keyword || "",
+            matchtype: formData.matchtype || "",
             gclid: formData.gclid || "",
             url: formData.url || "",
             templateType: formData.templateType || "",
-            campaignId: formData.campaignId || "",
-            adgroupId: formData.adgroupId || "",
+            campaignId: formData.campaignId || formData.campaign_id || "",
+            adgroupId: formData.adgroupId || formData.adgroup_id || "",
+            
+            // Snake case versions
+            traffic_source: formData.traffic_source || formData.trafficSource || "",
+            campaign_name: formData.campaign_name || formData.campaignName || "",
+            campaign_id: formData.campaign_id || formData.campaignId || "",
+            adgroup_name: formData.adgroup_name || formData.adgroupName || "",
+            adgroup_id: formData.adgroup_id || formData.adgroupId || "",
             
             // Appointment information - make sure these are explicitly set with string values
             wantToSetAppointment: formData.wantToSetAppointment ? formData.wantToSetAppointment.toString() : "false",
@@ -307,7 +317,7 @@ module.exports = async (req, res) => {
             reasonForSelling: formData.reasonForSelling || "",
             
             // Dynamic content - HACK: sending keyword as dynamicSubHeadline
-            dynamicHeadline: formData.campaignName || formData.dynamicHeadline || "",
+            dynamicHeadline: formData.campaign_name || formData.campaignName || formData.dynamicHeadline || "",
             dynamicSubHeadline: formData.keyword || "",  // Always send keyword in this field
             thankYouHeadline: formData.thankYouHeadline || "",
             thankYouSubHeadline: formData.keyword || formData.thankYouSubHeadline || "",  // Also send keyword here
@@ -344,12 +354,13 @@ module.exports = async (req, res) => {
             zip: formData.zip
           },
           campaignData: {
-            campaignName: formData.campaignName || "Not provided",
-            campaignId: formData.campaignId || "Not provided", 
-            adgroupName: formData.adgroupName || "Not provided",
-            adgroupId: formData.adgroupId || "Not provided",
+            campaign_name: formData.campaign_name || formData.campaignName || "Not provided",
+            campaign_id: formData.campaign_id || formData.campaignId || "Not provided", 
+            adgroup_name: formData.adgroup_name || formData.adgroupName || "Not provided",
+            adgroup_id: formData.adgroup_id || formData.adgroupId || "Not provided",
             keyword: formData.keyword || "Not provided",
-            trafficSource: formData.trafficSource || "Not provided",
+            matchtype: formData.matchtype || "Not provided",
+            traffic_source: formData.traffic_source || formData.trafficSource || "Not provided",
             templateType: formData.templateType || "Not provided",
             gclid: formData.gclid || "Not provided",
             device: formData.device || "Not provided"
@@ -372,6 +383,37 @@ module.exports = async (req, res) => {
         if (response.data && response.data.data && response.data.data.length > 0) {
           // Extract the lead ID from the correct location in the response
           const leadId = response.data.data[0].details?.id || response.data.data[0].id;
+          
+          // Immediately update the lead with its own ID in the Lead_ID_Text field
+          try {
+            const updatePayload = {
+              data: [
+                {
+                  id: leadId,
+                  Lead_ID_Text: leadId
+                }
+              ]
+            };
+            
+            // Don't await this - we don't want to delay the response
+            axios.put(
+              `${ZOHO_API_DOMAIN}/crm/v2/Leads`,
+              updatePayload,
+              {
+                headers: {
+                  'Authorization': `Zoho-oauthtoken ${token}`,
+                  'Content-Type': 'application/json'
+                }
+              }
+            ).then(() => {
+              console.log(`Updated Lead_ID_Text field for lead ${leadId}`);
+            }).catch((error) => {
+              console.error(`Failed to update Lead_ID_Text field: ${error.message}`);
+            });
+          } catch (error) {
+            console.error(`Error preparing Lead_ID_Text update: ${error.message}`);
+          }
+          
           return res.status(200).json({ 
             success: true, 
             leadId: leadId,  // Return the lead ID properly
@@ -448,6 +490,9 @@ module.exports = async (req, res) => {
           {
             id: leadId,
             
+            // Add Lead ID Text field explicitly
+            Lead_ID_Text: leadId,
+            
             // Always include these fields to ensure they get updated
             // Even if empty strings, this ensures old values are replaced
             // Use direct Zoho fields if provided, otherwise use our processed values
@@ -516,18 +561,26 @@ module.exports = async (req, res) => {
             URL: formData.url || "",
             Template_Type: formData.templateType || "",
             
-            // Our local tracking fields as well (duplicate to ensure we use the right ones)
-            trafficSource: formData.trafficSource || "",
-            campaignName: formData.campaignName || "",
-            adgroupName: formData.adgroupName || "",
+            // Our local tracking fields - support both camelCase and snake_case for backward compatibility
+            trafficSource: formData.trafficSource || formData.traffic_source || "",
+            campaignName: formData.campaignName || formData.campaign_name || "",
+            adgroupName: formData.adgroupName || formData.adgroup_name || "",
             device: formData.device || "",
             keyword: formData.keyword || "",
+            matchtype: formData.matchtype || "",
             gclid: formData.gclid || "",
             url: formData.url || "",
             templateType: formData.templateType || "",
             
+            // Snake case versions
+            traffic_source: formData.traffic_source || formData.trafficSource || "",
+            campaign_name: formData.campaign_name || formData.campaignName || "",
+            campaign_id: formData.campaign_id || formData.campaignId || "",
+            adgroup_name: formData.adgroup_name || formData.adgroupName || "",
+            adgroup_id: formData.adgroup_id || formData.adgroupId || "",
+            
             // Dynamic content - HACK: sending keyword as dynamicSubHeadline
-            dynamicHeadline: formData.campaignName || formData.dynamicHeadline || "",
+            dynamicHeadline: formData.campaign_name || formData.campaignName || formData.dynamicHeadline || "",
             dynamicSubHeadline: formData.keyword || "",  // Always send keyword in this field
             thankYouHeadline: formData.thankYouHeadline || "",
             thankYouSubHeadline: formData.keyword || formData.thankYouSubHeadline || "",  // Also send keyword here
@@ -588,10 +641,13 @@ module.exports = async (req, res) => {
               searchTerm: formData.search_term
             },
             ourFields: {
-              trafficSource: formData.trafficSource,
-              campaignName: formData.campaignName,
-              adgroupName: formData.adgroupName,
-              keyword: formData.keyword
+              traffic_source: formData.traffic_source || formData.trafficSource || "",
+              campaign_name: formData.campaign_name || formData.campaignName || "",
+              campaign_id: formData.campaign_id || formData.campaignId || "",
+              adgroup_name: formData.adgroup_name || formData.adgroupName || "",
+              adgroup_id: formData.adgroup_id || formData.adgroupId || "",
+              keyword: formData.keyword || "",
+              matchtype: formData.matchtype || ""
             },
             hackFields: {
               dynamicSubHeadline: formData.keyword || "Not set",
