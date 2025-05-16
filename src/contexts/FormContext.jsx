@@ -290,7 +290,7 @@ export function FormProvider({ children }) {
     // Prepare data by removing uninteracted fields
     const cleanedFormData = prepareDataForZoho(formData);
     
-    // Add enhanced logging for property data
+    // Add enhanced logging for property data and campaign data
     console.log("Submitting lead with cleaned form data:", {
       existingLeadId: existingLeadId || 'None',
       name: cleanedFormData.name,
@@ -310,6 +310,22 @@ export function FormProvider({ children }) {
       selectedSuggestionAddress: cleanedFormData.selectedSuggestionAddress,
       leadStage: cleanedFormData.leadStage,
       propertyRecord: cleanedFormData.propertyRecord ? 'Available' : 'Not available'
+    });
+    
+    // Add extra debugging specifically for campaign data and keyword
+    console.log("%c CRITICAL - CAMPAIGN & KEYWORD DATA CHECK", "background: #f44336; color: white; font-size: 14px; padding: 5px;");
+    console.log("Campaign data:", {
+      keyword: cleanedFormData.keyword || 'NOT SET',
+      keywordLength: cleanedFormData.keyword ? cleanedFormData.keyword.length : 0,
+      keywordType: typeof cleanedFormData.keyword,
+      campaign_id: cleanedFormData.campaign_id || 'NOT SET',
+      campaign_name: cleanedFormData.campaign_name || 'NOT SET',
+      adgroup_id: cleanedFormData.adgroup_id || 'NOT SET',
+      adgroup_name: cleanedFormData.adgroup_name || 'NOT SET',  
+      device: cleanedFormData.device || 'NOT SET',
+      gclid: cleanedFormData.gclid || 'NOT SET',
+      matchtype: cleanedFormData.matchtype || 'NOT SET',
+      templateType: cleanedFormData.templateType || 'NOT SET'
     });
     
     try {
@@ -401,6 +417,22 @@ export function FormProvider({ children }) {
     
     // Clean data by removing uninteracted fields
     const cleanedFormData = prepareDataForZoho(formData);
+    
+    // Add detailed logging for campaign data in the update
+    console.log("%c UPDATE LEAD - CAMPAIGN & KEYWORD DATA CHECK", "background: #9c27b0; color: white; font-size: 14px; padding: 5px;");
+    console.log("Campaign data for update:", {
+      keyword: cleanedFormData.keyword || 'NOT SET',
+      keywordLength: cleanedFormData.keyword ? cleanedFormData.keyword.length : 0,
+      keywordType: typeof cleanedFormData.keyword,
+      campaign_id: cleanedFormData.campaign_id || 'NOT SET',
+      campaign_name: cleanedFormData.campaign_name || 'NOT SET',
+      adgroup_id: cleanedFormData.adgroup_id || 'NOT SET',
+      adgroup_name: cleanedFormData.adgroup_name || 'NOT SET',  
+      device: cleanedFormData.device || 'NOT SET',
+      gclid: cleanedFormData.gclid || 'NOT SET',
+      matchtype: cleanedFormData.matchtype || 'NOT SET',
+      templateType: cleanedFormData.templateType || 'NOT SET'
+    });
     
     if (!existingLeadId) {
       console.warn("No lead ID available - will create a new lead instead of updating");
@@ -622,7 +654,13 @@ export function FormProvider({ children }) {
   const extractCampaignData = (urlParams) => {
     // Extract URL parameters directly from tracking template format
     // Using snake_case internally for consistency in our system
-    const keyword = urlParams.get('keyword') || '';
+    
+    // Check for keyword with a fallback check to utm_term (another common parameter)
+    const keyword = urlParams.get('keyword') || urlParams.get('utm_term') || '';
+    
+    // Print the keyword to console for debugging
+    console.log('KEYWORD FROM URL: "' + keyword + '"');
+    
     const campaign_id = urlParams.get('campaignid') || '';
     const adgroup_id = urlParams.get('adgroupid') || '';
     const device = urlParams.get('device') || '';
@@ -789,9 +827,18 @@ export function FormProvider({ children }) {
     // Get URL parameters once
     const urlParams = new URLSearchParams(window.location.search);
     
-    // Check if we have any campaign parameters
-    const hasCampaignParams = urlParams.has('campaignid') || urlParams.has('keyword');
+    // Check if we have any campaign parameters (including UTM parameters as fallback)
+    const hasCampaignParams = urlParams.has('campaignid') || 
+                             urlParams.has('keyword') || 
+                             urlParams.has('utm_campaign') || 
+                             urlParams.has('utm_term');
     console.log("Has campaign parameters:", hasCampaignParams);
+    
+    // Log all URL parameters for debugging
+    console.log("ALL URL PARAMETERS:");
+    for (const [key, value] of urlParams.entries()) {
+      console.log(`URL param - ${key}: "${value}"`);
+    }
     
     // If we don't have campaign params in URL but do have them in localStorage, use those
     if (!hasCampaignParams) {

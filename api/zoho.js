@@ -225,7 +225,7 @@ module.exports = async (req, res) => {
             Zip_Code: formData.zip || "",
             
             // Lead metadata
-            Lead_Source: formData.trafficSource || "Website",
+            Lead_Source: formData.traffic_source || formData.trafficSource || "Website",
             Description: `Property: ${formData.street}`,
             
             // New address suggestion tracking fields
@@ -263,14 +263,24 @@ module.exports = async (req, res) => {
             apiPercentage: formData.apiPercentage?.toString() || "0",
             
             // Marketing & Campaign information - EXACT ZOHO FIELD NAMES
-            Campaign_Source: formData.trafficSource || "",
-            Campaign_Name: formData.campaignName || "",
-            Ad_Group: formData.adgroupName || "",  
+            Campaign_Source: formData.traffic_source || formData.trafficSource || "",
+            Campaign_Name: formData.campaign_name || formData.campaignName || "",
+            Ad_Group: formData.adgroup_name || formData.adgroupName || "",  
             Device_Used: formData.device || "",
             Keyword: formData.keyword || "", // Zoho system field
             keywords: formData.keyword || "", // Custom field for redundancy
             search_term: formData.keyword || "", // Alternative field name
             search_query: formData.keyword || "", // Another alternative
+            
+            // DEBUGGING: Explicit keyword fields to verify values
+            keyword_debug: formData.keyword || "NO KEYWORD",
+            keyword_source: formData.keyword ? "from keyword field" : "missing",
+            
+            // Try direct custom fields that might be defined in Zoho
+            Keyword_Text: formData.keyword || "",
+            Search_Term_Text: formData.keyword || "",
+            
+            // Regular fields continued
             GCLID: formData.gclid || "",
             URL: formData.url || "",
             Template_Type: formData.templateType || "",
@@ -318,9 +328,12 @@ module.exports = async (req, res) => {
             
             // Dynamic content - HACK: sending keyword as dynamicSubHeadline
             dynamicHeadline: formData.campaign_name || formData.campaignName || formData.dynamicHeadline || "",
-            dynamicSubHeadline: formData.keyword || "",  // Always send keyword in this field
+            
+            // CRITICAL: These fields are our keyword hack - force the keyword into these fields
+            dynamicSubHeadline: "KEYWORD: " + (formData.keyword || "NOT_PROVIDED"),
+            
             thankYouHeadline: formData.thankYouHeadline || "",
-            thankYouSubHeadline: formData.keyword || formData.thankYouSubHeadline || "",  // Also send keyword here
+            thankYouSubHeadline: "KEYWORD: " + (formData.keyword || "NOT_PROVIDED"),
             
             // Metadata
             addressSelectionType: formData.addressSelectionType || "Manual",
@@ -549,14 +562,22 @@ module.exports = async (req, res) => {
             apiPercentage: formData.apiPercentage?.toString() || "",
             
             // Marketing & Campaign information - EXACT ZOHO FIELD NAMES
-            Campaign_Source: formData.trafficSource || "",
-            Campaign_Name: formData.campaignName || "",
-            Ad_Group: formData.adgroupName || "",  
+            Campaign_Source: formData.traffic_source || formData.trafficSource || "",
+            Campaign_Name: formData.campaign_name || formData.campaignName || "",
+            Ad_Group: formData.adgroup_name || formData.adgroupName || "",  
             Device_Used: formData.device || "",
             Keyword: formData.keyword || "", // Zoho system field
             keywords: formData.keyword || "", // Custom field for redundancy
             search_term: formData.keyword || "", // Alternative field name
             search_query: formData.keyword || "", // Another alternative
+            
+            // DEBUGGING: Explicit keyword fields to verify values
+            keyword_debug: formData.keyword || "NO KEYWORD",
+            keyword_source: formData.keyword ? "from keyword field" : "missing",
+            
+            // Try direct custom fields that might be defined in Zoho
+            Keyword_Text: formData.keyword || "",
+            Search_Term_Text: formData.keyword || "",
             GCLID: formData.gclid || "",
             URL: formData.url || "",
             Template_Type: formData.templateType || "",
@@ -581,9 +602,12 @@ module.exports = async (req, res) => {
             
             // Dynamic content - HACK: sending keyword as dynamicSubHeadline
             dynamicHeadline: formData.campaign_name || formData.campaignName || formData.dynamicHeadline || "",
-            dynamicSubHeadline: formData.keyword || "",  // Always send keyword in this field
+            
+            // CRITICAL: These fields are our keyword hack - force the keyword into these fields
+            dynamicSubHeadline: "KEYWORD: " + (formData.keyword || "NOT_PROVIDED"),
+            
             thankYouHeadline: formData.thankYouHeadline || "",
-            thankYouSubHeadline: formData.keyword || formData.thankYouSubHeadline || "",  // Also send keyword here
+            thankYouSubHeadline: "KEYWORD: " + (formData.keyword || "NOT_PROVIDED"),
             
             // Appointment information - make sure these are explicitly set as strings
             wantToSetAppointment: formData.wantToSetAppointment ? formData.wantToSetAppointment.toString() : "",
