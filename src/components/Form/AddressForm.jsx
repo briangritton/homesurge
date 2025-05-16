@@ -222,37 +222,25 @@ function AddressForm() {
             template_type: template_type || ''
           });
 
-          // Also send to Google Analytics via dataLayer with a delay to ensure GTM is loaded
+          // Send to Google Analytics via dataLayer - IMMEDIATELY (no delay)
           if (window.dataLayer) {
-            // Log for debugging - you can remove this later
-            console.log('PREPARING API_VALUE EVENT FOR DATALAYER (with delay):', {
+            console.log('%c SENDING API_VALUE EVENTS TO GTM - NO DELAY', 'background: #FF5722; color: white; font-weight: bold; padding: 4px;', {
               apiEstimatedValue: propertyData.apiEstimatedValue,
               address: address
             });
 
-            const dataLayerEvent = {
-              event: 'api_value', // Matches your trigger name
-              apiValue: propertyData.apiEstimatedValue, // Matches your updated variable name (camelCase)
+            // Try multiple event names and formats to see which one works
+            
+            // FORMAT 1: Original format with lowercase event name
+            const dataLayerEvent1 = {
+              event: 'api_value',
+              apiValue: propertyData.apiEstimatedValue,
               propertyAddress: address,
               formattedValue: formattedValue,
               propertyEquity: propertyData.apiEquity || 0,
               propertyEquityPercentage: propertyData.apiPercentage || 0,
               
-              // Add campaign parameters - make them visible for GTM variables
-              campaign: {
-                name: formData.campaign_name || '',
-                id: formData.campaign_id || '',
-                adgroup_name: formData.adgroup_name || '',
-                adgroup_id: formData.adgroup_id || '',
-                keyword: formData.keyword || '',
-                matchtype: formData.matchtype || '',
-                gclid: formData.gclid || '',
-                device: formData.device || '',
-                source: formData.traffic_source || 'Direct',
-                template: formData.template_type || ''
-              },
-              
-              // Duplicated at top level for compatibility with existing GTM setup
+              // Campaign parameters at top level
               campaign_name: formData.campaign_name || '',
               campaign_id: formData.campaign_id || '',
               adgroup_name: formData.adgroup_name || '',
@@ -264,31 +252,60 @@ function AddressForm() {
               traffic_source: formData.traffic_source || 'Direct',
               template_type: formData.template_type || ''
             };
-
-            // Add a 1-second delay to ensure GTM is fully loaded
-            setTimeout(() => {
-              console.log('SENDING DELAYED API_VALUE EVENT TO DATALAYER:', dataLayerEvent);
-              window.dataLayer.push(dataLayerEvent);
-
-              // Log the actual value for verification
-              console.log('PROPERTY VALUE SENT TO GTM:', {
-                rawValue: propertyData.apiEstimatedValue,
-                formattedValue: formattedValue,
-                campaign_name: dataLayerEvent.campaign_name,
-                campaign_id: dataLayerEvent.campaign_id
-              });
-              
-              // Log campaign data for debugging
-              console.log('CAMPAIGN DATA IN api_value EVENT:', {
-                campaign_name: dataLayerEvent.campaign_name,
-                campaign_id: dataLayerEvent.campaign_id,
-                keyword: dataLayerEvent.keyword,
-                matchtype: dataLayerEvent.matchtype,
-                adgroup_name: dataLayerEvent.adgroup_name,
-                adgroup_id: dataLayerEvent.adgroup_id,
-                campaign: dataLayerEvent.campaign
-              });
-            }, 1000);
+            
+            // FORMAT 2: Uppercase event name
+            const dataLayerEvent2 = {
+              ...dataLayerEvent1,
+              event: 'API_VALUE'
+            };
+            
+            // FORMAT 3: Event name "apiValue" matching the property name
+            const dataLayerEvent3 = {
+              ...dataLayerEvent1,
+              event: 'apiValue'
+            };
+            
+            // FORMAT 4: PropertyValueObtained - same as Facebook event
+            const dataLayerEvent4 = {
+              ...dataLayerEvent1,
+              event: 'PropertyValueObtained'
+            };
+            
+            // FORMAT 5: Simpler format
+            const dataLayerEvent5 = {
+              event: 'api_value',
+              value: propertyData.apiEstimatedValue,
+              campaign_name: formData.campaign_name || '',
+              campaign_id: formData.campaign_id || '',
+              keyword: formData.keyword || '',
+              matchtype: formData.matchtype || ''
+            };
+            
+            // Push all events IMMEDIATELY with no delay
+            console.log('Pushing api_value event to dataLayer (format 1):', dataLayerEvent1);
+            window.dataLayer.push(dataLayerEvent1);
+            
+            console.log('Pushing API_VALUE event to dataLayer (format 2):', dataLayerEvent2);
+            window.dataLayer.push(dataLayerEvent2);
+            
+            console.log('Pushing apiValue event to dataLayer (format 3):', dataLayerEvent3);
+            window.dataLayer.push(dataLayerEvent3);
+            
+            console.log('Pushing PropertyValueObtained event to dataLayer (format 4):', dataLayerEvent4);
+            window.dataLayer.push(dataLayerEvent4);
+            
+            console.log('Pushing simplified api_value event to dataLayer (format 5):', dataLayerEvent5);
+            window.dataLayer.push(dataLayerEvent5);
+            
+            // Log all campaign data for debugging
+            console.log('CAMPAIGN DATA IN EVENTS:', {
+              campaign_name: formData.campaign_name || '',
+              campaign_id: formData.campaign_id || '',
+              keyword: formData.keyword || '',
+              matchtype: formData.matchtype || '',
+              adgroup_name: formData.adgroup_name || '',
+              adgroup_id: formData.adgroup_id || ''
+            });
           }
         }
 
