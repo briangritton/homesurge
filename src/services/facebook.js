@@ -21,8 +21,8 @@ function extractCampaignNameFromUrl() {
   
   // Try various parameter naming conventions for campaign name
   const possibleParamNames = [
+    'campaignname', // Google Ads tracking template format
     'campaign_name',
-    'campaignname',
     'campaign-name', 
     'utm_campaign',
     'utmcampaign'
@@ -254,6 +254,10 @@ export function trackFormStepComplete(stepNumber, stepName, formData) {
     eventParams.keyword = formData.keyword;
   }
   
+  if (formData?.matchtype) {
+    eventParams.matchtype = formData.matchtype;
+  }
+  
   if (formData?.templateType) {
     eventParams.template_type = formData.templateType;
   }
@@ -341,6 +345,10 @@ export function trackFormSubmission(formData) {
     registrationParams.gclid = formData.gclid;
   }
   
+  if (formData.matchtype) {
+    registrationParams.matchtype = formData.matchtype;
+  }
+  
   if (formData.templateType) {
     registrationParams.template_type = formData.templateType;
   }
@@ -408,6 +416,10 @@ export function trackCustomEvent(eventName, eventParams = {}, campaignData = nul
     
     if (campaignData.gclid) {
       eventParams.gclid = campaignData.gclid;
+    }
+    
+    if (campaignData.matchtype) {
+      eventParams.matchtype = campaignData.matchtype;
     }
   }
   
@@ -522,6 +534,11 @@ export function trackPropertyValue(propertyData) {
   
   if (keyword) {
     eventParams.keyword = keyword;
+  }
+  
+  // Check if matchtype is available from propertyData
+  if (propertyData?.matchtype) {
+    eventParams.matchtype = propertyData.matchtype;
   }
   
   if (templateType) {

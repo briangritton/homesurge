@@ -103,7 +103,7 @@ const DebugDisplay = () => {
   };
   
   // Helper to determine if campaign data is present
-  const hasCampaignData = formData.campaignId && formData.campaignId !== '';
+  const hasCampaignData = formData.campaign_id && formData.campaign_id !== '';
   const hasZohoData = zohoData !== null;
   
   // State for active tab
@@ -158,14 +158,15 @@ const DebugDisplay = () => {
           </h3>
           <pre>
             {JSON.stringify({
-              campaignId: formData.campaignId || 'Not set',
-              campaignName: formData.campaignName || 'Not set',
-              adgroupId: formData.adgroupId || 'Not set',
-              adgroupName: formData.adgroupName || 'Not set',
+              campaign_id: formData.campaign_id || 'Not set',
+              campaign_name: formData.campaign_name || 'Not set',
+              adgroup_id: formData.adgroup_id || 'Not set',
+              adgroup_name: formData.adgroup_name || 'Not set',
               keyword: formData.keyword || 'Not set',
-              trafficSource: formData.trafficSource || 'Direct',
+              traffic_source: formData.traffic_source || 'Direct',
               device: formData.device || 'Not set',
-              gclid: formData.gclid || 'Not set'
+              gclid: formData.gclid || 'Not set',
+              matchtype: formData.matchtype || 'Not set'
             }, null, 2)}
           </pre>
         </div>
@@ -177,12 +178,12 @@ const DebugDisplay = () => {
             Dynamic Content - Template Type: {formData.templateType || 'Not set'}
           </h3>
           <div style={{ fontSize: '11px', marginBottom: '3px', color: '#ffeb3b' }}>
-            Campaign Name: "{formData.campaignName || 'Not set'}"
+            Campaign Name: "{formData.campaign_name || 'Not set'}"
           </div>
           <div style={{ fontSize: '11px', marginBottom: '3px', color: '#ffeb3b' }}>
-            Keywords: {formData.campaignName && formData.campaignName.toLowerCase().includes('cash') ? '✓ has "cash"' : '✗ no "cash"'} | 
-            {formData.campaignName && formData.campaignName.toLowerCase().includes('fast') ? ' ✓ has "fast"' : ' ✗ no "fast"'} | 
-            {formData.campaignName && formData.campaignName.toLowerCase().includes('value') ? ' ✓ has "value"' : ' ✗ no "value"'}
+            Keywords: {formData.campaign_name && formData.campaign_name.toLowerCase().includes('cash') ? '✓ has "cash"' : '✗ no "cash"'} | 
+            {formData.campaign_name && formData.campaign_name.toLowerCase().includes('fast') ? ' ✓ has "fast"' : ' ✗ no "fast"'} | 
+            {formData.campaign_name && formData.campaign_name.toLowerCase().includes('value') ? ' ✓ has "value"' : ' ✗ no "value"'}
           </div>
           <pre>
             {JSON.stringify({

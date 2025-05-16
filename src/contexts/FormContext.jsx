@@ -620,62 +620,38 @@ export function FormProvider({ children }) {
 
   // Helper function to extract and process campaign data from URL params
   const extractCampaignData = (urlParams) => {
-    // Extract URL parameters
+    // Extract URL parameters directly from tracking template format
+    // Using snake_case internally for consistency in our system
     const keyword = urlParams.get('keyword') || '';
     const campaign_id = urlParams.get('campaignid') || '';
     const adgroup_id = urlParams.get('adgroupid') || '';
     const device = urlParams.get('device') || '';
     const gclid = urlParams.get('gclid') || '';
+    const matchtype = urlParams.get('matchtype') || '';
     
-    // Try to get campaign_name from URL, checking all possible parameter names
-    let campaignName = '';
+    // Get campaign name directly from the tracking template parameter
+    let campaign_name = urlParams.get('campaignname') || '';
     
-    // Check multiple possible parameter names for campaign name
-    const possibleParamNames = [
-      'campaign_name',
-      'campaignname',
-      'campaign name',
-      'campaign-name',
-      'utm_campaign',
-      'utmcampaign'
-    ];
-    
-    for (const paramName of possibleParamNames) {
-      const value = urlParams.get(paramName);
-      if (value) {
-        // Properly decode the campaign name to handle any special characters
-        try {
-          campaignName = decodeURIComponent(value);
-        } catch (e) {
-          campaignName = value;
-          console.warn(`Error decoding campaign name from ${paramName}:`, e);
-        }
-        console.log(`Found campaign name in parameter "${paramName}": ${campaignName}`);
-        break;
+    // Properly decode the campaign name to handle any special characters
+    if (campaign_name) {
+      try {
+        campaign_name = decodeURIComponent(campaign_name);
+      } catch (e) {
+        console.warn(`Error decoding campaign name:`, e);
       }
+      console.log(`Found campaign name in URL: ${campaign_name}`);
     }
     
-    // If we have a direct campaign name from the URL, use it
-    // Otherwise, determine campaign name based on campaign_id
-    if (!campaignName) {
-      if (campaign_id === "20196006239") {
-        campaignName = "Sell For Cash Form Submit (Google only)";
-      } else if (campaign_id === "20490389456") {
-        campaignName = "Sell For Cash Form Submit (Search Partners)";
-      } else if (campaign_id === "20311247419") {
-        campaignName = "Sell Fast, On Own, No Agent, Form Submit (Google only)";
-      } else if (campaign_id === "20490511649") {
-        campaignName = "Sell Fast, On Own, No Agent, Form Submit (Search Partners)";
-      } else {
-        campaignName = 'Organic'; 
-      }
+    // If no campaign name in URL, default to 'Organic'
+    if (!campaign_name) {
+      campaign_name = 'Organic';
     }
     
-    console.log('Final processed campaign name:', campaignName);
+    console.log('Final processed campaign name:', campaign_name);
     
     // Check for keywords in the campaign name for debugging
-    if (campaignName) {
-      const lcName = campaignName.toLowerCase();
+    if (campaign_name) {
+      const lcName = campaign_name.toLowerCase();
       console.log('Campaign name keyword checks:', {
         hasCash: lcName.includes('cash'),
         hasFast: lcName.includes('fast'),
@@ -683,13 +659,8 @@ export function FormProvider({ children }) {
       });
     }
     
-    // Try to get adgroup name directly from URL
-    let adgroup_name = urlParams.get('adgroup_name') || '';
-    
-    // If not present, try alternate format
-    if (!adgroup_name) {
-      adgroup_name = urlParams.get('adgroupname') || '';
-    }
+    // Get adgroup name directly from URL
+    let adgroup_name = urlParams.get('adgroupname') || '';
     
     // Normalize adgroup name if needed
     if (adgroup_name.includes('%20')) {
@@ -700,25 +671,15 @@ export function FormProvider({ children }) {
       }
     }
     
-    // If we don't have an adgroup name from URL, determine it based on adgroup_id
-    if (!adgroup_name) {
-      if (adgroup_id === "149782006756" || adgroup_id === "151670982418" || 
-          adgroup_id === "153325247952" || adgroup_id === "156355988601") {
-        adgroup_name = "(exact)";
-      } else if (adgroup_id === "153620745798" || adgroup_id === "156658963430" || 
-                adgroup_id === "153325247992" || adgroup_id === "156355988761") {
-        adgroup_name = "(phrase)";
-      }
-    }
-    
     return {
       keyword,
       campaign_id,
-      campaign_name: campaignName,
+      campaign_name,
       adgroup_id,
       adgroup_name,
       device,
       gclid,
+      matchtype,
       url: window.location.href
     };
   };
