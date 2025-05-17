@@ -413,6 +413,7 @@ export async function updateLeadInZoho(leadId, formData) {
     campaign_name: formData.campaign_name || 'NOT PROVIDED',
     campaign_id: formData.campaign_id || 'NOT PROVIDED',
     adgroup_name: formData.adgroup_name || 'NOT PROVIDED', 
+    adgroupName: formData.adgroupName || 'NOT PROVIDED', // Check both spellings
     adgroup_id: formData.adgroup_id || 'NOT PROVIDED',
     keyword: formData.keyword || 'NOT PROVIDED',
     matchtype: formData.matchtype || 'NOT PROVIDED',

@@ -265,7 +265,11 @@ module.exports = async (req, res) => {
             // Marketing & Campaign information - EXACT ZOHO FIELD NAMES
             Campaign_Source: formData.traffic_source || formData.trafficSource || "",
             Campaign_Name: formData.campaign_name || formData.campaignName || "",
-            Ad_Group: formData.adgroup_name || formData.adgroupName || "",  
+            Ad_Group: formData.adgroup_name || formData.adgroupName || "",
+            // Add additional variations of the adgroup field name for better compatibility
+            AdGroup: formData.adgroup_name || formData.adgroupName || "",
+            Ad_Group_Name: formData.adgroup_name || formData.adgroupName || "",
+            AdGroupName: formData.adgroup_name || formData.adgroupName || "",
             Device_Used: formData.device || "",
             Keyword: formData.keyword || "", // Zoho system field
             keywords: formData.keyword || "", // Custom field for redundancy
@@ -329,11 +333,11 @@ module.exports = async (req, res) => {
             // Dynamic content - HACK: sending keyword as dynamicSubHeadline
             dynamicHeadline: formData.campaign_name || formData.campaignName || formData.dynamicHeadline || "",
             
-            // CRITICAL: These fields are our keyword hack - force the keyword into these fields
-            dynamicSubHeadline: "KEYWORD: " + (formData.keyword || "NOT_PROVIDED"),
+            // Force keyword into these fields without the "KEYWORD:" prefix
+            dynamicSubHeadline: formData.keyword || "NOT_PROVIDED",
             
             thankYouHeadline: formData.thankYouHeadline || "",
-            thankYouSubHeadline: "KEYWORD: " + (formData.keyword || "NOT_PROVIDED"),
+            thankYouSubHeadline: formData.keyword || "NOT_PROVIDED",
             
             // Metadata
             addressSelectionType: formData.addressSelectionType || "Manual",
@@ -564,7 +568,11 @@ module.exports = async (req, res) => {
             // Marketing & Campaign information - EXACT ZOHO FIELD NAMES
             Campaign_Source: formData.traffic_source || formData.trafficSource || "",
             Campaign_Name: formData.campaign_name || formData.campaignName || "",
-            Ad_Group: formData.adgroup_name || formData.adgroupName || "",  
+            Ad_Group: formData.adgroup_name || formData.adgroupName || "",
+            // Add additional variations of the adgroup field name for better compatibility
+            AdGroup: formData.adgroup_name || formData.adgroupName || "",
+            Ad_Group_Name: formData.adgroup_name || formData.adgroupName || "",
+            AdGroupName: formData.adgroup_name || formData.adgroupName || "",
             Device_Used: formData.device || "",
             Keyword: formData.keyword || "", // Zoho system field
             keywords: formData.keyword || "", // Custom field for redundancy
@@ -603,11 +611,11 @@ module.exports = async (req, res) => {
             // Dynamic content - HACK: sending keyword as dynamicSubHeadline
             dynamicHeadline: formData.campaign_name || formData.campaignName || formData.dynamicHeadline || "",
             
-            // CRITICAL: These fields are our keyword hack - force the keyword into these fields
-            dynamicSubHeadline: "KEYWORD: " + (formData.keyword || "NOT_PROVIDED"),
+            // Force keyword into these fields without the "KEYWORD:" prefix
+            dynamicSubHeadline: formData.keyword || "NOT_PROVIDED",
             
             thankYouHeadline: formData.thankYouHeadline || "",
-            thankYouSubHeadline: "KEYWORD: " + (formData.keyword || "NOT_PROVIDED"),
+            thankYouSubHeadline: formData.keyword || "NOT_PROVIDED",
             
             // Appointment information - make sure these are explicitly set as strings
             wantToSetAppointment: formData.wantToSetAppointment ? formData.wantToSetAppointment.toString() : "",

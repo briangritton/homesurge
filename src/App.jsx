@@ -105,8 +105,8 @@ function App() {
             <Route path="/valueboost" element={<ValueBoostContainer />} />
           </Routes>
           <Footer />
-          {/* Debug display - visible for testing */}
-          <DebugDisplay />
+          {/* Debug display hidden as requested */}
+          {/* <DebugDisplay /> */}
         </BrowserRouter>
       </FormProvider>
     </div>
