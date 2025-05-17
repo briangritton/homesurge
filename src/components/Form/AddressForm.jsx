@@ -992,10 +992,10 @@ function AddressForm() {
       <div className="hero-middle-container">
         <div className="hero-content fade-in">
           <div className="hero-headline">
-            {formatText(formData.dynamicHeadline || "Sell Your House For Cash\u00A0Fast!")}
+            {formatText(formData.dynamicHeadline || "Need to Sell Your House For Cash Fast?")}
           </div>
           <div className="hero-subheadline">
-            {formatSubheadline(formData.dynamicSubHeadline || "Get a Great Cash Offer For Your House and Close Fast!")}
+            {formatSubheadline(formData.dynamicSubHeadline || "Get a great cash offer today. Close in 7 days. No agents, no repairs, no stress.")}
           </div>
           
           {/* This is now a div, not a form! We don't want form submission at all */}
