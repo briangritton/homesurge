@@ -1,0 +1,121 @@
+You're correct - to use campaign_name and adgroup_name in Google Analytics audiences and reports, you need to register them as either custom
+  dimensions or event parameters.
+
+  Since the data is already being pushed to the dataLayer with your events (as seen in your GTM preview), you just need to:
+
+  1. Create custom dimensions in GA4:
+    - Go to Google Analytics > Admin > Custom Definitions > Custom Dimensions
+    - Create new custom dimensions for campaign_name and adgroup_name
+    - Set the scope to "Event" (since they're being sent with events)
+  2. Configure GTM to send these to GA4:
+    - In GTM, edit your GA4 event tag that handles the api_value event
+    - Make sure your tag is configured to send these parameters
+    - You can either:
+        - Map them as event parameters (simpler, but less reporting options)
+      - Map them to custom dimensions (more powerful for reporting)
+
+  For custom dimensions, your tag configuration would look something like:
+
+  // In your GA4 event tag
+  customDimensions: {
+    campaign_name: {{DLV - campaign_name}},
+    adgroup_name: {{DLV - adgroup_name}}
+  }
+
+  The reason you don't see them as options for audience creation is that GA4 only shows parameters it has actually received and processed. After you
+  configure them properly and get some events flowing through, they should appear in the audience builder options.
+
+  If you've already sent events with these parameters but they're not showing up, it means GA4 isn't recognizing them - typically because:
+  1. They weren't properly mapped in your GA4 configuration tag
+  2. They weren't registered as custom dimensions in GA4
+
+  For a quick test, you could:
+  1. Add a custom GA4 parameter configuration to your tags
+  2. Wait 24-48 hours for data collection
+  3. Check if they appear in Audience builder
+
+  Would you like me to look at your current GTM setup for the GA4 event tag to make sure it's configured correctly?
+
+> Could I just add a tag/trigger whatever that fires all of this campaign info I might want to use for audience or report qualifiers at once?  Rather 
+  than have it attached to a specific event, just fire all URL paramaters as variables within a page load type initial event?
+
+⏺ Yes, that's an excellent approach! You can create a single GA4 event that captures all URL campaign parameters on page load, which is much more
+  efficient than attaching them to specific events.
+
+  Here's how to implement this:
+
+  1. Create a new GA4 event tag in GTM:
+    - Name it something like "Campaign Parameters"
+    - Event name: "campaign_data" (or whatever makes sense)
+    - Configure it to send all campaign parameters as event parameters
+  2. Set up a Page View trigger:
+    - Set it to fire on "Page View - DOM Ready" (or Window Loaded)
+    - Add a condition that only fires when URL parameters exist (optional)
+
+  This approach has several advantages:
+  - Captures campaign data for all users immediately
+  - Makes the data available for all subsequent events/audiences
+  - Reduces redundancy in your event parameters
+  - Simplifies your configuration
+
+  Here's a sample configuration:
+
+  // GA4 Event tag configuration
+  event_name: 'campaign_data',
+  event_parameters: {
+    campaign_source: {{URL Parameter - utm_source}} || {{URL Parameter - traffic_source}},
+    campaign_medium: {{URL Parameter - utm_medium}},
+    campaign_name: {{URL Parameter - campaign_name}} || {{URL Parameter - campaignname}} || {{URL Parameter - utm_campaign}},
+    campaign_id: {{URL Parameter - campaign_id}} || {{URL Parameter - campaignid}},
+    campaign_term: {{URL Parameter - keyword}} || {{URL Parameter - utm_term}},
+    campaign_content: {{URL Parameter - utm_content}},
+    adgroup_name: {{URL Parameter - adgroup_name}} || {{URL Parameter - adgroupname}},
+    adgroup_id: {{URL Parameter - adgroup_id}} || {{URL Parameter - adgroupid}},
+    gclid: {{URL Parameter - gclid}},
+    device: {{URL Parameter - device}},
+    matchtype: {{URL Parameter - matchtype}}
+  }
+
+  Since you've already standardized your parameter naming in the code, this should work seamlessly. After implementing this, your campaign parameters
+  will be available for audience creation in GA4 (after some data collection).
+
+  Would you like me to provide the specific GTM configurations for setting this up?
+
+> so if I did this, and let's say API Value fired separately, I could set up audiences that have conditionals on a specific campaign or ad group, as 
+  well as a conditional for API Value fired?  Last thing, for the actual value of API Value, does that need to be coming through specifically as one of 
+  the custom parameters attached to the API Value fired event as it comes in?
+
+⏺ Yes, absolutely. You can combine conditions from different events when creating GA4 audiences. Here's how it would work:
+
+  1. Your "campaign_data" event fires on page load, sending all campaign parameters
+  2. Your "api_value" event fires separately when that specific action occurs
+
+  When creating an audience in GA4, you can set up conditions like:
+  - Users who had an "api_value" event AND
+  - Where their "campaign_data" event had campaign_name = "specific_campaign"
+
+  For the actual apiValue amount, yes - it needs to be included as a parameter in the "api_value" event. GA4 will only have access to parameters sent
+  with that specific event. The way you're currently sending it looks correct:
+
+  dataLayer.push({
+    event: "api_value",
+    apiValue: "554000",
+    propertyAddress: "6318 Station Mill Dr, Norcross, GA 30092, USA",
+    formattedValue: "$554,000",
+    // ... other parameters
+  })
+
+  To ensure GA4 properly registers this value for audience creation:
+
+  1. Make sure your GA4 event tag for "api_value" includes this parameter mapping:
+  event_parameters: {
+    value: {{DLV - apiValue}},
+    // Map other important parameters you want to use
+  }
+  2. If you need to use the numeric value for comparisons (like "apiValue > 500000"), ensure it's passed as a number, not a string.
+
+  Your audience definition might then look like:
+  - Users who triggered "api_value" event with value > 500000 AND
+  - Had campaign_name = "T1_CASH_sell_Google/SP" in their "campaign_data" event
+
+  This gives you a powerful way to segment users based on both their campaign source and their specific actions/values on your site.
