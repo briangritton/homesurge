@@ -473,7 +473,7 @@ function AddressForm() {
     const updatedLeadId = localStorage.getItem('leadId') || suggestionLeadId;
     if (propertyData && updatedLeadId) {
       try {
-        // Get campaign data from formContext
+        // Get campaign data from formContext 
         const { campaign_name, campaign_id, adgroup_id, adgroup_name, keyword, gclid, device, traffic_source, template_type } = formData;
         
         console.log("%c CRITICAL ADDRESS + PROPERTY DATA UPDATE TO ZOHO", "background: #ff0000; color: white; font-size: 14px; padding: 5px;");
@@ -780,10 +780,17 @@ function AddressForm() {
     }
   };
   
-  // Load Google Maps API
-  useEffect(() => {
-    // Only run once
-    if (googleApiLoaded) return;
+  // Lazy load Google Maps API only when needed
+  const loadGoogleMapsAPI = () => {
+    // If already loaded, return resolved promise
+    if (window.google && window.google.maps && window.google.maps.places) {
+      return Promise.resolve();
+    }
+    
+    // If already loading, return existing promise
+    if (window.googleMapsPromise) {
+      return window.googleMapsPromise;
+    }
     
     // Get API key from environment variable
     const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
@@ -791,68 +798,87 @@ function AddressForm() {
     // Check if API key is available
     if (!apiKey) {
       console.error('Google Maps API key is missing. Please check your environment variables.');
-      // Still allow basic form functionality without Maps API
-      console.log('Continuing with basic address input without Google Places autocomplete');
-      return;
+      return Promise.reject(new Error('Google Maps API key is missing'));
     }
     
-    // Define a callback function for when the API loads
-    window.initGoogleMapsAutocomplete = () => {
-      console.log('Google Maps API loaded successfully');
-      setGoogleApiLoaded(true);
+    // Create a new promise for loading
+    window.googleMapsPromise = new Promise((resolve, reject) => {
+      // Define callback function
+      window.initGoogleMapsAutocomplete = () => {
+        console.log('Google Maps API loaded successfully');
+        setGoogleApiLoaded(true);
+        
+        // Create a session token right away
+        if (window.google.maps.places.AutocompleteSessionToken) {
+          sessionTokenRef.current = new window.google.maps.places.AutocompleteSessionToken();
+        }
+        
+        // Initialize the AutocompleteService for getting suggestions
+        if (window.google.maps.places.AutocompleteService) {
+          autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService();
+        }
+        
+        resolve();
+      };
       
-      // Create a session token right away
-      if (window.google.maps.places.AutocompleteSessionToken) {
-        sessionTokenRef.current = new window.google.maps.places.AutocompleteSessionToken();
-      }
+      // Define error handler for the API
+      window.gm_authFailure = () => {
+        const error = new Error('Google Maps API authentication failure');
+        console.error(error);
+        
+        // Track error for analytics
+        trackFormError('Google Maps API authentication failure', 'maps');
+        reject(error);
+      };
       
-      // Initialize the AutocompleteService for getting suggestions
-      if (window.google.maps.places.AutocompleteService) {
-        autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService();
+      // Load the API with a callback
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMapsAutocomplete`;
+      script.async = true;
+      script.defer = true;
+      script.onerror = (e) => {
+        const error = new Error('Failed to load Google Maps API script');
+        console.error(error, e);
+        
+        // Track error for analytics
+        trackFormError('Failed to load Google Maps API script', 'maps');
+        reject(error);
+      };
+      
+      document.body.appendChild(script);
+    });
+    
+    return window.googleMapsPromise;
+  };
+  
+  // Load Google Maps API when input is focused or when typing begins
+  useEffect(() => {
+    // Only trigger loading when the user starts interacting with the input
+    const handleInputInteraction = () => {
+      if (!googleApiLoaded) {
+        loadGoogleMapsAPI()
+          .then(() => {
+            console.log('Google Maps API loaded on user interaction');
+          })
+          .catch(error => {
+            console.error('Error loading Google Maps API:', error);
+          });
       }
     };
     
-    // Define an error handler for the API
-    window.gm_authFailure = () => {
-      console.error('Google Maps API authentication failure');
+    // Add event listeners to input when it exists
+    if (inputRef.current) {
+      inputRef.current.addEventListener('focus', handleInputInteraction);
+      inputRef.current.addEventListener('input', handleInputInteraction);
       
-      // Track error for analytics
-      trackFormError('Google Maps API authentication failure', 'maps');
-    };
-    
-    // Check if API is already loaded
-    if (window.google && window.google.maps && window.google.maps.places) {
-      console.log('Google Maps API already loaded');
-      setGoogleApiLoaded(true);
-      
-      // Initialize service if API is already loaded
-      if (window.google.maps.places.AutocompleteService) {
-        autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService();
-      }
-      
-      return;
+      return () => {
+        if (inputRef.current) {
+          inputRef.current.removeEventListener('focus', handleInputInteraction);
+          inputRef.current.removeEventListener('input', handleInputInteraction);
+        }
+      };
     }
-    
-    // Load the API with a callback
-    const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMapsAutocomplete`;
-    script.async = true;
-    script.defer = true;
-    script.onerror = (e) => {
-      console.error('Failed to load Google Maps API script:', e);
-      
-      // Track error for analytics
-      trackFormError('Failed to load Google Maps API script', 'maps');
-    };
-    
-    document.body.appendChild(script);
-    
-    return () => {
-      // Cleanup function to remove the global callbacks
-      delete window.initGoogleMapsAutocomplete;
-      delete window.gm_authFailure;
-    };
-  }, [googleApiLoaded]);
+  }, [googleApiLoaded, inputRef.current]);
   
   // Initialize autocomplete after API is loaded
   useEffect(() => {

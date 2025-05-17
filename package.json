@@ -23,9 +23,19 @@
     "web-vitals": "^2.1.4",
     "yocto-queue": "^1.0.0"
   },
+  "devDependencies": {
+    "@babel/core": "^7.23.0",
+    "@babel/plugin-transform-runtime": "^7.22.15",
+    "@babel/preset-env": "^7.22.20",
+    "@babel/preset-react": "^7.22.15",
+    "@craco/craco": "^7.1.0",
+    "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
+    "babel-preset-minify": "^0.5.2",
+    "core-js": "^3.33.0"
+  },
   "scripts": {
     "start": "react-scripts start",
-    "build": "node vercel-build.js",
+    "build": "react-scripts build",
     "react-build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -40,6 +50,7 @@
     "production": [
       ">0.2%",
       "not dead",
+      "not ie <= 11",
       "not op_mini all"
     ],
     "development": [
