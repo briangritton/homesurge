@@ -951,7 +951,7 @@ body {
     }
     .hero-subheadline {
       font-size: 1.8rem;
-      line-height: auto;
+      line-height: normal;
       margin: 20px 0;
       margin: 0;
       }
@@ -1087,8 +1087,7 @@ body {
 
 .hero-middle-map-buttons {
   align-items: center;
-  display: flex
-;
+  display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
@@ -1162,8 +1161,7 @@ body {
   }
   .qualifying-answer-container {
     cursor: pointer !important;
-    display: flex
-;
+    display: flex;
     flex-direction: row;
     margin-top: 15px;
     width: 100%;
@@ -1270,8 +1268,7 @@ body {
 
 .form-main {
   align-items: center;
-  display: flex
-;
+  display: flex;
   justify-content: center;
   max-width: 75%;
   min-height: calc(100vh - 50px);
