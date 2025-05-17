@@ -312,7 +312,7 @@ function ZohoTest() {
           disabled={loading}
           style={{
             padding: '10px 20px',
-            backgroundColor: loading ? '#cccccc' : '#3490d1',
+            backgroundColor: loading ? '#cccccc' : '#2e7d61',
             color: 'white',
             border: 'none',
             borderRadius: '5px',

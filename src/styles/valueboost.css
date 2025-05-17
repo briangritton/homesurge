@@ -77,7 +77,7 @@
 }
 
 .vb-input:focus {
-  border-color: #3490d1;
+  border-color: #2e7d61;
   box-shadow: 0 0 0 2px rgba(52, 144, 209, 0.25);
   outline: none;
 }
@@ -103,8 +103,8 @@
 }
 
 .vb-button {
-  background-color: #3490d1;
-  border: 1px solid #2a73a6;
+  background-color: #2e7d61;
+  border: 1px solid #236853;
   border-radius: 5px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   color: #fff;
@@ -120,11 +120,11 @@
 }
 
 .vb-button:hover {
-  background-color: #2980b9;
+  background-color: #35926f;
 }
 
 .vb-error-message {
-  color: #008af4;
+  color: #35926f;
   font-size: 1.5rem;
   height: 0px;
   line-height: 1;
@@ -234,7 +234,7 @@
   font-weight: bold;
   margin-bottom: 20px;
   text-align: center;
-  color: #0066cc;
+  color: #2e7d61;
 }
 
 /* Report-specific styles */
@@ -335,7 +335,7 @@
 .vb-lock-icon {
   font-size: 60px;
   margin-bottom: 20px;
-  color: #0066cc;
+  color: #2e7d61;
 }
 
 .vb-feature-item {
@@ -391,7 +391,7 @@
 }
 
 .vb-submit-button {
-  background-color: #0066cc;
+  background-color: #2e7d61;
   color: white;
   border: none;
   border-radius: 8px;
@@ -405,7 +405,7 @@
 }
 
 .vb-submit-button:hover {
-  background-color: #0052a3;
+  background-color: #236853;
 }
 
 .vb-submit-button:disabled {

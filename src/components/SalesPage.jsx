@@ -536,7 +536,7 @@ function SalesPage() {
         marginTop: '50px',
         marginBottom: '50px'
       }}>
-        <h2 className="form-title" style={{ fontSize: '2.5rem', color: '#3490d1', marginBottom: '30px' }}>Sales Dashboard</h2>
+        <h2 className="form-title" style={{ fontSize: '2.5rem', color: '#2e7d61', marginBottom: '30px' }}>Sales Dashboard</h2>
         
         {isLoading ? (
           <div className="loading-indicator">Loading lead information...</div>
@@ -556,16 +556,16 @@ function SalesPage() {
               }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                   <div style={{ textAlign: 'left', padding: '8px', fontSize: '1.2rem' }}>
-                    <strong style={{ color: '#3490d1' }}>Lead ID:</strong> {leadData.leadId}
+                    <strong style={{ color: '#2e7d61' }}>Lead ID:</strong> {leadData.leadId}
                   </div>
                   <div style={{ textAlign: 'left', padding: '8px', fontSize: '1.2rem' }}>
-                    <strong style={{ color: '#3490d1' }}>Name:</strong> {leadData.fullName || `${leadData.firstName} ${leadData.lastName}`}
+                    <strong style={{ color: '#2e7d61' }}>Name:</strong> {leadData.fullName || `${leadData.firstName} ${leadData.lastName}`}
                   </div>
                   <div style={{ textAlign: 'left', padding: '8px', fontSize: '1.2rem' }}>
-                    <strong style={{ color: '#3490d1' }}>Phone:</strong> {leadData.phone}
+                    <strong style={{ color: '#2e7d61' }}>Phone:</strong> {leadData.phone}
                   </div>
                   <div style={{ textAlign: 'left', padding: '8px', fontSize: '1.2rem' }}>
-                    <strong style={{ color: '#3490d1' }}>Address:</strong> {leadData.address}
+                    <strong style={{ color: '#2e7d61' }}>Address:</strong> {leadData.address}
                   </div>
                 </div>
               </div>

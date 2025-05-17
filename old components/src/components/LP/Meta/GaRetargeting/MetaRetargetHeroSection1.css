@@ -208,8 +208,8 @@ input:-webkit-autofill {
   white-space: nowrap;
   padding: 0px 50px;
   margin-left: -3px;
-  background-color: #3490d1;
-  border-color: #2a73a6;
+  background-color: #2e7d61;
+  border-color: #236853;
   box-shadow: 0px 1px 4px 0px #0000004d;
   transition: all 0.2s ease-in-out;
 }
@@ -399,15 +399,15 @@ input:-webkit-autofill {
   margin-right: 4%;
   width: 45%;
   background: none;
-  color: #3490d1;
-  border: solid 1.5px #3490d1;
+  color: #2e7d61;
+  border: solid 1.5px #2e7d61;
   /* padding: 9px 0px; */
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   border-radius: 5px;
 }
 .meta-retarget-hero-middle-map-edit-button:hover {
-  background-color: #3490d1;
+  background-color: #2e7d61;
   color: white;
 
   transition: all 0.2s ease-in-out;
@@ -416,7 +416,7 @@ input:-webkit-autofill {
 .meta-retarget-hero-middle-map-submit-button {
   padding: 10px 10px;
   width: 45%;
-  background-color: #3490d1;
+  background-color: #2e7d61;
   color: white;
   font-weight: bold;
   border: solid 2px #3592d3;
@@ -748,8 +748,8 @@ input:-webkit-autofill {
   padding: 0px 50px;
   width: 100%;
   margin-top: 5px;
-  background-color: #3490d1;
-  border-color: #2a73a6;
+  background-color: #2e7d61;
+  border-color: #236853;
   box-shadow: 0px 1px 4px 0px #0000004d;
   transition: all 0.2s ease-in-out;
 }
