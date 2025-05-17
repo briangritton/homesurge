@@ -8,6 +8,7 @@ import { initializeAnalytics, trackPageView } from './services/analytics';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
 import AddressForm from './components/Form/AddressForm';
+import PersonalInfoForm from './components/Form/PersonalInfoForm';
 import QualifyingForm from './components/Form/QualifyingForm';
 import ThankYou from './components/Form/ThankYou';
 import Privacy from './components/common/Privacy';
@@ -19,10 +20,24 @@ import DebugDisplay from './components/common/DebugDisplay';
 // Import split test components
 import PersonalInfoFormTest from './components/SplitTest/PersonalInfoFormTest';
 import SplitTestAdmin from './components/SplitTest/SplitTestAdmin';
-import TestVariantPage from './components/SplitTest/TestVariantPage';
+import VariantPersonalInfoForm from './components/SplitTest/VariantPersonalInfoForm';
 
 // Styles
 import './styles/main.css';
+
+// Simple container for viewing components in isolation during development
+const SimpleComponentViewer = ({ children }) => (
+  <div style={{ 
+    maxWidth: '600px', 
+    margin: '40px auto', 
+    padding: '20px',
+    border: '1px solid #eee',
+    borderRadius: '8px',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+  }}>
+    {children}
+  </div>
+);
 
 // Analytics tracker component to handle route changes
 function AnalyticsTracker() {
@@ -104,14 +119,29 @@ function App() {
             <Header />
             <AnalyticsTracker /> {/* Add this to track all page views */}
             <Routes>
+              {/* Main site routes */}
               <Route path="/" element={<FormContainer />} />
               <Route path="/test-zoho" element={<ZohoTest />} />
               <Route path="/privacy" element={<Privacy handleTermsClick={() => {}} />} />
               <Route path="/thank-you" element={<ThankYou />} />
               <Route path="/sales" element={<SalesPage />} />
               <Route path="/valueboost" element={<ValueBoostContainer />} />
+              
+              {/* Split testing routes */}
               <Route path="/split-test-admin" element={<SplitTestAdmin />} />
-              <Route path="/test-variants" element={<TestVariantPage />} />
+              
+              {/* Simple direct routes to view form variants (for development only) */}
+              <Route path="/view/original" element={
+                <SimpleComponentViewer>
+                  <PersonalInfoForm />
+                </SimpleComponentViewer>
+              } />
+              <Route path="/view/variant1" element={
+                <SimpleComponentViewer>
+                  <VariantPersonalInfoForm />
+                </SimpleComponentViewer>
+              } />
+              {/* Add more variant routes here as needed */}
             </Routes>
             <Footer />
             {/* Debug display hidden as requested */}
