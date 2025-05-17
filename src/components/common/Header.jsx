@@ -6,7 +6,7 @@ function Header() {
   return (
     <header className="header">
       <div className="header-left">
-        <img src={logo} className="header-logo" alt="logo" />
+        <img src={logo} className="header-logo" alt="logo" width="48" height="48" />
         <div className="header-logo-text">SELL FOR CASH</div>
       </div>
 
