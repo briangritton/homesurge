@@ -88,11 +88,12 @@ body {
   text-align: right;
 }
 .header a {
-  text-decoration: none;
+  align-items: center;
   display: flex;
   justify-content: flex-end;
-  align-items: center;
-}
+  display: none;
+  text-decoration: none;
+  }
 
 .header-logo {
   height: 20px;
@@ -100,13 +101,13 @@ body {
 
 .header-phone-icon {
   align-items: center;
-  display: inline-flex;
+  display: none;
   margin-right: 5px;
   color: #3490d1;
   }
   .header-call-number {
     color: #000000;
-    display: inline-block;
+    display: none;
     text-decoration: none !important;
     font-size: 20px;
     font-style: italic;
@@ -1236,6 +1237,16 @@ body {
 
 /* Extra small screens (mobile, 560px and below) */
 @media only screen and (max-width: 560px) {
+
+
+  @media (max-width: 500px) {
+    .app {
+      align-items: center;
+      background-image:none;
+
+    }
+
+
   .confirmation-header {
     font-size: 1.6rem !important;
 }

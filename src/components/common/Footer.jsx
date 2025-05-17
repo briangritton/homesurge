@@ -26,9 +26,9 @@ function Footer() {
 
   return (
     <div className="footer">
-      <div className="footer-copyright">
+      {/* <div className="footer-copyright">
         All Rights Reserved © {new Date().getFullYear()} SellForCash.Online
-      </div>
+      </div> */}
 
       <div className="footer-nav-container">
         <ul className="nav-links">

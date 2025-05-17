@@ -35,13 +35,13 @@ function VariantPersonalInfoForm() {
         min-height: 500px;
       }
       
-      .v1-hero-middle-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        padding: 20px;
-      }
+     .v1-hero-middle-container {
+display: flex;
+justify-content: center;
+align-items: center;
+width: 100%;
+/* padding: 20px; */
+}
       
       .v1-hero-content {
         display: flex;
@@ -69,13 +69,14 @@ function VariantPersonalInfoForm() {
         width: 100%;
       }
       
-      .v1-hero-property-estimate {
-        font-size: 2.3rem;
-        font-weight: bold;
-        color: #2e7d32;
-        text-align: center;
-        margin-bottom: 20px;
-      }
+     .v1-hero-property-estimate {
+font-size: 2.3rem;
+font-weight: bold;
+color: #2e7d32;
+color: #2e7d61;
+text-align: center;
+margin-bottom: 20px;
+}
       
       .v1-custom-map-container {
         height: 300px;
@@ -100,46 +101,49 @@ function VariantPersonalInfoForm() {
       }
       
       .v1-input-container {
-        width: 100%;
-        margin-bottom: 20px;
-      }
+width: 80%;
+margin-bottom: 20px;
+}
       
-      .v1-input-field {
-        width: 100%;
-        padding: 12px 15px;
-        margin-bottom: 15px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 16px;
-        box-sizing: border-box;
-      }
+    .v1-input-field {
+width: 100%;
+padding: 12px 15px;
+margin-bottom: 15px;
+border: 1px solid #ccc;
+border-radius: 4px;
+font-size: 1.5rem;
+box-sizing: border-box;
+height: 50px;
+}
       
       .v1-input-field.error {
-        border-color: #f44336;
+        border-color: #2e7d61;;
       }
       
       .v1-error-message {
-        color: #f44336;
+        color: #2e7d61;
         font-size: 14px;
         margin-top: -10px;
         margin-bottom: 15px;
       }
       
-      .v1-submit-button {
-        width: 100%;
-        padding: 14px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background-color 0.3s;
-      }
+   .v1-submit-button {
+width: 100%;
+padding: 14px;
+background-color: #2e7d32;
+background-color: #2e7d61;
+color: white;
+border: none;
+border-radius: 4px;
+font-size: 1.5rem;
+font-weight: 600;
+cursor: pointer;
+transition: background-color 0.3s;
+/* height: 50px; */
+}
       
       .v1-submit-button:hover {
-        background-color: #45a049;
+        background-color:rgba(46, 125, 97, 0.72);
       }
       
       .v1-submit-button:disabled {
