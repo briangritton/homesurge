@@ -3,18 +3,22 @@ module.exports = {
     [
       '@babel/preset-env',
       {
-        // Explicitly target modern browsers
-        // This will reduce unnecessary transpilation
+        // Use more compatible targets
         targets: {
-          esmodules: true
+          browsers: [
+            ">0.2%",
+            "not dead",
+            "not ie <= 11",
+            "not op_mini all"
+          ]
         },
         // Use modern JavaScript features directly when possible
         bugfixes: true,
         // Only include polyfills when actually needed
         useBuiltIns: 'usage',
         corejs: 3,
-        // This improves tree shaking and reduces bundle size
-        modules: false
+        // Use auto to ensure compatibility
+        modules: 'auto'
       }
     ],
     '@babel/preset-react'

@@ -4,21 +4,26 @@ module.exports = {
       [
         '@babel/preset-env',
         {
-          // Target modern browsers only
+          // Use more compatible targets, but still relatively modern
           targets: { 
-            esmodules: true 
+            browsers: [
+              ">0.2%",
+              "not dead",
+              "not ie <= 11",
+              "not op_mini all"
+            ]
           },
           // Only include polyfills when needed
           useBuiltIns: 'usage',
           corejs: 3,
-          // Improves tree shaking
-          modules: false
+          // Keep modules to ensure compatibility
+          modules: 'auto'
         }
       ]
     ],
     // Minimize transformations to improve performance
     plugins: [
-      ['@babel/plugin-transform-runtime', { helpers: true, regenerator: false }]
+      ['@babel/plugin-transform-runtime', { helpers: true }]
     ]
   },
   webpack: {
