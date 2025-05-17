@@ -35,13 +35,13 @@ function VariantPersonalInfoForm() {
         min-height: 500px;
       }
       
-      .v1-hero-middle-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        padding: 20px;
-      }
+     .v1-hero-middle-container {
+display: flex;
+justify-content: center;
+align-items: center;
+width: 100%;
+/* padding: 20px; */
+}
       
       .v1-hero-content {
         display: flex;
@@ -100,19 +100,20 @@ function VariantPersonalInfoForm() {
       }
       
       .v1-input-container {
-        width: 100%;
-        margin-bottom: 20px;
-      }
+width: 80%;
+margin-bottom: 20px;
+}
       
-      .v1-input-field {
-        width: 100%;
-        padding: 12px 15px;
-        margin-bottom: 15px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 16px;
-        box-sizing: border-box;
-      }
+    .v1-input-field {
+width: 100%;
+padding: 12px 15px;
+margin-bottom: 15px;
+border: 1px solid #ccc;
+border-radius: 4px;
+font-size: 1.5rem;
+box-sizing: border-box;
+height: 50px;
+}
       
       .v1-input-field.error {
         border-color: #f44336;
