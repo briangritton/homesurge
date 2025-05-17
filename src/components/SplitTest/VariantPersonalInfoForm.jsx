@@ -815,11 +815,7 @@ text-align: center;
     <div className="v1-hero-section">
       <div className="v1-hero-middle-container">
         <div className="v1-hero-content v1-fade-in v1-max-width-500">
-          <div className="v1-confirmation-header">
-            {formData.templateType === 'FAST' 
-                ? <>Great!  Next, where you want us to text your fast sell offer?</> 
-                : <>Great!  Next, where you want us to text your maximum cash offer?</>}
-          </div>
+        
           
           <div className="v1-hero-1-api-address">
             {formData.street && formData.street.replace(/, USA$/, '')}
@@ -852,11 +848,9 @@ text-align: center;
           
           <div className="v1-simple-address-display">
             <strong className="v1-confirmation-header"> 
-              {formData.templateType === 'VALUE' 
-                ? <>Please confirm your address <span className="v1-nowrap-phrase">and home value:</span></> 
-                : formData.templateType === 'FAST' 
-                  ? <>Please confirm your address <span className="v1-nowrap-phrase">and home value:</span></> 
-                  : <>Please confirm your address <span className="v1-nowrap-phrase">and home value:</span></>}
+              {formData.templateType === 'FAST' 
+                  ? <>Great!  Next, where you want us to text your fast sell offer?</> 
+                  :  <>Great!  Next, where you want us to text your maximum cash offer?</>}
             </strong>
           </div>
           
