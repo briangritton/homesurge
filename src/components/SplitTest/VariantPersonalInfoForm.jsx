@@ -55,31 +55,28 @@ function VariantPersonalInfoForm() {
         animation: fadeIn 0.5s ease-in-out;
       }
       
-      .v1-confirmation-header {
-        font-size: 24px;
-        font-weight: 600;
-        margin-bottom: 15px;
-        text-align: center;
-        color: #333;
-      }
+     .v1-confirmation-header {
+font-size: 2rem;
+font-weight: bold;
+ 
+text-align: center;
+color: #333;
+}
       
-      .v1-hero-1-api-address {
-        font-size: 18px;
-        padding: 10px;
-        background-color: #f5f5f5;
-        border-radius: 6px;
-        margin-bottom: 15px;
-        text-align: center;
-        width: 100%;
-      }
+  .v1-hero-1-api-address {
+font-size: 1.1rem;
+ 
+text-align: center;
+width: 100%;
+}
       
-      .v1-hero-property-estimate {
-        font-size: 24px;
-        font-weight: bold;
-        color: #2e7d32;
-        text-align: center;
-        margin-bottom: 20px;
-      }
+ .v1-hero-property-estimate {
+font-size: 2.3rem;
+font-weight: bold;
+color: #2e7d32;
+text-align: center;
+margin-bottom: 20px;
+}
       
       .v1-custom-map-container {
         height: 300px;
@@ -91,14 +88,10 @@ function VariantPersonalInfoForm() {
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
       }
       
-      .v1-simple-address-display {
-        margin: 20px auto;
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        max-width: 425px;
-        text-align: center;
-      }
+    .v1-simple-address-display {
+ 
+text-align: center;
+}
       
       .v1-hero-middle-map-sub-info {
         width: 100%;
@@ -823,11 +816,9 @@ function VariantPersonalInfoForm() {
       <div className="v1-hero-middle-container">
         <div className="v1-hero-content v1-fade-in v1-max-width-500">
           <div className="v1-confirmation-header">
-            {formData.templateType === 'VALUE' 
-              ? <>Please confirm your address <span className="v1-nowrap-phrase">and home value:</span></> 
-              : formData.templateType === 'FAST' 
-                ? <>Please confirm your address <span className="v1-nowrap-phrase">and home value:</span></> 
-                : <>Please confirm your address <span className="v1-nowrap-phrase">and home value:</span></>}
+            {formData.templateType === 'FAST' 
+                ? <>Great!  Next, where you want us to text your fast sell offer?</> 
+                : <>Great!  Next, where you want us to text your maximum cash offer?</>}
           </div>
           
           <div className="v1-hero-1-api-address">
@@ -840,7 +831,7 @@ function VariantPersonalInfoForm() {
             </div>
           ) : formData.apiMaxHomeValue ? (
             <div className="v1-hero-property-estimate">
-              Maximum Value: {new Intl.NumberFormat('en-US', {
+              Value Estimate: {new Intl.NumberFormat('en-US', {
                 style: 'currency',
                 currency: 'USD',
                 minimumFractionDigits: 0,
@@ -849,7 +840,7 @@ function VariantPersonalInfoForm() {
             </div>
           ) : formattedValue && (
             <div className="v1-hero-property-estimate">
-              Maximum Value: {formattedValue}
+              Value Estimate: {formattedValue}
             </div>
           )}
           
