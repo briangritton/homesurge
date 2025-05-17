@@ -1,10 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
+import { useSplitTest } from '../../contexts/SplitTestContext';
 import { trackFormStepComplete, trackFormError } from '../../services/analytics';
 import { trackZohoConversion } from '../../services/zoho';
+import { trackPersonalInfoFormConversion } from '../SplitTest/PersonalInfoFormTest';
 
 function QualifyingForm() {
   const { formData, updateFormData, nextStep, updateLead, leadId } = useFormContext();
+  const { userGroups, trackConversion } = useSplitTest();
   const [qualifyingStep, setQualifyingStep] = useState(formData.qualifyingQuestionStep || 1);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedOptionLR, setSelectedOptionLR] = useState('left');
@@ -28,693 +31,370 @@ function QualifyingForm() {
   useEffect(() => {
     // Check if we're using a temp ID and show a message
     if (leadId && leadId.startsWith('temp_') && !saveAttempted) {
-      setSaveAttempted(true);
-      console.log('Note: Using demo mode - changes will not be saved to Zoho CRM');
-    }
-  }, [leadId, saveAttempted, formData]);
-  
-  // Initialize button states based on existing data
-  useEffect(() => {
-    // Set the selected option for property repairs
-    if (formData.needsRepairs === 'true') {
-      setSelectedOptionLR('right');
-    } else if (formData.needsRepairs === 'false') {
-      setSelectedOptionLR('left');
+      console.warn("Using temporary lead ID - tracking may be limited");
     }
     
-    // Update toggle button styles based on selection
-    if (toggleLeftRef.current && toggleRightRef.current) {
-      if (selectedOptionLR === 'left') {
-        toggleLeftRef.current.className = 'qualifying-toggle-selected-left';
-        toggleRightRef.current.className = 'qualifying-toggle-deselected-right';
-      } else {
-        toggleLeftRef.current.className = 'qualifying-toggle-deselected-left';
-        toggleRightRef.current.className = 'qualifying-toggle-selected-right';
+    // Track form step for analytics
+    trackFormStepComplete(3, 'Qualifying Form Loaded', formData);
+    
+    // Record window scroll position
+    const scrollPosition = window.scrollY;
+    
+    // Scroll to top
+    window.scrollTo(0, 0);
+    
+    // Track a conversion for the PersonalInfoForm test
+    // This indicates the user successfully completed the personal info form step
+    const personalInfoFormVariant = userGroups['personal_info_form_test'];
+    if (personalInfoFormVariant) {
+      trackPersonalInfoFormConversion(trackConversion, personalInfoFormVariant);
+      
+      // Also track in dataLayer for Google Analytics
+      if (window.dataLayer) {
+        window.dataLayer.push({
+          event: 'split_test_conversion',
+          testId: 'personal_info_form_test',
+          variant: personalInfoFormVariant,
+          conversionType: 'form_step_completion'
+        });
       }
     }
-  }, [selectedOptionLR, formData.needsRepairs]);
+    
+    // Cleanup function to restore scroll position
+    return () => {
+      window.scrollTo(0, scrollPosition);
+    };
+  }, []);
   
-  // Scroll to top when step changes
+  // Send qualifying answers to Zoho when step changes
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if (qualifyingStep > 1) {
+      // Update Zoho with current qualifying data
+      updateFormData({
+        qualifyingQuestionStep: qualifyingStep,
+        remainingMortgage,
+        finishedSquareFootage,
+        basementSquareFootage
+      });
+      
+      // Only send updates to Zoho when we have a valid lead ID
+      if (leadId && !leadId.startsWith('temp_')) {
+        updateLead()
+          .then(success => {
+            if (success) {
+              console.log('Successfully updated lead with qualifying data');
+            } else {
+              console.warn('Failed to update lead with qualifying data');
+            }
+          })
+          .catch(error => {
+            console.error('Error updating lead with qualifying data:', error);
+          });
+      }
+    }
   }, [qualifyingStep]);
   
-  // Generate date and time options for appointment scheduling
-  const getNextSevenDays = () => {
-    const result = [];
-    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const today = new Date();
-    
-    for (let i = 0; i < 7; i++) {
-      const nextDate = new Date(today);
-      nextDate.setDate(today.getDate() + i);
-      const dayName = daysOfWeek[nextDate.getDay()];
-      const date = nextDate.getDate();
-      const month = nextDate.getMonth() + 1;
-      result.push(`${dayName}, ${month}/${date}`);
-    }
-    return result;
+  // Format currency for display
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(value);
   };
   
-  const getTimeSlots = () => {
-    const timeSlots = [];
-    for (let i = 8; i <= 20; i++) {
-      const hour = i <= 12 ? i : i - 12;
-      const period = i < 12 ? 'AM' : 'PM';
-      timeSlots.push(`${hour}:00 ${period}`);
-    }
-    return timeSlots;
+  // Format square footage for display
+  const formatSquareFootage = (value) => {
+    return new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(value) + ' sq ft';
   };
   
-  const availableDates = getNextSevenDays();
-  const availableTimes = getTimeSlots();
-  
-  // Handle slider changes
-  const handleSliderChangeMortgage = (e) => {
-    const selectedValue = parseInt(e.target.value, 10);
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    if (e) e.preventDefault();
     
-    if (selectedValue >= 10000) {
-      setRemainingMortgage(Math.round(selectedValue / 10000) * 10000);
-    } else {
-      setRemainingMortgage(selectedValue);
-    }
-    
-    updateFormData({ remainingMortgage: selectedValue });
-  };
-  
-  const handleSliderChangeSquareFootage = (e) => {
-    const selectedValue = parseInt(e.target.value, 10);
-    
-    if (selectedValue >= 50) {
-      setFinishedSquareFootage(Math.round(selectedValue / 250) * 250);
-    }
-    
-    updateFormData({ finishedSquareFootage: selectedValue });
-  };
-  
-  const handleSliderChangeBasementSquareFootage = (e) => {
-    const selectedValue = parseInt(e.target.value, 10);
-    
-    if (selectedValue >= 50) {
-      setBasementSquareFootage(Math.round(selectedValue / 250) * 250);
-    }
-    
-    updateFormData({ basementSquareFootage: selectedValue });
-  };
-  
-  // Format display values for sliders
-  const displayMortgageValue = remainingMortgage >= 1000000
-    ? '$' + remainingMortgage.toLocaleString() + '+'
-    : '$' + remainingMortgage.toLocaleString();
-    
-  const displayFinishedSquareFootage = finishedSquareFootage >= 10000
-    ? finishedSquareFootage.toLocaleString() + '+ sq/ft'
-    : finishedSquareFootage.toLocaleString() + ' sq/ft';
-    
-  const displayBasementSquareFootage = basementSquareFootage >= 10000
-    ? basementSquareFootage.toLocaleString() + '+ sq/ft'
-    : basementSquareFootage.toLocaleString() + ' sq/ft';
-  
-  // This function handles updating a field value and immediately advancing to the next question
-  // The Zoho update happens in the background
-  const handleValueUpdate = (fieldName, value) => {
-    // Update form data locally first
-    updateFormData({ [fieldName]: value });
-    
-    // We're removing this tracking to avoid too many events
-    // These intermediate steps don't need to be tracked for Facebook
-    
-    // Move to next step immediately
-    const nextQuestionStep = qualifyingStep + 1;
-    setQualifyingStep(nextQuestionStep);
-    updateFormData({ qualifyingQuestionStep: nextQuestionStep });
-    
-    // Log the update for debugging
-    console.log(`Updating ${fieldName} = ${value}`);
-    
-    // Then start the background update to Zoho
-    setTimeout(() => {
-      console.log(`Background update to Zoho with ${fieldName} = ${value}`);
-      updateLead().then(success => {
-        if (success) {
-          console.log(`Successfully updated ${fieldName} in Zoho`);
-        } else {
-          console.warn(`Failed to update ${fieldName} in Zoho`);
-          // Track error for analytics
-          trackFormError(`Failed to update ${fieldName} in Zoho`, 'zoho_update');
-        }
-      }).catch(error => {
-        console.error(`Error updating ${fieldName}:`, error);
-        // Track error for analytics
-        trackFormError(`Error updating ${fieldName}: ${error.message}`, 'zoho_update');
-      });
-    }, 100);
-  };
-  
-  // Handle completing the qualifying form
-  const completeForm = () => {
-    // Update lead in Zoho one final time
-    console.log('Finalizing lead data with qualifying form answers');
-    
-    // Ensure all form data is properly set before finalizing
-    console.log('Final form data before completion:', {
-      needsRepairs: formData.needsRepairs,
-      wantToSetAppointment: formData.wantToSetAppointment,
-      selectedAppointmentDate: formData.selectedAppointmentDate,
-      selectedAppointmentTime: formData.selectedAppointmentTime
+    // Update form data with qualifying info
+    updateFormData({
+      qualifyingQuestionStep: 4, // Mark as completed
+      remainingMortgage,
+      finishedSquareFootage,
+      basementSquareFootage
     });
     
-    // Store a copy in localStorage in case the API call fails
+    // Track form completion
+    trackFormStepComplete(3, 'Qualifying Form Completed', formData);
+    
     try {
-      localStorage.setItem('qualifyingFormData', JSON.stringify({
-        needsRepairs: formData.needsRepairs,
-        workingWithAgent: formData.workingWithAgent,
-        homeType: formData.homeType,
-        remainingMortgage: formData.remainingMortgage,
-        howSoonSell: formData.howSoonSell,
-        wantToSetAppointment: formData.wantToSetAppointment,
-        selectedAppointmentDate: formData.selectedAppointmentDate,
-        selectedAppointmentTime: formData.selectedAppointmentTime,
-        timestamp: new Date().toISOString()
-      }));
-    } catch (storageError) {
-      console.warn('Failed to save backup to localStorage:', storageError);
+      // Final update to Zoho with all data
+      const success = await updateLead();
+      if (success) {
+        // Track conversion in Zoho
+        if (leadId && !leadId.startsWith('temp_')) {
+          trackZohoConversion(leadId)
+            .then(() => {
+              console.log('Tracked Zoho conversion successfully');
+            })
+            .catch(error => {
+              console.error('Failed to track Zoho conversion:', error);
+            });
+        }
+        
+        // Track high-value conversion for the PersonalInfoForm test
+        const personalInfoFormVariant = userGroups['personal_info_form_test'];
+        if (personalInfoFormVariant) {
+          // Higher value (2) since this is a qualified completion
+          trackPersonalInfoFormConversion(trackConversion, personalInfoFormVariant, 2);
+          
+          // Also track in dataLayer for Google Analytics
+          if (window.dataLayer) {
+            window.dataLayer.push({
+              event: 'split_test_high_value_conversion',
+              testId: 'personal_info_form_test',
+              variant: personalInfoFormVariant,
+              conversionType: 'qualifying_completion'
+            });
+          }
+        }
+        
+        // Proceed to thank you page
+        nextStep();
+      } else {
+        console.error('Failed to update lead with qualifying data');
+      }
+    } catch (error) {
+      console.error('Error in final submission:', error);
     }
-    
-    // Initiate Zoho update in the background
-    updateLead().then(() => {
-      console.log('All data saved successfully!');
-      // If API call succeeded, we can remove the localStorage backup
-      localStorage.removeItem('qualifyingFormData');
-    }).catch(error => {
-      console.error('Error finalizing lead, but continuing:', error);
-      // Track error for analytics
-      trackFormError('Error finalizing lead: ' + error.message, 'zoho_final_update');
-      // Data is already backed up in localStorage
+  };
+  
+  // Handle yes/no toggle selection
+  const handleToggleSelect = (field, value) => {
+    // Update form data
+    updateFormData({
+      [field]: value
     });
     
-    // Track form completion for analytics with campaign data
-    trackFormStepComplete(3, 'Qualifying Form Complete', formData);
-    
-    // Move to thank you page immediately - never block the user flow
-    nextStep();
-  };
-  
-  // Helper function to go to a specific step
-  const goToStep = (step) => {
-    setQualifyingStep(step);
-    updateFormData({ qualifyingQuestionStep: step });
-  };
-  
-  // Render a message about using temp ID
-  const renderTempIdMessage = () => {
-    if (leadId && leadId.startsWith('temp_')) {
-      return (
-        <div style={{
-          position: 'fixed',
-          bottom: '10px',
-          right: '10px',
-          backgroundColor: '#f1f1f1',
-          padding: '8px 12px',
-          borderRadius: '4px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-          fontSize: '12px',
-          color: '#666',
-          zIndex: 1000
-        }}>
-          Demo Mode: Updates not sent to CRM
-        </div>
-      );
+    // Proceed to next question
+    if (qualifyingStep < 3) {
+      setQualifyingStep(prevStep => prevStep + 1);
+    } else {
+      handleSubmit();
     }
-    return null;
   };
   
-  // Get the current qualifying question to display
+  // Handle home type selection
+  const handleHomeTypeSelect = (type) => {
+    // Close dropdown
+    setDropdownOpen(false);
+    
+    // Update form data
+    updateFormData({
+      homeType: type
+    });
+    
+    // Proceed to next question
+    setQualifyingStep(prevStep => prevStep + 1);
+  };
+  
+  // Handle slider change for mortgage
+  const handleMortgageChange = (e) => {
+    setRemainingMortgage(Number(e.target.value));
+  };
+  
+  // Handle slider change for square footage
+  const handleSquareFootageChange = (e) => {
+    setFinishedSquareFootage(Number(e.target.value));
+  };
+  
+  // Handle slider change for basement square footage
+  const handleBasementSquareFootageChange = (e) => {
+    setBasementSquareFootage(Number(e.target.value));
+  };
+  
+  // Handle next button click for sliders
+  const handleSliderNext = () => {
+    // Update form data with slider values
+    updateFormData({
+      remainingMortgage,
+      finishedSquareFootage,
+      basementSquareFootage
+    });
+    
+    // Proceed to next question
+    if (qualifyingStep < 3) {
+      setQualifyingStep(prevStep => prevStep + 1);
+    } else {
+      handleSubmit();
+    }
+  };
+  
+  // Render toggle buttons for yes/no questions
+  const renderToggleButtons = (field, questionText) => {
+    return (
+      <div className="qualifying-question">
+        <h3>{questionText}</h3>
+        <div className="toggle-container">
+          <button
+            ref={toggleLeftRef}
+            className={`toggle-button ${formData[field] === true ? 'active' : ''}`}
+            onClick={() => handleToggleSelect(field, true)}
+          >
+            Yes
+          </button>
+          <button
+            ref={toggleRightRef}
+            className={`toggle-button ${formData[field] === false ? 'active' : ''}`}
+            onClick={() => handleToggleSelect(field, false)}
+          >
+            No
+          </button>
+        </div>
+      </div>
+    );
+  };
+  
+  // Render dropdown for home type selection
+  const renderHomeTypeDropdown = () => {
+    const homeTypes = [
+      'Single Family',
+      'Multi-Family',
+      'Condo/Townhouse',
+      'Mobile/Manufactured',
+      'Land/Lot',
+      'Other'
+    ];
+    
+    return (
+      <div className="qualifying-question">
+        <h3>What type of property is it?</h3>
+        <div className="dropdown-container">
+          <button
+            className="dropdown-button"
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+          >
+            {formData.homeType || 'Select Property Type'}
+            <span className="dropdown-arrow">{dropdownOpen ? '▲' : '▼'}</span>
+          </button>
+          
+          {dropdownOpen && (
+            <div className="dropdown-menu">
+              {homeTypes.map(type => (
+                <div
+                  key={type}
+                  className="dropdown-item"
+                  onClick={() => handleHomeTypeSelect(type)}
+                >
+                  {type}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+  
+  // Render slider for numeric inputs
+  const renderSlider = (value, setValue, min, max, step, format, label) => {
+    return (
+      <div className="qualifying-slider">
+        <h3>{label}</h3>
+        <div className="slider-value">{format(value)}</div>
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={setValue}
+          className="slider"
+        />
+        <div className="slider-range">
+          <span>{format(min)}</span>
+          <span>{format(max)}</span>
+        </div>
+      </div>
+    );
+  };
+  
+  // Render appropriate question based on current step
   const renderCurrentQuestion = () => {
     switch (qualifyingStep) {
       case 1:
-        // Property owner question
-        return (
-          <div className="qualifying-option-column">
-            <div className="qualifying-question">
-              Are you the property owner?
-            </div>
-            <div className="qualifying-answer-container">
-              <button
-                className="qualifying-toggle-selected-left"
-                ref={toggleLeftRef}
-                value="true"
-                onClick={(e) => {
-                  handleValueUpdate('isPropertyOwner', e.target.value);
-                  setSelectedOptionLR('left');
-                }}
-              >
-                Yes
-              </button>
-              <button
-                className="qualifying-toggle-deselected-right"
-                ref={toggleRightRef}
-                value="false"
-                onClick={(e) => {
-                  handleValueUpdate('isPropertyOwner', e.target.value);
-                  setSelectedOptionLR('right');
-                }}
-              >
-                No
-              </button>
-            </div>
-          </div>
+        return renderToggleButtons(
+          'isPropertyOwner',
+          'Are you the property owner?'
         );
-        
       case 2:
-        // Repairs needed question
-        // IMPORTANT: This is where needsRepairs is set
-        return (
-          <div className="qualifying-option-column">
-            <div className="qualifying-question">
-              Does the property need any major repairs?
-            </div>
-            <div className="qualifying-answer-container">
-              <button
-                className="qualifying-toggle-selected-left"
-                ref={toggleLeftRef}
-                value="false"
-                onClick={(e) => {
-                  // Make sure this properly updates the value and triggers a save
-                  const repairValue = e.target.value;
-                  // Log the exact value we're sending to ensure it's correct
-                  console.log("Setting needsRepairs to:", repairValue);
-                  // Ensure needsRepairs is set as a string 'true' or 'false' for consistency
-                  handleValueUpdate('needsRepairs', repairValue);
-                  setSelectedOptionLR('left');
-                  
-                  // Debugging: Add additional log to confirm update in form data
-                  setTimeout(() => {
-                    console.log("Form data needsRepairs after update:", formData.needsRepairs);
-                  }, 100);
-                }}
-              >
-                No
-              </button>
-              <button
-                className="qualifying-toggle-deselected-right"
-                ref={toggleRightRef}
-                value="true"
-                onClick={(e) => {
-                  // Make sure this properly updates the value and triggers a save
-                  const repairValue = e.target.value;
-                  console.log("Setting needsRepairs to:", repairValue);
-                  // Ensure needsRepairs is set as a string 'true' or 'false' for consistency
-                  handleValueUpdate('needsRepairs', repairValue);
-                  setSelectedOptionLR('right');
-                  
-                  // Debugging: Add additional log to confirm update in form data
-                  setTimeout(() => {
-                    console.log("Form data needsRepairs after update:", formData.needsRepairs);
-                  }, 100);
-                }}
-              >
-                Yes
-              </button>
-            </div>
-          </div>
-        );
-        
+        if (formData.isPropertyOwner) {
+          return renderHomeTypeDropdown();
+        } else {
+          return renderToggleButtons(
+            'workingWithAgent',
+            'Are you working with a real estate agent?'
+          );
+        }
       case 3:
-        // Working with agent question
         return (
-          <div className="qualifying-option-column">
-            <div className="qualifying-question">
-              Are you working with a real estate agent?
-            </div>
-            <div className="qualifying-answer-container">
+          <div className="qualifying-question">
+            <h3>Tell us more about your property</h3>
+            <div className="sliders-container">
+              {renderSlider(
+                remainingMortgage,
+                handleMortgageChange,
+                0,
+                500000,
+                10000,
+                formatCurrency,
+                'Remaining Mortgage'
+              )}
+              
+              {renderSlider(
+                finishedSquareFootage,
+                handleSquareFootageChange,
+                500,
+                5000,
+                100,
+                formatSquareFootage,
+                'Finished Square Footage'
+              )}
+              
+              {renderSlider(
+                basementSquareFootage,
+                handleBasementSquareFootageChange,
+                0,
+                3000,
+                100,
+                formatSquareFootage,
+                'Basement Square Footage'
+              )}
+              
               <button
-                className="qualifying-toggle-selected-left"
-                ref={toggleLeftRef}
-                value="false"
-                onClick={(e) => {
-                  handleValueUpdate('workingWithAgent', e.target.value);
-                  setSelectedOptionLR('left');
-                }}
+                className="next-button"
+                onClick={handleSliderNext}
               >
-                No
-              </button>
-              <button
-                className="qualifying-toggle-deselected-right"
-                ref={toggleRightRef}
-                value="true"
-                onClick={(e) => {
-                  handleValueUpdate('workingWithAgent', e.target.value);
-                  setSelectedOptionLR('right');
-                }}
-              >
-                Yes
-              </button>
-            </div>
-          </div>
-        );
-        
-      case 4:
-        // Property type question
-        return (
-          <div className="qualifying-option-column">
-            <div className="qualifying-question">
-              What type of property is it?
-            </div>
-            <div className="dropdown">
-              <button
-                className="dropbtn"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-              >
-                {formData.homeType || "Select an option"}
-              </button>
-              <div
-                className="dropdown-content"
-                style={{ display: dropdownOpen ? "block" : "none" }}
-              >
-                {['Single Family', 'Condo', 'Townhouse', 'Multi-Family'].map((option) => (
-                  <div
-                    key={option}
-                    onClick={() => {
-                      handleValueUpdate('homeType', option);
-                      setDropdownOpen(false);
-                    }}
-                  >
-                    &nbsp;&nbsp;{option}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        );
-        
-      case 5:
-        // Mortgage amount question
-        return (
-          <div className="qualifying-option-column">
-            <div className="qualifying-question">
-              What is your remaining mortgage amount?
-            </div>
-            <div className="qualifying-slider-container">
-              <div className="qualifying-slider-text">
-                {displayMortgageValue}
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="1000000"
-                value={remainingMortgage}
-                className="qualifying-slider"
-                ref={mortgageSliderRef}
-                onChange={handleSliderChangeMortgage}
-              />
-            </div>
-            <button
-              className="qualifying-button"
-              onClick={() => handleValueUpdate('remainingMortgage', remainingMortgage)}
-            >
-              Next
-            </button>
-          </div>
-        );
-        
-      case 6:
-        // Square footage question
-        return (
-          <div className="qualifying-option-column">
-            <div className="qualifying-question">
-              What is your finished square footage?
-            </div>
-            <div className="qualifying-slider-container">
-              <div className="qualifying-slider-text">
-                {displayFinishedSquareFootage}
-              </div>
-              <input
-                type="range"
-                min="100"
-                max="10000"
-                value={finishedSquareFootage}
-                className="qualifying-slider"
-                ref={squareFootageSliderRef}
-                onChange={handleSliderChangeSquareFootage}
-              />
-            </div>
-            <button
-              className="qualifying-button"
-              onClick={() => handleValueUpdate('finishedSquareFootage', finishedSquareFootage)}
-            >
-              Next
-            </button>
-          </div>
-        );
-        
-      case 7:
-        // Timeframe question
-        return (
-          <div className="qualifying-option-column">
-            <div className="qualifying-question">
-              How soon do you want to sell?
-            </div>
-            <div className="dropdown">
-              <button
-                className="dropbtn"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-              >
-                {formData.howSoonSell || "Select an option"}
-              </button>
-              <div
-                className="dropdown-content"
-                style={{ display: dropdownOpen ? "block" : "none" }}
-              >
-                {['ASAP', '0-3 months', '3-6 months', '6-12 months', 'not sure'].map((option) => (
-                  <div
-                    key={option}
-                    onClick={() => {
-                      handleValueUpdate('howSoonSell', option);
-                      setDropdownOpen(false);
-                    }}
-                  >
-                    &nbsp;&nbsp;{option}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        );
-        
-      case 8:
-        // Request appointment question
-        return (
-          <div className="qualifying-option-column">
-            <div className="qualifying-question">
-              Do you want to set a virtual appointment? It takes a few minutes,
-              and we may be able to make you a cash offer on the spot.
-            </div>
-            <div className="qualifying-answer-container">
-              <button
-                className="qualifying-toggle-selected-left"
-                ref={toggleLeftRef}
-                value="false"
-                onClick={(e) => {
-                  // Update form data and save
-                  updateFormData({ wantToSetAppointment: e.target.value });
-                  setSelectedOptionLR('left');
-                  
-                  // Track analytics with campaign data
-                  trackFormStepComplete(8, 'No Appointment Requested', formData);
-                  
-                  // Trigger background save then complete the form
-                  updateLead().then(() => console.log('Appointment preference saved'));
-                  
-                  // Move to completion immediately
-                  completeForm();
-                }}
-              >
-                No
-              </button>
-              <button
-                className="qualifying-toggle-deselected-right"
-                ref={toggleRightRef}
-                value="true"
-                onClick={(e) => {
-                  // Update form data and save in background
-                  updateFormData({ wantToSetAppointment: e.target.value });
-                  setSelectedOptionLR('right');
-                  
-                  // Track analytics with campaign data
-                  trackFormStepComplete(8, 'Appointment Requested', formData);
-                  
-                  // Trigger background save
-                  updateLead().then(() => console.log('Appointment preference saved'));
-                  
-                  // Move to next step immediately
-                  goToStep(9);
-                }}
-              >
-                Yes
+                Continue
               </button>
             </div>
           </div>
         );
-        
-      case 9:
-        // Date selection for appointment
-        return (
-          <div className="qualifying-option-column">
-            <div className="qualifying-question">
-              Select your preferred appointment date.
-            </div>
-            <div className="dropdown">
-              <button
-                className="dropbtn"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-              >
-                {formData.selectedAppointmentDate || "Select a Date"}
-              </button>
-              <div
-                className="dropdown-content"
-                style={{ display: dropdownOpen ? "block" : "none" }}
-              >
-                {availableDates.map((date, index) => (
-                  <div
-                    key={index}
-                    onClick={() => {
-                      handleValueUpdate('selectedAppointmentDate', date);
-                      setDropdownOpen(false);
-                      
-                      // Track analytics with campaign data
-                      trackFormStepComplete(9, `Selected Date: ${date}`, formData);
-                    }}
-                  >
-                    &nbsp;&nbsp;{date}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        );
-        
-      case 10:
-        // Time selection for appointment
-        return (
-          <div className="qualifying-option-column">
-            <div className="qualifying-question">
-              Select your preferred appointment time on {formData.selectedAppointmentDate}
-            </div>
-            <div className="dropdown">
-              <button
-                className="dropbtn"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-              >
-                {formData.selectedAppointmentTime || "Select a Time"}
-              </button>
-              <div
-                className="dropdown-content"
-                style={{ display: dropdownOpen ? "block" : "none" }}
-              >
-                {availableTimes.map((time, index) => (
-                  <div
-                    key={index}
-                    onClick={() => {
-                      // Update form data
-                      const appointmentTime = time;
-                      console.log("Setting selectedAppointmentTime to:", appointmentTime);
-                      updateFormData({ selectedAppointmentTime: appointmentTime });
-                      setDropdownOpen(false);
-                      
-                      // Track analytics with campaign data
-                      trackFormStepComplete(10, `Selected Time: ${time}`, formData);
-                      
-                      // Add debugging to verify the update took effect
-                      console.log("Current appointment data:", {
-                        date: formData.selectedAppointmentDate,
-                        time: appointmentTime,
-                        wantToSetAppointment: formData.wantToSetAppointment
-                      });
-                      
-                      // Do a more explicit update to ensure values are set before completing
-                      const updatedFormData = {
-                        selectedAppointmentTime: appointmentTime,
-                        wantToSetAppointment: 'true' // Ensure this is explicitly set to 'true'
-                      };
-                      
-                      // Update form data and wait for it to finish
-                      updateFormData(updatedFormData);
-                      
-                      // Wait a moment to ensure data is updated, then do explicit Zoho update
-                      setTimeout(() => {
-                        console.log("Updated appointment data before Zoho save:", {
-                          time: formData.selectedAppointmentTime, 
-                          date: formData.selectedAppointmentDate,
-                          wantApp: formData.wantToSetAppointment
-                        });
-                        
-                        // Start background update to Zoho with explicit form data
-                        updateLead().then(success => {
-                          console.log('Appointment time saved to Zoho:', success ? 'Success' : 'Failed');
-                          
-                          // Track appointment conversion if successful
-                          if (success && leadId) {
-                            trackZohoConversion('appointmentSet', leadId, 'Appointment Set')
-                              .then(tracked => {
-                                console.log('Appointment conversion tracked:', tracked ? 'Success' : 'Failed');
-                              })
-                              .catch(error => {
-                                console.error('Error tracking appointment conversion:', error);
-                              });
-                          }
-                          
-                          // Move to completion after the update
-                          completeForm();
-                        }).catch(err => {
-                          console.error('Error saving appointment:', err);
-                          // Track error for analytics
-                          trackFormError('Error saving appointment: ' + err.message, 'appointment');
-                          // Still move forward even if there's an error
-                          completeForm();
-                        });
-                      }, 300);
-                    }}
-                  >
-                    &nbsp;&nbsp;{time}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        );
-        
       default:
-        // Final message
-        return (
-          <div className="qualifying-option-column">
-            <div className="qualifying-question">
-              Thanks for your detailed responses! We'll be in touch shortly to discuss your options.
-            </div>
-            <button
-              className="qualifying-button"
-              onClick={completeForm}
-            >
-              Finish
-            </button>
-          </div>
-        );
+        return null;
     }
   };
   
   return (
-    <div className="qualifying-section">
-      <div className="qualifying-headline">
-        {formData.templateType === 'VALUE' 
-          ? 'Help us prepare your detailed home value report' 
-          : formData.templateType === 'FAST' 
-            ? 'Help us prepare your fast sale offer'
-            : 'Help us prepare your best cash offer'}
+    <div className="qualifying-form">
+      <div className="form-header">
+        <h2>Help us customize your offer</h2>
+        <p>Please answer a few questions about your property to get the most accurate offer.</p>
       </div>
-      <div className="qualifying-form-container">
+      
+      <div className="qualifying-content">
         {renderCurrentQuestion()}
       </div>
-      {renderTempIdMessage()}
     </div>
   );
 }
