@@ -6,10 +6,15 @@
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  background-image: url("../assets/images/roofline.png");
+  background-image: none;
   background-size: contain;
   background-repeat: repeat-x;
   background-position: bottom 0px right 0px;
   display: flex;
   justify-content: center;
+}
+@media (max-width: 500px) {
+  .App {
+    background-image:none;
+  }
 }

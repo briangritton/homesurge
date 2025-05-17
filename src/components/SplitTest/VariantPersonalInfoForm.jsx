@@ -56,27 +56,26 @@ function VariantPersonalInfoForm() {
       }
       
      .v1-confirmation-header {
-font-size: 2rem;
-font-weight: bold;
- 
-text-align: center;
-color: #333;
-}
+        font-size: 2rem;
+        font-weight: bold;
+        text-align: center;
+        color: #333;
+        margin-bottom: 20px;
+      }
       
-  .v1-hero-1-api-address {
-font-size: 1.1rem;
- 
-text-align: center;
-width: 100%;
-}
+      .v1-hero-1-api-address {
+        font-size: 1.1rem;
+        text-align: center;
+        width: 100%;
+      }
       
- .v1-hero-property-estimate {
-font-size: 2.3rem;
-font-weight: bold;
-color: #2e7d32;
-text-align: center;
-margin-bottom: 20px;
-}
+      .v1-hero-property-estimate {
+        font-size: 2.3rem;
+        font-weight: bold;
+        color: #2e7d32;
+        text-align: center;
+        margin-bottom: 20px;
+      }
       
       .v1-custom-map-container {
         height: 300px;
@@ -88,10 +87,10 @@ margin-bottom: 20px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
       }
       
-    .v1-simple-address-display {
- 
-text-align: center;
-}
+      .v1-simple-address-display {
+        text-align: center;
+        margin-bottom: 20px;
+      }
       
       .v1-hero-middle-map-sub-info {
         width: 100%;
@@ -100,14 +99,35 @@ text-align: center;
         align-items: center;
       }
       
-      .v1-hero-middle-map-buttons {
-        display: flex;
-        gap: 10px;
-        margin-top: 15px;
+      .v1-input-container {
+        width: 100%;
+        margin-bottom: 20px;
       }
       
-      .v1-hero-middle-map-submit-button {
-        padding: 12px 25px;
+      .v1-input-field {
+        width: 100%;
+        padding: 12px 15px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+        box-sizing: border-box;
+      }
+      
+      .v1-input-field.error {
+        border-color: #f44336;
+      }
+      
+      .v1-error-message {
+        color: #f44336;
+        font-size: 14px;
+        margin-top: -10px;
+        margin-bottom: 15px;
+      }
+      
+      .v1-submit-button {
+        width: 100%;
+        padding: 14px;
         background-color: #4CAF50;
         color: white;
         border: none;
@@ -118,23 +138,20 @@ text-align: center;
         transition: background-color 0.3s;
       }
       
-      .v1-hero-middle-map-submit-button:hover {
+      .v1-submit-button:hover {
         background-color: #45a049;
       }
       
-      .v1-hero-middle-map-edit-button {
-        padding: 12px 25px;
-        background-color: #f5f5f5;
-        color: #333;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background-color 0.3s;
+      .v1-submit-button:disabled {
+        background-color: #a5d6a7;
+        cursor: not-allowed;
       }
       
-      .v1-hero-middle-map-edit-button:hover {
-        background-color: #e0e0e0;
+      .v1-privacy-text {
+        text-align: center;
+        font-size: 13px;
+        color: #777;
+        margin-top: 10px;
       }
       
       .v1-overlay {
@@ -196,27 +213,6 @@ text-align: center;
         color: #f44336;
         font-size: 14px;
         margin-top: -10px;
-      }
-      
-      .v1-registration-button {
-        padding: 12px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background-color 0.3s;
-      }
-      
-      .v1-registration-button:hover {
-        background-color: #45a049;
-      }
-      
-      .v1-registration-button:disabled {
-        background-color: #a5d6a7;
-        cursor: not-allowed;
       }
       
       .v1-nowrap-phrase {
@@ -437,7 +433,7 @@ text-align: center;
     }
   };
   
-  // Handle regular form input changes
+  // Handle input changes for name and phone fields
   const handleChange = (e) => {
     const { name, value } = e.target;
     
@@ -460,7 +456,7 @@ text-align: center;
     }
   };
   
-  // Update address in form data and then immediately show the contact form
+  // Update address in form data
   const updateAddress = async () => {
     if (!validateAddress(editedAddress)) {
       setAddressError('Please enter a valid address');
@@ -478,11 +474,7 @@ text-align: center;
     
     setOverlayVisible(false);
     
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    setEditMode('contact');
-    setOverlayVisible(true);
-    
+    // Update map after address change
     setMapLoaded(false);
     setTimeout(() => {
       if (mapContainerRef.current && window.google && window.google.maps) {
@@ -495,54 +487,39 @@ text-align: center;
   };
   
   // Handle form submission
-  const handleSubmit = async (e, fromOverlay = false) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Different handling based on edit mode
-    if (editMode === 'address') {
-      // Handle address update
+    // For edit address overlay
+    if (editMode === 'address' && overlayVisible) {
       const addressUpdated = await updateAddress().catch(err => {
         console.warn('Address update failed, but continuing:', err.message);
-        return true; // Still allow form to proceed even if update fails
+        return true;
       });
       
       if (!addressUpdated) return;
-      
-      // After successfully updating address, don't proceed further
       return;
     }
     
-    // For contact info form
+    // For main form submission
     let isValid = true;
     
     // Validate name
     if (!validateName(formData.name)) {
-      setNameError('Please enter a valid name');
-      if (nameRef.current) {
-        nameRef.current.className = 'v1-overlay-form-input error';
-      }
-      trackFormError('Invalid name', 'name');
+      setNameError('Please enter your full name');
       isValid = false;
+      trackFormError('Invalid name', 'name');
     } else {
       setNameError('');
-      if (nameRef.current) {
-        nameRef.current.className = 'v1-overlay-form-input';
-      }
     }
     
     // Validate phone
     if (!validatePhone(formData.phone)) {
-      setPhoneError('Valid phone required to receive your cash offer details via text message (No Spam Ever)');
-      if (phoneRef.current) {
-        phoneRef.current.className = 'v1-overlay-form-input error';
-      }
-      trackFormError('Invalid phone number', 'phone');
+      setPhoneError('Please enter a valid phone number to receive your offer');
       isValid = false;
+      trackFormError('Invalid phone number', 'phone');
     } else {
       setPhoneError('');
-      if (phoneRef.current) {
-        phoneRef.current.className = 'v1-overlay-form-input';
-      }
     }
     
     if (!isValid) {
@@ -642,30 +619,7 @@ text-align: center;
     }
   };
   
-  // Handle "yes, that's correct" button click
-  const handleConfirm = () => {
-    if (formData.name && formData.phone) {
-      handleSubmit({ preventDefault: () => {} }, true);
-    } else {
-      setEditMode('contact');
-      setOverlayVisible(true);
-    }
-  };
-  
-  // Helper function to format text with nowrap spans
-  const formatConfirmText = (text) => {
-    if (text && text.includes('and home value')) {
-      const parts = text.split('and home value');
-      return (
-        <>
-          {parts[0]}<span className="v1-nowrap-phrase">and home value</span>{parts[1]}
-        </>
-      );
-    }
-    return text;
-  };
-  
-  // Handle "edit info" button click
+  // Handle "edit address" button click
   const handleEditClick = () => {
     setEditMode('address');
     setEditedAddress(formData.street || '');
@@ -695,130 +649,73 @@ text-align: center;
   // Get the formatted value
   const formattedValue = getFormattedPropertyValue();
   
-  // Render the correct form overlay based on edit mode
-  const renderFormOverlay = () => {
-    if (editMode === 'contact') {
-      return (
-        <div className="v1-overlay">
-          <div className="v1-overlay-form-container">
-            <button onClick={closeOverlay} className="v1-overlay-close-button">
-              X
-            </button>
-            
-            <div className="v1-overlay-form-headline">
-              {formData.templateType === 'VALUE' 
-                ? 'Where should we send your home value report?' 
-                : formData.templateType === 'FAST' 
-                  ? 'Where should we send your fast sale offer?' 
-                  : 'Where should we send your cash offer?'}
-            </div>
-            
-            <form className="v1-overlay-form-fields" onSubmit={handleSubmit}>
-              <input
-                ref={nameRef}
-                autoComplete="name"
-                type="text"
-                name="name"
-                placeholder="Full name"
-                className="v1-overlay-form-input"
-                value={formData.name || ''}
-                onChange={handleChange}
-                onFocus={(e) => e.target.placeholder = ''}
-                onBlur={(e) => e.target.placeholder = 'Full name'}
-                disabled={isSubmitting}
-              />
-              {nameError && (
-                <div className="v1-phone-error-message">
-                  {nameError}
-                </div>
-              )}
-              
-              <input
-                ref={phoneRef}
-                autoComplete="tel"
-                type="text"
-                name="phone"
-                placeholder="Phone (receive quick offer text)"
-                className="v1-overlay-form-input"
-                value={formData.phone || ''}
-                onChange={handleChange}
-                onFocus={(e) => e.target.placeholder = ''}
-                onBlur={(e) => e.target.placeholder = 'Phone (receive quick offer text)'}
-                disabled={isSubmitting}
-              />
-              
-              {phoneError && (
-                <div className="v1-phone-error-message">
-                  {phoneError}
-                </div>
-              )}
-              
-              <button 
-                className="v1-registration-button" 
-                type="submit"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'PROCESSING...' : formData.buttonText || 'CHECK OFFER'}
-              </button>
-            </form>
+  // Render the address edit overlay
+  const renderAddressEditOverlay = () => {
+    return (
+      <div className="v1-overlay">
+        <div className="v1-overlay-form-container">
+          <button onClick={closeOverlay} className="v1-overlay-close-button">
+            X
+          </button>
+          
+          <div className="v1-overlay-form-headline">
+            Edit Property Address
           </div>
-        </div>
-      );
-    } else if (editMode === 'address') {
-      return (
-        <div className="v1-overlay">
-          <div className="v1-overlay-form-container">
-            <button onClick={closeOverlay} className="v1-overlay-close-button">
-              X
+          
+          <form className="v1-overlay-form-fields" onSubmit={handleSubmit}>
+            <input
+              ref={addressRef}
+              autoComplete="street-address"
+              type="text"
+              name="editedAddress"
+              placeholder="Property address"
+              className="v1-overlay-form-input"
+              value={editedAddress}
+              onChange={handleAddressChange}
+              onFocus={(e) => e.target.placeholder = ''}
+              onBlur={(e) => e.target.placeholder = 'Property address'}
+              disabled={isSubmitting}
+            />
+            {addressError && (
+              <div className="v1-phone-error-message">
+                {addressError}
+              </div>
+            )}
+             
+            <button 
+              className="v1-registration-button" 
+              type="button"
+              onClick={updateAddress}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'UPDATING...' : 'UPDATE ADDRESS'}
             </button>
-            
-            <div className="v1-overlay-form-headline">
-              Edit Property Address
-            </div>
-            
-            <form className="v1-overlay-form-fields" onSubmit={handleSubmit}>
-              <input
-                ref={addressRef}
-                autoComplete="street-address"
-                type="text"
-                name="editedAddress"
-                placeholder="Property address"
-                className="v1-overlay-form-input"
-                value={editedAddress}
-                onChange={handleAddressChange}
-                onFocus={(e) => e.target.placeholder = ''}
-                onBlur={(e) => e.target.placeholder = 'Property address'}
-                disabled={isSubmitting}
-              />
-              {addressError && (
-                <div className="v1-phone-error-message">
-                  {addressError}
-                </div>
-              )}
-               
-              <button 
-                className="v1-registration-button" 
-                type="button"
-                onClick={updateAddress}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'UPDATING...' : 'UPDATE ADDRESS'}
-              </button>
-            </form>
-          </div>
+          </form>
         </div>
-      );
-    }
+      </div>
+    );
   };
   
   return (
     <div className="v1-hero-section">
       <div className="v1-hero-middle-container">
         <div className="v1-hero-content v1-fade-in v1-max-width-500">
-        
-          
           <div className="v1-hero-1-api-address">
             {formData.street && formData.street.replace(/, USA$/, '')}
+            <button 
+              onClick={handleEditClick} 
+              style={{ 
+                marginLeft: '10px', 
+                background: 'none', 
+                border: 'none', 
+                color: '#4CAF50', 
+                cursor: 'pointer', 
+                textDecoration: 'underline',
+                fontSize: '0.8rem' 
+              }}
+            >
+              Edit
+            </button>
           </div>
           
           {valueLoading ? (
@@ -840,7 +737,7 @@ text-align: center;
             </div>
           )}
           
-          {/* Google Map */}
+          {/* Map Container */}
           <div 
             ref={mapContainerRef}
             className="v1-custom-map-container"
@@ -849,35 +746,68 @@ text-align: center;
           <div className="v1-simple-address-display">
             <strong className="v1-confirmation-header"> 
               {formData.templateType === 'FAST' 
-                  ? <>Great!  Next, where you want us to text your fast sell offer?</> 
-                  :  <>Great!  Next, where you want us to text your maximum cash offer?</>}
+                ? <>Next, where do you want us to text your fast sell offer?</> 
+                : <>Next, where do you want us to text your maximum cash offer?</>}
             </strong>
           </div>
           
-          <div className="v1-hero-middle-map-sub-info" style={{ opacity: 1 }}>
-            <div className="v1-hero-middle-map-buttons">
-              <button
-                className="v1-hero-middle-map-submit-button"
-                onClick={handleConfirm}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Processing...' : 'Yes, that\'s correct'}
-              </button>
-              
-              <button
-                className="v1-hero-middle-map-edit-button"
-                onClick={handleEditClick}
-                disabled={isSubmitting}
-              >
-                Edit info
-              </button>
-            </div>
-          </div>
+          {/* Name and Phone Fields */}
+          <form onSubmit={handleSubmit} className="v1-input-container">
+            <input
+              ref={nameRef}
+              autoComplete="name"
+              type="text"
+              name="name"
+              placeholder="Full name"
+              className={`v1-input-field ${nameError ? 'error' : ''}`}
+              value={formData.name || ''}
+              onChange={handleChange}
+              onFocus={(e) => e.target.placeholder = ''}
+              onBlur={(e) => e.target.placeholder = 'Full name'}
+              disabled={isSubmitting}
+            />
+            {nameError && (
+              <div className="v1-error-message">
+                {nameError}
+              </div>
+            )}
+            
+            <input
+              ref={phoneRef}
+              autoComplete="tel"
+              type="tel"
+              name="phone"
+              placeholder="Phone number"
+              className={`v1-input-field ${phoneError ? 'error' : ''}`}
+              value={formData.phone || ''}
+              onChange={handleChange}
+              onFocus={(e) => e.target.placeholder = ''}
+              onBlur={(e) => e.target.placeholder = 'Phone number'}
+              disabled={isSubmitting}
+            />
+            {phoneError && (
+              <div className="v1-error-message">
+                {phoneError}
+              </div>
+            )}
+            
+            <button 
+              type="submit" 
+              className="v1-submit-button"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'PROCESSING...' : 'CONFIRM'}
+            </button>
+            
+            <p className="v1-privacy-text">
+              We respect your privacy and never share your information.
+            </p>
+          </form>
         </div>
       </div>
       
-      {/* Form Overlay - rendered conditionally based on editMode */}
-      {overlayVisible && renderFormOverlay()}
+      {/* Address Edit Overlay */}
+      {overlayVisible && renderAddressEditOverlay()}
     </div>
   );
 }
