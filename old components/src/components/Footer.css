@@ -58,7 +58,7 @@
 
 @media only screen and (max-width: 768px) {
   .FooterLP {
-    flex-direction: column;
+    flex-direction: row;
     font-size: 1rem;
     position: relative;
     margin-top: 100px;

@@ -7,9 +7,9 @@ import "./Privacy.css";
 function FooterLP() {
   return (
     <div className="FooterLP">
-      <div className="footer-copyright-lp">
+      {/* <div className="footer-copyright-lp">
         All Rights Reserved © 2023 SellForCash.Online
-      </div>
+      </div> */}
 
       <div className="footer-nav-container-lp">
         <ul className="nav-links">

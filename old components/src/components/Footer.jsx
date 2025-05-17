@@ -26,9 +26,9 @@ function Footer() {
 
   return (
     <div className="Footer">
-      <div className="footer-copyright">
+      {/* <div className="footer-copyright">
         All Rights Reserved © 2023 SellForCash.Online
-      </div>
+      </div> */}
 
       <div className="footer-nav-container">
         <ul className="nav-links">
