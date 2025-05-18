@@ -1240,9 +1240,14 @@ body {
  
     .app {
       align-items: center;
-      background-image:none;
+      background-image:none !important;
 
     }
+   
+
+
+
+
 
 
   .confirmation-header {
