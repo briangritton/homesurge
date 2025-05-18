@@ -740,12 +740,11 @@ transition: background-color 0.3s;
               Value Estimate: {formattedValue}
             </div>
           )}
-          
-          {/* Map Container */}
-          <div 
+  
+          {/* <div 
             ref={mapContainerRef}
             className="v1-custom-map-container"
-          />
+          /> */}
           
           <div className="v1-simple-address-display">
             <strong className="v1-confirmation-header"> 

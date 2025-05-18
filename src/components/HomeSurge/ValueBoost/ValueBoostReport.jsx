@@ -878,7 +878,7 @@ function ValueBoostReport() {
             maxWidth: '600px',
             margin: '0 auto 40px'
           }}>
-            <h2 style={{ fontSize: '26px', marginBottom: '20px', color: '#0066cc' }}>
+            <h2 style={{ fontSize: '26px', marginBottom: '20px', color: '#2e7d61' }}>
               Your Total Value Boost Potential
             </h2>
 
@@ -915,7 +915,7 @@ function ValueBoostReport() {
               {/* Arrow - horizontal for wider screens */}
               <div className="value-boost-arrow" style={{
                 fontSize: '24px',
-                color: '#0066cc',
+                color: '#2e7d61',
                 padding: '0 5px',
                 display: 'flex',
                 flexDirection: 'column',
@@ -936,7 +936,7 @@ function ValueBoostReport() {
                 <div style={{
                   fontSize: '28px',
                   fontWeight: 'bold',
-                  color: '#0066cc',
+                  color: '#2e7d61',
                   marginBottom: '5px'
                 }}>
                   {
@@ -994,7 +994,7 @@ function ValueBoostReport() {
             <p style={{ fontSize: '18px', color: '#444', marginBottom: '5px' }}>
               <strong>{recommendations.length || '11'}</strong> value-boosting improvements identified by AI
             </p>
-            <p style={{ fontSize: '18px', color: '#0066cc', fontWeight: 'bold' }}>
+            <p style={{ fontSize: '18px', color: '#2e7d61', fontWeight: 'bold' }}>
               Potential Increase: {formData.valueIncreasePercentage || '22'}%
             </p>
 
@@ -1159,7 +1159,7 @@ function ValueBoostReport() {
                   }}>
                     <div style={{
                       fontSize: '48px',
-                      color: '#0066cc',
+                      color: '#2e7d61',
                       animation: 'pulseLock 2s infinite alternate'
                     }}>
                       🔒
@@ -1170,7 +1170,7 @@ function ValueBoostReport() {
                     fontWeight: 'bold',
                     textAlign: 'center',
                     marginBottom: '20px',
-                    color: '#0066cc'
+                    color: '#2e7d61'
                   }}>
                     Unlock Your Full Value Boost Report
                   </h3>
@@ -1226,7 +1226,7 @@ function ValueBoostReport() {
                       setShowContactForm(true);
                     }}
                     style={{
-                      backgroundColor: '#0066cc',
+                      backgroundColor: '#2e7d61',
                       color: 'white',
                       border: 'none',
                       borderRadius: '8px',
@@ -1240,8 +1240,8 @@ function ValueBoostReport() {
                       width: '100%',
                       marginBottom: '15px'
                     }}
-                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#0052a3'}
-                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#0066cc'}
+                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#236853'}
+                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2e7d61'}
                   >
                     Create Free Account to Unlock
                   </button>
@@ -1273,7 +1273,7 @@ function ValueBoostReport() {
               boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
               display: unlocked ? 'block' : 'none' // Only show when recommendations are unlocked
             }}>
-              <h3 style={{ margin: '0 0 15px 0', fontSize: '22px', color: '#0066cc' }}>
+              <h3 style={{ margin: '0 0 15px 0', fontSize: '22px', color: '#2e7d61' }}>
                 Want These Upgrades Done At No Upfront Cost?
               </h3>
               <p style={{ margin: '0 0 20px 0', fontSize: '16px' }}>
@@ -1282,7 +1282,7 @@ function ValueBoostReport() {
               </p>
               <button
                 style={{
-                  backgroundColor: '#0066cc',
+                  backgroundColor: '#2e7d61',
                   color: 'white',
                   border: 'none',
                   borderRadius: '5px',
@@ -1296,8 +1296,8 @@ function ValueBoostReport() {
                   e.preventDefault();
                   setShowContactForm(true);
                 }}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#0052a3'}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#0066cc'}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#236853'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2e7d61'}
               >
                 Check If I Qualify
               </button>
@@ -1461,7 +1461,7 @@ function ValueBoostReport() {
               >
                 ×
               </button>
-              <h3 style={{ margin: '0 0 20px 0', fontSize: '22px', color: '#0066cc', textAlign: 'center' }}>
+              <h3 style={{ margin: '0 0 20px 0', fontSize: '22px', color: '#2e7d61', textAlign: 'center' }}>
                 Create Your Free Account
               </h3>
               <p style={{ margin: '0 0 25px 0', fontSize: '16px', textAlign: 'center', color: '#555' }}>
@@ -1548,7 +1548,7 @@ function ValueBoostReport() {
                     type="submit"
                     disabled={isSubmitting}
                     style={{
-                      backgroundColor: isSubmitting ? '#7fb8ff' : '#0066cc',
+                      backgroundColor: isSubmitting ? '#95d8c0' : '#2e7d61',
                       color: 'white',
                       border: 'none',
                       borderRadius: '8px',

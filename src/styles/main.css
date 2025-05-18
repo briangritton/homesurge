@@ -103,7 +103,7 @@ body {
   align-items: center;
   display: none;
   margin-right: 5px;
-  color: #3490d1;
+  color: #2e7d61;
   }
   .header-call-number {
     color: #000000;
@@ -269,7 +269,7 @@ body {
 
 
 .address-input:focus {
-  border-color: #3490d1;
+  border-color: #2e7d61;
   box-shadow: 0 0 0 2px rgba(52, 144, 209, 0.25);
   outline: none;
 }
@@ -282,7 +282,7 @@ body {
   height: 60px;
   border-radius: 5px;
   padding-left: 15px;
-  border: 1px solid #2a73a6;
+  border: 1px solid #236853;
   
   /* box-shadow: 0 1px 3px rgba(255,0,0,0.2); */
   background-color: rgba(255, 0, 0, 0.05);
@@ -290,14 +290,14 @@ body {
 }
 
 .address-input-invalid:focus {
-  border-color:#2a73a6;
-  /* box-shadow: 0 0 0 2px #2a73a6; */
+  border-color:#236853;
+  /* box-shadow: 0 0 0 2px #236853; */
   outline: none;
 }
 
 .submit-button {
-  background-color: #3490d1;
-  border: 1px solid #2a73a6;
+  background-color: #2e7d61;
+  border: 1px solid #236853;
   border-radius: 5px;
   box-shadow: 0 1px 4px #0000004d;
   color: #fff;
@@ -312,11 +312,11 @@ body {
   }
 
 .submit-button:hover {
-  background-color: #2980b9;
+  background-color: #35926f;
 }
 
 .error-message {
-  color: #008af4;
+  color: #35926f;
   font-size: 1.5rem;
   height: 0px;
   line-height: 1;
@@ -400,8 +400,8 @@ body {
 }
 
 .registration-button {
-  background-color: #3490d1;
-  border-color: #2a73a6;
+  background-color: #2e7d61;
+  border-color: #236853;
   color: white;
   font-weight: bold;
   width: 100%;
@@ -419,11 +419,11 @@ body {
 }
 
 .registration-button:hover {
-  background-color: #2980b9;
+  background-color: #35926f;
 }
 
 .phone-error-message {
-  color: #008af4;
+  color: #35926f;
   font-size: 1.3rem;
   line-height: 1;
   text-align: center;
@@ -466,7 +466,7 @@ body {
 
 .hero-middle-map-submit-button,
 .hero-middle-map-edit-button {
-  background-color: #3490d1;
+  background-color: #2e7d61;
   color: white;
   font-weight: bold;
   text-align: center;
@@ -474,7 +474,7 @@ body {
   height: 60px;
   border-radius: 5px;
   cursor: pointer;
-  border: 1px solid #2a73a6;
+  border: 1px solid #236853;
   white-space: nowrap;
   padding: 0 30px;
   margin: 10px;
@@ -490,7 +490,7 @@ body {
 }
 
 .hero-middle-map-submit-button:hover {
-  background-color: #2980b9;
+  background-color: #35926f;
 }
 
 .hero-middle-map-edit-button:hover {
@@ -504,10 +504,10 @@ body {
   }
 
 .hero-property-estimate {
-  background-color: #3490d11a;
+  background-color: #2e7d611a;
   border-radius: 8px;
   box-shadow: 0 1px 3px #0000001a;
-  color: #3490d1;
+  color: #2e7d61;
   display: inline-block;
   font-size: 2rem;
   font-weight: 700;
@@ -580,10 +580,10 @@ body {
   text-align: center;
   align-items: center;
   justify-content: center;
-  background-color: #3490d1;
+  background-color: #2e7d61;
   color: white;
   border-style: solid;
-  border-color: #2a73a6;
+  border-color: #236853;
   border-width: 1px;
   border-radius: 5px 0px 0px 5px;
   cursor: pointer !important;
@@ -603,10 +603,10 @@ body {
   text-align: center;
   align-items: center;
   justify-content: center;
-  background-color: #3490d1;
+  background-color: #2e7d61;
   color: white;
   border-style: solid;
-  border-color: #2a73a6;
+  border-color: #236853;
   border-width: 1px;
   border-radius: 0px 5px 5px 0px;
   border-right: none;
@@ -664,7 +664,7 @@ body {
   font-size: 1.8rem;
   margin-bottom: 10px;
   font-weight: bold;
-  color: #3490d1;
+  color: #2e7d61;
 }
 
 .qualifying-slider {
@@ -688,7 +688,7 @@ body {
   background: #006dd4;
   cursor: pointer;
   border-style: solid;
-  border-color: #2a73a6;
+  border-color: #236853;
   border-width: 1px;
   box-shadow: 0px 1px 4px 0px #0000004d;
 }
@@ -700,7 +700,7 @@ body {
   background: #0078ce;
   cursor: pointer;
   border-style: solid;
-  border-color: #2a73a6;
+  border-color: #236853;
   border-width: 1px;
   box-shadow: 0px 1px 4px 0px #0000004d;
 }
@@ -737,8 +737,8 @@ body {
   white-space: nowrap;
   padding: 0px 50px;
   margin-left: -3px;
-  background-color: #3490d1;
-  border-color: #2a73a6;
+  background-color: #2e7d61;
+  border-color: #236853;
   box-shadow: 0px 1px 4px 0px #0000004d;
   transition: all 0.2s ease-in-out;
   width: 300px;
@@ -951,7 +951,7 @@ body {
     }
     .hero-subheadline {
       font-size: 1.8rem;
-      line-height: auto;
+      line-height: normal;
       margin: 20px 0;
       margin: 0;
       }
@@ -1087,8 +1087,7 @@ body {
 
 .hero-middle-map-buttons {
   align-items: center;
-  display: flex
-;
+  display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
@@ -1162,8 +1161,7 @@ body {
   }
   .qualifying-answer-container {
     cursor: pointer !important;
-    display: flex
-;
+    display: flex;
     flex-direction: row;
     margin-top: 15px;
     width: 100%;
@@ -1242,9 +1240,14 @@ body {
  
     .app {
       align-items: center;
-      background-image:none;
+      background-image:none !important;
 
     }
+   
+
+
+
+
 
 
   .confirmation-header {
@@ -1270,8 +1273,7 @@ body {
 
 .form-main {
   align-items: center;
-  display: flex
-;
+  display: flex;
   justify-content: center;
   max-width: 75%;
   min-height: calc(100vh - 50px);
@@ -1312,7 +1314,7 @@ body {
   
 .address-input-invalid {
  
-  border: 1px solid #3490d1;
+  border: 1px solid #2e7d61;
   box-shadow: 0 1px 3px rgba(255, 0, 0, 0.2);
   background-color: rgb(52 144 209 / 10%);
   font-size: 1.2rem;
@@ -1483,7 +1485,7 @@ body {
   margin-top: 10px;
   font-size: 1.5rem;
   font-weight: bold;
-  color: #3490d1;
+  color: #2e7d61;
   padding: 10px 20px;
   background-color: rgba(52, 144, 209, 0.1);
   border-radius: 8px;
@@ -1501,7 +1503,7 @@ body {
 button:focus, 
 input:focus, 
 select:focus {
-  outline: 2px solid #3490d1;
+  outline: 2px solid #2e7d61;
   outline-offset: 2px;
 }
 
@@ -1514,7 +1516,7 @@ select:focus {
   .qualifying-button:hover,
   .hero-property-estimate:hover {
     box-shadow: inherit;
-    background-color:#2980b9;
+    background-color:#35926f;
   }
 }
 
@@ -1554,7 +1556,7 @@ button:disabled,
 .nav-links li a:hover,
 .nav-links li div:hover {
   text-decoration: none;
-  color: #3490d1;
+  color: #2e7d61;
 }
 
 /* Sales Page Styles */
@@ -1594,7 +1596,7 @@ button:disabled,
 
 .error-message {
   /* background-color: #f8d7da; */
-  color: #3490d1;
+  color: #2e7d61;
 }
 
 .error-message, .success-message {
