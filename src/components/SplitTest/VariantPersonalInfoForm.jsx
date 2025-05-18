@@ -279,6 +279,7 @@ transition: background-color 0.3s;
     margin-bottom: 15px;
  
     margin-top: 10px;
+            gap: 0px;
 }
         
           .v1-hero-property-estimate {
