@@ -31,6 +31,7 @@ function QualifyingForm() {
   useEffect(() => {
     // Check if we're using a temp ID and show a message
     if (leadId && leadId.startsWith('temp_') && !saveAttempted) {
+      setSaveAttempted(true);
       console.warn("Using temporary lead ID - tracking may be limited");
     }
     
@@ -45,7 +46,7 @@ function QualifyingForm() {
     
     // Track a conversion for the PersonalInfoForm test
     // This indicates the user successfully completed the personal info form step
-    const personalInfoFormVariant = userGroups['personal_info_form_test'];
+    const personalInfoFormVariant = userGroups?.['personal_info_form_test'];
     if (personalInfoFormVariant) {
       trackPersonalInfoFormConversion(trackConversion, personalInfoFormVariant);
       
@@ -64,10 +65,34 @@ function QualifyingForm() {
     return () => {
       window.scrollTo(0, scrollPosition);
     };
-  }, []);
+  }, [leadId, saveAttempted, formData, userGroups, trackConversion]);
+  
+  // Initialize button states based on existing data
+  useEffect(() => {
+    // Set the selected option for property repairs
+    if (formData.needsRepairs === 'true') {
+      setSelectedOptionLR('right');
+    } else if (formData.needsRepairs === 'false') {
+      setSelectedOptionLR('left');
+    }
+    
+    // Update toggle button styles based on selection
+    if (toggleLeftRef.current && toggleRightRef.current) {
+      if (selectedOptionLR === 'left') {
+        toggleLeftRef.current.className = 'qualifying-toggle-selected-left';
+        toggleRightRef.current.className = 'qualifying-toggle-deselected-right';
+      } else {
+        toggleLeftRef.current.className = 'qualifying-toggle-deselected-left';
+        toggleRightRef.current.className = 'qualifying-toggle-selected-right';
+      }
+    }
+  }, [selectedOptionLR, formData.needsRepairs]);
   
   // Send qualifying answers to Zoho when step changes
   useEffect(() => {
+    // Scroll to top when step changes
+    window.scrollTo(0, 0);
+    
     if (qualifyingStep > 1) {
       // Update Zoho with current qualifying data
       updateFormData({
@@ -92,7 +117,7 @@ function QualifyingForm() {
           });
       }
     }
-  }, [qualifyingStep]);
+  }, [qualifyingStep, remainingMortgage, finishedSquareFootage, basementSquareFootage, leadId, updateFormData, updateLead]);
   
   // Format currency for display
   const formatCurrency = (value) => {
@@ -143,7 +168,7 @@ function QualifyingForm() {
         }
         
         // Track high-value conversion for the PersonalInfoForm test
-        const personalInfoFormVariant = userGroups['personal_info_form_test'];
+        const personalInfoFormVariant = userGroups?.['personal_info_form_test'];
         if (personalInfoFormVariant) {
           // Higher value (2) since this is a qualified completion
           trackPersonalInfoFormConversion(trackConversion, personalInfoFormVariant, 2);
@@ -169,18 +194,53 @@ function QualifyingForm() {
     }
   };
   
+  // This function handles updating a field value and immediately advancing to the next question
+  const handleValueUpdate = (fieldName, value) => {
+    // Update form data locally first
+    updateFormData({ [fieldName]: value });
+    
+    // Move to next step immediately
+    const nextQuestionStep = qualifyingStep + 1;
+    setQualifyingStep(nextQuestionStep);
+    updateFormData({ qualifyingQuestionStep: nextQuestionStep });
+    
+    // Log the update for debugging
+    console.log(`Updating ${fieldName} = ${value}`);
+    
+    // Then start the background update to Zoho
+    setTimeout(() => {
+      console.log(`Background update to Zoho with ${fieldName} = ${value}`);
+      updateLead().then(success => {
+        if (success) {
+          console.log(`Successfully updated ${fieldName} in Zoho`);
+        } else {
+          console.warn(`Failed to update ${fieldName} in Zoho`);
+          // Track error for analytics
+          trackFormError(`Failed to update ${fieldName} in Zoho`, 'zoho_update');
+        }
+      }).catch(error => {
+        console.error(`Error updating ${fieldName}:`, error);
+        // Track error for analytics
+        trackFormError(`Error updating ${fieldName}: ${error.message}`, 'zoho_update');
+      });
+    }, 100);
+  };
+  
   // Handle yes/no toggle selection
   const handleToggleSelect = (field, value) => {
-    // Update form data
-    updateFormData({
-      [field]: value
-    });
+    handleValueUpdate(field, value);
     
-    // Proceed to next question
-    if (qualifyingStep < 3) {
-      setQualifyingStep(prevStep => prevStep + 1);
-    } else {
-      handleSubmit();
+    // When clicking the toggle, update its appearance
+    if (toggleLeftRef.current && toggleRightRef.current) {
+      if (value === true) {
+        toggleLeftRef.current.className = 'qualifying-toggle-selected-left';
+        toggleRightRef.current.className = 'qualifying-toggle-deselected-right';
+        setSelectedOptionLR('left');
+      } else {
+        toggleLeftRef.current.className = 'qualifying-toggle-deselected-left';
+        toggleRightRef.current.className = 'qualifying-toggle-selected-right';
+        setSelectedOptionLR('right');
+      }
     }
   };
   
@@ -189,212 +249,299 @@ function QualifyingForm() {
     // Close dropdown
     setDropdownOpen(false);
     
-    // Update form data
-    updateFormData({
-      homeType: type
-    });
-    
-    // Proceed to next question
-    setQualifyingStep(prevStep => prevStep + 1);
+    // Use the value update method for consistency
+    handleValueUpdate('homeType', type);
   };
   
-  // Handle slider change for mortgage
-  const handleMortgageChange = (e) => {
-    setRemainingMortgage(Number(e.target.value));
-  };
-  
-  // Handle slider change for square footage
-  const handleSquareFootageChange = (e) => {
-    setFinishedSquareFootage(Number(e.target.value));
-  };
-  
-  // Handle slider change for basement square footage
-  const handleBasementSquareFootageChange = (e) => {
-    setBasementSquareFootage(Number(e.target.value));
-  };
-  
-  // Handle next button click for sliders
-  const handleSliderNext = () => {
-    // Update form data with slider values
-    updateFormData({
-      remainingMortgage,
-      finishedSquareFootage,
-      basementSquareFootage
-    });
-    
-    // Proceed to next question
-    if (qualifyingStep < 3) {
-      setQualifyingStep(prevStep => prevStep + 1);
-    } else {
-      handleSubmit();
+  // Render a message about using temp ID
+  const renderTempIdMessage = () => {
+    if (leadId && leadId.startsWith('temp_')) {
+      return (
+        <div style={{
+          position: 'fixed',
+          bottom: '10px',
+          right: '10px',
+          backgroundColor: '#f1f1f1',
+          padding: '8px 12px',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+          fontSize: '12px',
+          color: '#666',
+          zIndex: 1000
+        }}>
+          Demo Mode: Updates not sent to CRM
+        </div>
+      );
     }
+    return null;
   };
   
-  // Render toggle buttons for yes/no questions
-  const renderToggleButtons = (field, questionText) => {
-    return (
-      <div className="qualifying-question">
-        <h3>{questionText}</h3>
-        <div className="toggle-container">
-          <button
-            ref={toggleLeftRef}
-            className={`toggle-button ${formData[field] === true ? 'active' : ''}`}
-            onClick={() => handleToggleSelect(field, true)}
-          >
-            Yes
-          </button>
-          <button
-            ref={toggleRightRef}
-            className={`toggle-button ${formData[field] === false ? 'active' : ''}`}
-            onClick={() => handleToggleSelect(field, false)}
-          >
-            No
-          </button>
-        </div>
-      </div>
-    );
-  };
-  
-  // Render dropdown for home type selection
-  const renderHomeTypeDropdown = () => {
-    const homeTypes = [
-      'Single Family',
-      'Multi-Family',
-      'Condo/Townhouse',
-      'Mobile/Manufactured',
-      'Land/Lot',
-      'Other'
-    ];
+  // Handle slider changes
+  const handleSliderChangeMortgage = (e) => {
+    const selectedValue = parseInt(e.target.value, 10);
     
-    return (
-      <div className="qualifying-question">
-        <h3>What type of property is it?</h3>
-        <div className="dropdown-container">
-          <button
-            className="dropdown-button"
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-          >
-            {formData.homeType || 'Select Property Type'}
-            <span className="dropdown-arrow">{dropdownOpen ? '▲' : '▼'}</span>
-          </button>
-          
-          {dropdownOpen && (
-            <div className="dropdown-menu">
-              {homeTypes.map(type => (
-                <div
-                  key={type}
-                  className="dropdown-item"
-                  onClick={() => handleHomeTypeSelect(type)}
-                >
-                  {type}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    );
+    if (selectedValue >= 10000) {
+      setRemainingMortgage(Math.round(selectedValue / 10000) * 10000);
+    } else {
+      setRemainingMortgage(selectedValue);
+    }
+    
+    updateFormData({ remainingMortgage: selectedValue });
   };
   
-  // Render slider for numeric inputs
-  const renderSlider = (value, setValue, min, max, step, format, label) => {
-    return (
-      <div className="qualifying-slider">
-        <h3>{label}</h3>
-        <div className="slider-value">{format(value)}</div>
-        <input
-          type="range"
-          min={min}
-          max={max}
-          step={step}
-          value={value}
-          onChange={setValue}
-          className="slider"
-        />
-        <div className="slider-range">
-          <span>{format(min)}</span>
-          <span>{format(max)}</span>
-        </div>
-      </div>
-    );
+  const handleSliderChangeSquareFootage = (e) => {
+    const selectedValue = parseInt(e.target.value, 10);
+    
+    if (selectedValue >= 50) {
+      setFinishedSquareFootage(Math.round(selectedValue / 250) * 250);
+    }
+    
+    updateFormData({ finishedSquareFootage: selectedValue });
   };
   
-  // Render appropriate question based on current step
+  const handleSliderChangeBasementSquareFootage = (e) => {
+    const selectedValue = parseInt(e.target.value, 10);
+    
+    if (selectedValue >= 50) {
+      setBasementSquareFootage(Math.round(selectedValue / 250) * 250);
+    }
+    
+    updateFormData({ basementSquareFootage: selectedValue });
+  };
+  
+  // Format display values for sliders
+  const displayMortgageValue = remainingMortgage >= 1000000
+    ? '$' + remainingMortgage.toLocaleString() + '+'
+    : '$' + remainingMortgage.toLocaleString();
+    
+  const displayFinishedSquareFootage = finishedSquareFootage >= 10000
+    ? finishedSquareFootage.toLocaleString() + '+ sq/ft'
+    : finishedSquareFootage.toLocaleString() + ' sq/ft';
+    
+  const displayBasementSquareFootage = basementSquareFootage >= 10000
+    ? basementSquareFootage.toLocaleString() + '+ sq/ft'
+    : basementSquareFootage.toLocaleString() + ' sq/ft';
+  
+  // Get the current qualifying question to display
   const renderCurrentQuestion = () => {
     switch (qualifyingStep) {
       case 1:
-        return renderToggleButtons(
-          'isPropertyOwner',
-          'Are you the property owner?'
-        );
-      case 2:
-        if (formData.isPropertyOwner) {
-          return renderHomeTypeDropdown();
-        } else {
-          return renderToggleButtons(
-            'workingWithAgent',
-            'Are you working with a real estate agent?'
-          );
-        }
-      case 3:
+        // Property owner question
         return (
-          <div className="qualifying-question">
-            <h3>Tell us more about your property</h3>
-            <div className="sliders-container">
-              {renderSlider(
-                remainingMortgage,
-                handleMortgageChange,
-                0,
-                500000,
-                10000,
-                formatCurrency,
-                'Remaining Mortgage'
-              )}
-              
-              {renderSlider(
-                finishedSquareFootage,
-                handleSquareFootageChange,
-                500,
-                5000,
-                100,
-                formatSquareFootage,
-                'Finished Square Footage'
-              )}
-              
-              {renderSlider(
-                basementSquareFootage,
-                handleBasementSquareFootageChange,
-                0,
-                3000,
-                100,
-                formatSquareFootage,
-                'Basement Square Footage'
-              )}
-              
+          <div className="qualifying-option-column">
+            <div className="qualifying-question">
+              Are you the property owner?
+            </div>
+            <div className="qualifying-answer-container">
               <button
-                className="next-button"
-                onClick={handleSliderNext}
+                className="qualifying-toggle-selected-left"
+                ref={toggleLeftRef}
+                value="true"
+                onClick={(e) => {
+                  handleToggleSelect('isPropertyOwner', e.target.value === 'true');
+                }}
               >
-                Continue
+                Yes
+              </button>
+              <button
+                className="qualifying-toggle-deselected-right"
+                ref={toggleRightRef}
+                value="false"
+                onClick={(e) => {
+                  handleToggleSelect('isPropertyOwner', e.target.value === 'true');
+                }}
+              >
+                No
               </button>
             </div>
           </div>
         );
+        
+      case 2:
+        if (formData.isPropertyOwner) {
+          // Property type question
+          return (
+            <div className="qualifying-option-column">
+              <div className="qualifying-question">
+                What type of property is it?
+              </div>
+              <div className="dropdown">
+                <button
+                  className="dropbtn"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                >
+                  {formData.homeType || "Select an option"}
+                </button>
+                <div
+                  className="dropdown-content"
+                  style={{ display: dropdownOpen ? "block" : "none" }}
+                >
+                  {['Single Family', 'Condo', 'Townhouse', 'Multi-Family'].map((option) => (
+                    <div
+                      key={option}
+                      onClick={() => handleHomeTypeSelect(option)}
+                    >
+                      &nbsp;&nbsp;{option}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        } else {
+          // Working with agent question
+          return (
+            <div className="qualifying-option-column">
+              <div className="qualifying-question">
+                Are you working with a real estate agent?
+              </div>
+              <div className="qualifying-answer-container">
+                <button
+                  className="qualifying-toggle-selected-left"
+                  ref={toggleLeftRef}
+                  value="false"
+                  onClick={(e) => {
+                    handleToggleSelect('workingWithAgent', e.target.value === 'true');
+                  }}
+                >
+                  No
+                </button>
+                <button
+                  className="qualifying-toggle-deselected-right"
+                  ref={toggleRightRef}
+                  value="true"
+                  onClick={(e) => {
+                    handleToggleSelect('workingWithAgent', e.target.value === 'true');
+                  }}
+                >
+                  Yes
+                </button>
+              </div>
+            </div>
+          );
+        }
+        
+      case 3:
+        // Mortgage amount question
+        return (
+          <div className="qualifying-option-column">
+            <div className="qualifying-question">
+              What is your remaining mortgage amount?
+            </div>
+            <div className="qualifying-slider-container">
+              <div className="qualifying-slider-text">
+                {displayMortgageValue}
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="1000000"
+                value={remainingMortgage}
+                className="qualifying-slider"
+                ref={mortgageSliderRef}
+                onChange={handleSliderChangeMortgage}
+              />
+            </div>
+            <button
+              className="qualifying-button"
+              onClick={() => handleValueUpdate('remainingMortgage', remainingMortgage)}
+            >
+              Next
+            </button>
+          </div>
+        );
+        
+      case 4:
+        // Square footage question
+        return (
+          <div className="qualifying-option-column">
+            <div className="qualifying-question">
+              What is your finished square footage?
+            </div>
+            <div className="qualifying-slider-container">
+              <div className="qualifying-slider-text">
+                {displayFinishedSquareFootage}
+              </div>
+              <input
+                type="range"
+                min="100"
+                max="10000"
+                value={finishedSquareFootage}
+                className="qualifying-slider"
+                ref={squareFootageSliderRef}
+                onChange={handleSliderChangeSquareFootage}
+              />
+            </div>
+            <button
+              className="qualifying-button"
+              onClick={() => handleValueUpdate('finishedSquareFootage', finishedSquareFootage)}
+            >
+              Next
+            </button>
+          </div>
+        );
+        
+      case 5:
+        // Basement square footage question
+        return (
+          <div className="qualifying-option-column">
+            <div className="qualifying-question">
+              What is your basement square footage?
+            </div>
+            <div className="qualifying-slider-container">
+              <div className="qualifying-slider-text">
+                {displayBasementSquareFootage}
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="5000"
+                value={basementSquareFootage}
+                className="qualifying-slider"
+                ref={basementSquareFootageSliderRef}
+                onChange={handleSliderChangeBasementSquareFootage}
+              />
+            </div>
+            <button
+              className="qualifying-button"
+              onClick={handleSubmit}
+            >
+              Finish
+            </button>
+          </div>
+        );
+        
       default:
-        return null;
+        // Final message or error state
+        return (
+          <div className="qualifying-option-column">
+            <div className="qualifying-question">
+              Thanks for your detailed responses! We'll be in touch shortly to discuss your options.
+            </div>
+            <button
+              className="qualifying-button"
+              onClick={handleSubmit}
+            >
+              Finish
+            </button>
+          </div>
+        );
     }
   };
   
   return (
-    <div className="qualifying-form">
-      <div className="form-header">
-        <h2>Help us customize your offer</h2>
-        <p>Please answer a few questions about your property to get the most accurate offer.</p>
+    <div className="qualifying-section">
+      <div className="qualifying-headline">
+        {formData.templateType === 'VALUE' 
+          ? 'Help us prepare your detailed home value report' 
+          : formData.templateType === 'FAST' 
+            ? 'Help us prepare your fast sale offer'
+            : 'Help us prepare your best cash offer'}
       </div>
-      
-      <div className="qualifying-content">
+      <div className="qualifying-form-container">
         {renderCurrentQuestion()}
       </div>
+      {renderTempIdMessage()}
     </div>
   );
 }
