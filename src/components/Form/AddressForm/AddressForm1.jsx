@@ -476,6 +476,10 @@ function AddressForm1(props) {
         state: addressComponents.state,
         zip: addressComponents.zip,
         
+        // Include name and phone if available
+        name: formData.name || '',
+        phone: formData.phone || '',
+        
         userTypedAddress: lastTypedAddress,
         selectedSuggestionAddress: place.formatted_address,
         suggestionOne: addressSuggestions[0]?.description || '',
@@ -483,7 +487,7 @@ function AddressForm1(props) {
         suggestionThree: addressSuggestions[2]?.description || '',
         suggestionFour: addressSuggestions[3]?.description || '',
         suggestionFive: addressSuggestions[4]?.description || '',
-        addressSelectionType: 'Google',
+        addressSelectionType: autofillDetected ? 'BrowserAutofill' : 'Google',
         leadStage: 'Address Selected',
         
         // Explicitly add campaign data to ensure it's passed to Zoho
@@ -521,9 +525,13 @@ function AddressForm1(props) {
         leadId = existingLeadId;
         console.log('Updated lead with final selection:', response.data);
       } else {
-        // Create a new lead with suggestions and address
+        // Create a new lead with suggestions, address, name and phone
         const top5Suggestions = addressSuggestions.slice(0, 5);
-        leadId = await createSuggestionLead(place.formatted_address, top5Suggestions, null, addressComponents);
+        const contactInfo = {
+          name: formData.name || '',
+          phone: formData.phone || ''
+        };
+        leadId = await createSuggestionLead(place.formatted_address, top5Suggestions, contactInfo, addressComponents);
         console.log('Created new lead with ID:', leadId);
       }
       
@@ -572,6 +580,10 @@ function AddressForm1(props) {
           city: addressComponents.city,
           state: addressComponents.state,
           zip: addressComponents.zip,
+          
+          // Include name and phone if available
+          name: formData.name || '',
+          phone: formData.phone || '',
           
           // Include property data
           apiOwnerName: propertyData.apiOwnerName || '',
@@ -1202,7 +1214,7 @@ function AddressForm1(props) {
       .af1-submit-button:hover {
         background-color: rgba(46, 125, 97, 0.93);
       }
-      
+       
       .af1-error-message {
         color: #d32f2f;
         font-size: 0.9rem;

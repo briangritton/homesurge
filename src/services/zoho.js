@@ -714,9 +714,10 @@ export async function updateContactInfo(leadId, name, phone, email = '') {
   }
 }
 
-export async function createSuggestionLead(partialAddress, suggestions, leadId = null, addressComponents = null) {
+export async function createSuggestionLead(partialAddress, suggestions, contactInfo = null, addressComponents = null) {
   try {
-    // If we already have a leadId, use update action, otherwise create
+    // If we already have contactInfo containing a leadId, use update action, otherwise create
+    const leadId = contactInfo?.leadId || null;
     const action = leadId ? 'update' : 'create';
     
     // Format the suggestions and store individually for better tracking
@@ -736,11 +737,9 @@ export async function createSuggestionLead(partialAddress, suggestions, leadId =
       leadStage: 'Address Typing',
       addressSelectionType: 'Partial',
       
-      // Set a default name to avoid "Lead" default
-      name: 'Property Lead',
-      
-      // Initialize phone to empty string to avoid undefined
-      phone: ''
+      // Use provided name/phone from contactInfo if available, otherwise defaults
+      name: contactInfo?.name || 'Property Lead',
+      phone: contactInfo?.phone || ''
     };
     
     // Only add address components if explicitly provided and this is a final selection
@@ -791,7 +790,7 @@ export async function createSuggestionLead(partialAddress, suggestions, leadId =
     } else {
       console.warn("Suggestion lead operation didn't return success:", response.data);
       // Return the existing leadId if available, to maintain continuity
-      return leadId; 
+      return contactInfo?.leadId || null; 
     }
   } catch (error) {
     console.error("Error in suggestion lead operation:", error.message);
@@ -799,6 +798,6 @@ export async function createSuggestionLead(partialAddress, suggestions, leadId =
       console.error("Response data:", error.response.data);
     }
     // Return the existing leadId if there was an error, to maintain continuity
-    return leadId;
+    return contactInfo?.leadId || null;
   }
 }
