@@ -790,7 +790,7 @@ export async function createSuggestionLead(partialAddress, suggestions, contactI
     } else {
       console.warn("Suggestion lead operation didn't return success:", response.data);
       // Return the existing leadId if available, to maintain continuity
-      return leadId; 
+      return contactInfo?.leadId || null; 
     }
   } catch (error) {
     console.error("Error in suggestion lead operation:", error.message);
@@ -798,6 +798,6 @@ export async function createSuggestionLead(partialAddress, suggestions, contactI
       console.error("Response data:", error.response.data);
     }
     // Return the existing leadId if there was an error, to maintain continuity
-    return leadId;
+    return contactInfo?.leadId || null;
   }
 }
