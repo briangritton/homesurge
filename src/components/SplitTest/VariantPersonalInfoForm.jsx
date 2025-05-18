@@ -27,13 +27,14 @@ function VariantPersonalInfoForm() {
     const styleElement = document.createElement('style');
     styleElement.textContent = `
       /* Variant-specific styles with v1- prefix */
-      .v1-hero-section {
-        position: relative;
-        width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
-        min-height: 500px;
-      }
+   .v1-hero-section {
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: 500px;
+    margin-top: 50px;
+}
       
      .v1-hero-middle-container {
 display: flex;
@@ -69,13 +70,13 @@ width: 100%;
         width: 100%;
       }
       
-     .v1-hero-property-estimate {
-font-size: 2.3rem;
-font-weight: bold;
-color: #2e7d32;
-color: #2e7d61;
-text-align: center;
-margin-bottom: 20px;
+   .v1-hero-property-estimate {
+    font-size: 2.3rem;
+    font-weight: bold;
+    color: #2e7d32;
+    color: #2e7d61;
+    text-align: center;
+    margin-bottom: 15px;
 }
       
       .v1-custom-map-container {
@@ -143,7 +144,7 @@ transition: background-color 0.3s;
 }
       
       .v1-submit-button:hover {
-        background-color:rgba(46, 125, 97, 0.72);
+        background-color:rgba(46, 125, 97, 0.93);
       }
       
       .v1-submit-button:disabled {
@@ -227,6 +228,46 @@ transition: background-color 0.3s;
         max-width: 500px;
       }
       
+      /* Media Queries */
+      @media screen and (max-width: 768px) {
+        .v1-hero-property-estimate {
+          font-size: 1.8rem;
+        }
+        
+        .v1-confirmation-header {
+          font-size: 1.5rem;
+        }
+        
+        .v1-input-field {
+          font-size: 1.2rem;
+          height: 45px;
+        }
+        
+        .v1-submit-button {
+          font-size: 1.2rem;
+        }
+      }
+      
+      @media screen and (max-width: 480px) {
+        .v1-hero-property-estimate {
+          font-size: 1.5rem;
+        }
+        
+        .v1-confirmation-header {
+          font-size: 1.5rem;
+        }
+        
+        .v1-hero-1-api-address {
+          font-size: 1rem;
+        }
+        
+        .v1-hero-content {
+          padding: 0 10px;
+        }
+      }
+      .v1-input-container{
+      width:100%;
+      }
       @keyframes v1LoadingDots {
         0% { content: "."; }
         33% { content: ".."; }
@@ -705,8 +746,15 @@ transition: background-color 0.3s;
       <div className="v1-hero-middle-container">
         <div className="v1-hero-content v1-fade-in v1-max-width-500">
           <div className="v1-hero-1-api-address">
-            {formData.street && formData.street.replace(/, USA$/, '')}
-            <button 
+            {formData.street && (
+              <>
+                {formData.street.split(',').slice(0, -2).join(',')},
+                <span className="v1-nowrap-phrase">
+                  {formData.street.split(',').slice(-2).join(',').replace(/, USA$/, '')}
+                </span>
+              </>
+            )}
+            {/* <button 
               onClick={handleEditClick} 
               style={{ 
                 marginLeft: '10px', 
@@ -719,7 +767,7 @@ transition: background-color 0.3s;
               }}
             >
               Edit
-            </button>
+            </button> */}
           </div>
           
           {valueLoading ? (
