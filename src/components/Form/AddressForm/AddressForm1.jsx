@@ -69,14 +69,7 @@ function AddressForm1(props) {
       if (value.length > 0 && Math.abs(value.length - lastStreetValue.length) > 5) {
         console.log('Possible browser autofill detected');
         setAutofillDetected(true);
-        
-        // Set a timeout to auto-submit the form if this was browser autofill
-        setTimeout(() => {
-          if (autofillDetected && formData.street) {
-            console.log('Auto-submitting after browser autofill');
-            handleAutofillCallback();
-          }
-        }, 500);
+        // We're no longer auto-submitting on browser autofill
       }
       
       setLastStreetValue(value);
@@ -157,19 +150,7 @@ function AddressForm1(props) {
     }
   };
   
-  // The handleAutofillSubmit function will be defined after fetchPropertyData
-  
-  // Listen for autofill events
-  const handleAutofillCallback = () => {
-    console.log('Auto-submitting after browser autofill detection');
-    if (formData.street) {
-      setIsLoading(true);
-      setTimeout(() => {
-        nextStep();
-        setIsLoading(false);
-      }, 500);
-    }
-  };
+  // Track browser autofill but don't auto-submit
   
   useEffect(() => {
     const handleAnimationStart = (e) => {
@@ -177,11 +158,7 @@ function AddressForm1(props) {
       if (e.animationName === 'onAutoFillStart') {
         console.log('Browser autofill detected on', e.target.name);
         setAutofillDetected(true);
-        
-        // Set a timeout to submit the form after autofill completes
-        setTimeout(() => {
-          handleAutofillCallback();
-        }, 1000);
+        // We're tracking autofill but not auto-submitting now
       }
     };
     
