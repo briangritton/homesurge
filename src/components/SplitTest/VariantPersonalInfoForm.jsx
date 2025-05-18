@@ -284,6 +284,8 @@ transition: background-color 0.3s;
         
           .v1-hero-property-estimate {
         font-size: 2.2rem;
+
+        line-height: 1;
     }
         
         .v1-value-estimate-label {
