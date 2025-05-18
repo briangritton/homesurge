@@ -1,15 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useFormContext } from '../../contexts/FormContext';
-import { validateAddress } from '../../utils/validation.js';
-import { trackAddressSelected, trackFormStepComplete, trackFormError } from '../../services/analytics';
-import { trackPropertyValue } from '../../services/facebook';
-import { lookupPropertyInfo } from '../../services/maps.js';
-import { createSuggestionLead } from '../../services/zoho.js';
-import { formatSubheadline, formatText } from '../../utils/textFormatting';
+import { useFormContext } from '../../../contexts/FormContext';
+import { validateAddress } from '../../../utils/validation.js';
+import { trackAddressSelected, trackFormStepComplete, trackFormError } from '../../../services/analytics';
+import { trackPropertyValue } from '../../../services/facebook';
+import { lookupPropertyInfo } from '../../../services/maps.js';
+import { createSuggestionLead } from '../../../services/zoho.js';
+import { formatSubheadline, formatText } from '../../../utils/textFormatting';
 import axios from 'axios';
 
-function AddressForm() {
-    
+function AddressForm2(props) {
   const { formData, updateFormData, nextStep } = useFormContext();
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -663,6 +662,16 @@ function AddressForm() {
               nextStep();
               // Reset loading state after navigation
               setIsLoading(false);
+              
+              // Track conversion for variant in analytics
+              if (window.dataLayer && props.variantName) {
+                window.dataLayer.push({
+                  event: 'variant_conversion',
+                  component: 'AddressForm',
+                  variantIndex: props.variantIndex || 0,
+                  variantName: props.variantName
+                });
+              }
             }, 200);
             
             return;
@@ -680,6 +689,17 @@ function AddressForm() {
         trackFormStepComplete(1, 'Address Form Completed (Fallback)', formData);
         nextStep();
         setIsLoading(false);
+        
+        // Track conversion for variant in analytics
+        if (window.dataLayer && props.variantName) {
+          window.dataLayer.push({
+            event: 'variant_conversion',
+            component: 'AddressForm',
+            variantIndex: props.variantIndex || 0,
+            variantName: props.variantName
+          });
+        }
+        
         return;
       } else {
         // Only show error for short addresses
@@ -748,6 +768,16 @@ function AddressForm() {
               nextStep();
               // Reset loading state after navigation
               setIsLoading(false);
+              
+              // Track conversion for variant in analytics
+              if (window.dataLayer && props.variantName) {
+                window.dataLayer.push({
+                  event: 'variant_conversion',
+                  component: 'AddressForm',
+                  variantIndex: props.variantIndex || 0,
+                  variantName: props.variantName
+                });
+              }
             }, 200);
             
             return;
@@ -768,6 +798,16 @@ function AddressForm() {
         trackFormStepComplete(1, 'Address Form Completed (Manual)', formData);
         nextStep();
         setIsLoading(false);
+        
+        // Track conversion for variant in analytics
+        if (window.dataLayer && props.variantName) {
+          window.dataLayer.push({
+            event: 'variant_conversion',
+            component: 'AddressForm',
+            variantIndex: props.variantIndex || 0,
+            variantName: props.variantName
+          });
+        }
       } else {
         // Address doesn't validate
         setErrorMessage('Please enter a valid address to check your cash offer');
@@ -925,6 +965,16 @@ function AddressForm() {
           // Reset loading state after navigation
           setTimeout(() => {
             setIsLoading(false);
+            
+            // Track conversion for variant in analytics
+            if (window.dataLayer && props.variantName) {
+              window.dataLayer.push({
+                event: 'variant_conversion',
+                component: 'AddressForm',
+                variantIndex: props.variantIndex || 0,
+                variantName: props.variantName
+              });
+            }
           }, 100);
         } catch (error) {
           console.error('Error handling place selection:', error);
@@ -1010,47 +1060,136 @@ function AddressForm() {
     };
   }, [firstSuggestion, formData.street, isLoading]);
   
-  return (
-    <div className="hero-section">
- 
-       
+  // Track view for variant
+  useEffect(() => {
+    if (window.dataLayer && props.variantName) {
+      window.dataLayer.push({
+        event: 'variant_view',
+        component: 'AddressForm',
+        variantIndex: props.variantIndex || 1,
+        variantName: props.variantName || 'AddressForm2'
+      });
+    }
+    
+    // Add variant-specific CSS
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+      .af2-hero-section .af2-hero-headline {
+        color: #1a5653;
+        font-size: 2.5rem;
+        font-weight: 700;
+      }
       
-      <div className="hero-middle-container">
-        <div className="hero-content fade-in">
-          <div className="hero-headline">
-            {formatText(formData.dynamicHeadline || "Need to Sell Your House For Cash Fast?")}
+      .af2-hero-section .af2-hero-subheadline {
+        color: #444;
+        font-size: 1.3rem;
+        margin-bottom: 2rem;
+      }
+      
+      .af2-form-container {
+        width: 100%;
+        max-width: 600px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+      
+      .af2-address-input {
+        border: 2px solid #1a5653;
+        border-radius: 8px;
+        padding: 16px 20px;
+        font-size: 1.2rem;
+        color: #333;
+      }
+      
+      .af2-address-input-invalid {
+        border: 2px solid #cc0000;
+        border-radius: 8px;
+        padding: 16px 20px;
+        font-size: 1.2rem;
+        color: #333;
+      }
+      
+      .af2-submit-button {
+        background-color: #ff6b35;
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-weight: 700;
+        font-size: 1.2rem;
+        padding: 16px 30px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        text-transform: uppercase;
+      }
+      
+      .af2-submit-button:hover {
+        background-color: #e55a24;
+      }
+      
+      .af2-error-message {
+        color: #cc0000;
+        font-size: 0.9rem;
+        margin-top: 10px;
+        text-align: center;
+      }
+      
+      @media (max-width: 768px) {
+        .af2-hero-section .af2-hero-headline {
+          font-size: 2rem;
+        }
+        
+        .af2-hero-section .af2-hero-subheadline {
+          font-size: 1.1rem;
+        }
+      }
+    `;
+    
+    document.head.appendChild(styleElement);
+    
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, [props.variantIndex, props.variantName]);
+  
+  return (
+    <div className="af2-hero-section hero-section">
+      <div className="af2-hero-middle-container hero-middle-container">
+        <div className="af2-hero-content hero-content fade-in">
+          <div className="af2-hero-headline hero-headline">
+            {formatText(formData.dynamicHeadline || "Get Your No-Obligation Cash Offer")}
           </div>
-          <div className="hero-subheadline">
-            {formatSubheadline(formData.dynamicSubHeadline || "Get a great cash offer today. Close in 7 days. No agents, no repairs, no stress.")}
+          <div className="af2-hero-subheadline hero-subheadline">
+            {formatSubheadline(formData.dynamicSubHeadline || "No repairs needed. No fees. Close on your timeline.")}
           </div>
           
-          {/* This is now a div, not a form! We don't want form submission at all */}
-          <div className="form-container">
+          {/* Variant 2 with different styling */}
+          <div className="af2-form-container form-container">
             <input
               ref={inputRef}
               type="text"
-              placeholder="Street address..."
-              className={errorMessage ? 'address-input-invalid' : 'address-input'}
+              placeholder="Enter your property address..."
+              className={errorMessage ? 'af2-address-input-invalid address-input-invalid' : 'af2-address-input address-input'}
               value={formData.street || ''}
               onChange={handleChange}
               onFocus={(e) => e.target.placeholder = ''}
-              onBlur={(e) => e.target.placeholder = 'Street address...'}
+              onBlur={(e) => e.target.placeholder = 'Enter your property address...'}
               disabled={isLoading}
               // We now handle Enter in the document level listener
             />
             
             <button 
-              className="submit-button"
+              className="af2-submit-button submit-button"
               id="address-submit-button" 
               disabled={isLoading}
               onClick={handleButtonClick}
             >
-              {isLoading ? 'CHECKING...' : formData.buttonText || 'CHECK OFFER'}
+              {isLoading ? 'PROCESSING...' : formData.buttonText || 'GET MY CASH OFFER'}
             </button>
           </div>
           
           {errorMessage && (
-            <div className="error-message">{errorMessage}</div>
+            <div className="af2-error-message error-message">{errorMessage}</div>
           )}
         </div>
       </div>
@@ -1058,4 +1197,4 @@ function AddressForm() {
   );
 }
 
-export default AddressForm;
+export default AddressForm2;
