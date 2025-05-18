@@ -1266,6 +1266,7 @@ function AddressForm1(props) {
               onFocus={(e) => e.target.placeholder = ''}
               onBlur={(e) => e.target.placeholder = 'Street address...'}
               disabled={isLoading}
+              required
             />
             
             <input
@@ -1279,6 +1280,7 @@ function AddressForm1(props) {
               onFocus={(e) => e.target.placeholder = ''}
               onBlur={(e) => e.target.placeholder = 'Your name (optional)'}
               disabled={isLoading}
+              // No required attribute - optional field
             />
             
             <input
@@ -1292,6 +1294,7 @@ function AddressForm1(props) {
               onFocus={(e) => e.target.placeholder = ''}
               onBlur={(e) => e.target.placeholder = 'Your phone (optional)'}
               disabled={isLoading}
+              // No required attribute - optional field
             />
             
             <button 
