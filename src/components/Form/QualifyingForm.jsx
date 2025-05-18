@@ -1,13 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
-import { useSplitTest } from '../../contexts/SplitTestContext';
 import { trackFormStepComplete, trackFormError } from '../../services/analytics';
 import { trackZohoConversion } from '../../services/zoho';
-import { trackPersonalInfoFormConversion } from '../SplitTest/PersonalInfoFormTest';
 
 function QualifyingForm() {
   const { formData, updateFormData, nextStep, updateLead, leadId } = useFormContext();
-  const { userGroups, trackConversion } = useSplitTest();
   const [qualifyingStep, setQualifyingStep] = useState(formData.qualifyingQuestionStep || 1);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedOptionLR, setSelectedOptionLR] = useState('left');
@@ -44,28 +41,11 @@ function QualifyingForm() {
     // Scroll to top
     window.scrollTo(0, 0);
     
-    // Track a conversion for the PersonalInfoForm test
-    // This indicates the user successfully completed the personal info form step
-    const personalInfoFormVariant = userGroups?.['personal_info_form_test'];
-    if (personalInfoFormVariant) {
-      trackPersonalInfoFormConversion(trackConversion, personalInfoFormVariant);
-      
-      // Also track in dataLayer for Google Analytics
-      if (window.dataLayer) {
-        window.dataLayer.push({
-          event: 'split_test_conversion',
-          testId: 'personal_info_form_test',
-          variant: personalInfoFormVariant,
-          conversionType: 'form_step_completion'
-        });
-      }
-    }
-    
     // Cleanup function to restore scroll position
     return () => {
       window.scrollTo(0, scrollPosition);
     };
-  }, [leadId, saveAttempted, formData, userGroups, trackConversion]);
+  }, [leadId, saveAttempted, formData]);
   
   // Initialize button states based on existing data
   useEffect(() => {
@@ -167,22 +147,6 @@ function QualifyingForm() {
             });
         }
         
-        // Track high-value conversion for the PersonalInfoForm test
-        const personalInfoFormVariant = userGroups?.['personal_info_form_test'];
-        if (personalInfoFormVariant) {
-          // Higher value (2) since this is a qualified completion
-          trackPersonalInfoFormConversion(trackConversion, personalInfoFormVariant, 2);
-          
-          // Also track in dataLayer for Google Analytics
-          if (window.dataLayer) {
-            window.dataLayer.push({
-              event: 'split_test_high_value_conversion',
-              testId: 'personal_info_form_test',
-              variant: personalInfoFormVariant,
-              conversionType: 'qualifying_completion'
-            });
-          }
-        }
         
         // Proceed to thank you page
         nextStep();
