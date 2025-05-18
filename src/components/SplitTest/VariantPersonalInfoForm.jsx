@@ -272,17 +272,22 @@ transition: background-color 0.3s;
       }
       
       @media screen and (max-width: 480px) {
-        .v1-estimate-container {
-          flex-direction: column;
-          gap: 0;
-        }
+       .v1-estimate-container {
+   
+    flex-direction: column;
+ 
+    margin-bottom: 15px;
+ 
+    margin-top: 10px;
+}
         
-        .v1-hero-property-estimate {
-          font-size: 1.5rem;
-        }
+          .v1-hero-property-estimate {
+        font-size: 2.2rem;
+    }
         
         .v1-value-estimate-label {
           font-size: 1.3rem;
+          font-weight:bold;
         }
         
         .v1-confirmation-header {
