@@ -16,9 +16,6 @@ import SalesPage from './components/SalesPage';
 import ValueBoostContainer from './components/HomeSurge/ValueBoost/ValueBoostContainer';
 import DebugDisplay from './components/common/DebugDisplay';
 
-// Import VariantPersonalInfoForm as our PersonalInfoForm
-import VariantPersonalInfoForm from './components/SplitTest/VariantPersonalInfoForm';
-
 // Styles
 import './styles/main.css';
 
@@ -86,7 +83,7 @@ function FormContainer() {
       case 1:
         return <AddressForm />;
       case 2:
-        return <VariantPersonalInfoForm />;
+        return <PersonalInfoForm />;
       case 3:
         return <QualifyingForm />;
       case 4:
@@ -125,7 +122,7 @@ function App() {
             {/* Development route for viewing components */}
             <Route path="/view/personal-info" element={
               <SimpleComponentViewer>
-                <VariantPersonalInfoForm />
+                <PersonalInfoForm />
               </SimpleComponentViewer>
             } />
           </Routes>
