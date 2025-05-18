@@ -1275,7 +1275,7 @@ body {
   align-items: center;
   display: flex;
   justify-content: center;
-  max-width: 75%;
+  max-width:80%;
   min-height: calc(100vh - 50px);
   width: 100%;
 }
@@ -1325,11 +1325,12 @@ body {
   margin-bottom:0px;
 }
   
-  .submit-button {
-    font-size: 1.2rem;
-    padding: 17px 10px;
-    min-width:320px;
-  }
+.submit-button {
+min-width:100%;
+  padding: 17px 10px;
+  width: 100%;
+  max-width: none;
+}
   
   .error-message {
     font-size: 1.2rem;
