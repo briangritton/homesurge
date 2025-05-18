@@ -54,76 +54,164 @@ function AddressForm1(props) {
     return new window.google.maps.places.AutocompleteSessionToken();
   };
   
+  // Track when browser autofill occurs
+  const [lastStreetValue, setLastStreetValue] = useState('');
+  const [autofillDetected, setAutofillDetected] = useState(false);
+  
   // Handle form input changes
   const handleChange = (e) => {
     const value = e.target.value;
-    updateFormData({ 
-      street: value,
-      addressSelectionType: 'Manual',
-      userTypedAddress: value  // Always track what the user is typing
-    });
+    const fieldName = e.target.name;
     
-    // Keep track of the latest typed address
-    setLastTypedAddress(value);
-    
-    // Clear error message when user starts typing
-    if (errorMessage) {
-      setErrorMessage('');
-    }
-    
-    // Clear any existing suggestion timers
-    if (suggestionTimer) {
-      clearTimeout(suggestionTimer);
-    }
-    
-    // If the user has typed more than 2 characters, request address predictions
-    if (value.length >= 2 && googleApiLoaded && autocompleteServiceRef.current) {
-      // Set a timer to avoid too many API calls
-      const timer = setTimeout(() => {
-        autocompleteServiceRef.current.getPlacePredictions({
-          input: value,
-          sessionToken: sessionTokenRef.current,
-          componentRestrictions: { country: 'us' },
-          types: ['address']
-        }, async (predictions, status) => {
-          if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
-            // Store the first suggestion for potential use if user doesn't select one
-            setFirstSuggestion(predictions[0]);
-            console.log('Got suggestion:', predictions[0].description);
-            
-            // Store all suggestions
-            setAddressSuggestions(predictions);
-            
-            // Store suggestions in form data but don't send to Zoho yet
-            const top5Suggestions = predictions.slice(0, 5); // Only use top 5
-            const preparedData = {
-              userTypedAddress: value,
-              suggestionOne: top5Suggestions[0]?.description || '',
-              suggestionTwo: top5Suggestions[1]?.description || '',
-              suggestionThree: top5Suggestions[2]?.description || '',
-              suggestionFour: top5Suggestions[3]?.description || '',
-              suggestionFive: top5Suggestions[4]?.description || '',
-              leadStage: 'Address Typing'
-            };
-            
-            // Update the form data with suggestions only, don't update the street/address fields
-            updateFormData(preparedData);
-            
-            // No longer sending to Zoho here - will wait until form submission
-          } else {
-            setFirstSuggestion(null);
-            setAddressSuggestions([]);
+    // Check if this might be browser autofill
+    if (fieldName === 'address-line1') {
+      // If the value changes significantly in one update, it might be autofill
+      if (value.length > 0 && Math.abs(value.length - lastStreetValue.length) > 5) {
+        console.log('Possible browser autofill detected');
+        setAutofillDetected(true);
+        
+        // Set a timeout to auto-submit the form if this was browser autofill
+        setTimeout(() => {
+          if (autofillDetected && formData.street) {
+            console.log('Auto-submitting after browser autofill');
+            handleAutofillCallback();
           }
-        });
-      }, 500); // 500ms debounce to prevent too many API calls
+        }, 500);
+      }
       
-      setSuggestionTimer(timer);
-    } else if (value.length < 2) {
-      // Clear first suggestion if input is too short
-      setFirstSuggestion(null);
-      setAddressSuggestions([]);
+      setLastStreetValue(value);
+      
+      updateFormData({ 
+        street: value,
+        addressSelectionType: 'Manual',
+        userTypedAddress: value  // Always track what the user is typing
+      });
+      
+      // Keep track of the latest typed address
+      setLastTypedAddress(value);
+      
+      // Clear error message when user starts typing
+      if (errorMessage) {
+        setErrorMessage('');
+      }
+      
+      // Clear any existing suggestion timers
+      if (suggestionTimer) {
+        clearTimeout(suggestionTimer);
+      }
+      
+      // If the user has typed more than 2 characters, request address predictions
+      if (value.length >= 2 && googleApiLoaded && autocompleteServiceRef.current) {
+        // Set a timer to avoid too many API calls
+        const timer = setTimeout(() => {
+          autocompleteServiceRef.current.getPlacePredictions({
+            input: value,
+            sessionToken: sessionTokenRef.current,
+            componentRestrictions: { country: 'us' },
+            types: ['address']
+          }, async (predictions, status) => {
+            if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
+              // Store the first suggestion for potential use if user doesn't select one
+              setFirstSuggestion(predictions[0]);
+              console.log('Got suggestion:', predictions[0].description);
+              
+              // Store all suggestions
+              setAddressSuggestions(predictions);
+              
+              // Store suggestions in form data but don't send to Zoho yet
+              const top5Suggestions = predictions.slice(0, 5); // Only use top 5
+              const preparedData = {
+                userTypedAddress: value,
+                suggestionOne: top5Suggestions[0]?.description || '',
+                suggestionTwo: top5Suggestions[1]?.description || '',
+                suggestionThree: top5Suggestions[2]?.description || '',
+                suggestionFour: top5Suggestions[3]?.description || '',
+                suggestionFive: top5Suggestions[4]?.description || '',
+                leadStage: 'Address Typing'
+              };
+              
+              // Update the form data with suggestions only, don't update the street/address fields
+              updateFormData(preparedData);
+              
+              // No longer sending to Zoho here - will wait until form submission
+            } else {
+              setFirstSuggestion(null);
+              setAddressSuggestions([]);
+            }
+          });
+        }, 500); // 500ms debounce to prevent too many API calls
+        
+        setSuggestionTimer(timer);
+      } else if (value.length < 2) {
+        // Clear first suggestion if input is too short
+        setFirstSuggestion(null);
+        setAddressSuggestions([]);
+      }
+    } else {
+      // For other fields (name, phone), just update the form data
+      const updateField = {};
+      if (fieldName === 'name') updateField.name = value;
+      if (fieldName === 'tel') updateField.phone = value;
+      
+      updateFormData(updateField);
     }
   };
+  
+  // The handleAutofillSubmit function will be defined after fetchPropertyData
+  
+  // Listen for autofill events
+  const handleAutofillCallback = () => {
+    console.log('Auto-submitting after browser autofill detection');
+    if (formData.street) {
+      setIsLoading(true);
+      setTimeout(() => {
+        nextStep();
+        setIsLoading(false);
+      }, 500);
+    }
+  };
+  
+  useEffect(() => {
+    const handleAnimationStart = (e) => {
+      // In Chrome, autocomplete fields will have animation-name: onAutoFillStart
+      if (e.animationName === 'onAutoFillStart') {
+        console.log('Browser autofill detected on', e.target.name);
+        setAutofillDetected(true);
+        
+        // Set a timeout to submit the form after autofill completes
+        setTimeout(() => {
+          handleAutofillCallback();
+        }, 1000);
+      }
+    };
+    
+    // Add CSS to detect autofill
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes onAutoFillStart {
+        from {}
+        to {}
+      }
+      input:-webkit-autofill {
+        animation-name: onAutoFillStart;
+        animation-duration: 1ms;
+      }
+    `;
+    document.head.append(style);
+    
+    // Add listeners
+    const addressInput = inputRef.current;
+    if (addressInput) {
+      addressInput.addEventListener('animationstart', handleAnimationStart);
+    }
+    
+    return () => {
+      document.head.removeChild(style);
+      if (addressInput) {
+        addressInput.removeEventListener('animationstart', handleAnimationStart);
+      }
+    };
+  }, [formData.street]);
   
   // Get place details for a prediction
   const getPlaceDetails = async (placeId) => {
@@ -303,6 +391,8 @@ function AddressForm1(props) {
     return null;
   };
   
+  // Additional autofill handling can be added here if needed
+  
   // Process address selection (whether from autocomplete or suggestion)
   const processAddressSelection = async (place) => {
     if (!place || !place.formatted_address) {
@@ -344,16 +434,25 @@ function AddressForm1(props) {
       lng: place.geometry.location.lng()
     } : null;
     
-    // Update form data with selected place
+    // Check if we have name and phone from browser autofill
+    console.log('Name and phone data:', {
+      name: formData.name,
+      phone: formData.phone
+    });
+    
+    // Update form data with selected place - preserve name and phone if they exist
     updateFormData({
       street: place.formatted_address,
       city: addressComponents.city,
       state: addressComponents.state,
       zip: addressComponents.zip,
       location: location,
-      addressSelectionType: 'Google',
+      addressSelectionType: autofillDetected ? 'BrowserAutofill' : 'Google',
       selectedSuggestionAddress: place.formatted_address,
-      leadStage: 'Address Selected'
+      leadStage: 'Address Selected',
+      // Preserve name and phone
+      name: formData.name || '',
+      phone: formData.phone || ''
     });
     
     // Ensure inputRef has the correct value
@@ -1173,11 +1272,16 @@ function AddressForm1(props) {
             {formatSubheadline(formData.dynamicSubHeadline || "Get a great cash offer today. Close in 7 days. No agents, no repairs, no stress.")}
           </div>
           
-          {/* This is now a div, not a form! We don't want form submission at all */}
-          <div className="af1-form-container form-container">
+          {/* Using a form structure for browser autofill to work properly */}
+          <form className="af1-form-container form-container" id="addressForm" autoComplete="on" onSubmit={(e) => {
+            e.preventDefault();
+            handleButtonClick(e);
+          }}>
             <input
               ref={inputRef}
               type="text"
+              name="address-line1"
+              autoComplete="address-line1"
               placeholder="Street address..."
               className={errorMessage ? 'af1-address-input-invalid address-input-invalid' : 'af1-address-input address-input'}
               value={formData.street || ''}
@@ -1185,18 +1289,43 @@ function AddressForm1(props) {
               onFocus={(e) => e.target.placeholder = ''}
               onBlur={(e) => e.target.placeholder = 'Street address...'}
               disabled={isLoading}
-              // We now handle Enter in the document level listener
+            />
+            
+            <input
+              type="text"
+              name="name"
+              autoComplete="name"
+              placeholder="Your name (optional)"
+              className="af1-address-input address-input"
+              value={formData.name || ''}
+              onChange={(e) => updateFormData({ name: e.target.value })}
+              onFocus={(e) => e.target.placeholder = ''}
+              onBlur={(e) => e.target.placeholder = 'Your name (optional)'}
+              disabled={isLoading}
+            />
+            
+            <input
+              type="tel"
+              name="tel"
+              autoComplete="tel"
+              placeholder="Your phone (optional)"
+              className="af1-address-input address-input"
+              value={formData.phone || ''}
+              onChange={(e) => updateFormData({ phone: e.target.value })}
+              onFocus={(e) => e.target.placeholder = ''}
+              onBlur={(e) => e.target.placeholder = 'Your phone (optional)'}
+              disabled={isLoading}
             />
             
             <button 
+              type="submit"
               className="af1-submit-button submit-button"
               id="address-submit-button" 
               disabled={isLoading}
-              onClick={handleButtonClick}
             >
               {isLoading ? 'CHECKING...' : formData.buttonText || 'CHECK OFFER'}
             </button>
-          </div>
+          </form>
           
           {errorMessage && (
             <div className="af1-error-message error-message">{errorMessage}</div>
