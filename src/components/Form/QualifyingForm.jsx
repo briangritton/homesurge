@@ -29,8 +29,22 @@ function QualifyingForm() {
     // Check if we're using a temp ID and show a message
     if (leadId && leadId.startsWith('temp_') && !saveAttempted) {
       setSaveAttempted(true);
-      console.log('Note: Using demo mode - changes will not be saved to Zoho CRM');
+      console.warn("Using temporary lead ID - tracking may be limited");
     }
+    
+    // Track form step for analytics
+    trackFormStepComplete(3, 'Qualifying Form Loaded', formData);
+    
+    // Record window scroll position
+    const scrollPosition = window.scrollY;
+    
+    // Scroll to top
+    window.scrollTo(0, 0);
+    
+    // Cleanup function to restore scroll position
+    return () => {
+      window.scrollTo(0, scrollPosition);
+    };
   }, [leadId, saveAttempted, formData]);
   
   // Initialize button states based on existing data
@@ -54,10 +68,36 @@ function QualifyingForm() {
     }
   }, [selectedOptionLR, formData.needsRepairs]);
   
-  // Scroll to top when step changes
+  // Send qualifying answers to Zoho when step changes
   useEffect(() => {
+    // Scroll to top when step changes
     window.scrollTo(0, 0);
-  }, [qualifyingStep]);
+    
+    if (qualifyingStep > 1) {
+      // Update Zoho with current qualifying data
+      updateFormData({
+        qualifyingQuestionStep: qualifyingStep,
+        remainingMortgage,
+        finishedSquareFootage,
+        basementSquareFootage
+      });
+      
+      // Only send updates to Zoho when we have a valid lead ID
+      if (leadId && !leadId.startsWith('temp_')) {
+        updateLead()
+          .then(success => {
+            if (success) {
+              console.log('Successfully updated lead with qualifying data');
+            } else {
+              console.warn('Failed to update lead with qualifying data');
+            }
+          })
+          .catch(error => {
+            console.error('Error updating lead with qualifying data:', error);
+          });
+      }
+    }
+  }, [qualifyingStep, remainingMortgage, finishedSquareFootage, basementSquareFootage, leadId, updateFormData, updateLead]);
   
   // Generate date and time options for appointment scheduling
   const getNextSevenDays = () => {
@@ -88,6 +128,24 @@ function QualifyingForm() {
   
   const availableDates = getNextSevenDays();
   const availableTimes = getTimeSlots();
+  
+  // Format currency for display
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(value);
+  };
+  
+  // Format square footage for display
+  const formatSquareFootage = (value) => {
+    return new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(value) + ' sq ft';
+  };
   
   // Handle slider changes
   const handleSliderChangeMortgage = (e) => {
@@ -135,14 +193,54 @@ function QualifyingForm() {
     ? basementSquareFootage.toLocaleString() + '+ sq/ft'
     : basementSquareFootage.toLocaleString() + ' sq/ft';
   
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    if (e) e.preventDefault();
+    
+    // Update form data with qualifying info
+    updateFormData({
+      qualifyingQuestionStep: 10, // Mark as completed
+      remainingMortgage,
+      finishedSquareFootage,
+      basementSquareFootage
+    });
+    
+    // Track form completion
+    trackFormStepComplete(3, 'Qualifying Form Completed', formData);
+    
+    try {
+      // Final update to Zoho with all data
+      const success = await updateLead();
+      if (success) {
+        // Track conversion in Zoho
+        if (leadId && !leadId.startsWith('temp_')) {
+          trackZohoConversion(leadId)
+            .then(() => {
+              console.log('Tracked Zoho conversion successfully');
+            })
+            .catch(error => {
+              console.error('Failed to track Zoho conversion:', error);
+            });
+        }
+        
+        // Proceed to thank you page
+        nextStep();
+      } else {
+        console.error('Failed to update lead with qualifying data');
+        // Still proceed to thank you page even on error
+        nextStep();
+      }
+    } catch (error) {
+      console.error('Error in final submission:', error);
+      // Still proceed to thank you page even on error
+      nextStep();
+    }
+  };
+  
   // This function handles updating a field value and immediately advancing to the next question
-  // The Zoho update happens in the background
   const handleValueUpdate = (fieldName, value) => {
     // Update form data locally first
     updateFormData({ [fieldName]: value });
-    
-    // We're removing this tracking to avoid too many events
-    // These intermediate steps don't need to be tracked for Facebook
     
     // Move to next step immediately
     const nextQuestionStep = qualifyingStep + 1;
@@ -171,53 +269,31 @@ function QualifyingForm() {
     }, 100);
   };
   
-  // Handle completing the qualifying form
-  const completeForm = () => {
-    // Update lead in Zoho one final time
-    console.log('Finalizing lead data with qualifying form answers');
+  // Handle yes/no toggle selection
+  const handleToggleSelect = (field, value) => {
+    handleValueUpdate(field, value);
     
-    // Ensure all form data is properly set before finalizing
-    console.log('Final form data before completion:', {
-      needsRepairs: formData.needsRepairs,
-      wantToSetAppointment: formData.wantToSetAppointment,
-      selectedAppointmentDate: formData.selectedAppointmentDate,
-      selectedAppointmentTime: formData.selectedAppointmentTime
-    });
-    
-    // Store a copy in localStorage in case the API call fails
-    try {
-      localStorage.setItem('qualifyingFormData', JSON.stringify({
-        needsRepairs: formData.needsRepairs,
-        workingWithAgent: formData.workingWithAgent,
-        homeType: formData.homeType,
-        remainingMortgage: formData.remainingMortgage,
-        howSoonSell: formData.howSoonSell,
-        wantToSetAppointment: formData.wantToSetAppointment,
-        selectedAppointmentDate: formData.selectedAppointmentDate,
-        selectedAppointmentTime: formData.selectedAppointmentTime,
-        timestamp: new Date().toISOString()
-      }));
-    } catch (storageError) {
-      console.warn('Failed to save backup to localStorage:', storageError);
+    // When clicking the toggle, update its appearance
+    if (toggleLeftRef.current && toggleRightRef.current) {
+      if (value === 'true') {
+        toggleLeftRef.current.className = 'qualifying-toggle-selected-left';
+        toggleRightRef.current.className = 'qualifying-toggle-deselected-right';
+        setSelectedOptionLR('left');
+      } else {
+        toggleLeftRef.current.className = 'qualifying-toggle-deselected-left';
+        toggleRightRef.current.className = 'qualifying-toggle-selected-right';
+        setSelectedOptionLR('right');
+      }
     }
+  };
+  
+  // Handle home type selection
+  const handleHomeTypeSelect = (type) => {
+    // Close dropdown
+    setDropdownOpen(false);
     
-    // Initiate Zoho update in the background
-    updateLead().then(() => {
-      console.log('All data saved successfully!');
-      // If API call succeeded, we can remove the localStorage backup
-      localStorage.removeItem('qualifyingFormData');
-    }).catch(error => {
-      console.error('Error finalizing lead, but continuing:', error);
-      // Track error for analytics
-      trackFormError('Error finalizing lead: ' + error.message, 'zoho_final_update');
-      // Data is already backed up in localStorage
-    });
-    
-    // Track form completion for analytics with campaign data
-    trackFormStepComplete(3, 'Qualifying Form Complete', formData);
-    
-    // Move to thank you page immediately - never block the user flow
-    nextStep();
+    // Use the value update method for consistency
+    handleValueUpdate('homeType', type);
   };
   
   // Helper function to go to a specific step
@@ -265,8 +341,7 @@ function QualifyingForm() {
                 ref={toggleLeftRef}
                 value="true"
                 onClick={(e) => {
-                  handleValueUpdate('isPropertyOwner', e.target.value);
-                  setSelectedOptionLR('left');
+                  handleToggleSelect('isPropertyOwner', e.target.value);
                 }}
               >
                 Yes
@@ -276,8 +351,7 @@ function QualifyingForm() {
                 ref={toggleRightRef}
                 value="false"
                 onClick={(e) => {
-                  handleValueUpdate('isPropertyOwner', e.target.value);
-                  setSelectedOptionLR('right');
+                  handleToggleSelect('isPropertyOwner', e.target.value);
                 }}
               >
                 No
@@ -288,7 +362,6 @@ function QualifyingForm() {
         
       case 2:
         // Repairs needed question
-        // IMPORTANT: This is where needsRepairs is set
         return (
           <div className="qualifying-option-column">
             <div className="qualifying-question">
@@ -300,18 +373,8 @@ function QualifyingForm() {
                 ref={toggleLeftRef}
                 value="false"
                 onClick={(e) => {
-                  // Make sure this properly updates the value and triggers a save
-                  const repairValue = e.target.value;
-                  // Log the exact value we're sending to ensure it's correct
-                  console.log("Setting needsRepairs to:", repairValue);
-                  // Ensure needsRepairs is set as a string 'true' or 'false' for consistency
-                  handleValueUpdate('needsRepairs', repairValue);
-                  setSelectedOptionLR('left');
-                  
-                  // Debugging: Add additional log to confirm update in form data
-                  setTimeout(() => {
-                    console.log("Form data needsRepairs after update:", formData.needsRepairs);
-                  }, 100);
+                  // Make sure this properly updates the value
+                  handleToggleSelect('needsRepairs', e.target.value);
                 }}
               >
                 No
@@ -321,17 +384,8 @@ function QualifyingForm() {
                 ref={toggleRightRef}
                 value="true"
                 onClick={(e) => {
-                  // Make sure this properly updates the value and triggers a save
-                  const repairValue = e.target.value;
-                  console.log("Setting needsRepairs to:", repairValue);
-                  // Ensure needsRepairs is set as a string 'true' or 'false' for consistency
-                  handleValueUpdate('needsRepairs', repairValue);
-                  setSelectedOptionLR('right');
-                  
-                  // Debugging: Add additional log to confirm update in form data
-                  setTimeout(() => {
-                    console.log("Form data needsRepairs after update:", formData.needsRepairs);
-                  }, 100);
+                  // Make sure this properly updates the value
+                  handleToggleSelect('needsRepairs', e.target.value);
                 }}
               >
                 Yes
@@ -353,8 +407,7 @@ function QualifyingForm() {
                 ref={toggleLeftRef}
                 value="false"
                 onClick={(e) => {
-                  handleValueUpdate('workingWithAgent', e.target.value);
-                  setSelectedOptionLR('left');
+                  handleToggleSelect('workingWithAgent', e.target.value);
                 }}
               >
                 No
@@ -364,8 +417,7 @@ function QualifyingForm() {
                 ref={toggleRightRef}
                 value="true"
                 onClick={(e) => {
-                  handleValueUpdate('workingWithAgent', e.target.value);
-                  setSelectedOptionLR('right');
+                  handleToggleSelect('workingWithAgent', e.target.value);
                 }}
               >
                 Yes
@@ -395,10 +447,7 @@ function QualifyingForm() {
                 {['Single Family', 'Condo', 'Townhouse', 'Multi-Family'].map((option) => (
                   <div
                     key={option}
-                    onClick={() => {
-                      handleValueUpdate('homeType', option);
-                      setDropdownOpen(false);
-                    }}
+                    onClick={() => handleHomeTypeSelect(option)}
                   >
                     &nbsp;&nbsp;{option}
                   </div>
@@ -469,6 +518,36 @@ function QualifyingForm() {
         );
         
       case 7:
+        // Basement square footage question
+        return (
+          <div className="qualifying-option-column">
+            <div className="qualifying-question">
+              What is your basement square footage?
+            </div>
+            <div className="qualifying-slider-container">
+              <div className="qualifying-slider-text">
+                {displayBasementSquareFootage}
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="5000"
+                value={basementSquareFootage}
+                className="qualifying-slider"
+                ref={basementSquareFootageSliderRef}
+                onChange={handleSliderChangeBasementSquareFootage}
+              />
+            </div>
+            <button
+              className="qualifying-button"
+              onClick={() => handleValueUpdate('basementSquareFootage', basementSquareFootage)}
+            >
+              Next
+            </button>
+          </div>
+        );
+        
+      case 8:
         // Timeframe question
         return (
           <div className="qualifying-option-column">
@@ -502,7 +581,7 @@ function QualifyingForm() {
           </div>
         );
         
-      case 8:
+      case 9:
         // Request appointment question
         return (
           <div className="qualifying-option-column">
@@ -521,13 +600,14 @@ function QualifyingForm() {
                   setSelectedOptionLR('left');
                   
                   // Track analytics with campaign data
-                  trackFormStepComplete(8, 'No Appointment Requested', formData);
+                  trackFormStepComplete(9, 'No Appointment Requested', formData);
                   
-                  // Trigger background save then complete the form
-                  updateLead().then(() => console.log('Appointment preference saved'));
-                  
-                  // Move to completion immediately
-                  completeForm();
+                  // Update Zoho and finish
+                  updateLead().then(() => {
+                    console.log('Appointment preference saved');
+                    // Submit form data
+                    handleSubmit();
+                  });
                 }}
               >
                 No
@@ -542,13 +622,13 @@ function QualifyingForm() {
                   setSelectedOptionLR('right');
                   
                   // Track analytics with campaign data
-                  trackFormStepComplete(8, 'Appointment Requested', formData);
+                  trackFormStepComplete(9, 'Appointment Requested', formData);
                   
                   // Trigger background save
                   updateLead().then(() => console.log('Appointment preference saved'));
                   
                   // Move to next step immediately
-                  goToStep(9);
+                  goToStep(10);
                 }}
               >
                 Yes
@@ -557,7 +637,7 @@ function QualifyingForm() {
           </div>
         );
         
-      case 9:
+      case 10:
         // Date selection for appointment
         return (
           <div className="qualifying-option-column">
@@ -583,7 +663,7 @@ function QualifyingForm() {
                       setDropdownOpen(false);
                       
                       // Track analytics with campaign data
-                      trackFormStepComplete(9, `Selected Date: ${date}`, formData);
+                      trackFormStepComplete(10, `Selected Date: ${date}`, formData);
                     }}
                   >
                     &nbsp;&nbsp;{date}
@@ -594,7 +674,7 @@ function QualifyingForm() {
           </div>
         );
         
-      case 10:
+      case 11:
         // Time selection for appointment
         return (
           <div className="qualifying-option-column">
@@ -619,61 +699,33 @@ function QualifyingForm() {
                       // Update form data
                       const appointmentTime = time;
                       console.log("Setting selectedAppointmentTime to:", appointmentTime);
-                      updateFormData({ selectedAppointmentTime: appointmentTime });
+                      updateFormData({ 
+                        selectedAppointmentTime: appointmentTime,
+                        wantToSetAppointment: 'true' // Ensure this is explicitly set to 'true'
+                      });
                       setDropdownOpen(false);
                       
                       // Track analytics with campaign data
-                      trackFormStepComplete(10, `Selected Time: ${time}`, formData);
+                      trackFormStepComplete(11, `Selected Time: ${time}`, formData);
                       
-                      // Add debugging to verify the update took effect
-                      console.log("Current appointment data:", {
-                        date: formData.selectedAppointmentDate,
-                        time: appointmentTime,
-                        wantToSetAppointment: formData.wantToSetAppointment
-                      });
-                      
-                      // Do a more explicit update to ensure values are set before completing
-                      const updatedFormData = {
-                        selectedAppointmentTime: appointmentTime,
-                        wantToSetAppointment: 'true' // Ensure this is explicitly set to 'true'
-                      };
-                      
-                      // Update form data and wait for it to finish
-                      updateFormData(updatedFormData);
-                      
-                      // Wait a moment to ensure data is updated, then do explicit Zoho update
-                      setTimeout(() => {
-                        console.log("Updated appointment data before Zoho save:", {
-                          time: formData.selectedAppointmentTime, 
-                          date: formData.selectedAppointmentDate,
-                          wantApp: formData.wantToSetAppointment
-                        });
+                      // Update Zoho with appointment time
+                      updateLead().then(success => {
+                        console.log('Appointment time saved to Zoho:', success ? 'Success' : 'Failed');
                         
-                        // Start background update to Zoho with explicit form data
-                        updateLead().then(success => {
-                          console.log('Appointment time saved to Zoho:', success ? 'Success' : 'Failed');
-                          
-                          // Track appointment conversion if successful
-                          if (success && leadId) {
-                            trackZohoConversion('appointmentSet', leadId, 'Appointment Set')
-                              .then(tracked => {
-                                console.log('Appointment conversion tracked:', tracked ? 'Success' : 'Failed');
-                              })
-                              .catch(error => {
-                                console.error('Error tracking appointment conversion:', error);
-                              });
-                          }
-                          
-                          // Move to completion after the update
-                          completeForm();
-                        }).catch(err => {
-                          console.error('Error saving appointment:', err);
-                          // Track error for analytics
-                          trackFormError('Error saving appointment: ' + err.message, 'appointment');
-                          // Still move forward even if there's an error
-                          completeForm();
-                        });
-                      }, 300);
+                        // Track appointment conversion
+                        if (success && leadId && !leadId.startsWith('temp_')) {
+                          trackZohoConversion('appointmentSet', leadId, 'Appointment Set')
+                            .then(tracked => {
+                              console.log('Appointment conversion tracked:', tracked ? 'Success' : 'Failed');
+                            })
+                            .catch(error => {
+                              console.error('Error tracking appointment conversion:', error);
+                            });
+                        }
+                        
+                        // Submit form data
+                        handleSubmit();
+                      });
                     }}
                   >
                     &nbsp;&nbsp;{time}
@@ -685,7 +737,7 @@ function QualifyingForm() {
         );
         
       default:
-        // Final message
+        // Final message or error state
         return (
           <div className="qualifying-option-column">
             <div className="qualifying-question">
@@ -693,7 +745,7 @@ function QualifyingForm() {
             </div>
             <button
               className="qualifying-button"
-              onClick={completeForm}
+              onClick={handleSubmit}
             >
               Finish
             </button>
