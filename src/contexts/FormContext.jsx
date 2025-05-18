@@ -203,12 +203,22 @@ export function FormProvider({ children }) {
 
   // Handle form step navigation
   const nextStep = () => {
+    // Debug logging to help track form navigation
+    console.log('FORM NAVIGATION: nextStep() called from FormContext');
+    console.log('Current formStep:', formData.formStep);
+    
     // Simply move to the next step - tracking will be handled by components
     const newStep = formData.formStep + 1;
+    console.log('New formStep will be:', newStep);
+    
     setFormData(prev => ({ ...prev, formStep: newStep }));
 
     // Save current step to localStorage to persist across page refreshes
     localStorage.setItem('formStep', newStep.toString());
+    console.log('formStep saved to localStorage:', newStep.toString());
+    
+    // Return the new step for debugging
+    return newStep;
   };
 
   const previousStep = () => {
