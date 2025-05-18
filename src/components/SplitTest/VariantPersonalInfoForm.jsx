@@ -803,7 +803,7 @@ transition: background-color 0.3s;
             </button>
             
             <p className="v1-privacy-text">
-              We respect your privacy and never share your information.
+              You will receive an automated text to the  number provided. We respect your privacy and never share your information.
             </p>
           </form>
         </div>
