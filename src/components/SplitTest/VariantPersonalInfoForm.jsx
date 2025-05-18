@@ -27,13 +27,14 @@ function VariantPersonalInfoForm() {
     const styleElement = document.createElement('style');
     styleElement.textContent = `
       /* Variant-specific styles with v1- prefix */
-      .v1-hero-section {
-        position: relative;
-        width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
-        min-height: 500px;
-      }
+   .v1-hero-section {
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: 500px;
+    margin-top: 35px;
+}
       
      .v1-hero-middle-container {
 display: flex;
@@ -69,13 +70,28 @@ width: 100%;
         width: 100%;
       }
       
-     .v1-hero-property-estimate {
-font-size: 2.3rem;
-font-weight: bold;
-color: #2e7d32;
-color: #2e7d61;
-text-align: center;
-margin-bottom: 20px;
+   .v1-estimate-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
+    text-align: center;
+    width: 100%;
+}
+
+   .v1-hero-property-estimate {
+    font-size: 2.3rem;
+    font-weight: bold;
+    color: #2e7d61;
+}
+
+   .v1-value-estimate-label {
+    font-size: 1.8rem;
+    font-weight: normal;
+    color: #2e7d61;
 }
       
       .v1-custom-map-container {
@@ -143,7 +159,7 @@ transition: background-color 0.3s;
 }
       
       .v1-submit-button:hover {
-        background-color:rgba(46, 125, 97, 0.72);
+        background-color:rgba(46, 125, 97, 0.93);
       }
       
       .v1-submit-button:disabled {
@@ -227,6 +243,68 @@ transition: background-color 0.3s;
         max-width: 500px;
       }
       
+      /* Media Queries */
+      @media screen and (max-width: 768px) {
+        .v1-estimate-container {
+          gap: 6px;
+        }
+        
+        .v1-hero-property-estimate {
+          font-size: 1.8rem;
+        }
+        
+        .v1-value-estimate-label {
+          font-size: 1.5rem;
+        }
+        
+        .v1-confirmation-header {
+          font-size: 1.5rem;
+        }
+        
+        .v1-input-field {
+          font-size: 1.2rem;
+          height: 45px;
+        }
+        
+        .v1-submit-button {
+          font-size: 1.2rem;
+        }
+      }
+      
+      @media screen and (max-width: 480px) {
+       .v1-estimate-container {
+   
+    flex-direction: column;
+ 
+    margin-bottom: 15px;
+ 
+    margin-top: 10px;
+}
+        
+          .v1-hero-property-estimate {
+        font-size: 2.2rem;
+    }
+        
+        .v1-value-estimate-label {
+          font-size: 1.3rem;
+          font-weight:bold;
+        }
+        
+        .v1-confirmation-header {
+          font-size: 1.3rem;
+        }
+        
+        .v1-hero-1-api-address {
+          font-size: 1rem;
+        }
+        
+        .v1-hero-content {
+          padding: 0 10px;
+        }
+      }
+      .v1-input-container{
+      width:100%;
+      }
       @keyframes v1LoadingDots {
         0% { content: "."; }
         33% { content: ".."; }
@@ -705,8 +783,15 @@ transition: background-color 0.3s;
       <div className="v1-hero-middle-container">
         <div className="v1-hero-content v1-fade-in v1-max-width-500">
           <div className="v1-hero-1-api-address">
-            {formData.street && formData.street.replace(/, USA$/, '')}
-            <button 
+            {formData.street && (
+              <>
+                {formData.street.split(',').slice(0, -2).join(',')},
+                <span className="v1-nowrap-phrase">
+                  {formData.street.split(',').slice(-2).join(',').replace(/, USA$/, '')}
+                </span>
+              </>
+            )}
+            {/* <button 
               onClick={handleEditClick} 
               style={{ 
                 marginLeft: '10px', 
@@ -719,25 +804,29 @@ transition: background-color 0.3s;
               }}
             >
               Edit
-            </button>
+            </button> */}
           </div>
           
           {valueLoading ? (
-            <div className="v1-hero-property-estimate">
-              <span className="v1-loading-dots">Retrieving Maximum Value</span>
+            <div className="v1-estimate-container">
+              <span className="v1-hero-property-estimate v1-loading-dots">Retrieving Maximum Value</span>
             </div>
           ) : formData.apiMaxHomeValue ? (
-            <div className="v1-hero-property-estimate">
-              Value Estimate: {new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-              }).format(formData.apiMaxHomeValue)}
+            <div className="v1-estimate-container">
+              <span className="v1-value-estimate-label">Value Estimate:</span>
+              <span className="v1-hero-property-estimate">
+                {new Intl.NumberFormat('en-US', {
+                  style: 'currency',
+                  currency: 'USD',
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0
+                }).format(formData.apiMaxHomeValue)}
+              </span>
             </div>
           ) : formattedValue && (
-            <div className="v1-hero-property-estimate">
-              Value Estimate: {formattedValue}
+            <div className="v1-estimate-container">
+              <span className="v1-value-estimate-label">Value Estimate:</span>
+              <span className="v1-hero-property-estimate">{formattedValue}</span>
             </div>
           )}
   
@@ -803,7 +892,7 @@ transition: background-color 0.3s;
             </button>
             
             <p className="v1-privacy-text">
-              You will receive an automated text to the  number provided. We respect your privacy and never share your information.
+              You will receive an automated text with your offer to the  number provided. We respect your privacy and never share your information.
             </p>
           </form>
         </div>
