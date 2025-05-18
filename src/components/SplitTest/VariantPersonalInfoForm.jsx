@@ -70,18 +70,28 @@ width: 100%;
         width: 100%;
       }
       
+   .v1-estimate-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
+    text-align: center;
+    width: 100%;
+}
+
    .v1-hero-property-estimate {
     font-size: 2.3rem;
     font-weight: bold;
-    color: #2e7d32;
     color: #2e7d61;
-    text-align: center;
-    margin-bottom: 15px;
 }
 
    .v1-value-estimate-label {
-    font-size: inherit;
-    font-weight: inherit;
+    font-size: 1.8rem;
+    font-weight: normal;
+    color: #2e7d61;
 }
       
       .v1-custom-map-container {
@@ -235,8 +245,16 @@ transition: background-color 0.3s;
       
       /* Media Queries */
       @media screen and (max-width: 768px) {
+        .v1-estimate-container {
+          gap: 6px;
+        }
+        
         .v1-hero-property-estimate {
           font-size: 1.8rem;
+        }
+        
+        .v1-value-estimate-label {
+          font-size: 1.5rem;
         }
         
         .v1-confirmation-header {
@@ -254,8 +272,17 @@ transition: background-color 0.3s;
       }
       
       @media screen and (max-width: 480px) {
+        .v1-estimate-container {
+          flex-direction: column;
+          gap: 0;
+        }
+        
         .v1-hero-property-estimate {
           font-size: 1.5rem;
+        }
+        
+        .v1-value-estimate-label {
+          font-size: 1.3rem;
         }
         
         .v1-confirmation-header {
@@ -776,21 +803,25 @@ transition: background-color 0.3s;
           </div>
           
           {valueLoading ? (
-            <div className="v1-hero-property-estimate">
-              <span className="v1-loading-dots">Retrieving Maximum Value</span>
+            <div className="v1-estimate-container">
+              <span className="v1-hero-property-estimate v1-loading-dots">Retrieving Maximum Value</span>
             </div>
           ) : formData.apiMaxHomeValue ? (
-            <div className="v1-hero-property-estimate">
-              <span className="v1-value-estimate-label">Value Estimate:</span> {new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-              }).format(formData.apiMaxHomeValue)}
+            <div className="v1-estimate-container">
+              <span className="v1-value-estimate-label">Value Estimate:</span>
+              <span className="v1-hero-property-estimate">
+                {new Intl.NumberFormat('en-US', {
+                  style: 'currency',
+                  currency: 'USD',
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0
+                }).format(formData.apiMaxHomeValue)}
+              </span>
             </div>
           ) : formattedValue && (
-            <div className="v1-hero-property-estimate">
-              <span className="v1-value-estimate-label">Value Estimate:</span> {formattedValue}
+            <div className="v1-estimate-container">
+              <span className="v1-value-estimate-label">Value Estimate:</span>
+              <span className="v1-hero-property-estimate">{formattedValue}</span>
             </div>
           )}
   
