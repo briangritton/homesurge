@@ -19,9 +19,17 @@ function PersonalInfoFormTest() {
   // Track view event when component mounts
   useEffect(() => {
     if (variant) {
+      // Only track a view if we actually show this variant to the user
       trackConversion(PERSONAL_INFO_FORM_TEST_ID, variant, 1, 'view');
     }
   }, [variant, trackConversion]);
+  
+  // Check if we received a valid variant (consider a distribution of 0% as disabled)
+  if (!variant) {
+    // Fallback to original if no variant is assigned (due to distribution settings)
+    console.log('No variant assigned, falling back to original');
+    return <OriginalPersonalInfoForm />;
+  }
   
   // Render the appropriate variant based on the test assignment
   switch (variant) {
@@ -31,6 +39,7 @@ function PersonalInfoFormTest() {
       return <VariantPersonalInfoForm />;
     default:
       // Fallback to original if something went wrong
+      console.log('Unknown variant, falling back to original');
       return <OriginalPersonalInfoForm />;
   }
 }

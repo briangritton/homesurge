@@ -161,7 +161,18 @@ export function SplitTestProvider({ children }) {
   const getVariant = (testId) => {
     // Check if user already has an assigned group for this test
     if (testState.userGroups[testId]) {
-      return testState.userGroups[testId];
+      const assignedVariant = testState.userGroups[testId];
+      const test = testState.activeTests[testId];
+      
+      // If the test exists and the variant is now disabled (0% distribution),
+      // we should reassign the user to a new variant
+      if (test && test.distribution[assignedVariant] === 0) {
+        console.log(`User was assigned to variant ${assignedVariant}, but it is now disabled. Reassigning...`);
+        // Continue to reassignment logic below
+      } else {
+        // Otherwise, return the previously assigned variant
+        return assignedVariant;
+      }
     }
     
     // Check if test exists
@@ -174,11 +185,20 @@ export function SplitTestProvider({ children }) {
     // Get the test distribution
     const distribution = getTestDistribution(testId, test.distribution);
     
+    // Filter out variants with 0% distribution
+    const activeVariants = test.variants.filter(v => (distribution[v] || 0) > 0);
+    
+    // If no active variants, return null
+    if (activeVariants.length === 0) {
+      console.warn(`No active variants for test ${testId}`);
+      return null;
+    }
+    
     // Assign user to a group based on distribution
     const random = Math.random() * 100;
     let cumulativePercentage = 0;
     
-    for (const variant of test.variants) {
+    for (const variant of activeVariants) {
       cumulativePercentage += distribution[variant] || 0;
       if (random <= cumulativePercentage) {
         // Assign user to this variant
@@ -204,8 +224,8 @@ export function SplitTestProvider({ children }) {
       }
     }
     
-    // Fallback to first variant if something went wrong
-    return test.variants[0];
+    // Fallback to first active variant if something went wrong
+    return activeVariants[0];
   };
   
   // Track a conversion for a particular test
@@ -316,6 +336,51 @@ export function SplitTestProvider({ children }) {
     setTestState(initialTestState);
   };
   
+  // Update test distribution (for toggling variants on/off)
+  const updateTestDistribution = (testId, newDistribution) => {
+    if (!testState.activeTests[testId]) {
+      console.error(`Test ${testId} does not exist`);
+      return false;
+    }
+    
+    // Validate that distribution percentages add up to 100%
+    const totalPercentage = Object.values(newDistribution).reduce((sum, val) => sum + val, 0);
+    if (Math.abs(totalPercentage - 100) > 0.1) {
+      console.error(`Distribution percentages must add up to 100%, got ${totalPercentage}%`);
+      return false;
+    }
+    
+    // Update the test with the new distribution
+    setTestState(prev => {
+      const updatedTest = {
+        ...prev.activeTests[testId],
+        distribution: newDistribution
+      };
+      
+      return {
+        ...prev,
+        activeTests: {
+          ...prev.activeTests,
+          [testId]: updatedTest
+        }
+      };
+    });
+    
+    // Save updated distribution to localStorage
+    saveTestDistribution(testId, newDistribution);
+    
+    // Track distribution update in analytics
+    if (window.dataLayer) {
+      window.dataLayer.push({
+        event: 'split_test_distribution_updated',
+        testId,
+        newDistribution
+      });
+    }
+    
+    return true;
+  };
+  
   return (
     <SplitTestContext.Provider value={{
       createTest,
@@ -326,6 +391,7 @@ export function SplitTestProvider({ children }) {
       getActiveTests,
       endTest,
       resetAllTests,
+      updateTestDistribution,
       userId: testState.userId,
       userGroups: testState.userGroups
     }}>

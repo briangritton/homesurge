@@ -284,6 +284,8 @@ transition: background-color 0.3s;
         
           .v1-hero-property-estimate {
         font-size: 2.2rem;
+
+        line-height: 1;
     }
         
         .v1-value-estimate-label {
@@ -658,13 +660,20 @@ transition: background-color 0.3s;
       }
       
       if (submitSuccess || contactUpdateSuccess) {
-        console.log('Lead captured successfully');
+        console.log('Lead captured successfully - preparing to advance to next step');
         
         trackPhoneNumberLead();
         
         trackFormStepComplete(2, 'Personal Info Form Completed', formData);
         
+        console.log('Current form step before advancing:', formData.formStep);
         nextStep();
+        console.log('Called nextStep() - should be advancing to next form');
+        
+        // Force update localStorage with the new step to ensure persistence
+        const newStep = formData.formStep + 1;
+        localStorage.setItem('formStep', newStep.toString());
+        console.log('Manually updated localStorage formStep to:', newStep);
       } else {
         console.error('Failed to submit lead - trying offline storage');
         localStorage.setItem('offlineLeadData', JSON.stringify({
@@ -677,7 +686,17 @@ transition: background-color 0.3s;
         setPhoneError('There were some connectivity issues, but we\'ve saved your info. Click continue to proceed.');
         
         setTimeout(() => {
+          console.log('Timeout expired - attempting to advance through fallback method');
+          const currentStep = formData.formStep || 1;
+          console.log('Current form step in fallback:', currentStep);
+          
           nextStep();
+          console.log('Called nextStep() in fallback - should be advancing');
+          
+          // Force update localStorage with the new step to ensure persistence
+          const newStep = currentStep + 1;
+          localStorage.setItem('formStep', newStep.toString());
+          console.log('Manually updated localStorage formStep in fallback to:', newStep);
         }, 3000);
         
         trackFormError('Lead submission failed, using offline storage', 'submit');
@@ -695,7 +714,17 @@ transition: background-color 0.3s;
       }));
       
       setTimeout(() => {
+        console.log('Error recovery timeout expired - attempting final fallback method');
+        const currentStep = formData.formStep || 1;
+        console.log('Current form step in error recovery:', currentStep);
+        
         nextStep();
+        console.log('Called nextStep() in error recovery - should be advancing');
+        
+        // Force update localStorage with the new step to ensure persistence
+        const newStep = currentStep + 1;
+        localStorage.setItem('formStep', newStep.toString());
+        console.log('Manually updated localStorage formStep in error recovery to:', newStep);
       }, 3000);
     } finally {
       setIsSubmitting(false);

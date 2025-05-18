@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { FormProvider, useFormContext } from './contexts/FormContext';
-import { SplitTestProvider } from './contexts/SplitTestContext';
 import { initializeAnalytics, trackPageView } from './services/analytics';
 
 // Components
@@ -17,9 +16,7 @@ import SalesPage from './components/SalesPage';
 import ValueBoostContainer from './components/HomeSurge/ValueBoost/ValueBoostContainer';
 import DebugDisplay from './components/common/DebugDisplay';
 
-// Import split test components
-import PersonalInfoFormTest from './components/SplitTest/PersonalInfoFormTest';
-import SplitTestAdmin from './components/SplitTest/SplitTestAdmin';
+// Import VariantPersonalInfoForm as our PersonalInfoForm
 import VariantPersonalInfoForm from './components/SplitTest/VariantPersonalInfoForm';
 
 // Styles
@@ -89,8 +86,7 @@ function FormContainer() {
       case 1:
         return <AddressForm />;
       case 2:
-        // Use the A/B test component for PersonalInfoForm
-        return <PersonalInfoFormTest />;
+        return <VariantPersonalInfoForm />;
       case 3:
         return <QualifyingForm />;
       case 4:
@@ -114,40 +110,29 @@ function App() {
   return (
     <div className="app">
       <FormProvider>
-        <SplitTestProvider>
-          <BrowserRouter>
-            <Header />
-            <AnalyticsTracker /> {/* Add this to track all page views */}
-            <Routes>
-              {/* Main site routes */}
-              <Route path="/" element={<FormContainer />} />
-              <Route path="/test-zoho" element={<ZohoTest />} />
-              <Route path="/privacy" element={<Privacy handleTermsClick={() => {}} />} />
-              <Route path="/thank-you" element={<ThankYou />} />
-              <Route path="/sales" element={<SalesPage />} />
-              <Route path="/valueboost" element={<ValueBoostContainer />} />
-              
-              {/* Split testing routes */}
-              <Route path="/split-test-admin" element={<SplitTestAdmin />} />
-              
-              {/* Simple direct routes to view form variants (for development only) */}
-              <Route path="/view/original" element={
-                <SimpleComponentViewer>
-                  <PersonalInfoForm />
-                </SimpleComponentViewer>
-              } />
-              <Route path="/view/variant1" element={
-                <SimpleComponentViewer>
-                  <VariantPersonalInfoForm />
-                </SimpleComponentViewer>
-              } />
-              {/* Add more variant routes here as needed */}
-            </Routes>
-            <Footer />
-            {/* Debug display hidden as requested */}
-            {/* <DebugDisplay /> */}
-          </BrowserRouter>
-        </SplitTestProvider>
+        <BrowserRouter>
+          <Header />
+          <AnalyticsTracker /> {/* Add this to track all page views */}
+          <Routes>
+            {/* Main site routes */}
+            <Route path="/" element={<FormContainer />} />
+            <Route path="/test-zoho" element={<ZohoTest />} />
+            <Route path="/privacy" element={<Privacy handleTermsClick={() => {}} />} />
+            <Route path="/thank-you" element={<ThankYou />} />
+            <Route path="/sales" element={<SalesPage />} />
+            <Route path="/valueboost" element={<ValueBoostContainer />} />
+            
+            {/* Development route for viewing components */}
+            <Route path="/view/personal-info" element={
+              <SimpleComponentViewer>
+                <VariantPersonalInfoForm />
+              </SimpleComponentViewer>
+            } />
+          </Routes>
+          <Footer />
+          {/* Debug display hidden as requested */}
+          {/* <DebugDisplay /> */}
+        </BrowserRouter>
       </FormProvider>
     </div>
   );
