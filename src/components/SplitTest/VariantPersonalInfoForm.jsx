@@ -33,7 +33,7 @@ function VariantPersonalInfoForm() {
     max-width: 1200px;
     margin: 0 auto;
     min-height: 500px;
-    margin-top: 50px;
+    margin-top: 35px;
 }
       
      .v1-hero-middle-container {
@@ -77,6 +77,11 @@ width: 100%;
     color: #2e7d61;
     text-align: center;
     margin-bottom: 15px;
+}
+
+   .v1-value-estimate-label {
+    font-size: inherit;
+    font-weight: inherit;
 }
       
       .v1-custom-map-container {
@@ -254,7 +259,7 @@ transition: background-color 0.3s;
         }
         
         .v1-confirmation-header {
-          font-size: 1.5rem;
+          font-size: 1.3rem;
         }
         
         .v1-hero-1-api-address {
@@ -776,7 +781,7 @@ transition: background-color 0.3s;
             </div>
           ) : formData.apiMaxHomeValue ? (
             <div className="v1-hero-property-estimate">
-              Value Estimate: {new Intl.NumberFormat('en-US', {
+              <span className="v1-value-estimate-label">Value Estimate:</span> {new Intl.NumberFormat('en-US', {
                 style: 'currency',
                 currency: 'USD',
                 minimumFractionDigits: 0,
@@ -785,7 +790,7 @@ transition: background-color 0.3s;
             </div>
           ) : formattedValue && (
             <div className="v1-hero-property-estimate">
-              Value Estimate: {formattedValue}
+              <span className="v1-value-estimate-label">Value Estimate:</span> {formattedValue}
             </div>
           )}
   
@@ -851,7 +856,7 @@ transition: background-color 0.3s;
             </button>
             
             <p className="v1-privacy-text">
-              You will receive an automated text to the  number provided. We respect your privacy and never share your information.
+              You will receive an automated text with your offer to the  number provided. We respect your privacy and never share your information.
             </p>
           </form>
         </div>
