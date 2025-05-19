@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useFormContext } from '../../../contexts/FormContext';
 import { validateName, validatePhone, validateAddress } from '../../../utils/validation.js';
 import { trackPhoneNumberLead, trackFormStepComplete, trackFormError } from '../../../services/analytics';
-import { updateContactInfo } from '../../../services/zoho.js';
+import { updateContactInfo } from '../../../services/firebase.js';
 
 function PersonalInfoForm() {
   const { formData, updateFormData, nextStep, submitLead } = useFormContext();
