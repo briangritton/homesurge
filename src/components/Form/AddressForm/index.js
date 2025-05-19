@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import AddressForm1 from './AddressForm1';
-import AddressForm2 from './AddressForm2';
+// AddressForm2 is not used in this configuration (see line 59)
 
 function AddressForm(props) {
   const [selectedVariant, setSelectedVariant] = useState(null);

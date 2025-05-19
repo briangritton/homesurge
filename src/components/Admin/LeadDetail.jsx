@@ -10,7 +10,7 @@ import {
   getDocs,
   serverTimestamp
 } from 'firebase/firestore';
-import { trackFirebaseConversion } from '../../services/firebase';
+import { trackFirebaseConversion, deleteLeadFromFirebase } from '../../services/firebase';
 
 // CSS for the lead detail view
 const styles = {
@@ -245,6 +245,8 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
   const [activeTab, setActiveTab] = useState('details');
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   
   useEffect(() => {
     if (leadId) {
@@ -1209,13 +1211,90 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
                 {isAdmin && (
                   <button 
                     style={{...styles.dangerButton, width: '100%'}}
-                    onClick={() => {
-                      // In a real app, this would have a confirmation dialog
-                      alert('This feature is not implemented in this demo.');
-                    }}
+                    onClick={() => setShowDeleteConfirm(true)}
+                    disabled={deleting}
                   >
-                    Delete Lead
+                    {deleting ? 'Deleting...' : 'Delete Lead'}
                   </button>
+                )}
+                
+                {/* Delete confirmation modal */}
+                {showDeleteConfirm && (
+                  <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 1000
+                  }}>
+                    <div style={{
+                      backgroundColor: 'white',
+                      padding: '20px',
+                      borderRadius: '8px',
+                      maxWidth: '400px',
+                      width: '100%'
+                    }}>
+                      <h3 style={{marginTop: 0}}>Confirm Delete</h3>
+                      <p>Are you sure you want to delete this lead? This action cannot be undone.</p>
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        gap: '10px',
+                        marginTop: '20px'
+                      }}>
+                        <button 
+                          style={{
+                            padding: '8px 16px',
+                            background: '#e0e0e0',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                          }}
+                          onClick={() => setShowDeleteConfirm(false)}
+                          disabled={deleting}
+                        >
+                          Cancel
+                        </button>
+                        <button 
+                          style={{
+                            padding: '8px 16px',
+                            background: '#f44336',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                          }}
+                          onClick={async () => {
+                            try {
+                              setDeleting(true);
+                              const success = await deleteLeadFromFirebase(leadId);
+                              if (success) {
+                                setShowDeleteConfirm(false);
+                                onBack(); // Go back to leads list after successful deletion
+                              } else {
+                                setError('Failed to delete lead. Please try again.');
+                                setDeleting(false);
+                                setShowDeleteConfirm(false);
+                              }
+                            } catch (err) {
+                              console.error('Error deleting lead:', err);
+                              setError('An error occurred while deleting the lead.');
+                              setDeleting(false);
+                              setShowDeleteConfirm(false);
+                            }
+                          }}
+                          disabled={deleting}
+                        >
+                          {deleting ? 'Deleting...' : 'Delete'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </>
             )}
