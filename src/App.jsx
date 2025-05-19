@@ -15,6 +15,7 @@ import ZohoTest from './components/ZohoTest';
 import SalesPage from './components/SalesPage';
 import ValueBoostContainer from './components/HomeSurge/ValueBoost/ValueBoostContainer';
 import DebugDisplay from './components/common/DebugDisplay';
+import { CRMApp } from './components/CRM';
 
 // Styles
 import './styles/main.css';
@@ -102,33 +103,47 @@ function FormContainer() {
   );
 }
 
+// CRM container - this route will not include header and footer
+function CRMContainer() {
+  return <CRMApp />;
+}
+
 // Main App component with routing
 function App() {
   return (
     <div className="app">
       <FormProvider>
         <BrowserRouter>
-          <Header />
-          <AnalyticsTracker /> {/* Add this to track all page views */}
           <Routes>
-            {/* Main site routes */}
-            <Route path="/" element={<FormContainer />} />
-            <Route path="/test-zoho" element={<ZohoTest />} />
-            <Route path="/privacy" element={<Privacy handleTermsClick={() => {}} />} />
-            <Route path="/thank-you" element={<ThankYou />} />
-            <Route path="/sales" element={<SalesPage />} />
-            <Route path="/valueboost" element={<ValueBoostContainer />} />
+            {/* CRM Routes - no header/footer */}
+            <Route path="/crm/*" element={<CRMContainer />} />
             
-            {/* Development route for viewing components */}
-            <Route path="/view/personal-info" element={
-              <SimpleComponentViewer>
-                <PersonalInfoForm />
-              </SimpleComponentViewer>
+            {/* Main site routes - with header/footer */}
+            <Route path="*" element={
+              <>
+                <Header />
+                <AnalyticsTracker /> {/* Track all page views */}
+                <Routes>
+                  <Route path="/" element={<FormContainer />} />
+                  <Route path="/test-zoho" element={<ZohoTest />} />
+                  <Route path="/privacy" element={<Privacy handleTermsClick={() => {}} />} />
+                  <Route path="/thank-you" element={<ThankYou />} />
+                  <Route path="/sales" element={<SalesPage />} />
+                  <Route path="/valueboost" element={<ValueBoostContainer />} />
+                  
+                  {/* Development route for viewing components */}
+                  <Route path="/view/personal-info" element={
+                    <SimpleComponentViewer>
+                      <PersonalInfoForm />
+                    </SimpleComponentViewer>
+                  } />
+                </Routes>
+                <Footer />
+                {/* Debug display hidden as requested */}
+                {/* <DebugDisplay /> */}
+              </>
             } />
           </Routes>
-          <Footer />
-          {/* Debug display hidden as requested */}
-          {/* <DebugDisplay /> */}
         </BrowserRouter>
       </FormProvider>
     </div>

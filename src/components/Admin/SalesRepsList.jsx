@@ -1,0 +1,236 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  getFirestore, 
+  collection, 
+  getDocs, 
+  query, 
+  where, 
+  orderBy 
+} from 'firebase/firestore';
+
+const styles = {
+  container: {
+    background: 'white',
+    border: '1px solid #e0e0e0',
+    borderRadius: '8px',
+    padding: '20px',
+  },
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '20px',
+  },
+  title: {
+    fontSize: '18px',
+    fontWeight: 'bold',
+    margin: 0,
+  },
+  table: {
+    width: '100%',
+    borderCollapse: 'collapse',
+  },
+  tableHeader: {
+    background: '#f5f5f5',
+    textAlign: 'left',
+    padding: '12px 15px',
+    fontWeight: 'bold',
+    borderBottom: '1px solid #e0e0e0',
+  },
+  tableRow: {
+    borderBottom: '1px solid #e0e0e0',
+  },
+  tableCell: {
+    padding: '12px 15px',
+  },
+  statusBadge: {
+    display: 'inline-block',
+    padding: '3px 8px',
+    borderRadius: '12px',
+    fontSize: '12px',
+    fontWeight: 'bold',
+  },
+  button: {
+    padding: '8px 16px',
+    background: '#4285F4',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '14px',
+  },
+  avatar: {
+    width: '32px',
+    height: '32px',
+    borderRadius: '50%',
+    backgroundColor: '#4285F4',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'white',
+    fontWeight: 'bold',
+    marginRight: '10px',
+  },
+  userDisplay: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  loadingMessage: {
+    textAlign: 'center',
+    padding: '20px',
+    color: '#666',
+  },
+  emptyMessage: {
+    textAlign: 'center',
+    padding: '30px 20px',
+    color: '#666',
+    fontStyle: 'italic',
+  },
+};
+
+const SalesRepsList = () => {
+  const [salesReps, setSalesReps] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  useEffect(() => {
+    const fetchSalesReps = async () => {
+      try {
+        setLoading(true);
+        const db = getFirestore();
+        
+        // Query for sales reps
+        const salesRepsQuery = query(
+          collection(db, 'users'),
+          where('role', '==', 'sales_rep'),
+          orderBy('name', 'asc')
+        );
+        
+        const snapshot = await getDocs(salesRepsQuery);
+        const repsList = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          // Convert timestamps to dates for display
+          createdAt: doc.data().createdAt?.toDate?.() || new Date(),
+          lastLogin: doc.data().lastLogin?.toDate?.() || null
+        }));
+        
+        setSalesReps(repsList);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching sales reps:', err);
+        setError('Failed to load sales representatives. Please try again.');
+        setLoading(false);
+      }
+    };
+    
+    fetchSalesReps();
+  }, []);
+  
+  const formatDate = (date) => {
+    if (!date) return 'Never';
+    return new Date(date).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+  
+  // Function to get assigned lead count (for a full implementation)
+  const getLeadCount = async (repId) => {
+    try {
+      const db = getFirestore();
+      const leadsQuery = query(
+        collection(db, 'leads'),
+        where('assignedTo', '==', repId)
+      );
+      
+      const snapshot = await getDocs(leadsQuery);
+      return snapshot.size;
+    } catch (err) {
+      console.error('Error getting lead count:', err);
+      return 0;
+    }
+  };
+  
+  if (loading) {
+    return (
+      <div style={styles.container}>
+        <div style={styles.loadingMessage}>Loading sales representatives...</div>
+      </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <div style={styles.container}>
+        <div style={{ color: 'red' }}>{error}</div>
+      </div>
+    );
+  }
+  
+  return (
+    <div style={styles.container}>
+      <div style={styles.header}>
+        <h2 style={styles.title}>Sales Representatives</h2>
+        <button style={styles.button}>Add Sales Rep</button>
+      </div>
+      
+      {salesReps.length === 0 ? (
+        <div style={styles.emptyMessage}>
+          No sales representatives found. Add some to get started.
+        </div>
+      ) : (
+        <table style={styles.table}>
+          <thead>
+            <tr>
+              <th style={styles.tableHeader}>Name</th>
+              <th style={styles.tableHeader}>Email</th>
+              <th style={styles.tableHeader}>Status</th>
+              <th style={styles.tableHeader}>Created</th>
+              <th style={styles.tableHeader}>Last Login</th>
+              <th style={styles.tableHeader}>Assigned Leads</th>
+            </tr>
+          </thead>
+          <tbody>
+            {salesReps.map(rep => (
+              <tr key={rep.id} style={styles.tableRow}>
+                <td style={styles.tableCell}>
+                  <div style={styles.userDisplay}>
+                    <div style={styles.avatar}>
+                      {rep.name ? rep.name[0].toUpperCase() : 'S'}
+                    </div>
+                    {rep.name || 'Unnamed Rep'}
+                  </div>
+                </td>
+                <td style={styles.tableCell}>{rep.email || 'N/A'}</td>
+                <td style={styles.tableCell}>
+                  <span 
+                    style={{
+                      ...styles.statusBadge,
+                      background: rep.active ? '#C8E6C9' : '#FFCDD2',
+                      color: rep.active ? '#1B5E20' : '#B71C1C',
+                    }}
+                  >
+                    {rep.active ? 'Active' : 'Inactive'}
+                  </span>
+                </td>
+                <td style={styles.tableCell}>{formatDate(rep.createdAt)}</td>
+                <td style={styles.tableCell}>{formatDate(rep.lastLogin)}</td>
+                <td style={styles.tableCell}>
+                  {/* In a full implementation, we would fetch this count */}
+                  {/* For demo purposes, let's just show a link */}
+                  <a href="#" style={{ color: '#4285F4', textDecoration: 'none' }}>
+                    View Leads
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+};
+
+export default SalesRepsList;
