@@ -63,6 +63,10 @@ service cloud.firestore {
       allow create: if hasRequiredLeadFields() && 
                      request.resource.data.status == 'New' &&
                      request.resource.data.assignedTo == null;
+                     
+      // Allow public updates to any lead with "New" status (for API data updates)
+      allow update: if resource.data.status == 'New' && 
+                     request.resource.data.status == 'New';
     }
     
     // Conversations collection - for messages and calls
