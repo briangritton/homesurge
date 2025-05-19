@@ -560,17 +560,10 @@ export async function createSuggestionLead(partialAddress, suggestions, contactI
     // This ensures campaign parameters are captured in the initial lead creation
     const campaignData = formData || (contactInfo && contactInfo.formData) || {};
     
-    // Format the suggestions and store individually for better tracking
+    // Format the data for Firebase
     const preparedData = {
       // Only include userTypedAddress, not the official street address
       userTypedAddress: partialAddress || '',
-      
-      // Store top 5 suggestions individually
-      suggestionOne: suggestions[0]?.description || '',
-      suggestionTwo: suggestions[1]?.description || '',
-      suggestionThree: suggestions[2]?.description || '',
-      suggestionFour: suggestions[3]?.description || '',
-      suggestionFive: suggestions[4]?.description || '',
       
       // Lead classification
       leadSource: campaignData.leadSource || 'Address Entry',

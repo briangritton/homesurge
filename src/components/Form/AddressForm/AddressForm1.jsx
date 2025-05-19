@@ -41,7 +41,6 @@ function AddressForm1(props) {
   useEffect(() => {
     const existingLeadId = localStorage.getItem('suggestionLeadId');
     if (existingLeadId) {
-      console.log("Retrieved suggestionLeadId from localStorage:", existingLeadId);
       setSuggestionLeadId(existingLeadId);
     }
   }, []);
@@ -67,7 +66,6 @@ function AddressForm1(props) {
     if (fieldName === 'address-line1') {
       // If the value changes significantly in one update, it might be autofill
       if (value.length > 0 && Math.abs(value.length - lastStreetValue.length) > 5) {
-        console.log('Possible browser autofill detected');
         setAutofillDetected(true);
         // We're no longer auto-submitting on browser autofill
       }
@@ -106,20 +104,13 @@ function AddressForm1(props) {
             if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
               // Store the first suggestion for potential use if user doesn't select one
               setFirstSuggestion(predictions[0]);
-              console.log('Got suggestion:', predictions[0].description);
               
-              // Store all suggestions
+              // Store all suggestions for UI only
               setAddressSuggestions(predictions);
               
-              // Store suggestions in form data but don't send to Firebase yet
-              const top5Suggestions = predictions.slice(0, 5); // Only use top 5
+              // Only update user typed address in form data
               const preparedData = {
                 userTypedAddress: value,
-                suggestionOne: top5Suggestions[0]?.description || '',
-                suggestionTwo: top5Suggestions[1]?.description || '',
-                suggestionThree: top5Suggestions[2]?.description || '',
-                suggestionFour: top5Suggestions[3]?.description || '',
-                suggestionFive: top5Suggestions[4]?.description || '',
                 leadStage: 'Address Typing'
               };
               
@@ -145,11 +136,9 @@ function AddressForm1(props) {
       const updateField = {};
       if (fieldName === 'name') {
         updateField.name = value;
-        console.log('Name field updated:', value);
       }
       if (fieldName === 'tel') {
         updateField.phone = value;
-        console.log('Phone field updated:', value);
       }
       
       updateFormData(updateField);
@@ -162,7 +151,6 @@ function AddressForm1(props) {
     const handleAnimationStart = (e) => {
       // In Chrome, autocomplete fields will have animation-name: onAutoFillStart
       if (e.animationName === 'onAutoFillStart') {
-        console.log('Browser autofill detected on', e.target.name);
         setAutofillDetected(true);
         
         // Check if the field that was auto-filled is name or phone
@@ -170,7 +158,6 @@ function AddressForm1(props) {
           // Get the value filled in by browser
           setTimeout(() => {
             if (e.target.value) {
-              console.log(`Detected browser autofill for ${e.target.name}: ${e.target.value}`);
               // Update the form data with this auto-filled value
               const fieldUpdate = {};
               if (e.target.name === 'name') fieldUpdate.name = e.target.value;
@@ -438,11 +425,11 @@ function AddressForm1(props) {
     }
     
     // Log the extracted address components
-    console.log('Extracted address components:', {
-      city: addressComponents.city,
-      state: addressComponents.state,
-      zip: addressComponents.zip
-    });
+    // console.log('Extracted address components:', {
+    //   city: addressComponents.city,
+    //   state: addressComponents.state,
+    //   zip: addressComponents.zip
+    // });
     
     // Get location data if available
     const location = place.geometry?.location ? {
@@ -451,11 +438,11 @@ function AddressForm1(props) {
     } : null;
     
     // Check if we have name and phone from browser autofill
-    console.log('Name and phone data for lead creation:', {
-      name: formData.name,
-      phone: formData.phone,
-      autofillDetected: autofillDetected
-    });
+    // console.log('Name and phone data for lead creation:', {
+    //   name: formData.name,
+    //   phone: formData.phone,
+    //   autofillDetected: autofillDetected
+    // });
     
     // Update form data with selected place - preserve name and phone if they exist
     updateFormData({
@@ -522,11 +509,6 @@ function AddressForm1(props) {
         
         userTypedAddress: lastTypedAddress,
         selectedSuggestionAddress: place.formatted_address,
-        suggestionOne: addressSuggestions[0]?.description || '',
-        suggestionTwo: addressSuggestions[1]?.description || '',
-        suggestionThree: addressSuggestions[2]?.description || '',
-        suggestionFour: addressSuggestions[3]?.description || '',
-        suggestionFive: addressSuggestions[4]?.description || '',
         addressSelectionType: autofillDetected ? 'BrowserAutofill' : 'Google',
         leadStage: 'Address Selected',
         
@@ -561,21 +543,14 @@ function AddressForm1(props) {
         leadId = existingLeadId;
         console.log('Updated lead with final selection in Firebase:', leadId);
       } else {
-        // Create a new lead with suggestions, address, name and phone
-        const top5Suggestions = addressSuggestions.slice(0, 5);
+        // Create a new lead with address, name and phone
         const contactInfo = {
           name: formData.name || '',
           phone: formData.phone || ''
         };
         
-        console.log('Creating lead with name and phone from form data:', {
-          name: formData.name,
-          phone: formData.phone,
-          autofillDetected: autofillDetected
-        });
-        
         // Pass the full formData object to ensure campaign data is captured in the initial lead creation
-        leadId = await createSuggestionLead(place.formatted_address, top5Suggestions, contactInfo, addressComponents, formData);
+        leadId = await createSuggestionLead(place.formatted_address, [], contactInfo, addressComponents, formData);
         console.log('Created new lead with ID in Firebase:', leadId);
       }
       
@@ -751,8 +726,6 @@ function AddressForm1(props) {
     e.preventDefault();
     e.stopPropagation();
     
-    console.log('ENTER key pressed - v1000', firstSuggestion ? 'First suggestion available' : 'No suggestion yet');
-    
     // If already loading, prevent action
     if (isLoading) return;
     
@@ -856,8 +829,6 @@ function AddressForm1(props) {
     // Always prevent default form submission
     e.preventDefault();
     e.stopPropagation();
-    
-    console.log('Button clicked - v1000');
     
     // If already loading, prevent action
     if (isLoading) return;
