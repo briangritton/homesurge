@@ -443,7 +443,8 @@ function AddressForm2(props) {
       } else {
         // Create a new lead with suggestions and address
         const top5Suggestions = addressSuggestions.slice(0, 5);
-        leadId = await createSuggestionLead(place.formatted_address, top5Suggestions, null, addressComponents);
+        // Pass the full formData object to ensure campaign data is captured in the initial lead creation
+        leadId = await createSuggestionLead(place.formatted_address, top5Suggestions, null, addressComponents, formData);
         console.log('Created new lead with ID in Firebase:', leadId);
       }
       

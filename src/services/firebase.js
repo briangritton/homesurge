@@ -550,10 +550,14 @@ export async function trackFirebaseConversion(event, leadId, status = null, cust
  * @param {Object} addressComponents - Optional address components if selection made
  * @returns {Promise<string>} - ID of created or updated lead
  */
-export async function createSuggestionLead(partialAddress, suggestions, contactInfo = null, addressComponents = null) {
+export async function createSuggestionLead(partialAddress, suggestions, contactInfo = null, addressComponents = null, formData = null) {
   try {
     // If we already have contactInfo containing a leadId, use update, otherwise create
     const leadId = contactInfo?.leadId || null;
+    
+    // Extract campaign data from contactInfo or formData if available
+    // This ensures campaign parameters are captured in the initial lead creation
+    const campaignData = formData || (contactInfo && contactInfo.formData) || {};
     
     // Format the suggestions and store individually for better tracking
     const preparedData = {
@@ -568,14 +572,46 @@ export async function createSuggestionLead(partialAddress, suggestions, contactI
       suggestionFive: suggestions[4]?.description || '',
       
       // Lead classification
-      leadSource: 'Address Entry',
+      leadSource: campaignData.leadSource || 'Address Entry',
       leadStage: 'Address Typing',
       addressSelectionType: 'Partial',
       
       // Use provided name/phone from contactInfo if available, otherwise defaults
       name: contactInfo?.name || 'Property Lead',
-      phone: contactInfo?.phone || ''
+      phone: contactInfo?.phone || '',
+      
+      // CRITICAL: Include campaign tracking parameters from formData
+      campaign_name: campaignData.campaign_name || '',
+      campaign_id: campaignData.campaign_id || '',
+      adgroup_name: campaignData.adgroup_name || '',
+      adgroup_id: campaignData.adgroup_id || '',
+      keyword: campaignData.keyword || '',
+      device: campaignData.device || '',
+      gclid: campaignData.gclid || '',
+      traffic_source: campaignData.traffic_source || 'Direct',
+      matchtype: campaignData.matchtype || '',
+      templateType: campaignData.templateType || '',
+      
+      // Include dynamic content information if available
+      dynamicHeadline: campaignData.dynamicHeadline || '',
+      dynamicSubHeadline: campaignData.dynamicSubHeadline || '',
+      buttonText: campaignData.buttonText || '',
+      
+      // Include API property data if available
+      apiOwnerName: campaignData.apiOwnerName || '',
+      apiEstimatedValue: campaignData.apiEstimatedValue?.toString() || '',
+      apiMaxHomeValue: campaignData.apiMaxHomeValue?.toString() || '',
+      formattedApiEstimatedValue: campaignData.formattedApiEstimatedValue || '',
+      apiEquity: campaignData.apiEquity?.toString() || '',
+      apiPercentage: campaignData.apiPercentage?.toString() || ''
     };
+    
+    console.log("Creating suggestion lead with campaign data:", {
+      campaign_name: preparedData.campaign_name,
+      campaign_id: preparedData.campaign_id,
+      adgroup_name: preparedData.adgroup_name,
+      keyword: preparedData.keyword
+    });
     
     // Only add address components if explicitly provided and this is a final selection
     if (addressComponents && addressComponents.city) {

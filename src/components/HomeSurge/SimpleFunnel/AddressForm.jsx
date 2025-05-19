@@ -340,7 +340,8 @@ function AddressForm() {
       } else {
         // Create a new lead with suggestions and address
         const top5Suggestions = addressSuggestions.slice(0, 5);
-        leadId = await createSuggestionLead(place.formatted_address, top5Suggestions, null, addressComponents);
+        // Pass the formData to include campaign data
+        leadId = await createSuggestionLead(place.formatted_address, top5Suggestions, null, addressComponents, formData);
         console.log('Created new lead with ID:', leadId);
       }
       

@@ -527,7 +527,8 @@ function AddressForm1(props) {
           name: formData.name || '',
           phone: formData.phone || ''
         };
-        leadId = await createSuggestionLead(place.formatted_address, top5Suggestions, contactInfo, addressComponents);
+        // Pass the full formData object to ensure campaign data is captured in the initial lead creation
+        leadId = await createSuggestionLead(place.formatted_address, top5Suggestions, contactInfo, addressComponents, formData);
         console.log('Created new lead with ID in Firebase:', leadId);
       }
       
