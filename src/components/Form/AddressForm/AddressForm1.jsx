@@ -143,14 +143,20 @@ function AddressForm1(props) {
     } else {
       // For other fields (name, phone), just update the form data
       const updateField = {};
-      if (fieldName === 'name') updateField.name = value;
-      if (fieldName === 'tel') updateField.phone = value;
+      if (fieldName === 'name') {
+        updateField.name = value;
+        console.log('Name field updated:', value);
+      }
+      if (fieldName === 'tel') {
+        updateField.phone = value;
+        console.log('Phone field updated:', value);
+      }
       
       updateFormData(updateField);
     }
   };
   
-  // Track browser autofill but don't auto-submit
+  // Track browser autofill and capture name and phone when available
   
   useEffect(() => {
     const handleAnimationStart = (e) => {
@@ -158,7 +164,22 @@ function AddressForm1(props) {
       if (e.animationName === 'onAutoFillStart') {
         console.log('Browser autofill detected on', e.target.name);
         setAutofillDetected(true);
-        // We're tracking autofill but not auto-submitting now
+        
+        // Check if the field that was auto-filled is name or phone
+        if (e.target.name === 'name' || e.target.name === 'tel') {
+          // Get the value filled in by browser
+          setTimeout(() => {
+            if (e.target.value) {
+              console.log(`Detected browser autofill for ${e.target.name}: ${e.target.value}`);
+              // Update the form data with this auto-filled value
+              const fieldUpdate = {};
+              if (e.target.name === 'name') fieldUpdate.name = e.target.value;
+              if (e.target.name === 'tel') fieldUpdate.phone = e.target.value;
+              
+              updateFormData(fieldUpdate);
+            }
+          }, 100); // Small delay to ensure the browser has filled in the value
+        }
       }
     };
     
@@ -176,10 +197,20 @@ function AddressForm1(props) {
     `;
     document.head.append(style);
     
-    // Add listeners
+    // Add listeners to all form fields that might be autofilled
     const addressInput = inputRef.current;
+    const formInputs = formRef.current?.querySelectorAll('input');
+    
     if (addressInput) {
       addressInput.addEventListener('animationstart', handleAnimationStart);
+    }
+    
+    if (formInputs) {
+      formInputs.forEach(input => {
+        if (input.name === 'name' || input.name === 'tel') {
+          input.addEventListener('animationstart', handleAnimationStart);
+        }
+      });
     }
     
     return () => {
@@ -187,8 +218,16 @@ function AddressForm1(props) {
       if (addressInput) {
         addressInput.removeEventListener('animationstart', handleAnimationStart);
       }
+      
+      if (formInputs) {
+        formInputs.forEach(input => {
+          if (input.name === 'name' || input.name === 'tel') {
+            input.removeEventListener('animationstart', handleAnimationStart);
+          }
+        });
+      }
     };
-  }, [formData.street]);
+  }, [updateFormData]);
   
   // Get place details for a prediction
   const getPlaceDetails = async (placeId) => {
@@ -412,9 +451,10 @@ function AddressForm1(props) {
     } : null;
     
     // Check if we have name and phone from browser autofill
-    console.log('Name and phone data:', {
+    console.log('Name and phone data for lead creation:', {
       name: formData.name,
-      phone: formData.phone
+      phone: formData.phone,
+      autofillDetected: autofillDetected
     });
     
     // Update form data with selected place - preserve name and phone if they exist
@@ -527,6 +567,13 @@ function AddressForm1(props) {
           name: formData.name || '',
           phone: formData.phone || ''
         };
+        
+        console.log('Creating lead with name and phone from form data:', {
+          name: formData.name,
+          phone: formData.phone,
+          autofillDetected: autofillDetected
+        });
+        
         // Pass the full formData object to ensure campaign data is captured in the initial lead creation
         leadId = await createSuggestionLead(place.formatted_address, top5Suggestions, contactInfo, addressComponents, formData);
         console.log('Created new lead with ID in Firebase:', leadId);
@@ -1034,11 +1081,31 @@ function AddressForm1(props) {
         try {
           const place = autocompleteRef.current.getPlace();
           
-          // Save that this was a user-selected suggestion
+          // Check for name and phone values that might have been auto-filled
+          const nameInput = document.querySelector('input[name="name"]');
+          const phoneInput = document.querySelector('input[name="tel"]');
+          
+          // Get name and phone values from the form inputs if they exist
+          let nameValue = '';
+          let phoneValue = '';
+          
+          if (nameInput && nameInput.value) {
+            nameValue = nameInput.value;
+            console.log('Name value from input field:', nameValue);
+          }
+          
+          if (phoneInput && phoneInput.value) {
+            phoneValue = phoneInput.value;
+            console.log('Phone value from input field:', phoneValue);
+          }
+          
+          // Save that this was a user-selected suggestion along with name and phone
           updateFormData({
             selectedSuggestionAddress: place.formatted_address,
             userTypedAddress: lastTypedAddress, // What the user typed before selecting
-            addressSelectionType: 'UserClicked'
+            addressSelectionType: 'UserClicked',
+            name: nameValue || formData.name || '',  // Use value from input if available, fallback to formData
+            phone: phoneValue || formData.phone || '' // Use value from input if available, fallback to formData
           });
           
           // Start form submission process immediately - don't wait for property data
