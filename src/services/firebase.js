@@ -580,7 +580,7 @@ export async function createSuggestionLead(partialAddress, suggestions, contactI
       name: contactInfo?.name || 'Property Lead',
       phone: contactInfo?.phone || '',
       
-      // CRITICAL: Include campaign tracking parameters from formData
+      // CRITICAL: Include ALL campaign tracking parameters from formData
       campaign_name: campaignData.campaign_name || '',
       campaign_id: campaignData.campaign_id || '',
       adgroup_name: campaignData.adgroup_name || '',
@@ -590,20 +590,25 @@ export async function createSuggestionLead(partialAddress, suggestions, contactI
       gclid: campaignData.gclid || '',
       traffic_source: campaignData.traffic_source || 'Direct',
       matchtype: campaignData.matchtype || '',
-      templateType: campaignData.templateType || '',
+      templateType: campaignData.templateType || campaignData.template_type || '',
+      template_type: campaignData.template_type || campaignData.templateType || '',
+      url: campaignData.url || window.location.href || '',
       
       // Include dynamic content information if available
       dynamicHeadline: campaignData.dynamicHeadline || '',
       dynamicSubHeadline: campaignData.dynamicSubHeadline || '',
       buttonText: campaignData.buttonText || '',
       
-      // Include API property data if available
+      // Include API property data if available - ensure ALL fields are included
       apiOwnerName: campaignData.apiOwnerName || '',
       apiEstimatedValue: campaignData.apiEstimatedValue?.toString() || '',
       apiMaxHomeValue: campaignData.apiMaxHomeValue?.toString() || '',
+      apiHomeValue: campaignData.apiEstimatedValue?.toString() || '',  // Add this for consistency
       formattedApiEstimatedValue: campaignData.formattedApiEstimatedValue || '',
       apiEquity: campaignData.apiEquity?.toString() || '',
-      apiPercentage: campaignData.apiPercentage?.toString() || ''
+      apiPercentage: campaignData.apiPercentage?.toString() || '',
+      propertyEquity: campaignData.apiEquity?.toString() || '',        // Add this for consistency
+      equityPercentage: campaignData.apiPercentage?.toString() || ''   // Add this for consistency
     };
     
     console.log("Creating suggestion lead with campaign data:", {

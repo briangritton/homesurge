@@ -589,8 +589,11 @@ function AddressForm1(props) {
           apiEquity: propertyData.apiEquity?.toString() || '0',
           apiPercentage: propertyData.apiPercentage?.toString() || '0',
           apiHomeValue: propertyData.apiEstimatedValue?.toString() || '0',
+          // Add these duplicate field names for consistency
+          propertyEquity: propertyData.apiEquity?.toString() || '0', 
+          equityPercentage: propertyData.apiPercentage?.toString() || '0',
           
-          // CRITICAL: Include campaign data with property update
+          // CRITICAL: Include ALL campaign data with property update
           campaign_name: campaign_name || '',
           campaign_id: campaign_id || '',
           adgroup_id: adgroup_id || '',
@@ -600,6 +603,8 @@ function AddressForm1(props) {
           device: device || '',
           traffic_source: traffic_source || 'Direct',
           template_type: template_type || '',
+          matchtype: formData.matchtype || '',
+          url: formData.url || window.location.href || '',
           
           // Include dynamic content information
           dynamicHeadline: formData.dynamicHeadline || '',
@@ -654,7 +659,9 @@ function AddressForm1(props) {
                 apiEstimatedValue: propertyUpdateData.apiEstimatedValue,
                 apiMaxHomeValue: propertyUpdateData.apiMaxHomeValue,
                 apiEquity: propertyUpdateData.apiEquity,
-                apiPercentage: propertyUpdateData.apiPercentage
+                apiPercentage: propertyUpdateData.apiPercentage,
+                propertyEquity: propertyUpdateData.propertyEquity,
+                equityPercentage: propertyUpdateData.equityPercentage
               },
               campaign: {
                 campaign_name: propertyUpdateData.campaign_name,
@@ -663,9 +670,12 @@ function AddressForm1(props) {
                 adgroup_id: propertyUpdateData.adgroup_id,
                 keyword: propertyUpdateData.keyword,
                 traffic_source: propertyUpdateData.traffic_source,
-                template_type: propertyUpdateData.template_type,
+                template_type: propertyUpdateData.template_type || propertyUpdateData.templateType,
+                templateType: propertyUpdateData.templateType || propertyUpdateData.template_type,
+                matchtype: propertyUpdateData.matchtype,
                 gclid: propertyUpdateData.gclid,
-                device: propertyUpdateData.device
+                device: propertyUpdateData.device,
+                url: propertyUpdateData.url || window.location.href
               }
             },
             timestamp: new Date().toISOString()
