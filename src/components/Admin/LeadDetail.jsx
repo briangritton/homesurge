@@ -896,6 +896,39 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
                       style={styles.input}
                     />
                   </div>
+                  
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label}>Max Home Value</label>
+                    <input
+                      type="text"
+                      name="apiMaxHomeValue"
+                      value={formData.apiMaxHomeValue || ''}
+                      onChange={handleInputChange}
+                      style={styles.input}
+                    />
+                  </div>
+                  
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label}>Property Equity</label>
+                    <input
+                      type="text"
+                      name="apiEquity"
+                      value={formData.apiEquity || formData.propertyEquity || ''}
+                      onChange={handleInputChange}
+                      style={styles.input}
+                    />
+                  </div>
+                  
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label}>Equity Percentage</label>
+                    <input
+                      type="text"
+                      name="apiPercentage"
+                      value={formData.apiPercentage || formData.equityPercentage || ''}
+                      onChange={handleInputChange}
+                      style={styles.input}
+                    />
+                  </div>
                 </>
               ) : (
                 <>
@@ -937,13 +970,49 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
                   <div style={styles.fieldGroup}>
                     <div style={styles.label}>Estimated Value</div>
                     <div style={styles.value}>
-                      {lead.formattedApiEstimatedValue || lead.apiEstimatedValue || 'N/A'}
+                      {lead.formattedApiEstimatedValue || (lead.apiEstimatedValue ? new Intl.NumberFormat('en-US', {
+                        style: 'currency',
+                        currency: 'USD',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                      }).format(lead.apiEstimatedValue) : 'N/A')}
                     </div>
                   </div>
                   
                   <div style={styles.fieldGroup}>
                     <div style={styles.label}>API Owner Name</div>
                     <div style={styles.value}>{lead.apiOwnerName || 'N/A'}</div>
+                  </div>
+
+                  <div style={styles.fieldGroup}>
+                    <div style={styles.label}>Max Home Value</div>
+                    <div style={styles.value}>
+                      {lead.apiMaxHomeValue ? new Intl.NumberFormat('en-US', {
+                        style: 'currency',
+                        currency: 'USD',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                      }).format(lead.apiMaxHomeValue) : 'N/A'}
+                    </div>
+                  </div>
+
+                  <div style={styles.fieldGroup}>
+                    <div style={styles.label}>Property Equity</div>
+                    <div style={styles.value}>
+                      {lead.apiEquity || lead.propertyEquity ? new Intl.NumberFormat('en-US', {
+                        style: 'currency',
+                        currency: 'USD',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                      }).format(lead.apiEquity || lead.propertyEquity) : 'N/A'}
+                    </div>
+                  </div>
+
+                  <div style={styles.fieldGroup}>
+                    <div style={styles.label}>Equity Percentage</div>
+                    <div style={styles.value}>
+                      {lead.apiPercentage || lead.equityPercentage ? `${lead.apiPercentage || lead.equityPercentage}%` : 'N/A'}
+                    </div>
                   </div>
                 </>
               )}

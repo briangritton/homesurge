@@ -1,0 +1,204 @@
+{
+  "propertyFields": [
+    {
+      "displayName": "Property Owner",
+      "field": "apiOwnerName",
+      "description": "Property owner name from Melissa API"
+    },
+    {
+      "displayName": "Estimated Value",
+      "field": "apiEstimatedValue",
+      "description": "Property estimated value from Melissa API",
+      "type": "currency"
+    },
+    {
+      "displayName": "Max Home Value",
+      "field": "apiMaxHomeValue",
+      "description": "Maximum home value from Melissa API",
+      "type": "currency"
+    },
+    {
+      "displayName": "Property Equity",
+      "field": "apiEquity",
+      "description": "Calculated equity (value minus mortgage)",
+      "type": "currency",
+      "alternateFields": ["propertyEquity"]
+    },
+    {
+      "displayName": "Equity Percentage",
+      "field": "apiPercentage",
+      "description": "Calculated equity percentage",
+      "type": "percentage",
+      "alternateFields": ["equityPercentage"]
+    },
+    {
+      "displayName": "Mortgage Amount",
+      "field": "mortgageAmount",
+      "description": "Mortgage amount from Melissa API",
+      "type": "currency"
+    },
+    {
+      "displayName": "Formatted Value",
+      "field": "formattedApiEstimatedValue",
+      "description": "Formatted estimated value",
+      "type": "text"
+    },
+    {
+      "displayName": "Bedrooms",
+      "field": "bedrooms",
+      "description": "Number of bedrooms"
+    },
+    {
+      "displayName": "Bathrooms",
+      "field": "bathrooms",
+      "description": "Number of bathrooms"
+    },
+    {
+      "displayName": "Square Feet",
+      "field": "finishedSquareFootage",
+      "description": "Finished square footage",
+      "type": "number"
+    }
+  ],
+  "marketingFields": [
+    {
+      "displayName": "Campaign Name",
+      "field": "campaign_name",
+      "description": "Marketing campaign name"
+    },
+    {
+      "displayName": "Campaign ID",
+      "field": "campaign_id",
+      "description": "Marketing campaign ID"
+    },
+    {
+      "displayName": "Ad Group Name",
+      "field": "adgroup_name",
+      "description": "Ad group name"
+    },
+    {
+      "displayName": "Ad Group ID",
+      "field": "adgroup_id",
+      "description": "Ad group ID"
+    },
+    {
+      "displayName": "Keyword",
+      "field": "keyword",
+      "description": "Search keyword"
+    },
+    {
+      "displayName": "Match Type",
+      "field": "matchtype",
+      "description": "Search match type"
+    },
+    {
+      "displayName": "Google Click ID",
+      "field": "gclid",
+      "description": "Google Click ID for conversion tracking"
+    },
+    {
+      "displayName": "Device",
+      "field": "device",
+      "description": "User device type"
+    },
+    {
+      "displayName": "Traffic Source",
+      "field": "traffic_source",
+      "description": "Traffic source"
+    },
+    {
+      "displayName": "Template Type",
+      "field": "templateType",
+      "description": "Ad template type",
+      "alternateFields": ["template_type"]
+    },
+    {
+      "displayName": "Landing URL",
+      "field": "url",
+      "description": "Landing page URL"
+    }
+  ],
+  "addressFields": [
+    {
+      "displayName": "Street",
+      "field": "street",
+      "description": "Street address"
+    },
+    {
+      "displayName": "City",
+      "field": "city",
+      "description": "City"
+    },
+    {
+      "displayName": "State",
+      "field": "state",
+      "description": "State"
+    },
+    {
+      "displayName": "ZIP",
+      "field": "zip",
+      "description": "ZIP code"
+    },
+    {
+      "displayName": "User Typed",
+      "field": "userTypedAddress",
+      "description": "Address as typed by user"
+    },
+    {
+      "displayName": "Selected",
+      "field": "selectedSuggestionAddress",
+      "description": "Final selected address"
+    },
+    {
+      "displayName": "Selection Type",
+      "field": "addressSelectionType",
+      "description": "How address was selected"
+    }
+  ],
+  "contactFields": [
+    {
+      "displayName": "Name",
+      "field": "name",
+      "description": "Contact name"
+    },
+    {
+      "displayName": "Phone",
+      "field": "phone",
+      "description": "Contact phone number"
+    },
+    {
+      "displayName": "Email",
+      "field": "email",
+      "description": "Contact email"
+    }
+  ],
+  "leadFields": [
+    {
+      "displayName": "Lead Stage",
+      "field": "leadStage",
+      "description": "Current lead stage in the pipeline"
+    },
+    {
+      "displayName": "Lead Source",
+      "field": "leadSource",
+      "description": "Source of the lead"
+    },
+    {
+      "displayName": "Status",
+      "field": "status",
+      "description": "Current lead status"
+    },
+    {
+      "displayName": "Created",
+      "field": "createdAt",
+      "description": "Creation date",
+      "type": "timestamp"
+    },
+    {
+      "displayName": "Updated",
+      "field": "updatedAt",
+      "description": "Last update date",
+      "type": "timestamp"
+    }
+  ]
+}
