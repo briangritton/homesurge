@@ -287,7 +287,7 @@ transition: background-color 0.3s;
 
         line-height: 1;
     }
-        
+         
         .v1-value-estimate-label {
           font-size: 1.3rem;
           font-weight:bold;
