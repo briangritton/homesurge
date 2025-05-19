@@ -1081,6 +1081,12 @@ function AddressForm1(props) {
         try {
           const place = autocompleteRef.current.getPlace();
           
+          // Only proceed if we have a valid place with formatted_address
+          if (!place || !place.formatted_address) {
+            console.error('Invalid place selection');
+            return;
+          }
+          
           // Check for name and phone values that might have been auto-filled
           const nameInput = document.querySelector('input[name="name"]');
           const phoneInput = document.querySelector('input[name="tel"]');
@@ -1108,16 +1114,22 @@ function AddressForm1(props) {
             phone: phoneValue || formData.phone || '' // Use value from input if available, fallback to formData
           });
           
-          // Start form submission process immediately - don't wait for property data
+          // Start form submission process immediately
           setIsLoading(true);
           
-          // Process the selected address but don't wait for it to complete
-          processAddressSelection(place);
+          console.log('Auto-submitting form after autocomplete selection with values:', {
+            address: place.formatted_address,
+            name: nameValue || formData.name || '',
+            phone: phoneValue || formData.phone || ''
+          });
+          
+          // Process the selected address - this will create/update the lead in Firebase
+          await processAddressSelection(place);
 
           // Track the form step completion for address
           trackFormStepComplete(1, 'Address Form Completed (Suggestion)', formData);
-
-          // Proceed to next step immediately
+          
+          // Automatically proceed to next step - this is the key change
           nextStep();
           
           // Reset loading state after navigation
