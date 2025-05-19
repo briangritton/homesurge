@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PersonalInfoForm1 from './PersonalInfoForm1';
-import PersonalInfoForm2 from './PersonalInfoForm2';
+// import PersonalInfoForm2 from './PersonalInfoForm2';
 
 function PersonalInfoForm(props) {
   const [selectedVariant, setSelectedVariant] = useState(null);
