@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { submitLeadToZoho, updateLeadInZoho } from '../services/zoho';
+import { submitLeadToFirebase, updateLeadInFirebase, createSuggestionLead, updateContactInfo } from '../services/firebase';
 
 // Custom hook to use the form context
 export function useFormContext() {
@@ -232,8 +232,8 @@ export function FormProvider({ children }) {
     localStorage.setItem('formStep', step.toString());
   };
 
-  // Helper function to clean data before sending to Zoho
-  const prepareDataForZoho = (data) => {
+  // Helper function to clean data before sending to Firebase
+  const prepareDataForFirebase = (data) => {
     // Create a clean copy of data
     const cleanData = { ...data };
     
@@ -262,7 +262,7 @@ export function FormProvider({ children }) {
       
       if (!hasBeenInteractedWith && !hasValidValue) {
         delete cleanData[field];
-        console.log(`Removed ${field} from Zoho submission - no user interaction`);
+        console.log(`Removed ${field} from Firebase submission - no user interaction`);
       }
     });
     
@@ -280,17 +280,16 @@ export function FormProvider({ children }) {
       
       if (!hasValue && !hasBeenInteractedWith) {
         delete cleanData[field];
-        console.log(`Removed ${field} from Zoho submission - no value set`);
+        console.log(`Removed ${field} from Firebase submission - no value set`);
       }
     });
     
-    // Remove the interactedFields tracker from the data sent to Zoho
-    delete cleanData.interactedFields;
+    // Keep interactedFields for Firebase - it will handle it appropriately
     
     return cleanData;
   };
 
-  // Submit initial lead to Zoho
+  // Submit initial lead to Firebase
   const submitLead = async () => {
     setFormData(prev => ({ ...prev, submitting: true }));
     
@@ -298,10 +297,10 @@ export function FormProvider({ children }) {
     const existingLeadId = localStorage.getItem('suggestionLeadId') || leadId;
     
     // Prepare data by removing uninteracted fields
-    const cleanedFormData = prepareDataForZoho(formData);
+    const cleanedFormData = prepareDataForFirebase(formData);
     
     // Add enhanced logging for property data and campaign data
-    console.log("Submitting lead with cleaned form data:", {
+    console.log("Submitting lead to Firebase with cleaned form data:", {
       existingLeadId: existingLeadId || 'None',
       name: cleanedFormData.name,
       phone: cleanedFormData.phone,
@@ -323,7 +322,7 @@ export function FormProvider({ children }) {
     });
     
     // Add extra debugging specifically for campaign data and keyword
-    console.log("%c CRITICAL - CAMPAIGN & KEYWORD DATA CHECK", "background: #f44336; color: white; font-size: 14px; padding: 5px;");
+    console.log("%c CRITICAL - CAMPAIGN & KEYWORD DATA CHECK", "background: #4caf50; color: white; font-size: 14px; padding: 5px;");
     console.log("Campaign data:", {
       keyword: cleanedFormData.keyword || 'NOT SET',
       keywordLength: cleanedFormData.keyword ? cleanedFormData.keyword.length : 0,
@@ -343,7 +342,7 @@ export function FormProvider({ children }) {
       
       if (existingLeadId) {
         // If we already have a lead ID, update it instead of creating a new one
-        console.log("Updating existing lead:", existingLeadId, "with name/phone:", {
+        console.log("Updating existing lead in Firebase:", existingLeadId, "with name/phone:", {
           name: cleanedFormData.name,
           phone: cleanedFormData.phone
         });
@@ -356,28 +355,22 @@ export function FormProvider({ children }) {
           leadStage: 'Contact Info Provided' // Update the lead stage
         };
         
-        await updateLeadInZoho(existingLeadId, updatedData);
+        await updateLeadInFirebase(existingLeadId, updatedData);
         id = existingLeadId;
       } else {
         // If no existing lead, create a new one
-        console.log("Creating new lead with cleaned data");
-        id = await submitLeadToZoho(cleanedFormData);
+        console.log("Creating new lead in Firebase with cleaned data");
+        id = await submitLeadToFirebase(cleanedFormData);
       }
       
-      console.log("Lead operation successful, ID:", id);
+      console.log("Firebase lead operation successful, ID:", id);
       
-      // If we got any ID (proper or temp), save it
+      // If we got any ID, save it
       if (id) {
         setLeadId(id);
         // Also store in localStorage right away to ensure it's saved
         localStorage.setItem('leadId', id);
-        
-        if (id.startsWith('temp_')) {
-          // For temp IDs, add a console warning
-          console.warn("Using temporary lead ID - Zoho updates will be skipped");
-        } else {
-          console.log("Successfully saved valid lead ID:", id);
-        }
+        console.log("Successfully saved Firebase lead ID:", id);
       }
       
       // Save the form data including full property record to localStorage
@@ -395,7 +388,7 @@ export function FormProvider({ children }) {
       }));
       return true;
     } catch (error) {
-      console.error("Failed to submit lead:", error);
+      console.error("Failed to submit lead to Firebase:", error);
       setFormData(prev => ({ 
         ...prev, 
         submitting: false, 
@@ -405,16 +398,10 @@ export function FormProvider({ children }) {
     }
   };
 
-  // Update lead information in Zoho, or create a new lead if no ID exists
+  // Update lead information in Firebase, or create a new lead if no ID exists
   const updateLead = async () => {
     // Get the existing lead ID from suggestion tracking or regular flow
     const existingLeadId = localStorage.getItem('suggestionLeadId') || leadId;
-    
-    // Don't attempt to update if we have a temp ID
-    if (existingLeadId && existingLeadId.startsWith('temp_')) {
-      console.log("Using temporary lead ID - update operation skipped");
-      return true;
-    }
     
     // Throttle updates to avoid overloading the API
     const now = Date.now();
@@ -426,10 +413,10 @@ export function FormProvider({ children }) {
     setLastUpdateTime(now);
     
     // Clean data by removing uninteracted fields
-    const cleanedFormData = prepareDataForZoho(formData);
+    const cleanedFormData = prepareDataForFirebase(formData);
     
     // Add detailed logging for campaign data in the update
-    console.log("%c UPDATE LEAD - CAMPAIGN & KEYWORD DATA CHECK", "background: #9c27b0; color: white; font-size: 14px; padding: 5px;");
+    console.log("%c UPDATE LEAD IN FIREBASE - CAMPAIGN & KEYWORD DATA CHECK", "background: #9c27b0; color: white; font-size: 14px; padding: 5px;");
     console.log("Campaign data for update:", {
       keyword: cleanedFormData.keyword || 'NOT SET',
       keywordLength: cleanedFormData.keyword ? cleanedFormData.keyword.length : 0,
@@ -445,12 +432,12 @@ export function FormProvider({ children }) {
     });
     
     if (!existingLeadId) {
-      console.warn("No lead ID available - will create a new lead instead of updating");
+      console.warn("No lead ID available - will create a new lead in Firebase instead of updating");
       try {
         // Create a new lead instead of updating
-        const newLeadId = await submitLeadToZoho(cleanedFormData);
+        const newLeadId = await submitLeadToFirebase(cleanedFormData);
         if (newLeadId) {
-          console.log("Created a new lead instead:", newLeadId);
+          console.log("Created a new lead in Firebase instead:", newLeadId);
           setLeadId(newLeadId);
           localStorage.setItem('leadId', newLeadId);
           localStorage.setItem('suggestionLeadId', newLeadId);
@@ -458,13 +445,13 @@ export function FormProvider({ children }) {
         }
         return false;
       } catch (error) {
-        console.error("Failed to create replacement lead:", error);
+        console.error("Failed to create replacement lead in Firebase:", error);
         return false;
       }
     }
     
     try {
-      console.log("Updating lead in Zoho with cleaned data:", existingLeadId);
+      console.log("Updating lead in Firebase with cleaned data:", existingLeadId);
       
       // Log property and address data being sent in update
       if (cleanedFormData.apiEstimatedValue || cleanedFormData.apiOwnerName || cleanedFormData.apiEquity || 
@@ -486,11 +473,11 @@ export function FormProvider({ children }) {
         });
       }
       
-      await updateLeadInZoho(existingLeadId, cleanedFormData);
-      console.log("Lead updated successfully");
+      await updateLeadInFirebase(existingLeadId, cleanedFormData);
+      console.log("Lead updated successfully in Firebase");
       return true;
     } catch (error) {
-      console.error("Failed to update lead:", error);
+      console.error("Failed to update lead in Firebase:", error);
       return false;
     }
   };

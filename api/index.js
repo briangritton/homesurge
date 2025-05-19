@@ -21,16 +21,17 @@ module.exports = (req, res) => {
   return res.status(200).json({
     message: 'SellForCash API',
     available_routes: [
-      {
-        path: '/api/zoho',
-        methods: ['POST'],
-        description: 'Zoho CRM integration for lead management'
-      },
-      {
-        path: '/api/zoho-webhook',
-        methods: ['POST'],
-        description: 'Webhook endpoint for receiving events from Zoho'
-      },
+      // Zoho endpoints have been deprecated in favor of Firebase
+      // {
+      //   path: '/api/zoho',
+      //   methods: ['POST'],
+      //   description: 'Zoho CRM integration for lead management (deprecated)'
+      // },
+      // {
+      //   path: '/api/zoho-webhook',
+      //   methods: ['POST'],
+      //   description: 'Webhook endpoint for receiving events from Zoho (deprecated)'
+      // },
       {
         path: '/api/facebook-events',
         methods: ['POST'],

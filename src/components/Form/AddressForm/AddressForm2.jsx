@@ -4,7 +4,7 @@ import { validateAddress } from '../../../utils/validation.js';
 import { trackAddressSelected, trackFormStepComplete, trackFormError } from '../../../services/analytics';
 import { trackPropertyValue } from '../../../services/facebook';
 import { lookupPropertyInfo } from '../../../services/maps.js';
-import { createSuggestionLead } from '../../../services/zoho.js';
+import { createSuggestionLead, updateLeadInFirebase } from '../../../services/firebase.js';
 import { formatSubheadline, formatText } from '../../../utils/textFormatting';
 import axios from 'axios';
 
@@ -94,7 +94,7 @@ function AddressForm2(props) {
             // Store all suggestions
             setAddressSuggestions(predictions);
             
-            // Store suggestions in form data but don't send to Zoho yet
+            // Store suggestions in form data but don't send to Firebase yet
             const top5Suggestions = predictions.slice(0, 5); // Only use top 5
             const preparedData = {
               userTypedAddress: value,
@@ -109,7 +109,7 @@ function AddressForm2(props) {
             // Update the form data with suggestions only, don't update the street/address fields
             updateFormData(preparedData);
             
-            // No longer sending to Zoho here - will wait until form submission
+            // No longer sending to Firebase here - will wait until form submission
           } else {
             setFirstSuggestion(null);
             setAddressSuggestions([]);
@@ -394,7 +394,7 @@ function AddressForm2(props) {
       
       // Prepare data for the lead
       const finalSelectionData = {
-        // Use the proper field names that will map to Zoho
+        // Use the proper field names that will map to Firebase
         street: place.formatted_address,
         city: addressComponents.city,
         state: addressComponents.state,
@@ -410,7 +410,7 @@ function AddressForm2(props) {
         addressSelectionType: 'Google',
         leadStage: 'Address Selected',
         
-        // Explicitly add campaign data to ensure it's passed to Zoho
+        // Explicitly add campaign data to ensure it's passed to Firebase
         campaign_name: campaign_name || '',
         campaign_id: campaign_id || '',
         adgroup_id: adgroup_id || '',
@@ -425,7 +425,7 @@ function AddressForm2(props) {
         buttonText: formData.buttonText || ''
       };
       
-      console.log('Sending address components to Zoho:', {
+      console.log('Sending address components to Firebase:', {
         street: finalSelectionData.street,
         city: finalSelectionData.city,
         state: finalSelectionData.state,
@@ -436,19 +436,16 @@ function AddressForm2(props) {
       let leadId, response;
       
       if (existingLeadId) {
-        // Update existing lead
-        response = await axios.post('/api/zoho', {
-          action: 'update',
-          leadId: existingLeadId,
-          formData: finalSelectionData
-        });
+        // Update existing lead with Firebase
+        await updateLeadInFirebase(existingLeadId, finalSelectionData);
         leadId = existingLeadId;
-        console.log('Updated lead with final selection:', response.data);
+        console.log('Updated lead with final selection in Firebase:', leadId);
       } else {
         // Create a new lead with suggestions and address
         const top5Suggestions = addressSuggestions.slice(0, 5);
-        leadId = await createSuggestionLead(place.formatted_address, top5Suggestions, null, addressComponents);
-        console.log('Created new lead with ID:', leadId);
+        // Pass the full formData object to ensure campaign data is captured in the initial lead creation
+        leadId = await createSuggestionLead(place.formatted_address, top5Suggestions, null, addressComponents, formData);
+        console.log('Created new lead with ID in Firebase:', leadId);
       }
       
       if (leadId) {
@@ -461,7 +458,7 @@ function AddressForm2(props) {
         finalSelectionSavedRef.current = true;
       }
     } catch (error) {
-      console.error('Error sending address data to Zoho:', error);
+      console.error('Error sending address data to Firebase:', error);
     }
     
     // Immediately fetch property data from Melissa API
@@ -475,8 +472,8 @@ function AddressForm2(props) {
         // Get campaign data from formContext 
         const { campaign_name, campaign_id, adgroup_id, adgroup_name, keyword, gclid, device, traffic_source, template_type } = formData;
         
-        console.log("%c CRITICAL ADDRESS + PROPERTY DATA UPDATE TO ZOHO", "background: #ff0000; color: white; font-size: 14px; padding: 5px;");
-        console.log("This is where URL campaign data MUST be sent to Zoho");
+        console.log("%c CRITICAL ADDRESS + PROPERTY DATA UPDATE TO FIREBASE", "background: #4caf50; color: white; font-size: 14px; padding: 5px;");
+        console.log("This is where URL campaign data MUST be sent to Firebase");
         console.log("Campaign Data in form context:", {
           campaign_name,
           campaign_id,
@@ -504,8 +501,11 @@ function AddressForm2(props) {
           apiEquity: propertyData.apiEquity?.toString() || '0',
           apiPercentage: propertyData.apiPercentage?.toString() || '0',
           apiHomeValue: propertyData.apiEstimatedValue?.toString() || '0',
+          // Add these duplicate field names for consistency
+          propertyEquity: propertyData.apiEquity?.toString() || '0', 
+          equityPercentage: propertyData.apiPercentage?.toString() || '0',
           
-          // CRITICAL: Include campaign data with property update
+          // CRITICAL: Include ALL campaign data with property update
           campaign_name: campaign_name || '',
           campaign_id: campaign_id || '',
           adgroup_id: adgroup_id || '',
@@ -515,6 +515,8 @@ function AddressForm2(props) {
           device: device || '',
           traffic_source: traffic_source || 'Direct',
           template_type: template_type || '',
+          matchtype: formData.matchtype || '',
+          url: formData.url || window.location.href || '',
           
           // Include dynamic content information
           dynamicHeadline: formData.dynamicHeadline || '',
@@ -526,7 +528,7 @@ function AddressForm2(props) {
         };
         
         // Log what we're sending
-        console.log("Property + Campaign data being sent to Zoho:", {
+        console.log("Property + Campaign data being sent to Firebase:", {
           leadId: updatedLeadId,
           address: {
             street: propertyUpdateData.street,
@@ -551,7 +553,7 @@ function AddressForm2(props) {
         
         // Store this data in sessionStorage for the debugger
         try {
-          const zohoDataSent = {
+          const firebaseDataSent = {
             leadData: {
               contact: {
                 name: formData.name || '',
@@ -569,7 +571,9 @@ function AddressForm2(props) {
                 apiEstimatedValue: propertyUpdateData.apiEstimatedValue,
                 apiMaxHomeValue: propertyUpdateData.apiMaxHomeValue,
                 apiEquity: propertyUpdateData.apiEquity,
-                apiPercentage: propertyUpdateData.apiPercentage
+                apiPercentage: propertyUpdateData.apiPercentage,
+                propertyEquity: propertyUpdateData.propertyEquity,
+                equityPercentage: propertyUpdateData.equityPercentage
               },
               campaign: {
                 campaign_name: propertyUpdateData.campaign_name,
@@ -578,27 +582,26 @@ function AddressForm2(props) {
                 adgroup_id: propertyUpdateData.adgroup_id,
                 keyword: propertyUpdateData.keyword,
                 traffic_source: propertyUpdateData.traffic_source,
-                template_type: propertyUpdateData.template_type,
+                template_type: propertyUpdateData.template_type || propertyUpdateData.templateType,
+                templateType: propertyUpdateData.templateType || propertyUpdateData.template_type,
+                matchtype: propertyUpdateData.matchtype,
                 gclid: propertyUpdateData.gclid,
-                device: propertyUpdateData.device
+                device: propertyUpdateData.device,
+                url: propertyUpdateData.url || window.location.href
               }
             },
             timestamp: new Date().toISOString()
           };
-          sessionStorage.setItem('zohoDataSent', JSON.stringify(zohoDataSent));
-          console.log("Stored Zoho data in sessionStorage for debugger");
+          sessionStorage.setItem('firebaseDataSent', JSON.stringify(firebaseDataSent));
+          console.log("Stored Firebase data in sessionStorage for debugger");
         } catch (e) {
-          console.error("Error storing Zoho data in sessionStorage:", e);
+          console.error("Error storing Firebase data in sessionStorage:", e);
         }
         
-        // Send the update to Zoho
-        const response = await axios.post('/api/zoho', {
-          action: 'update',
-          leadId: updatedLeadId,
-          formData: propertyUpdateData
-        });
+        // Send the update to Firebase directly
+        await updateLeadInFirebase(updatedLeadId, propertyUpdateData);
         
-        console.log('Updated lead with property data AND campaign data from URL:', response.data);
+        console.log('Updated lead in Firebase with property data AND campaign data from URL');
       } catch (error) {
         console.error('Error updating lead with property data:', error);
       }

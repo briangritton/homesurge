@@ -5,7 +5,7 @@ const DebugDisplay = () => {
   const { formData } = useFormContext();
   const [urlParams, setUrlParams] = useState({});
   const [localStorageData, setLocalStorageData] = useState({});
-  const [zohoData, setZohoData] = useState(null);
+  const [firebaseData, setFirebaseData] = useState(null);
   
   // Extract and display URL parameters
   useEffect(() => {
@@ -38,21 +38,21 @@ const DebugDisplay = () => {
           leadId: localStorage.getItem('leadId') || 'Not set'
         });
 
-        // Get Zoho data from sessionStorage
-        const zohoDataSent = sessionStorage.getItem('zohoDataSent');
-        if (zohoDataSent) {
+        // Get Firebase data from sessionStorage
+        const firebaseDataSent = sessionStorage.getItem('firebaseDataSent');
+        if (firebaseDataSent) {
           try {
-            const parsedData = JSON.parse(zohoDataSent);
-            setZohoData(parsedData);
+            const parsedData = JSON.parse(firebaseDataSent);
+            setFirebaseData(parsedData);
             
             // Log whenever we get new data to verify it's being read
-            console.log("%c Debug Display - Zoho Data Found in Session", "background: #9c27b0; color: white; font-size: 12px;");
-            console.log("Zoho data from session:", parsedData);
+            console.log("%c Debug Display - Firebase Data Found in Session", "background: #9c27b0; color: white; font-size: 12px;");
+            console.log("Firebase data from session:", parsedData);
           } catch (parseError) {
-            console.error("Error parsing Zoho data:", parseError, zohoDataSent);
+            console.error("Error parsing Firebase data:", parseError, firebaseDataSent);
           }
         } else {
-          console.log("No zohoDataSent found in sessionStorage");
+          console.log("No firebaseDataSent found in sessionStorage");
         }
       } catch (e) {
         console.error("Error parsing localStorage/sessionStorage data:", e);
@@ -104,10 +104,10 @@ const DebugDisplay = () => {
   
   // Helper to determine if campaign data is present
   const hasCampaignData = formData.campaign_id && formData.campaign_id !== '';
-  const hasZohoData = zohoData !== null;
+  const hasFirebaseData = firebaseData !== null;
   
   // State for active tab
-  const [activeTab, setActiveTab] = useState('zoho');
+  const [activeTab, setActiveTab] = useState('firebase');
   
   return (
     <div style={debugStyles}>
@@ -137,10 +137,10 @@ const DebugDisplay = () => {
           Storage
         </div>
         <div 
-          style={{ ...tabStyles, backgroundColor: activeTab === 'zoho' ? '#4caf50' : '#333' }}
-          onClick={() => setActiveTab('zoho')}
+          style={{ ...tabStyles, backgroundColor: activeTab === 'firebase' ? '#4caf50' : '#333' }}
+          onClick={() => setActiveTab('firebase')}
         >
-          Zoho
+          Firebase
         </div>
       </div>
       
@@ -221,22 +221,22 @@ const DebugDisplay = () => {
         </>
       )}
       
-      {activeTab === 'zoho' && (
+      {activeTab === 'firebase' && (
         <div style={sectionStyles}>
-          <h3 style={{ margin: '0 0 5px 0', fontSize: '14px', color: hasZohoData ? '#4caf50' : '#f44336' }}>
-            Zoho Data Sent {zohoData?.timestamp ? `(${new Date(zohoData.timestamp).toLocaleTimeString()})` : ''}
+          <h3 style={{ margin: '0 0 5px 0', fontSize: '14px', color: hasFirebaseData ? '#4caf50' : '#f44336' }}>
+            Firebase Data Sent {firebaseData?.timestamp ? `(${new Date(firebaseData.timestamp).toLocaleTimeString()})` : ''}
           </h3>
-          {hasZohoData ? (
+          {hasFirebaseData ? (
             <>
               <div style={{ fontSize: '11px', marginBottom: '5px', color: '#ffeb3b' }}>
                 Lead Data Summary
               </div>
               <pre style={{ maxHeight: '350px', overflow: 'auto' }}>
-                {JSON.stringify(zohoData.leadData, null, 2)}
+                {JSON.stringify(firebaseData.leadData, null, 2)}
               </pre>
             </>
           ) : (
-            <pre>No Zoho data has been sent yet</pre>
+            <pre>No Firebase data has been sent yet</pre>
           )}
         </div>
       )}
