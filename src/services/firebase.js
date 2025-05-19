@@ -5,6 +5,7 @@ import {
   doc, 
   setDoc, 
   updateDoc, 
+  deleteDoc,
   getDoc, 
   getDocs, 
   query, 
@@ -888,6 +889,48 @@ function getConversionValue(event, customValue = null) {
   }
 }
 
+/**
+ * Delete a lead from Firebase Firestore
+ * @param {string} leadId - The ID of the lead to delete
+ * @returns {Promise<boolean>} - Success status
+ */
+export async function deleteLeadFromFirebase(leadId) {
+  if (!leadId) {
+    console.error("Cannot delete lead: Missing lead ID");
+    return false;
+  }
+  
+  try {
+    const db = getFirestore();
+    const leadRef = doc(db, 'leads', leadId);
+    
+    // Get the lead document first to confirm it exists
+    const leadSnap = await getDoc(leadRef);
+    
+    if (!leadSnap.exists()) {
+      console.error(`Lead not found: ${leadId}`);
+      return false;
+    }
+    
+    // Delete the lead document
+    await deleteDoc(leadRef);
+    
+    // Push delete event to dataLayer for GTM tracking if needed
+    if (window.dataLayer) {
+      window.dataLayer.push({
+        event: 'leadDeleted',
+        leadId: leadId
+      });
+    }
+    
+    console.log(`Successfully deleted lead with ID: ${leadId}`);
+    return true;
+  } catch (error) {
+    console.error("Error deleting lead from Firebase:", error);
+    return false;
+  }
+}
+
 export default {
   app,
   db,
@@ -902,5 +945,7 @@ export default {
   login,
   logout,
   getCurrentUser,
-  createUser
+  createUser,
+  // Lead deletion
+  deleteLeadFromFirebase
 };
