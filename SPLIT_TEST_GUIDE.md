@@ -68,7 +68,7 @@ The admin page shows:
 
 
 
-
+ 
 
  Perfect! I've created a clean variant of the PersonalInfoForm with:
 
