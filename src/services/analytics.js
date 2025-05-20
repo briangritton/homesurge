@@ -10,6 +10,21 @@ const GTM_ID = process.env.REACT_APP_GTM_ID || '';
 // Debug mode for development
 const isDebug = process.env.NODE_ENV === 'development';
 
+// Update consent status for analytics
+export function updateAnalyticsConsent(granted = true) {
+  if (window.gtag) {
+    window.gtag('consent', 'update', {
+      'analytics_storage': granted ? 'granted' : 'denied'
+    });
+    
+    if (isDebug) {
+      console.log(`Analytics consent updated to: ${granted ? 'granted' : 'denied'}`);
+    }
+    return true;
+  }
+  return false;
+}
+
 // Initialize analytics services
 export function initializeAnalytics() {
   if (isDebug) console.log('Analytics - Initializing with:', { GA_TRACKING_ID, GTM_ID });
@@ -37,6 +52,12 @@ export function initializeAnalytics() {
 
   // Initialize Facebook Pixel
   FacebookPixel.initializeFacebookPixel();
+  
+  // Update consent to granted
+  const consentUpdated = updateAnalyticsConsent(true);
+  if (!consentUpdated && isDebug) {
+    console.log('Initial consent update failed - gtag not ready yet');
+  }
 
   // Track initial page view
   trackPageView(window.location.pathname + window.location.search);
@@ -54,6 +75,9 @@ export function initializeAnalytics() {
 // Track page views (GA4-compliant)
 export function trackPageView(path) {
   if (isDebug) console.log('Analytics - Page View:', path);
+  
+  // Try to ensure consent is granted
+  updateAnalyticsConsent(true);
 
   // Only track if GA is initialized
   if (GA_TRACKING_ID) {
