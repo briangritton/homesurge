@@ -1369,10 +1369,12 @@ body {
     width: 100%;
   }
   
-  .qualifying-option-column {
-    display: flex;
-    flex-direction: column;
-  }
+      .qualifying-option-column {
+        display: flex
+;
+        flex-direction: column;
+        max-width: 280px;
+    }
   
   .overlay-form-container {
     margin-top: 30%;
