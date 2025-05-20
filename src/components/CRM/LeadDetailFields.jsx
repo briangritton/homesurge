@@ -82,6 +82,12 @@ export const renderFieldValue = (lead, field) => {
       }
       return lead[field.id];
     
+    case 'phone':
+      return <a href={`tel:${lead[field.id]}`} className="crm-phone-link">{lead[field.id]}</a>;
+    
+    case 'email':
+      return <a href={`mailto:${lead[field.id]}`} className="crm-email-link">{lead[field.id]}</a>;
+    
     default:
       return lead[field.id];
   }

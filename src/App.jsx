@@ -19,6 +19,7 @@ import { CRMApp } from './components/CRM';
 
 // Styles
 import './styles/main.css';
+import './styles/crm.css';
 
 // Simple container for viewing components in isolation during development
 const SimpleComponentViewer = ({ children }) => (

@@ -610,7 +610,7 @@ function PersonalInfoForm() {
             </div>
           ) : showDefaultMessage ? (
             <div className="v1-estimate-container">
-              <span className="v1-hero-property-estimate" style={{ color: '#2e7d61' }}>Your Offer is Ready!</span>
+              <span className="v1-hero-property-estimate" style={{ color: '#2e7b7d' }}>Your Offer is Ready!</span>
             </div>
           ) : formData.apiMaxHomeValue ? (
             <div className="v1-estimate-container">

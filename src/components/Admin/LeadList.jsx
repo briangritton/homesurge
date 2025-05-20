@@ -86,7 +86,7 @@ const styles = {
   },
   button: {
     padding: '8px 16px',
-    background: '#4285F4',
+    background: '#2e7b7d',
     color: 'white',
     border: 'none',
     borderRadius: '4px',
@@ -96,8 +96,8 @@ const styles = {
   secondaryButton: {
     padding: '8px 16px',
     background: 'white',
-    color: '#4285F4',
-    border: '1px solid #4285F4',
+    color: '#2e7b7d',
+    border: '1px solid #2e7b7d',
     borderRadius: '4px',
     cursor: 'pointer',
     fontSize: '14px',
@@ -133,9 +133,9 @@ const styles = {
     fontSize: '14px',
   },
   activePageButton: {
-    background: '#4285F4',
+    background: '#2e7b7d',
     color: 'white',
-    border: '1px solid #4285F4',
+    border: '1px solid #2e7b7d',
   },
   noResults: {
     textAlign: 'center',
@@ -146,13 +146,13 @@ const styles = {
 
 // Status color mapping
 const statusColors = {
-  'New': { background: '#BBDEFB', color: '#0D47A1' },
+  'New': { background: '#B2DFDB', color: '#2e7b7d' },
   'Contacted': { background: '#C8E6C9', color: '#1B5E20' },
-  'Qualified': { background: '#FFF9C4', color: '#F57F17' },
-  'Appointment': { background: '#FFE0B2', color: '#E65100' },
-  'Offer': { background: '#FFCCBC', color: '#BF360C' },
-  'Contract': { background: '#D1C4E9', color: '#4527A0' },
-  'Closed': { background: '#B2DFDB', color: '#004D40' },
+  'Qualified': { background: '#E0F2F1', color: '#00695C' },
+  'Appointment': { background: '#E0F7FA', color: '#006064' },
+  'Offer': { background: '#B3E5FC', color: '#01579B' },
+  'Contract': { background: '#BBDEFB', color: '#0D47A1' },
+  'Closed': { background: '#C5CAE9', color: '#303F9F' },
   'Dead': { background: '#FFCDD2', color: '#B71C1C' },
 };
 
@@ -297,14 +297,14 @@ const LeadList = ({ onSelectLead }) => {
   });
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        <h2 style={styles.title}>Lead Management</h2>
-        <button style={styles.button}>+ Add New Lead</button>
+    <div style={styles.container} className="crm-lead-list-container">
+      <div style={styles.header} className="crm-lead-list-header">
+        <h2 style={styles.title} className="crm-lead-list-title">Lead Management</h2>
+        <button style={styles.button} className="crm-lead-list-add-button">+ Add New Lead</button>
       </div>
       
-      <div style={styles.controls}>
-        <div style={styles.searchContainer}>
+      <div style={styles.controls} className="crm-lead-list-controls">
+        <div style={styles.searchContainer} className="crm-lead-list-search-container">
           <input
             type="text"
             placeholder="Search by name, email, phone, or address..."
@@ -312,18 +312,20 @@ const LeadList = ({ onSelectLead }) => {
             onChange={e => setSearchTerm(e.target.value)}
             onKeyPress={e => e.key === 'Enter' && handleSearch()}
             style={styles.searchInput}
+            className="crm-lead-list-search-input"
           />
-          <button style={styles.button} onClick={handleSearch}>
+          <button style={styles.button} onClick={handleSearch} className="crm-lead-list-search-button">
             Search
           </button>
         </div>
         
-        <div style={styles.filterContainer}>
-          <span>Status:</span>
+        <div style={styles.filterContainer} className="crm-lead-list-filter-container">
+          <span className="crm-lead-list-filter-label">Status:</span>
           <select 
             value={statusFilter} 
             onChange={e => setStatusFilter(e.target.value)}
             style={styles.select}
+            className="crm-lead-list-status-filter"
           >
             <option value="All">All Statuses</option>
             <option value="New">New</option>
@@ -336,7 +338,7 @@ const LeadList = ({ onSelectLead }) => {
             <option value="Dead">Dead</option>
           </select>
           
-          <span>Sort by:</span>
+          <span className="crm-lead-list-filter-label">Sort by:</span>
           <select 
             value={`${sortBy}-${sortDirection}`} 
             onChange={e => {
@@ -347,6 +349,7 @@ const LeadList = ({ onSelectLead }) => {
               setLastVisible(null);
             }}
             style={styles.select}
+            className="crm-lead-list-sort-filter"
           >
             <option value="createdAt-desc">Newest First</option>
             <option value="createdAt-asc">Oldest First</option>
@@ -358,28 +361,28 @@ const LeadList = ({ onSelectLead }) => {
       </div>
       
       {loading ? (
-        <p>Loading leads...</p>
+        <p className="crm-lead-list-loading">Loading leads...</p>
       ) : error ? (
-        <p>{error}</p>
+        <p className="crm-lead-list-error">{error}</p>
       ) : filteredLeads.length === 0 ? (
-        <div style={styles.noResults}>
+        <div style={styles.noResults} className="crm-lead-list-no-results">
           <p>No leads found matching your criteria.</p>
         </div>
       ) : (
         <>
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                <th style={styles.tableHeader}>Name</th>
-                <th style={styles.tableHeader}>Address</th>
-                <th style={styles.tableHeader}>Phone</th>
-                <th style={styles.tableHeader}>Email</th>
-                <th style={styles.tableHeader}>Status</th>
-                <th style={styles.tableHeader}>Created</th>
-                <th style={styles.tableHeader}>Updated</th>
+          <table style={styles.table} className="crm-lead-list-table">
+            <thead className="crm-lead-list-table-head">
+              <tr className="crm-lead-list-table-row">
+                <th style={styles.tableHeader} className="crm-lead-list-table-header">Name</th>
+                <th style={styles.tableHeader} className="crm-lead-list-table-header">Address</th>
+                <th style={styles.tableHeader} className="crm-lead-list-table-header">Phone</th>
+                <th style={styles.tableHeader} className="crm-lead-list-table-header">Email</th>
+                <th style={styles.tableHeader} className="crm-lead-list-table-header">Status</th>
+                <th style={styles.tableHeader} className="crm-lead-list-table-header">Created</th>
+                <th style={styles.tableHeader} className="crm-lead-list-table-header">Updated</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="crm-lead-list-table-body">
               {filteredLeads.map(lead => (
                 <tr 
                   key={lead.id} 
@@ -390,29 +393,30 @@ const LeadList = ({ onSelectLead }) => {
                   onClick={() => onSelectLead && onSelectLead(lead.id)}
                   onMouseEnter={() => setHoveredRow(lead.id)}
                   onMouseLeave={() => setHoveredRow(null)}
+                  className={`crm-lead-list-table-row ${hoveredRow === lead.id ? 'crm-lead-list-table-row-hover' : ''}`}
                 >
-                  <td style={styles.tableCell}>{lead.name || 'N/A'}</td>
-                  <td style={styles.tableCell}>
+                  <td style={styles.tableCell} className="crm-lead-list-table-cell" data-label="Name">{lead.name || 'N/A'}</td>
+                  <td style={styles.tableCell} className="crm-lead-list-table-cell" data-label="Address">
                     {lead.street ? `${lead.street}, ${lead.city || ''}, ${lead.state || ''} ${lead.zip || ''}` : 'N/A'}
                   </td>
-                  <td style={styles.tableCell}>{lead.phone || 'N/A'}</td>
-                  <td style={styles.tableCell}>{lead.email || 'N/A'}</td>
-                  <td style={styles.tableCell}>
-                    {renderStatusBadge(lead.status || 'New')}
+                  <td style={styles.tableCell} className="crm-lead-list-table-cell" data-label="Phone">{lead.phone || 'N/A'}</td>
+                  <td style={styles.tableCell} className="crm-lead-list-table-cell" data-label="Email">{lead.email || 'N/A'}</td>
+                  <td style={styles.tableCell} className="crm-lead-list-table-cell crm-lead-list-status-cell" data-label="Status">
+                    <div className="crm-lead-list-status-wrapper">{renderStatusBadge(lead.status || 'New')}</div>
                   </td>
-                  <td style={styles.tableCell}>{formatDate(lead.createdAt)}</td>
-                  <td style={styles.tableCell}>{formatDate(lead.updatedAt)}</td>
+                  <td style={styles.tableCell} className="crm-lead-list-table-cell" data-label="Created">{formatDate(lead.createdAt)}</td>
+                  <td style={styles.tableCell} className="crm-lead-list-table-cell" data-label="Updated">{formatDate(lead.updatedAt)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
           
-          <div style={styles.pagination}>
-            <div style={styles.pageInfo}>
+          <div style={styles.pagination} className="crm-lead-list-pagination">
+            <div style={styles.pageInfo} className="crm-lead-list-page-info">
               Showing {filteredLeads.length} of {totalLeads} leads
               {statusFilter !== 'All' ? ` with status "${statusFilter}"` : ''}
             </div>
-            <div style={styles.pageButtons}>
+            <div style={styles.pageButtons} className="crm-lead-list-page-buttons">
               <button 
                 style={{
                   ...styles.pageButton,
@@ -421,10 +425,11 @@ const LeadList = ({ onSelectLead }) => {
                 }}
                 onClick={handlePrevPage}
                 disabled={currentPage === 1}
+                className="crm-lead-list-page-button crm-lead-list-prev-button"
               >
                 Previous
               </button>
-              <span style={styles.pageInfo}>Page {currentPage}</span>
+              <span style={styles.pageInfo} className="crm-lead-list-page-number">Page {currentPage}</span>
               <button 
                 style={{
                   ...styles.pageButton,
@@ -433,6 +438,7 @@ const LeadList = ({ onSelectLead }) => {
                 }}
                 onClick={handleNextPage}
                 disabled={filteredLeads.length < pageSize}
+                className="crm-lead-list-page-button crm-lead-list-next-button"
               >
                 Next
               </button>
