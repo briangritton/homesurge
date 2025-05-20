@@ -507,7 +507,7 @@ export function FormProvider({ children }) {
     // Log information about the current campaign name we'll use for matching
     console.log('Using campaign name for template selection:', campaignName);
     
-    // Simplified campaign templates by type
+    // Simplified campaign templates by type 
     const campaignTemplates = {
       // Template types
       "cash": {
@@ -520,7 +520,7 @@ export function FormProvider({ children }) {
       },
       "fast": {
         type: 'FAST',
-        headline: 'Sell Your House In 10 Days or Less',
+        headline: 'Sell Your Home In 10 Days or Less',
         subHeadline: 'Skip the repairs and listings. Get a no-obligation cash offer today and close on your terms. No fees, no stress',
         thankYouHeadline: 'Request Completed!',
         thankYouSubHeadline: 'You\'ll be receiving your fast sale details at your contact number shortly, thank you!',
@@ -528,7 +528,7 @@ export function FormProvider({ children }) {
       },
       "value": {
         type: 'VALUE',
-        headline: 'Check The Value Of Your House!',
+        headline: 'Check The Value Of Your Home!',
         subHeadline: 'Find out how much your home is worth today.',
         thankYouHeadline: 'Home Value Request Completed!',
         thankYouSubHeadline: 'You\'ll be receiving your home value details at your contact number shortly, thank you!',
