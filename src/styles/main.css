@@ -977,15 +977,20 @@ body {
   margin-right: 7px;
 }
 .v1-estimate-container {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 15px;
-  text-align: center;
-  width: 100%;
+    align-items: center;
+    display: flex
+;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 15px;
+    text-align: center;
+    width: 100%;
+    font-weight: bold;
+    font-size: 1.6rem;
+    color: #2e7d61;
+    font-size: 2.3rem;
 }
 /* Hidden Google Maps UI elements */
 .gmnoprint, .gm-style-cc {
@@ -1085,6 +1090,12 @@ body {
   margin-top: 35px;
 }
 
+.v1-confirmation-header, .v1-value-estimate-label {
+        font-size: 1.8rem;
+    }
+
+
+
 /* === MEDIA QUERIES === */
 /* Medium screens (tablets, 1024px and below) */
 
@@ -1123,7 +1134,7 @@ body {
   }
   
   .submit-button {
-    font-size: 1.5rem;
+ font-size:1.1rem;
   }
   
   /* .header-logo {
@@ -1493,7 +1504,9 @@ font-size:1.8rem;
 
     }
    
-
+    .v1-confirmation-header {
+        font-size: 1.2rem;
+    }
 
 
 .af1-hero-section .af1-hero-subheadline {
@@ -1520,7 +1533,10 @@ font-size:1.8rem;
 }
 
 
-
+    .v1-hero-property-estimate {
+        font-size: 1.7rem;
+        line-height: 1;
+    }
 
   .qualifying-section {
     width: 100%;
@@ -1742,19 +1758,14 @@ min-width:100%;
             gap: 0px;
 }
         
-          .v1-hero-property-estimate {
-        font-size: 2.2rem;
-
-        line-height: 1;
-    }
-        
+       
         .v1-value-estimate-label {
           font-size: 1.3rem;
           font-weight:bold;
         }
         
         .v1-confirmation-header {
-          font-size: 1.3rem;
+          
         }
         
         .v1-hero-1-api-address {
@@ -1765,9 +1776,10 @@ min-width:100%;
           padding: 0 10px;
         }
       }
-      .v1-input-container{
-      width:100%;
-      }
+     .v1-input-container {
+    width: 100%;
+    max-width: 400px;
+}
       @keyframes v1LoadingDots {
         0% { content: "."; }
         33% { content: ".."; }
