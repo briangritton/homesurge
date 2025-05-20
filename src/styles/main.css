@@ -1107,6 +1107,18 @@ body {
 /* Small screens (mobile, 768px and below) */
 @media only screen and (max-width: 768px) {
 
+.af1-hero-section .af1-hero-subheadline {
+    color: #444;
+    font-size: 1.4rem
+22.4px
+;
+    line-height: 1;
+    margin-bottom: 15px;
+    margin-top: 15px;
+}
+
+
+
 .hero-content {
     max-width: 750px;
     text-align: center;
@@ -1300,8 +1312,16 @@ body {
 
 
 
-
-
+.af1-hero-section .af1-hero-subheadline {
+    color: #444;
+    font-size: 1.2rem;
+    line-height: 1;
+    margin-bottom: 15px;
+    margin-top: 15px;
+}
+.af1-hero-section .af1-hero-headline {
+        font-size: 1.6rem;
+    }
 
   .confirmation-header {
     font-size: 1.6rem !important;
@@ -1852,8 +1872,8 @@ width: auto;
       
       @media (max-width: 768px) {
         .af1-hero-section .af1-hero-headline {
-          font-size: 1.8rem;
-        }
+        font-size: 2.1rem;
+    }
         
         .af1-hero-section .af1-hero-subheadline {
           /* font-size: 1.1rem; */
@@ -2114,6 +2134,14 @@ transition: background-color 0.3s;
         .v1-submit-button {
           font-size: 1.2rem;
         }
+
+
+    .v1-input-field, .v1-submit-button {
+        font-size: 1.2rem;
+        min-height: 55px;
+    }
+
+
       }
       
       @media screen and (max-width: 480px) {

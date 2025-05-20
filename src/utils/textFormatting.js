@@ -22,12 +22,19 @@ export function formatText(text, phrasesToProtect = []) {
   
   // Default phrases to protect
   const defaultProtectedPhrases = [
+    'close on your terms.',
     'close on your terms',
+    'No fees, no stress.',
     'No fees, no stress',
+    '10 Days or Less.',
     '10 Days or Less',
+    'Get a great cash offer today.',
     'Get a great cash offer today',
+    'Close in 7 days.',
     'Close in 7 days',
+    'No agents, no repairs, no stress.',
     'No agents, no repairs, no stress',
+    'For Cash Fast?',
     'For Cash Fast',
     'and home value:',
     'and home value'
@@ -61,23 +68,44 @@ export function formatText(text, phrasesToProtect = []) {
       }
       
       if (segment.includes(phrase)) {
-        // Split this segment by the phrase
-        const parts = segment.split(phrase);
+        // Create a regular expression to match the phrase with any following punctuation
+        const escapedPhrase = phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        // Enhanced regex to support multiple punctuation characters and a wider variety of symbols
+        const phraseWithPunctuationRegex = new RegExp(`${escapedPhrase}([.,:;!?\"'()\\[\\]{}…]*)`, 'g');
         
-        // Add each part with the protected phrase in between
-        for (let i = 0; i < parts.length; i++) {
-          if (i > 0) {
-            // Add the protected phrase
-            newSegments.push(
-              <span key={`${phraseIndex}-${i}`} className="nowrap-phrase">{phrase}</span>
-            );
+        // Replace occurrences of the phrase (with punctuation) with a wrapper span
+        let processedSegment = segment;
+        let match;
+        let segmentParts = [];
+        let lastIndex = 0;
+        
+        // Reset the regex before using it for matching
+        phraseWithPunctuationRegex.lastIndex = 0;
+        
+        // Find all matches
+        while ((match = phraseWithPunctuationRegex.exec(segment)) !== null) {
+          // Add text before the match
+          if (match.index > lastIndex) {
+            segmentParts.push(segment.substring(lastIndex, match.index));
           }
           
-          // Add the part if it's not empty
-          if (parts[i]) {
-            newSegments.push(parts[i]);
-          }
+          // Add the wrapped phrase with punctuation
+          const fullMatch = match[0]; // The phrase + any punctuation
+          segmentParts.push(
+            <span key={`${phraseIndex}-${segmentParts.length}`} className="nowrap-phrase">{fullMatch}</span>
+          );
+          
+          // Update lastIndex to continue after this match
+          lastIndex = match.index + fullMatch.length;
         }
+        
+        // Add any remaining text after the last match
+        if (lastIndex < segment.length) {
+          segmentParts.push(segment.substring(lastIndex));
+        }
+        
+        // Add all parts to the new segments
+        newSegments.push(...segmentParts);
       } else {
         // This segment doesn't contain the phrase, keep it as is
         newSegments.push(segment);
@@ -105,8 +133,8 @@ export function formatSubheadline(text) {
     return (
       <>
         Skip the repairs and listings. Get a no-obligation cash offer today and{' '}
-        <span className="nowrap-phrase">close on your terms</span>.{' '}
-        <span className="nowrap-phrase">No fees, no stress</span>
+        <span className="nowrap-phrase">close on your terms.</span>{' '}
+        <span className="nowrap-phrase">No fees, no stress.</span>
       </>
     );
   }
@@ -115,9 +143,9 @@ export function formatSubheadline(text) {
   if (text && text === 'Get a great cash offer today. Close in 7 days. No agents, no repairs, no stress.') {
     return (
       <>
-        <span className="nowrap-phrase">Get a great cash offer today</span>.{' '}
-        <span className="nowrap-phrase">Close in 7 days</span>.{' '}
-        <span className="nowrap-phrase">No agents, no repairs, no stress</span>.
+        <span className="nowrap-phrase">Get a great cash offer today.</span>{' '}
+        <span className="nowrap-phrase">Close in 7 days.</span>{' '}
+        <span className="nowrap-phrase">No agents, no repairs, no stress.</span>
       </>
     );
   }
