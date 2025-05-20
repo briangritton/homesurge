@@ -272,7 +272,7 @@ body {
 .hero-headline {
   font-size: 3rem;
   text-align: center;
-  line-height: 4rem;
+  /* line-height: 4rem; */
   font-weight: bold;
   padding-top: 50px;
 }
@@ -1011,8 +1011,9 @@ body {
 }
 
 .v1-simple-address-display {
-  text-align: center;
-  margin-bottom: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.6rem;
 }
 
 .v1-hero-property-estimate {
@@ -1064,7 +1065,7 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.3s;
-  height: 50px;
+  /* height: 50px; */
 }
 
 .v1-hero-middle-container {
@@ -1088,14 +1089,14 @@ body {
 /* Medium screens (tablets, 1024px and below) */
 
 @media only screen and (max-width: 1024px) {
-  .hero-content {
-    max-width: 750px;
-    text-align: center;
-  }
+     .hero-content {
+        max-width: 650px;
+        text-align: center;
+    }
   .hero-headline {
     font-size: 2.5rem;
     font-weight: 700;
-    line-height: 4rem;
+    line-height: 1.2;
     padding-top: 50px;
     text-align: center;
     }
@@ -1103,7 +1104,7 @@ body {
       font-size: 1.8rem;
       line-height: normal;
       margin: 20px 0;
-      margin: 0;
+  
       }
       .form-container {
         margin-top: 10px;
@@ -1425,6 +1426,7 @@ body {
         .af1-address-input-invalid {
           font-size: 1.2rem;
           padding: 10px;
+          min-height:35px;
         }
         
         .af1-submit-button {
