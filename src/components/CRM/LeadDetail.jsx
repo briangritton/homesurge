@@ -41,33 +41,33 @@ export default function LeadDetail({ lead }) {
       <h2 className="crm-lead-title">Lead: {lead.name || 'Unnamed Lead'}</h2>
       
       {/* Tabs for different sections */}
-      <div className="lead-tabs crm-lead-tabs">
+      <div className="lead-tabs crm-lead-tabs crm-lead-detail-tabs">
         <button 
-          className={`crm-tab-button ${activeTab === 'contact' ? 'active crm-tab-active' : ''}`}
+          className={`crm-tab-button crm-lead-detail-tab ${activeTab === 'contact' ? 'active crm-tab-active crm-lead-detail-tab-active' : ''}`}
           onClick={() => setActiveTab('contact')}
         >
           Contact Info
         </button>
         <button 
-          className={`crm-tab-button ${activeTab === 'address' ? 'active crm-tab-active' : ''}`}
+          className={`crm-tab-button crm-lead-detail-tab ${activeTab === 'address' ? 'active crm-tab-active crm-lead-detail-tab-active' : ''}`}
           onClick={() => setActiveTab('address')}
         >
           Address
         </button>
         <button 
-          className={`crm-tab-button ${activeTab === 'property' ? 'active crm-tab-active' : ''}`}
+          className={`crm-tab-button crm-lead-detail-tab ${activeTab === 'property' ? 'active crm-tab-active crm-lead-detail-tab-active' : ''}`}
           onClick={() => setActiveTab('property')}
         >
           Property Info
         </button>
         <button 
-          className={`crm-tab-button ${activeTab === 'marketing' ? 'active crm-tab-active' : ''}`}
+          className={`crm-tab-button crm-lead-detail-tab ${activeTab === 'marketing' ? 'active crm-tab-active crm-lead-detail-tab-active' : ''}`}
           onClick={() => setActiveTab('marketing')}
         >
           Marketing Data
         </button>
         <button 
-          className={`crm-tab-button ${activeTab === 'lead' ? 'active crm-tab-active' : ''}`}
+          className={`crm-tab-button crm-lead-detail-tab ${activeTab === 'lead' ? 'active crm-tab-active crm-lead-detail-tab-active' : ''}`}
           onClick={() => setActiveTab('lead')}
         >
           Lead Details
@@ -75,12 +75,27 @@ export default function LeadDetail({ lead }) {
       </div>
       
       {/* Content for the active tab */}
-      <div className="tab-content crm-tab-content">
-        {activeTab === 'contact' && renderFields(ContactFields)}
-        {activeTab === 'address' && renderFields(AddressFields)}
-        {activeTab === 'property' && renderFields(PropertyFields)}
-        {activeTab === 'marketing' && renderFields(MarketingFields)}
-        {activeTab === 'lead' && renderFields(LeadFields)}
+      <div className="tab-content crm-tab-content crm-lead-detail-content">
+        <div className="crm-tab-panel" style={{ display: activeTab === 'contact' ? 'block' : 'none' }}>
+          <h3 className="crm-section-title">Contact Information</h3>
+          {renderFields(ContactFields)}
+        </div>
+        <div className="crm-tab-panel" style={{ display: activeTab === 'address' ? 'block' : 'none' }}>
+          <h3 className="crm-section-title">Address Information</h3>
+          {renderFields(AddressFields)}
+        </div>
+        <div className="crm-tab-panel" style={{ display: activeTab === 'property' ? 'block' : 'none' }}>
+          <h3 className="crm-section-title">Property Information</h3>
+          {renderFields(PropertyFields)}
+        </div>
+        <div className="crm-tab-panel" style={{ display: activeTab === 'marketing' ? 'block' : 'none' }}>
+          <h3 className="crm-section-title">Marketing Data</h3>
+          {renderFields(MarketingFields)}
+        </div>
+        <div className="crm-tab-panel" style={{ display: activeTab === 'lead' ? 'block' : 'none' }}>
+          <h3 className="crm-section-title">Lead Details</h3>
+          {renderFields(LeadFields)}
+        </div>
       </div>
 
       {/* CSS for the component */}

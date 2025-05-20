@@ -290,9 +290,9 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        <h1 style={styles.title}>CRM Dashboard</h1>
+    <div style={styles.container} className="crm-dashboard-container">
+      <div style={styles.header} className="crm-dashboard-header">
+        <h1 style={styles.title} className="crm-dashboard-title">CRM Dashboard</h1>
         <button 
           style={styles.button}
           onClick={() => setShowNewLeadForm(true)}
@@ -308,32 +308,33 @@ const AdminDashboard = () => {
         />
       )}
       
-      <div style={styles.statsContainer}>
-        <div style={styles.statBox}>
-          <div style={styles.statTitle}>Total Leads</div>
-          <div style={styles.statValue}>{stats.totalLeads}</div>
+      <div style={styles.statsContainer} className="crm-dashboard-stats-container">
+        <div style={styles.statBox} className="crm-dashboard-stat-box">
+          <div style={styles.statTitle} className="crm-dashboard-stat-title">Total Leads</div>
+          <div style={styles.statValue} className="crm-dashboard-stat-value">{stats.totalLeads}</div>
         </div>
-        <div style={styles.statBox}>
-          <div style={styles.statTitle}>New Leads</div>
-          <div style={styles.statValue}>{stats.newLeads}</div>
+        <div style={styles.statBox} className="crm-dashboard-stat-box">
+          <div style={styles.statTitle} className="crm-dashboard-stat-title">New Leads</div>
+          <div style={styles.statValue} className="crm-dashboard-stat-value">{stats.newLeads}</div>
         </div>
-        <div style={styles.statBox}>
-          <div style={styles.statTitle}>Appointments</div>
-          <div style={styles.statValue}>{stats.appointmentsSet}</div>
+        <div style={styles.statBox} className="crm-dashboard-stat-box">
+          <div style={styles.statTitle} className="crm-dashboard-stat-title">Appointments</div>
+          <div style={styles.statValue} className="crm-dashboard-stat-value">{stats.appointmentsSet}</div>
         </div>
-        <div style={styles.statBox}>
-          <div style={styles.statTitle}>Closed Deals</div>
-          <div style={styles.statValue}>{stats.closedDeals}</div>
+        <div style={styles.statBox} className="crm-dashboard-stat-box">
+          <div style={styles.statTitle} className="crm-dashboard-stat-title">Closed Deals</div>
+          <div style={styles.statValue} className="crm-dashboard-stat-value">{stats.closedDeals}</div>
         </div>
       </div>
       
-      <div style={styles.tabContainer}>
+      <div style={styles.tabContainer} className="crm-dashboard-tab-container">
         <button 
           style={{
             ...styles.tabButton,
             ...(activeTab === 'leads' ? styles.activeTab : {})
           }}
           onClick={() => setActiveTab('leads')}
+          className={`crm-dashboard-tab-button ${activeTab === 'leads' ? 'crm-dashboard-tab-active' : ''}`}
         >
           Leads
         </button>
@@ -343,6 +344,7 @@ const AdminDashboard = () => {
             ...(activeTab === 'sales_reps' ? styles.activeTab : {})
           }}
           onClick={() => setActiveTab('sales_reps')}
+          className={`crm-dashboard-tab-button ${activeTab === 'sales_reps' ? 'crm-dashboard-tab-active' : ''}`}
         >
           Sales Reps
         </button>
@@ -352,6 +354,7 @@ const AdminDashboard = () => {
             ...(activeTab === 'reports' ? styles.activeTab : {})
           }}
           onClick={() => setActiveTab('reports')}
+          className={`crm-dashboard-tab-button ${activeTab === 'reports' ? 'crm-dashboard-tab-active' : ''}`}
         >
           Reports
         </button>
@@ -361,41 +364,43 @@ const AdminDashboard = () => {
             ...(activeTab === 'settings' ? styles.activeTab : {})
           }}
           onClick={() => setActiveTab('settings')}
+          className={`crm-dashboard-tab-button ${activeTab === 'settings' ? 'crm-dashboard-tab-active' : ''}`}
         >
           Settings
         </button>
       </div>
       
+      <div className="crm-dashboard-content">
       {loading ? (
-        <p>Loading data...</p>
+        <p className="crm-dashboard-loading">Loading data...</p>
       ) : error ? (
-        <p>{error}</p>
+        <p className="crm-dashboard-error">{error}</p>
       ) : (
         activeTab === 'leads' && (
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                <th style={styles.tableHeader}>Name</th>
-                <th style={styles.tableHeader}>Address</th>
-                <th style={styles.tableHeader}>Phone</th>
-                <th style={styles.tableHeader}>Status</th>
-                <th style={styles.tableHeader}>Created</th>
-                <th style={styles.tableHeader}>Actions</th>
+          <table style={styles.table} className="crm-dashboard-table">
+            <thead className="crm-dashboard-table-head">
+              <tr className="crm-dashboard-table-row">
+                <th style={styles.tableHeader} className="crm-dashboard-table-header">Name</th>
+                <th style={styles.tableHeader} className="crm-dashboard-table-header">Address</th>
+                <th style={styles.tableHeader} className="crm-dashboard-table-header">Phone</th>
+                <th style={styles.tableHeader} className="crm-dashboard-table-header">Status</th>
+                <th style={styles.tableHeader} className="crm-dashboard-table-header">Created</th>
+                <th style={styles.tableHeader} className="crm-dashboard-table-header">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="crm-dashboard-table-body">
               {leads.map(lead => (
-                <tr key={lead.id} style={styles.tableRow}>
-                  <td style={styles.tableCell}>{lead.name || 'N/A'}</td>
-                  <td style={styles.tableCell}>
+                <tr key={lead.id} style={styles.tableRow} className="crm-dashboard-table-row">
+                  <td style={styles.tableCell} className="crm-dashboard-table-cell">{lead.name || 'N/A'}</td>
+                  <td style={styles.tableCell} className="crm-dashboard-table-cell">
                     {lead.street ? `${lead.street}, ${lead.city}, ${lead.state} ${lead.zip}` : 'N/A'}
                   </td>
-                  <td style={styles.tableCell}>{lead.phone || 'N/A'}</td>
-                  <td style={styles.tableCell}>
+                  <td style={styles.tableCell} className="crm-dashboard-table-cell">{lead.phone || 'N/A'}</td>
+                  <td style={styles.tableCell} className="crm-dashboard-table-cell">
                     {renderStatusBadge(lead.status || 'New')}
                   </td>
-                  <td style={styles.tableCell}>{formatDate(lead.createdAt)}</td>
-                  <td style={styles.tableCell}>
+                  <td style={styles.tableCell} className="crm-dashboard-table-cell">{formatDate(lead.createdAt)}</td>
+                  <td style={styles.tableCell} className="crm-dashboard-table-cell">
                     <button 
                       style={styles.button}
                       onClick={() => {
@@ -427,20 +432,23 @@ const AdminDashboard = () => {
       )}
       
       {activeTab === 'sales_reps' && (
-        <SalesRepsList />
+        <div className="crm-dashboard-sales-reps">
+          <SalesRepsList />
+        </div>
       )}
       
       {activeTab === 'reports' && (
-        <div>
-          <p>Reports content will be implemented here.</p>
+        <div className="crm-dashboard-reports">
+          <p className="crm-dashboard-placeholder">Reports content will be implemented here.</p>
         </div>
       )}
       
       {activeTab === 'settings' && (
-        <div>
-          <p>Settings content will be implemented here.</p>
+        <div className="crm-dashboard-settings">
+          <p className="crm-dashboard-placeholder">Settings content will be implemented here.</p>
         </div>
       )}
+      </div>
     </div>
   );
 };

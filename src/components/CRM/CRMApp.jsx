@@ -197,16 +197,16 @@ const CRMApp = () => {
       <div className="crm-content">
         {/* Skip navigation when viewing lead detail */}
         {activeView !== 'leadDetail' && userRole === 'admin' && (
-          <nav className="crm-nav">
+          <nav className="crm-nav crm-main-navigation">
             <button 
               onClick={() => setActiveView('dashboard')}
-              className={`crm-nav-link ${activeView === 'dashboard' ? 'crm-active-nav-link' : ''}`}
+              className={`crm-nav-link crm-nav-item ${activeView === 'dashboard' ? 'crm-active-nav-link' : ''}`}
             >
               Dashboard
             </button>
             <button 
               onClick={() => setActiveView('leads')}
-              className={`crm-nav-link ${activeView === 'leads' ? 'crm-active-nav-link' : ''}`}
+              className={`crm-nav-link crm-nav-item ${activeView === 'leads' ? 'crm-active-nav-link' : ''}`}
             >
               Leads
             </button>

@@ -531,13 +531,14 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
         </div>
       </div>
       
-      <div style={styles.tabs}>
+      <div style={styles.tabs} className="crm-lead-detail-tabs">
         <div 
           style={{
             ...styles.tab, 
             ...(activeTab === 'details' ? styles.activeTab : {})
           }}
           onClick={() => setActiveTab('details')}
+          className={`crm-lead-detail-tab ${activeTab === 'details' ? 'crm-lead-detail-tab-active' : ''}`}
         >
           Lead Details
         </div>
@@ -547,6 +548,7 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
             ...(activeTab === 'activity' ? styles.activeTab : {})
           }}
           onClick={() => setActiveTab('activity')}
+          className={`crm-lead-detail-tab ${activeTab === 'activity' ? 'crm-lead-detail-tab-active' : ''}`}
         >
           Activity History
         </div>
@@ -556,6 +558,7 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
             ...(activeTab === 'property' ? styles.activeTab : {})
           }}
           onClick={() => setActiveTab('property')}
+          className={`crm-lead-detail-tab ${activeTab === 'property' ? 'crm-lead-detail-tab-active' : ''}`}
         >
           Property Info
         </div>
@@ -566,16 +569,17 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
               ...(activeTab === 'tracking' ? styles.activeTab : {})
             }}
             onClick={() => setActiveTab('tracking')}
+            className={`crm-lead-detail-tab ${activeTab === 'tracking' ? 'crm-lead-detail-tab-active' : ''}`}
           >
             Marketing Data
           </div>
         )}
       </div>
       
-      <div style={styles.content}>
-        <div style={styles.mainColumn}>
+      <div style={styles.content} className="crm-lead-detail-content">
+        <div style={styles.mainColumn} className="crm-lead-main-column">
           {activeTab === 'details' && (
-            <div style={styles.section}>
+            <div style={styles.section} className="crm-lead-section crm-lead-contact-info-section">
               <h3 style={styles.sectionTitle}>Contact Information</h3>
               
               {editMode ? (
@@ -745,7 +749,7 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
           )}
           
           {activeTab === 'details' && (
-            <div style={styles.section}>
+            <div style={styles.section} className="crm-lead-section crm-lead-address-section">
               <h3 style={styles.sectionTitle}>Address Information</h3>
               
               {editMode ? (
@@ -821,7 +825,7 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
           )}
           
           {activeTab === 'property' && (
-            <div style={styles.section}>
+            <div style={styles.section} className="crm-lead-section crm-lead-property-section">
               <h3 style={styles.sectionTitle}>Property Information</h3>
               
               {editMode ? (
@@ -1054,7 +1058,7 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
           )}
           
           {activeTab === 'tracking' && (
-            <div style={styles.section}>
+            <div style={styles.section} className="crm-lead-section crm-lead-marketing-section">
               <h3 style={styles.sectionTitle}>Marketing Data</h3>
               
               <div style={styles.fieldGroup}>
@@ -1115,7 +1119,7 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
           )}
           
           {activeTab === 'activity' && (
-            <div style={styles.section}>
+            <div style={styles.section} className="crm-lead-section crm-lead-conversion-section">
               <h3 style={styles.sectionTitle}>Conversion Events</h3>
               
               {lead.conversions && lead.conversions.length > 0 ? (
@@ -1139,7 +1143,7 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
               )}
               
               <h3 style={styles.sectionTitle}>Record Conversion Event</h3>
-              <div>
+              <div className="crm-lead-conversion-buttons">
                 {conversionEvents.map(event => (
                   <button
                     key={event.id}
@@ -1153,6 +1157,7 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
               </div>
               
               <h3 style={styles.sectionTitle}>Notes</h3>
+              <div className="crm-lead-notes-container">
               
               {lead.notes && lead.notes.length > 0 ? (
                 <div style={styles.activityLog}>
@@ -1172,7 +1177,8 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
                 <p style={styles.noData}>No notes have been added yet.</p>
               )}
               
-              <div style={styles.addNoteForm}>
+              </div>
+              <div style={styles.addNoteForm} className="crm-lead-add-note-form">
                 <textarea
                   placeholder="Add a note..."
                   value={note}
@@ -1194,8 +1200,8 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
           )}
         </div>
         
-        <div style={styles.sideColumn}>
-          <div style={styles.section}>
+        <div style={styles.sideColumn} className="crm-lead-side-column">
+          <div style={styles.section} className="crm-lead-section crm-lead-info-section">
             <h3 style={styles.sectionTitle}>Lead Information</h3>
             <div style={styles.fieldGroup}>
               <div style={styles.label}>Created</div>
@@ -1213,7 +1219,7 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
             </div>
           </div>
           
-          <div style={styles.section}>
+          <div style={styles.section} className="crm-lead-section crm-lead-actions-section">
             <h3 style={styles.sectionTitle}>Quick Actions</h3>
             {!editMode && (
               <>
