@@ -60,10 +60,11 @@ function FormContainer() {
     initializeAnalytics();
     
     // Grant consent for analytics storage - this enables Google Analytics to store data
+    let consentRetry = null;
     if (!updateAnalyticsConsent(true)) {
       console.log('gtag not available yet, will retry consent update');
       // Retry updating consent after a short delay if gtag isn't available yet
-      const consentRetry = setTimeout(() => {
+      consentRetry = setTimeout(() => {
         updateAnalyticsConsent(true);
       }, 1000);
     }
@@ -88,7 +89,7 @@ function FormContainer() {
     
     return () => {
       clearTimeout(timer); // Cleanup on unmount
-      if (typeof consentRetry !== 'undefined') clearTimeout(consentRetry);
+      if (consentRetry) clearTimeout(consentRetry);
     };
     
     // No dependencies - only run once on mount
