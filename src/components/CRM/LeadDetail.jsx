@@ -18,9 +18,15 @@ export default function LeadDetail({ lead }) {
 
   // Function to render fields for a specific section
   const renderFields = (fields) => {
+    // Make sure all fields from the lead are displayed even if they aren't
+    // explicitly defined in the field arrays
+    const shouldShowField = (field) => {
+      return lead[field.id] !== undefined && lead[field.id] !== null && lead[field.id] !== '';
+    };
+
     return (
       <div className="lead-detail-fields">
-        {fields.map(field => (
+        {fields.filter(shouldShowField).map(field => (
           <div className="field-row" key={field.id}>
             <div className="field-label">{field.label}:</div>
             <div className="field-value">{renderFieldValue(lead, field)}</div>

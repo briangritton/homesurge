@@ -592,11 +592,33 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
                   </div>
                   
                   <div style={styles.fieldGroup}>
+                    <label style={styles.label}>Auto Filled Name</label>
+                    <input
+                      type="text"
+                      name="autoFilledName"
+                      value={formData.autoFilledName || ''}
+                      onChange={handleInputChange}
+                      style={styles.input}
+                    />
+                  </div>
+                  
+                  <div style={styles.fieldGroup}>
                     <label style={styles.label}>Phone</label>
                     <input
                       type="text"
                       name="phone"
                       value={formData.phone || ''}
+                      onChange={handleInputChange}
+                      style={styles.input}
+                    />
+                  </div>
+                  
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label}>Auto Filled Phone</label>
+                    <input
+                      type="text"
+                      name="autoFilledPhone"
+                      value={formData.autoFilledPhone || ''}
                       onChange={handleInputChange}
                       style={styles.input}
                     />
@@ -670,8 +692,18 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
                   </div>
                   
                   <div style={styles.fieldGroup}>
+                    <div style={styles.label}>Auto Filled Name</div>
+                    <div style={styles.value}>{lead.autoFilledName || 'N/A'}</div>
+                  </div>
+                  
+                  <div style={styles.fieldGroup}>
                     <div style={styles.label}>Phone</div>
                     <div style={styles.value}>{lead.phone || 'N/A'}</div>
+                  </div>
+                  
+                  <div style={styles.fieldGroup}>
+                    <div style={styles.label}>Auto Filled Phone</div>
+                    <div style={styles.value}>{lead.autoFilledPhone || 'N/A'}</div>
                   </div>
                   
                   <div style={styles.fieldGroup}>
