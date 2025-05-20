@@ -135,12 +135,14 @@ function AddressForm() {
       // For other fields (name, phone), just update the form data
       const updateField = {};
       if (fieldName === 'name') {
-        // Add tag to indicate it was entered in the address form
-        updateField.name = `${value} (Autofilled by browser)`;
+        // Store the original name value without tags
+        updateField.name = value;
+        updateField.autoFilledName = value; // Store original name separately
         updateField.nameWasAutofilled = true; // Flag to track autofill status
       }
       if (fieldName === 'tel') {
         updateField.phone = value;
+        updateField.autoFilledPhone = value; // Store original phone separately
       }
       
       updateFormData(updateField);
@@ -163,11 +165,15 @@ function AddressForm() {
               // Update the form data with this auto-filled value
               const fieldUpdate = {};
               if (e.target.name === 'name') {
-                // Add tag to indicate it was autofilled by the browser
-                fieldUpdate.name = `${e.target.value} (Autofilled by browser)`;
+                // Store the original name without tags
+                fieldUpdate.name = e.target.value;
+                fieldUpdate.autoFilledName = e.target.value; // Store original name separately
                 fieldUpdate.nameWasAutofilled = true; // Flag to track autofill status
               }
-              if (e.target.name === 'tel') fieldUpdate.phone = e.target.value;
+              if (e.target.name === 'tel') {
+                fieldUpdate.phone = e.target.value;
+                fieldUpdate.autoFilledPhone = e.target.value; // Store original phone separately
+              }
               
               updateFormData(fieldUpdate);
             }
@@ -499,6 +505,10 @@ function AddressForm() {
         name: formData.name || '',
         phone: formData.phone || '',
         
+        // Include autofilled values if they exist
+        autoFilledName: formData.autoFilledName || formData.name || '',
+        autoFilledPhone: formData.autoFilledPhone || formData.phone || '',
+        
         userTypedAddress: lastTypedAddress,
         selectedSuggestionAddress: place.formatted_address,
         addressSelectionType: autofillDetected ? 'BrowserAutofill' : 'Google',
@@ -603,6 +613,10 @@ function AddressForm() {
               // Add these duplicate field names for consistency
               propertyEquity: propertyData.apiEquity?.toString() || '0', 
               equityPercentage: propertyData.apiPercentage?.toString() || '0',
+              
+              // Include autofilled values in background update
+              autoFilledName: formData.autoFilledName || formData.name || '',
+              autoFilledPhone: formData.autoFilledPhone || formData.phone || '',
               
               // CRITICAL: Include ALL campaign data with property update
               campaign_name: campaign_name || '',
@@ -1040,7 +1054,9 @@ function AddressForm() {
             userTypedAddress: lastTypedAddress, // What the user typed before selecting
             addressSelectionType: 'UserClicked',
             name: nameValue || formData.name || '',  // Use value from input if available, fallback to formData
-            phone: phoneValue || formData.phone || '' // Use value from input if available, fallback to formData
+            phone: phoneValue || formData.phone || '', // Use value from input if available, fallback to formData
+            autoFilledName: nameValue || formData.autoFilledName || formData.name || '',
+            autoFilledPhone: phoneValue || formData.autoFilledPhone || formData.phone || ''
           });
           
           // Start form submission process immediately
