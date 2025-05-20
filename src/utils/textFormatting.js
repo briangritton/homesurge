@@ -70,7 +70,8 @@ export function formatText(text, phrasesToProtect = []) {
       if (segment.includes(phrase)) {
         // Create a regular expression to match the phrase with any following punctuation
         const escapedPhrase = phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const phraseWithPunctuationRegex = new RegExp(`${escapedPhrase}([.,:;!?]?)`, 'g');
+        // Enhanced regex to support multiple punctuation characters and a wider variety of symbols
+        const phraseWithPunctuationRegex = new RegExp(`${escapedPhrase}([.,:;!?\"'()\\[\\]{}…]*)`, 'g');
         
         // Replace occurrences of the phrase (with punctuation) with a wrapper span
         let processedSegment = segment;
@@ -105,7 +106,6 @@ export function formatText(text, phrasesToProtect = []) {
         
         // Add all parts to the new segments
         newSegments.push(...segmentParts);
-      }
       } else {
         // This segment doesn't contain the phrase, keep it as is
         newSegments.push(segment);
