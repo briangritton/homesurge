@@ -1382,7 +1382,8 @@ body {
     margin-top: 15px;
 }
 .af1-hero-section .af1-hero-headline {
-        font-size: 1.6rem;
+        font-size: 1.7rem;
+        line-height:1;
     }
 
   .confirmation-header {
@@ -1416,11 +1417,11 @@ body {
 }
 .form-container {
   flex-direction: column;
-  margin: 0px auto;
-  margin-top: 20px;
+ margin: 10px auto;
   max-width: 100%;
   width: 100%;
   margin-bottom: 20px;
+ 
 }
 
     .hero-headline {
@@ -1565,6 +1566,7 @@ min-width:100%;
     border-radius: 5px;
     overflow: hidden;
     font-size: 1rem;
+    max-width: 100%;
   }
   
   .pac-item {
