@@ -2114,6 +2114,14 @@ transition: background-color 0.3s;
         .v1-submit-button {
           font-size: 1.2rem;
         }
+
+
+    .v1-input-field, .v1-submit-button {
+        font-size: 1.2rem;
+        min-height: 55px;
+    }
+
+
       }
       
       @media screen and (max-width: 480px) {
