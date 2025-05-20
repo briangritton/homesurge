@@ -122,6 +122,53 @@ body {
   font-weight: bold;
 }
 
+/* === CRM DASHBOARD STYLES === */
+.crm-lead-detail-container {
+  /* Base styles for the lead detail container */
+}
+
+.crm-lead-title {
+  /* Styles for the lead title */
+}
+
+.crm-lead-tabs {
+  /* Styles for the tabs container */
+}
+
+.crm-tab-button {
+  /* Styles for tab buttons */
+}
+
+.crm-tab-active {
+  /* Styles for active tab */
+}
+
+.crm-tab-content {
+  /* Styles for tab content area */
+}
+
+.crm-lead-detail-fields {
+  /* Styles for the fields container */
+}
+
+.crm-field-row {
+  /* Styles for each field row */
+}
+
+.crm-auto-filled-field {
+  /* Special styling for auto-filled fields */
+  /* For example: */
+  /* background-color: rgba(173, 216, 230, 0.2); */ /* Light blue background */
+}
+
+.crm-field-label {
+  /* Styles for field labels */
+}
+
+.crm-field-value {
+  /* Styles for field values */
+}
+
 /* === FOOTER STYLES === */
 .footer {
   display: flex;
