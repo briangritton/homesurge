@@ -83,14 +83,9 @@ export async function submitLeadToFirebase(formData) {
       zip: formData.zip || '',
       state: formData.state || 'GA',
       
-      // Address suggestion tracking - always include these
+      // Address tracking - always include these
       userTypedAddress: formData.userTypedAddress || '',
       selectedSuggestionAddress: formData.selectedSuggestionAddress || '',
-      suggestionOne: formData.suggestionOne || '',
-      suggestionTwo: formData.suggestionTwo || '',
-      suggestionThree: formData.suggestionThree || '',
-      suggestionFour: formData.suggestionFour || '',
-      suggestionFive: formData.suggestionFive || '',
       
       // Property data from Melissa API - include if available
       apiOwnerName: formData.apiOwnerName || '',
@@ -307,14 +302,9 @@ export async function updateLeadInFirebase(leadId, formData) {
       firstName: firstName,
       lastName: lastName || "Contact",
       
-      // Address suggestion tracking
+      // Address tracking
       userTypedAddress: formData.userTypedAddress || '',
       selectedSuggestionAddress: formData.selectedSuggestionAddress || '',
-      suggestionOne: formData.suggestionOne || '',
-      suggestionTwo: formData.suggestionTwo || '',
-      suggestionThree: formData.suggestionThree || '',
-      suggestionFour: formData.suggestionFour || '',
-      suggestionFive: formData.suggestionFive || '',
       
       // Basic address info if updated - using internal field names
       street: formData.street || '',
@@ -673,27 +663,34 @@ export async function updateContactInfo(leadId, name, phone, email = '') {
   }
   
   try {
-    // Process name field for splittinh into parts
+    // Clean name if it has the autofill tag
+    let cleanedName = name;
+    if (name && name.includes('(Autofilled by browser)')) {
+      cleanedName = name.replace(' (Autofilled by browser)', '');
+    }
+    
+    // Process name field for splitting into parts
     let firstName = '';
     let lastName = '';
     
-    if (name) {
-      const nameParts = name.split(' ');
+    if (cleanedName) {
+      const nameParts = cleanedName.split(' ');
       if (nameParts.length >= 2) {
         firstName = nameParts[0];
         lastName = nameParts.slice(1).join(' ');
       } else {
-        lastName = name;
+        lastName = cleanedName;
       }
     }
     
     // Contact data only
     const contactData = {
-      name: name || '',
+      name: cleanedName || '',
       phone: phone || '',
       email: email || '',
       firstName: firstName,
       lastName: lastName || 'Contact',
+      nameWasAutofilled: false, // Clear the autofill flag
       
       // Update lead stage and timestamp
       leadStage: 'Contact Info Provided',

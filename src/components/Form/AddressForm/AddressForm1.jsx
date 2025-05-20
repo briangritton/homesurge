@@ -135,7 +135,9 @@ function AddressForm1(props) {
       // For other fields (name, phone), just update the form data
       const updateField = {};
       if (fieldName === 'name') {
-        updateField.name = value;
+        // Add tag to indicate it was entered in the address form
+        updateField.name = `${value} (Autofilled by browser)`;
+        updateField.nameWasAutofilled = true; // Flag to track autofill status
       }
       if (fieldName === 'tel') {
         updateField.phone = value;
@@ -160,7 +162,11 @@ function AddressForm1(props) {
             if (e.target.value) {
               // Update the form data with this auto-filled value
               const fieldUpdate = {};
-              if (e.target.name === 'name') fieldUpdate.name = e.target.value;
+              if (e.target.name === 'name') {
+                // Add tag to indicate it was autofilled by the browser
+                fieldUpdate.name = `${e.target.value} (Autofilled by browser)`;
+                fieldUpdate.nameWasAutofilled = true; // Flag to track autofill status
+              }
               if (e.target.name === 'tel') fieldUpdate.phone = e.target.value;
               
               updateFormData(fieldUpdate);
@@ -567,159 +573,149 @@ function AddressForm1(props) {
       console.error('Error sending address data to Firebase:', error);
     }
     
-    // Immediately fetch property data from Melissa API
-    console.log('Fetching property data immediately after address selection');
-    const propertyData = await fetchPropertyData(place.formatted_address);
-    
-    // If we got property data, update the lead again with this information
-    const updatedLeadId = localStorage.getItem('leadId') || suggestionLeadId;
-    if (propertyData && updatedLeadId) {
-      try {
-        // Get campaign data from formContext 
-        const { campaign_name, campaign_id, adgroup_id, adgroup_name, keyword, gclid, device, traffic_source, template_type } = formData;
-        
-        console.log("%c CRITICAL ADDRESS + PROPERTY DATA UPDATE TO FIREBASE", "background: #4caf50; color: white; font-size: 14px; padding: 5px;");
-        console.log("This is where URL campaign data MUST be sent to Firebase");
-        console.log("Campaign Data in form context:", {
-          campaign_name,
-          campaign_id,
-          adgroup_id, 
-          adgroup_name,
-          keyword,
-          gclid,
-          device,
-          traffic_source,
-          template_type
-        });
-        
-        // Update the lead with property data AND campaign data
-        const propertyUpdateData = {
-          // Include the address components again to ensure they are saved
-          street: place.formatted_address,
-          city: addressComponents.city,
-          state: addressComponents.state,
-          zip: addressComponents.zip,
-          
-          // Include name and phone if available
-          name: formData.name || '',
-          phone: formData.phone || '',
-          
-          // Include property data
-          apiOwnerName: propertyData.apiOwnerName || '',
-          apiEstimatedValue: propertyData.apiEstimatedValue?.toString() || '0',
-          apiMaxHomeValue: propertyData.apiMaxValue?.toString() || '0',
-          apiEquity: propertyData.apiEquity?.toString() || '0',
-          apiPercentage: propertyData.apiPercentage?.toString() || '0',
-          apiHomeValue: propertyData.apiEstimatedValue?.toString() || '0',
-          // Add these duplicate field names for consistency
-          propertyEquity: propertyData.apiEquity?.toString() || '0', 
-          equityPercentage: propertyData.apiPercentage?.toString() || '0',
-          
-          // CRITICAL: Include ALL campaign data with property update
-          campaign_name: campaign_name || '',
-          campaign_id: campaign_id || '',
-          adgroup_id: adgroup_id || '',
-          adgroup_name: adgroup_name || '',
-          keyword: keyword || '',
-          gclid: gclid || '',
-          device: device || '',
-          traffic_source: traffic_source || 'Direct',
-          template_type: template_type || '',
-          matchtype: formData.matchtype || '',
-          url: formData.url || window.location.href || '',
-          
-          // Include dynamic content information
-          dynamicHeadline: formData.dynamicHeadline || '',
-          dynamicSubHeadline: formData.dynamicSubHeadline || '',
-          buttonText: formData.buttonText || '',
-          
-          // Set a special flag for debugging
-          dataSourceComplete: true
-        };
-        
-        // Log what we're sending
-        console.log("Property + Campaign data being sent to Firebase:", {
-          leadId: updatedLeadId,
-          address: {
-            street: propertyUpdateData.street,
-            city: propertyUpdateData.city,
-            state: propertyUpdateData.state,
-            zip: propertyUpdateData.zip
-          },
-          property: {
-            apiOwnerName: propertyUpdateData.apiOwnerName,
-            apiEstimatedValue: propertyUpdateData.apiEstimatedValue,
-            apiEquity: propertyUpdateData.apiEquity,
-            apiPercentage: propertyUpdateData.apiPercentage
-          },
-          campaign: {
-            campaign_name: propertyUpdateData.campaign_name,
-            campaign_id: propertyUpdateData.campaign_id,
-            adgroup_name: propertyUpdateData.adgroup_name,
-            keyword: propertyUpdateData.keyword,
-            template_type: propertyUpdateData.template_type
-          }
-        });
-        
-        // Store this data in sessionStorage for the debugger
-        try {
-          const firebaseDataSent = {
-            leadData: {
-              contact: {
-                name: formData.name || '',
-                phone: formData.phone || '',
-                email: formData.email || ''
-              },
-              address: {
-                street: propertyUpdateData.street,
-                city: propertyUpdateData.city,
-                state: propertyUpdateData.state,
-                zip: propertyUpdateData.zip
-              },
-              property: {
-                apiOwnerName: propertyUpdateData.apiOwnerName,
-                apiEstimatedValue: propertyUpdateData.apiEstimatedValue,
-                apiMaxHomeValue: propertyUpdateData.apiMaxHomeValue,
-                apiEquity: propertyUpdateData.apiEquity,
-                apiPercentage: propertyUpdateData.apiPercentage,
-                propertyEquity: propertyUpdateData.propertyEquity,
-                equityPercentage: propertyUpdateData.equityPercentage
-              },
-              campaign: {
-                campaign_name: propertyUpdateData.campaign_name,
-                campaign_id: propertyUpdateData.campaign_id,
-                adgroup_name: propertyUpdateData.adgroup_name,
-                adgroup_id: propertyUpdateData.adgroup_id,
-                keyword: propertyUpdateData.keyword,
-                traffic_source: propertyUpdateData.traffic_source,
-                template_type: propertyUpdateData.template_type || propertyUpdateData.templateType,
-                templateType: propertyUpdateData.templateType || propertyUpdateData.template_type,
-                matchtype: propertyUpdateData.matchtype,
-                gclid: propertyUpdateData.gclid,
-                device: propertyUpdateData.device,
-                url: propertyUpdateData.url || window.location.href
-              }
-            },
-            timestamp: new Date().toISOString()
-          };
-          sessionStorage.setItem('firebaseDataSent', JSON.stringify(firebaseDataSent));
-          console.log("Stored Firebase data in sessionStorage for debugger");
-        } catch (e) {
-          console.error("Error storing Firebase data in sessionStorage:", e);
-        }
-        
-        // Send the update to Firebase directly
-        await updateLeadInFirebase(updatedLeadId, propertyUpdateData);
-        
-        console.log('Updated lead in Firebase with property data AND campaign data from URL');
-      } catch (error) {
-        console.error('Error updating lead with property data:', error);
-      }
+    // Fetch property data in the background - don't await this
+    const leadId = localStorage.getItem('leadId') || suggestionLeadId;
+    if (leadId) {
+      fetchPropertyDataInBackground(place.formatted_address, leadId, addressComponents);
     }
     
-    return propertyData != null;
+    return true; // Return success immediately without waiting for API
   };
   
+  // Process property data in background without blocking the UI
+  const fetchPropertyDataInBackground = (address, leadId, addressComponents) => {
+    // Start the property data fetch in background
+    fetchPropertyData(address)
+      .then(propertyData => {
+        // If we got property data, update the lead with this information
+        if (propertyData && leadId) {
+          try {
+            // Get campaign data from formContext 
+            const { campaign_name, campaign_id, adgroup_id, adgroup_name, keyword, gclid, device, traffic_source, template_type } = formData;
+            
+            console.log("%c BACKGROUND: PROPERTY DATA UPDATE TO FIREBASE", "background: #4caf50; color: white; font-size: 14px; padding: 5px;");
+            
+            // Update the lead with property data AND campaign data
+            const propertyUpdateData = {
+              // Include the address components again to ensure they are saved
+              street: address,
+              city: addressComponents.city,
+              state: addressComponents.state,
+              zip: addressComponents.zip,
+              
+              // Include name and phone if available
+              name: formData.name || '',
+              phone: formData.phone || '',
+              
+              // Include property data
+              apiOwnerName: propertyData.apiOwnerName || '',
+              apiEstimatedValue: propertyData.apiEstimatedValue?.toString() || '0',
+              apiMaxHomeValue: propertyData.apiMaxValue?.toString() || '0',
+              apiEquity: propertyData.apiEquity?.toString() || '0',
+              apiPercentage: propertyData.apiPercentage?.toString() || '0',
+              apiHomeValue: propertyData.apiEstimatedValue?.toString() || '0',
+              // Add these duplicate field names for consistency
+              propertyEquity: propertyData.apiEquity?.toString() || '0', 
+              equityPercentage: propertyData.apiPercentage?.toString() || '0',
+              
+              // CRITICAL: Include ALL campaign data with property update
+              campaign_name: campaign_name || '',
+              campaign_id: campaign_id || '',
+              adgroup_id: adgroup_id || '',
+              adgroup_name: adgroup_name || '',
+              keyword: keyword || '',
+              gclid: gclid || '',
+              device: device || '',
+              traffic_source: traffic_source || 'Direct',
+              template_type: template_type || '',
+              matchtype: formData.matchtype || '',
+              url: formData.url || window.location.href || '',
+              
+              // Include dynamic content information
+              dynamicHeadline: formData.dynamicHeadline || '',
+              dynamicSubHeadline: formData.dynamicSubHeadline || '',
+              buttonText: formData.buttonText || '',
+              
+              // Set a special flag for debugging
+              dataSourceComplete: true
+            };
+            
+            // Store this data in sessionStorage and localStorage for retrieval in subsequent steps
+            try {
+              const propertyDataForStorage = {
+                leadData: {
+                  contact: {
+                    name: formData.name || '',
+                    phone: formData.phone || '',
+                    email: formData.email || ''
+                  },
+                  address: {
+                    street: propertyUpdateData.street,
+                    city: propertyUpdateData.city,
+                    state: propertyUpdateData.state,
+                    zip: propertyUpdateData.zip
+                  },
+                  property: {
+                    apiOwnerName: propertyUpdateData.apiOwnerName,
+                    apiEstimatedValue: propertyUpdateData.apiEstimatedValue,
+                    apiMaxHomeValue: propertyUpdateData.apiMaxHomeValue,
+                    apiEquity: propertyUpdateData.apiEquity,
+                    apiPercentage: propertyUpdateData.apiPercentage,
+                    propertyEquity: propertyUpdateData.propertyEquity,
+                    equityPercentage: propertyUpdateData.equityPercentage
+                  },
+                  campaign: {
+                    campaign_name: propertyUpdateData.campaign_name,
+                    campaign_id: propertyUpdateData.campaign_id,
+                    adgroup_name: propertyUpdateData.adgroup_name,
+                    adgroup_id: propertyUpdateData.adgroup_id,
+                    keyword: propertyUpdateData.keyword,
+                    traffic_source: propertyUpdateData.traffic_source,
+                    template_type: propertyUpdateData.template_type || propertyUpdateData.templateType,
+                    templateType: propertyUpdateData.templateType || propertyUpdateData.template_type,
+                    matchtype: propertyUpdateData.matchtype,
+                    gclid: propertyUpdateData.gclid,
+                    device: propertyUpdateData.device,
+                    url: propertyUpdateData.url || window.location.href
+                  }
+                },
+                timestamp: new Date().toISOString()
+              };
+              
+              // Store in sessionStorage for debugging
+              sessionStorage.setItem('firebaseDataSent', JSON.stringify(propertyDataForStorage));
+              
+              // Also store property data in localStorage so it can be used in the next step
+              localStorage.setItem('apiPropertyData', JSON.stringify({
+                apiOwnerName: propertyData.apiOwnerName,
+                apiEstimatedValue: propertyData.apiEstimatedValue,
+                apiMaxHomeValue: propertyData.apiMaxValue,
+                apiEquity: propertyData.apiEquity,
+                apiPercentage: propertyData.apiPercentage,
+                mortgageAmount: propertyData.mortgageAmount,
+                bedrooms: propertyData.bedrooms,
+                bathrooms: propertyData.bathrooms,
+                finishedSquareFootage: propertyData.finishedSquareFootage
+              }));
+            } catch (e) {
+              // Error storing data in storage
+            }
+            
+            // Send the update to Firebase directly
+            updateLeadInFirebase(leadId, propertyUpdateData)
+              .then(() => console.log('Background: Successfully updated lead with API property data'))
+              .catch(err => console.error('Background: Error updating lead with property data:', err));
+            
+          } catch (error) {
+            console.error('Background: Error handling property data:', error);
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Background: Error fetching property data:', error);
+      });
+  };
+
   // Completely separate function for handling Enter key presses
   const handleEnterKeyPress = async (e) => {
     // Always prevent default - critical!
@@ -765,25 +761,24 @@ function AddressForm1(props) {
               addressSelectionType: 'EnterKey'
             });
             
-            // Process the selected address
-            await processAddressSelection(placeDetails);
+            // Process the selected address - no await
+            processAddressSelection(placeDetails);
             
-            // Proceed to next step
-            setTimeout(() => {
-              nextStep();
-              // Reset loading state after navigation
-              setIsLoading(false);
-              
-              // Track conversion for variant in analytics
-              if (window.dataLayer && props.variantName) {
-                window.dataLayer.push({
-                  event: 'variant_conversion',
-                  component: 'AddressForm',
-                  variantIndex: props.variantIndex || 0,
-                  variantName: props.variantName
-                });
-              }
-            }, 200);
+            // Proceed to next step immediately
+            nextStep();
+            
+            // Reset loading state after navigation
+            setIsLoading(false);
+            
+            // Track conversion for variant in analytics
+            if (window.dataLayer && props.variantName) {
+              window.dataLayer.push({
+                event: 'variant_conversion',
+                component: 'AddressForm',
+                variantIndex: props.variantIndex || 0,
+                variantName: props.variantName
+              });
+            }
             
             return;
           }
@@ -796,7 +791,17 @@ function AddressForm1(props) {
       // This provides a fallback if Google Places API fails
       if (formData.street && formData.street.length > 10 && validateAddress(formData.street)) {
         console.log('No suggestion available, but address text is reasonable - proceeding anyway');
-        await fetchPropertyData(formData.street);
+        
+        // Start API call in background
+        const addressComponents = {
+          city: '',
+          state: 'GA',
+          zip: ''
+        };
+        const leadId = localStorage.getItem('leadId') || suggestionLeadId;
+        if (leadId) {
+          fetchPropertyDataInBackground(formData.street, leadId, addressComponents);
+        }
         trackFormStepComplete(1, 'Address Form Completed (Fallback)', formData);
         nextStep();
         setIsLoading(false);
@@ -869,25 +874,24 @@ function AddressForm1(props) {
               addressSelectionType: 'ButtonClick'
             });
             
-            // Process the selected address
-            await processAddressSelection(placeDetails);
+            // Process the selected address - no await
+            processAddressSelection(placeDetails);
             
-            // Proceed to next step
-            setTimeout(() => {
-              nextStep();
-              // Reset loading state after navigation
-              setIsLoading(false);
-              
-              // Track conversion for variant in analytics
-              if (window.dataLayer && props.variantName) {
-                window.dataLayer.push({
-                  event: 'variant_conversion',
-                  component: 'AddressForm',
-                  variantIndex: props.variantIndex || 0,
-                  variantName: props.variantName
-                });
-              }
-            }, 200);
+            // Proceed to next step immediately
+            nextStep();
+            
+            // Reset loading state after navigation
+            setIsLoading(false);
+            
+            // Track conversion for variant in analytics
+            if (window.dataLayer && props.variantName) {
+              window.dataLayer.push({
+                event: 'variant_conversion',
+                component: 'AddressForm',
+                variantIndex: props.variantIndex || 0,
+                variantName: props.variantName
+              });
+            }
             
             return;
           }
@@ -900,8 +904,16 @@ function AddressForm1(props) {
       if (validateAddress(formData.street)) {
         console.log('No suggestion available, but address validates');
         
-        // Try to fetch property data with what we have
-        await fetchPropertyData(formData.street);
+        // Start API call in background
+        const addressComponents = {
+          city: '',
+          state: 'GA',
+          zip: ''
+        };
+        const leadId = localStorage.getItem('leadId') || suggestionLeadId;
+        if (leadId) {
+          fetchPropertyDataInBackground(formData.street, leadId, addressComponents);
+        }
         
         // Track and proceed
         trackFormStepComplete(1, 'Address Form Completed (Manual)', formData);
@@ -1094,29 +1106,27 @@ function AddressForm1(props) {
             phone: phoneValue || formData.phone || ''
           });
           
-          // Process the selected address - this will create/update the lead in Firebase
-          await processAddressSelection(place);
+          // Process the selected address - no await
+          processAddressSelection(place);
 
           // Track the form step completion for address
           trackFormStepComplete(1, 'Address Form Completed (Suggestion)', formData);
           
-          // Automatically proceed to next step - this is the key change
+          // Automatically proceed to next step immediately
           nextStep();
           
-          // Reset loading state after navigation
-          setTimeout(() => {
-            setIsLoading(false);
+          // Reset loading state right away
+          setIsLoading(false);
             
-            // Track conversion for variant in analytics
-            if (window.dataLayer && props.variantName) {
-              window.dataLayer.push({
-                event: 'variant_conversion',
-                component: 'AddressForm',
-                variantIndex: props.variantIndex || 0,
-                variantName: props.variantName
-              });
-            }
-          }, 100);
+          // Track conversion for variant in analytics
+          if (window.dataLayer && props.variantName) {
+            window.dataLayer.push({
+              event: 'variant_conversion',
+              component: 'AddressForm',
+              variantIndex: props.variantIndex || 0,
+              variantName: props.variantName
+            });
+          }
         } catch (error) {
           console.error('Error handling place selection:', error);
           

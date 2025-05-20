@@ -140,10 +140,10 @@ export async function lookupPropertyInfo(address) {
     // Get the first record
     const record = data.Records[0];
     
-    // Enhanced logging: Log the full record to console for analysis
-    console.log('========== FULL MELISSA API RECORD ==========');
-    console.log(JSON.stringify(record, null, 2));
-    console.log('============================================');
+    // Enhanced logging: Log the full record to console for analysis (commented out to reduce console output)
+    // console.log('========== FULL MELISSA API RECORD ==========');
+    // console.log(JSON.stringify(record, null, 2));
+    // console.log('============================================');
     
     // Log key categories of data
     if (record.EstimatedValue) {
