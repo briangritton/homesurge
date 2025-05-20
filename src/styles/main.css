@@ -1091,7 +1091,7 @@ body {
 }
 
 .v1-confirmation-header, .v1-value-estimate-label {
-        font-size: 1.8rem;
+        /* font-size: 1.8rem; */
     }
 
 
