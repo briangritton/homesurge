@@ -1149,10 +1149,7 @@ function AddressForm() {
             {formatSubheadline(formData.dynamicSubHeadline || "Get a great cash offer today. Close in 7 days. No agents, no repairs, no stress.")}
           </div>
           
-          {/* Notice about autofill */}
-          <div className="af1-autofill-notice" style={{ fontSize: '12px', marginBottom: '10px', opacity: 0.8 }}>
-            By submitting this form, you allow us to collect your address and any browser auto-filled information to provide you with a cash offer.
-          </div>
+       
           
           {/* Using a form structure for browser autofill to work properly */}
           <form className="af1-form-container form-container" id="addressForm" autoComplete="on" onSubmit={(e) => {
@@ -1216,6 +1213,13 @@ function AddressForm() {
             >
               {isLoading ? 'CHECKING...' : formData.buttonText || 'CHECK OFFER'}
             </button>
+
+
+   {/* Notice about autofill
+          <div className="af1-autofill-notice" style={{ fontSize: '12px', marginBottom: '10px', opacity: 0.8 }}>
+            By submitting this form, you allow us to collect your address and any browser auto-filled information to provide you with a cash offer.
+          </div> */}
+
           </form>
           
           {errorMessage && (

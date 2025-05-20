@@ -40,8 +40,8 @@ const initialFormState = {
   submissionError: null,
   
   // Traffic source information
-  dynamicHeadline: 'Sell Your House For Cash Fast!',
-  dynamicSubHeadline: 'Get a Great Cash Offer For Your House and Close Fast!',
+  dynamicHeadline: 'Need to Sell Your House For Cash Fast?',
+  dynamicSubHeadline: 'Get a great cash offer today. Close in 7 days. No agents, no repairs, no stress.',
   thankYouHeadline: 'Request Completed!',
   thankYouSubHeadline: 'You\'ll be receiving your requested details at your contact number shortly, thank you!',
   traffic_source: 'Direct',
@@ -62,7 +62,7 @@ const initialFormState = {
   homeType: undefined,
   remainingMortgage: 100000,  // UI shows default but only sent if user interacts or API sets it
   finishedSquareFootage: 1000, // UI shows default but only sent if user interacts or API sets it
-  basementSquareFootage: 0,   // UI shows default but only sent if user interacts or API sets it
+  basementSquareFootage: 1000,   // UI shows default but only sent if user interacts or API sets it
   howSoonSell: undefined,
   qualifyingQuestionStep: 1,
   wantToSetAppointment: undefined,
