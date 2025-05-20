@@ -1040,6 +1040,18 @@ body {
   margin-bottom: 20px;
 }
 
+.v1-volume-estimate-label
+{
+  
+    color: #2e7d61;
+    font-size: 2.3rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+
+
+
 .v1-submit-button {
   width: 100%;
   padding: 14px;
@@ -1054,12 +1066,7 @@ body {
   transition: background-color 0.3s;
   height: 50px;
 }
-.v1-privacy-text {
-  text-align: center;
-  font-size: 13px;
-  color: #777;
-  margin-top: 10px;
-}
+
 .v1-hero-middle-container {
   display: flex;
   justify-content: center;
@@ -1202,6 +1209,20 @@ body {
 
 /* Small screens (mobile, 768px and below) */
 @media only screen and (max-width: 768px) {
+
+
+.v1-hero-middle-container {
+    display: flex
+;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 20px 0px;
+}
+
+
+
+
 
 .af1-hero-section .af1-hero-subheadline {
     color: #444;
@@ -1440,7 +1461,10 @@ body {
         font-size: 1.2rem;
         min-height: 55px;
     }
-
+.v1-volume-estimate-label
+{
+font-size:1.8rem;
+}
 
       }
 
