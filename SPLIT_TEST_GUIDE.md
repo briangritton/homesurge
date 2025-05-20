@@ -66,7 +66,7 @@ The admin page shows:
 2. **Be patient**: Wait for enough data before drawing conclusions
 3. **Document results**: Keep track of what worked and what didn't
 
-
+ 
 
  
 
