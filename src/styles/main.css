@@ -122,6 +122,53 @@ body {
   font-weight: bold;
 }
 
+/* === CRM DASHBOARD STYLES === */
+.crm-lead-detail-container {
+  /* Base styles for the lead detail container */
+}
+
+.crm-lead-title {
+  /* Styles for the lead title */
+}
+
+.crm-lead-tabs {
+  /* Styles for the tabs container */
+}
+
+.crm-tab-button {
+  /* Styles for tab buttons */
+}
+
+.crm-tab-active {
+  /* Styles for active tab */
+}
+
+.crm-tab-content {
+  /* Styles for tab content area */
+}
+
+.crm-lead-detail-fields {
+  /* Styles for the fields container */
+}
+
+.crm-field-row {
+  /* Styles for each field row */
+}
+
+.crm-auto-filled-field {
+  /* Special styling for auto-filled fields */
+  /* For example: */
+  /* background-color: rgba(173, 216, 230, 0.2); */ /* Light blue background */
+}
+
+.crm-field-label {
+  /* Styles for field labels */
+}
+
+.crm-field-value {
+  /* Styles for field values */
+}
+
 /* === FOOTER STYLES === */
 .footer {
   display: flex;
@@ -685,7 +732,7 @@ body {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: #006dd4;
+  background: #2e7d61;
   cursor: pointer;
   border-style: solid;
   border-color: #236853;
@@ -697,7 +744,7 @@ body {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: #0078ce;
+  background: #2e7d61;
   cursor: pointer;
   border-style: solid;
   border-color: #236853;
@@ -1275,7 +1322,7 @@ body {
   align-items: center;
   display: flex;
   justify-content: center;
-  max-width:80%;
+  max-width:85%;
   min-height: calc(100vh - 50px);
   width: 100%;
 }
@@ -1288,10 +1335,11 @@ body {
   margin-bottom: 20px;
 }
 
-.hero-headline {
-  font-size: 1.8rem;
-  line-height: 2rem;
-}
+    .hero-headline {
+        font-size: 1.8rem;
+        line-height: 2rem;
+        padding-top: 0px;
+    }
   
   .hero-middle-container {
     padding-top: 30%;
@@ -1324,6 +1372,16 @@ body {
   min-height: 35px;
   margin-bottom:0px;
 }
+
+.address-input, .address-input-invalid {
+        font-size: 1.2rem;
+        /* max-width: 100%; */
+        min-height: 35px;
+        min-width: auto;
+        max-width: calc(100% - 20px);
+    }
+
+
   
 .submit-button {
 min-width:100%;
@@ -1704,61 +1762,85 @@ button:disabled,
 
             .af1-hero-section .af1-hero-headline {
         color: #2e7d61;
-        font-size: 2.2rem;
+         font-size: 2.5rem;
         font-weight: 700;
+        line-height: 1;
       }
       
-      .af1-hero-section .af1-hero-subheadline {
-        color: #444;
-        font-size: 1.2rem;
-        margin-bottom: 2rem;
-      }
+   .af1-hero-section .af1-hero-subheadline {
+    color: #444;
+    font-size: 2rem;
+    margin-bottom: 15px;
+    margin-top: 15px;
+    line-height: 1;
+}
       
       .af1-form-container {
         width: 100%;
-        max-width: 600px;
+      
         margin: 0 auto;
       }
       
       .af1-address-input {
         border: 1px solid #ccc;
         border-radius: 4px;
-        padding: 12px 15px;
+        /* padding: 12px 15px; */
         font-size: 1.5rem;
-        margin-bottom: 15px;
+   
         width: 100%;
       }
       
       .af1-address-input-invalid {
-        border: 1px solid #d32f2f;
+        border: 1px solid #2e7d61;
         border-radius: 4px;
         padding: 12px 15px;
         font-size: 1.5rem;
-        margin-bottom: 15px;
+    
         width: 100%;
       }
       
-      .af1-submit-button {
-        background-color: #2e7d61;
-        border: none;
-        border-radius: 4px;
-        color: white;
-        font-weight: 600;
-        font-size: 1.5rem;
-        padding: 14px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-        width: 100%;
-      }
+
+
+.af1-address-input, .af1-address-input-invalid {
+    font-size: 1.5rem;
+    /* margin-bottom: 5px; */
+    /* padding: 12px 15px; */
+    width: 100%;
+}
+
+
+
+
+
+.af1-address-input, .af1-address-input-invalid {
+font-size: 1.5rem;
+/* margin-bottom: 15px; */
+/* padding: 12px 15px; */
+width: 100%;
+}
+
+  .af1-submit-button {
+background-color: #2e7d61;
+border: none;
+border-radius: 4px;
+color: #fff;
+cursor: pointer;
+font-size: 24px;
+font-size: 1.5rem;
+font-weight: 600;
+/* padding: 14px 25px; */
+transition: background-color .3s;
+width: auto;
+}
       
       .af1-submit-button:hover {
         background-color: rgba(46, 125, 97, 0.93);
       }
        
       .af1-error-message {
-        color: #d32f2f;
+        color: #2e7d61;
         font-size: 0.9rem;
-        margin-top: 5px;
+        /* margin-top: 0px; */
         text-align: center;
       }
       

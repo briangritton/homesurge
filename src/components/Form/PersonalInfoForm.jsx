@@ -559,14 +559,35 @@ function PersonalInfoForm() {
       <div className="v1-hero-middle-container">
         <div className="v1-hero-content v1-fade-in v1-max-width-500">
           <div className="v1-hero-1-api-address">
-            {formData.street && (
-              <>
-                {formData.street.split(',').slice(0, -2).join(',')},
-                <span className="v1-nowrap-phrase">
-                  {formData.street.split(',').slice(-2).join(',').replace(/, USA$/, '')}
-                </span>
-              </>
-            )}
+            {formData.street && (() => {
+              const parts = formData.street.split(',');
+              
+              // Check if we have enough parts for the expected format
+              if (parts.length >= 3) {
+                // Format with street part + city, state
+                return (
+                  <>
+                    {parts.slice(0, -2).join(',')},
+                    <span className="v1-nowrap-phrase">
+                      {parts.slice(-2).join(',').replace(/, USA$/, '')}
+                    </span>
+                  </>
+                );
+              } else if (parts.length === 2) {
+                // Format with just two parts (likely street + city/state)
+                return (
+                  <>
+                    {parts[0]},
+                    <span className="v1-nowrap-phrase">
+                      {parts[1].replace(/, USA$/, '')}
+                    </span>
+                  </>
+                );
+              } else {
+                // Just display the address as is if only one part
+                return formData.street.replace(/, USA$/, '');
+              }
+            })()}
             {/* <button 
               onClick={handleEditClick} 
               style={{ 
@@ -582,14 +603,14 @@ function PersonalInfoForm() {
               Edit
             </button> */}
           </div>
-          
+           
           {valueLoading ? (
             <div className="v1-estimate-container">
               <span className="v1-hero-property-estimate v1-loading-dots">Retrieving Maximum Value</span>
             </div>
           ) : showDefaultMessage ? (
             <div className="v1-estimate-container">
-              <span className="v1-hero-property-estimate" style={{ color: '#2e7d61' }}>Cash Offer Ready</span>
+              <span className="v1-hero-property-estimate" style={{ color: '#2e7d61' }}>Your Offer is Ready!</span>
             </div>
           ) : formData.apiMaxHomeValue ? (
             <div className="v1-estimate-container">

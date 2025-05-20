@@ -67,7 +67,7 @@ const styles = {
   },
   error: {
     backgroundColor: '#FFEBEE',
-    color: '#D32F2F',
+    color: '#2e7d61',
     padding: '12px',
     borderRadius: '4px',
     marginBottom: '20px',

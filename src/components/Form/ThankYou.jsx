@@ -82,10 +82,15 @@ function ThankYou() {
       )}
       
       {/* Property information section */}
-      {(formData.formattedApiEstimatedValue && formData.formattedApiEstimatedValue !== '$0') ? (
+      {((formData.apiMaxHomeValue || formData.formattedApiEstimatedValue) && (formData.apiMaxHomeValue > 0 || formData.formattedApiEstimatedValue !== '$0')) ? (
         <div className="thank-you-text" style={{ marginTop: '30px', padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '5px' }}>
           <strong>Property Estimate:</strong><br />
-          Estimated Value: {formData.formattedApiEstimatedValue}<br />
+          Max Value: {formData.apiMaxHomeValue ? new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+          }).format(formData.apiMaxHomeValue) : formData.formattedApiEstimatedValue}<br />
           {formData.street}<br />
           {formData.city || ''}{formData.city && formData.state ? ', ' : ''}{formData.state || ''} {formData.zip || ''}
         </div>
