@@ -170,6 +170,16 @@
       "displayName": "Email",
       "field": "email",
       "description": "Contact email"
+    },
+    {
+      "displayName": "Auto Filled Name",
+      "field": "autoFilledName",
+      "description": "Name from browser autofill"
+    },
+    {
+      "displayName": "Auto Filled Phone",
+      "field": "autoFilledPhone",
+      "description": "Phone from browser autofill"
     }
   ],
   "leadFields": [

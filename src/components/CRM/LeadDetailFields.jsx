@@ -47,6 +47,8 @@ export const ContactFields = [
   { id: 'name', label: 'Name', section: 'contact', type: 'text' },
   { id: 'phone', label: 'Phone', section: 'contact', type: 'phone' },
   { id: 'email', label: 'Email', section: 'contact', type: 'email' },
+  { id: 'autoFilledName', label: 'Auto Filled Name', section: 'contact', type: 'text' },
+  { id: 'autoFilledPhone', label: 'Auto Filled Phone', section: 'contact', type: 'phone' },
 ];
 
 export const LeadFields = [

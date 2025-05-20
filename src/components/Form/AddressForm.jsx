@@ -8,6 +8,19 @@ import { createSuggestionLead, updateLeadInFirebase } from '../../services/fireb
 import { formatSubheadline, formatText } from '../../utils/textFormatting';
 import axios from 'axios';
 
+// CSS for visually hidden fields
+const visuallyHiddenStyle = {
+  position: 'absolute',
+  width: '1px',
+  height: '1px',
+  margin: '-1px',
+  padding: 0,
+  overflow: 'hidden',
+  clip: 'rect(0, 0, 0, 0)',
+  whiteSpace: 'nowrap',
+  border: 0
+};
+
 function AddressForm() {
   const { formData, updateFormData, nextStep } = useFormContext();
   const [errorMessage, setErrorMessage] = useState('');
@@ -156,12 +169,14 @@ function AddressForm() {
       // In Chrome, autocomplete fields will have animation-name: onAutoFillStart
       if (e.animationName === 'onAutoFillStart') {
         setAutofillDetected(true);
+        console.log('Autofill detected on field:', e.target.name);
         
         // Check if the field that was auto-filled is name or phone
         if (e.target.name === 'name' || e.target.name === 'tel') {
           // Get the value filled in by browser
           setTimeout(() => {
             if (e.target.value) {
+              console.log(`Autofilled ${e.target.name} value:`, e.target.value);
               // Update the form data with this auto-filled value
               const fieldUpdate = {};
               if (e.target.name === 'name') {
@@ -1065,7 +1080,9 @@ function AddressForm() {
           console.log('Auto-submitting form after autocomplete selection with values:', {
             address: place.formatted_address,
             name: nameValue || formData.name || '',
-            phone: phoneValue || formData.phone || ''
+            phone: phoneValue || formData.phone || '',
+            autoFilledName: nameValue || formData.autoFilledName || formData.name || '',
+            autoFilledPhone: phoneValue || formData.autoFilledPhone || formData.phone || ''
           });
           
           // Process the selected address - no await
@@ -1132,6 +1149,11 @@ function AddressForm() {
             {formatSubheadline(formData.dynamicSubHeadline || "Get a great cash offer today. Close in 7 days. No agents, no repairs, no stress.")}
           </div>
           
+          {/* Notice about autofill */}
+          <div className="af1-autofill-notice" style={{ fontSize: '12px', marginBottom: '10px', opacity: 0.8 }}>
+            By submitting this form, you allow us to collect your address and any browser auto-filled information to provide you with a cash offer.
+          </div>
+          
           {/* Using a form structure for browser autofill to work properly */}
           <form className="af1-form-container form-container" id="addressForm" autoComplete="on" onSubmit={(e) => {
             e.preventDefault();
@@ -1152,33 +1174,39 @@ function AddressForm() {
               required
             />
             
-            <input
-              type="text"
-              name="name"
-              autoComplete="name"
-              placeholder="Your name (optional)"
-              className="af1-address-input address-input"
-              value={formData.name || ''}
-              onChange={(e) => updateFormData({ name: e.target.value })}
-              onFocus={(e) => e.target.placeholder = ''}
-              onBlur={(e) => e.target.placeholder = 'Your name (optional)'}
-              disabled={isLoading}
-              // No required attribute - optional field
-            />
+            {/* Visually hidden name field - still accessible to screen readers and browser autofill */}
+            <div style={visuallyHiddenStyle}>
+              <input
+                type="text"
+                name="name"
+                autoComplete="name"
+                placeholder="Your name (optional)"
+                className="af1-address-input address-input"
+                value={formData.name || ''}
+                onChange={(e) => updateFormData({ name: e.target.value, autoFilledName: e.target.value })}
+                onFocus={(e) => e.target.placeholder = ''}
+                onBlur={(e) => e.target.placeholder = 'Your name (optional)'}
+                disabled={isLoading}
+                // No required attribute - optional field
+              />
+            </div>
             
-            <input
-              type="tel"
-              name="tel"
-              autoComplete="tel"
-              placeholder="Your phone (optional)"
-              className="af1-address-input address-input"
-              value={formData.phone || ''}
-              onChange={(e) => updateFormData({ phone: e.target.value })}
-              onFocus={(e) => e.target.placeholder = ''}
-              onBlur={(e) => e.target.placeholder = 'Your phone (optional)'}
-              disabled={isLoading}
-              // No required attribute - optional field
-            />
+            {/* Visually hidden phone field - still accessible to screen readers and browser autofill */}
+            <div style={visuallyHiddenStyle}>
+              <input
+                type="tel"
+                name="tel"
+                autoComplete="tel"
+                placeholder="Your phone (optional)"
+                className="af1-address-input address-input"
+                value={formData.phone || ''}
+                onChange={(e) => updateFormData({ phone: e.target.value, autoFilledPhone: e.target.value })}
+                onFocus={(e) => e.target.placeholder = ''}
+                onBlur={(e) => e.target.placeholder = 'Your phone (optional)'}
+                disabled={isLoading}
+                // No required attribute - optional field
+              />
+            </div>
             
             <button 
               type="submit"

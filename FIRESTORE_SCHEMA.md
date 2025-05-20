@@ -31,6 +31,8 @@ leads/{leadId}
 | `lastName` | String | Last name (parsed from name) |
 | `phone` | String | Contact phone number |
 | `email` | String | Contact email address |
+| `autoFilledName` | String | Name collected from browser autofill |
+| `autoFilledPhone` | String | Phone collected from browser autofill |
 | `street` | String | Street address |
 | `city` | String | City |
 | `state` | String | State |
