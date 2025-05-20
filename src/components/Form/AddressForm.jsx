@@ -1146,7 +1146,7 @@ function AddressForm() {
             {formatText(formData.dynamicHeadline || "Need to Sell Your House For Cash Fast?")}
           </div>
           <div className="af1-hero-subheadline hero-subheadline">
-            {formatSubheadline(formData.dynamicSubHeadline || "Get a great cash offer today. Close in 7 days. No agents, no repairs, no stress.")}
+            {formatSubheadline(formData.dynamicSubHeadline || "Get a great cash offer today. Close in 7 days. No agents, no repairs, no stress")}
           </div>
           
        

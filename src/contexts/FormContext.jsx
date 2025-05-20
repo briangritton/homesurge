@@ -41,7 +41,7 @@ const initialFormState = {
   
   // Traffic source information
   dynamicHeadline: 'Need to Sell Your House For Cash Fast?',
-  dynamicSubHeadline: 'Get a great cash offer today. Close in 7 days. No agents, no repairs, no stress.',
+  dynamicSubHeadline: 'Get a great cash offer today. Close in 7 days. No agents, no repairs, no stress',
   thankYouHeadline: 'Request Completed!',
   thankYouSubHeadline: 'You\'ll be receiving your requested details at your contact number shortly, thank you!',
   traffic_source: 'Direct',
@@ -513,7 +513,7 @@ export function FormProvider({ children }) {
       "cash": {
         type: 'CASH',
         headline: 'Need to Sell Your House For Cash Fast?',
-        subHeadline: 'Get a great cash offer today. Close in 7 days. No agents, no repairs, no stress.',
+        subHeadline: 'Get a great cash offer today. Close in 7 days. No agents, no repairs, no stress',
         thankYouHeadline: 'Cash Offer Request Completed!',
         thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!',
         buttonText: 'CHECK OFFER'
@@ -521,7 +521,7 @@ export function FormProvider({ children }) {
       "fast": {
         type: 'FAST',
         headline: 'Sell Your House In 10 Days or Less',
-        subHeadline: 'Skip the repairs and listings. Get a no-obligation cash offer today and close on your terms. No fees, no stress.',
+        subHeadline: 'Skip the repairs and listings. Get a no-obligation cash offer today and close on your terms. No fees, no stress',
         thankYouHeadline: 'Request Completed!',
         thankYouSubHeadline: 'You\'ll be receiving your fast sale details at your contact number shortly, thank you!',
         buttonText: 'CHECK OFFER'
@@ -540,7 +540,7 @@ export function FormProvider({ children }) {
     const defaultContent = {
       type: 'DEFAULT',
       headline: 'Need to Sell Your House For Cash Fast?',
-      subHeadline: 'Get a great cash offer today. Close in 7 days. No agents, no repairs, no stress.',
+      subHeadline: 'Get a great cash offer today. Close in 7 days. No agents, no repairs, no stress',
       buttonText: 'CHECK OFFER',
       thankYouHeadline: 'Request Completed!',
       thankYouSubHeadline: 'You\'ll be receiving your requested details at your contact number shortly, thank you!'

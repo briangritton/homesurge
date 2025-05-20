@@ -106,7 +106,7 @@ export function formatSubheadline(text) {
       <>
         Skip the repairs and listings. Get a no-obligation cash offer today and{' '}
         <span className="nowrap-phrase">close on your terms</span>.{' '}
-        <span className="nowrap-phrase">No fees, no stress.</span>
+        <span className="nowrap-phrase">No fees, no stress</span>
       </>
     );
   }
