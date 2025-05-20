@@ -34,7 +34,7 @@ const styles = {
   backButton: {
     background: 'none',
     border: 'none',
-    color: '#4285F4',
+    color: '#2e7b7d',
     fontSize: '14px',
     cursor: 'pointer',
     display: 'flex',
@@ -108,7 +108,7 @@ const styles = {
   },
   button: {
     padding: '8px 16px',
-    background: '#4285F4',
+    background: '#2e7b7d',
     color: 'white',
     border: 'none',
     borderRadius: '4px',
@@ -128,8 +128,8 @@ const styles = {
   conversionButton: {
     padding: '8px 16px',
     background: 'white',
-    color: '#4285F4',
-    border: '1px solid #4285F4',
+    color: '#2e7b7d',
+    border: '1px solid #2e7b7d',
     borderRadius: '4px',
     cursor: 'pointer',
     fontSize: '14px',
@@ -182,7 +182,7 @@ const styles = {
     width: '30px',
     height: '30px',
     borderRadius: '50%',
-    backgroundColor: '#4285F4',
+    backgroundColor: '#2e7b7d',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -206,9 +206,9 @@ const styles = {
     borderBottom: '2px solid transparent',
   },
   activeTab: {
-    borderBottom: '2px solid #4285F4',
+    borderBottom: '2px solid #2e7b7d',
     fontWeight: 'bold',
-    color: '#4285F4',
+    color: '#2e7b7d',
   },
 };
 
@@ -1242,7 +1242,16 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
                 
                 {isAdmin && (
                   <button 
-                    style={{...styles.dangerButton, width: '100%'}}
+                    style={{
+                      padding: '8px 16px',
+                      background: 'white',
+                      color: '#2e7b7d',
+                      border: '1px solid #2e7b7d',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      width: '100%'
+                    }}
                     onClick={() => setShowDeleteConfirm(true)}
                     disabled={deleting}
                   >

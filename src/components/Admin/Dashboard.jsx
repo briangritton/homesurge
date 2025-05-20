@@ -67,9 +67,9 @@ const styles = {
     marginRight: '20px',
   },
   activeTab: {
-    borderBottom: '2px solid #4285F4',
+    borderBottom: '2px solid #2e7b7d',
     fontWeight: 'bold',
-    color: '#4285F4',
+    color: '#2e7b7d',
   },
   table: {
     width: '100%',
@@ -94,7 +94,7 @@ const styles = {
   },
   button: {
     padding: '8px 16px',
-    background: '#4285F4',
+    background: '#2e7b7d',
     color: 'white',
     border: 'none',
     borderRadius: '4px',

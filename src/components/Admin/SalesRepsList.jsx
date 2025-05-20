@@ -52,7 +52,7 @@ const styles = {
   },
   button: {
     padding: '8px 16px',
-    background: '#4285F4',
+    background: '#2e7b7d',
     color: 'white',
     border: 'none',
     borderRadius: '4px',
@@ -63,7 +63,7 @@ const styles = {
     width: '32px',
     height: '32px',
     borderRadius: '50%',
-    backgroundColor: '#4285F4',
+    backgroundColor: '#2e7b7d',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -220,7 +220,7 @@ const SalesRepsList = () => {
                 <td style={styles.tableCell}>
                   {/* In a full implementation, we would fetch this count */}
                   {/* For demo purposes, let's just show a link */}
-                  <a href="#" style={{ color: '#4285F4', textDecoration: 'none' }}>
+                  <a href="#" style={{ color: '#2e7b7d', textDecoration: 'none' }}>
                     View Leads
                   </a>
                 </td>

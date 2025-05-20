@@ -263,13 +263,13 @@ function AIProcessing() {
                       height: '40px',
                       borderRadius: '50%',
                       border: '3px solid rgba(0, 102, 204, 0.2)',
-                      borderTop: '3px solid #2e7d61',
+                      borderTop: '3px solid #2e7b7d',
                       animation: 'vb-spin 1s linear infinite'
                     }} />
                     <div style={{
                       marginTop: '10px',
                       fontSize: '14px',
-                      color: '#2e7d61',
+                      color: '#2e7b7d',
                       fontWeight: 'bold'
                     }}>
                       Loading map view...

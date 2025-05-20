@@ -178,41 +178,35 @@ const CRMApp = () => {
   console.log('CRMApp - User Role:', userRole);
 
   return (
-    <div style={styles.container}>
-      <header style={styles.header}>
-        <h1 style={styles.title}>
+    <div className="crm-container">
+      <header className="crm-header">
+        <h1 className="crm-title">
           SellForCash CRM {userRole === 'admin' ? '(Admin)' : '(Sales Rep)'}
         </h1>
-        <div style={styles.userInfo}>
-          <div style={styles.avatar}>
+        <div className="crm-user-info">
+          <div className="crm-avatar">
             {user.email ? user.email[0].toUpperCase() : 'U'}
           </div>
           <span>{user.email}</span>
-          <button style={styles.button} onClick={handleLogout}>
+          <button className="crm-header-button" onClick={handleLogout}>
             Logout
           </button>
         </div>
       </header>
       
-      <div style={styles.content}>
+      <div className="crm-content">
         {/* Skip navigation when viewing lead detail */}
         {activeView !== 'leadDetail' && userRole === 'admin' && (
-          <nav style={styles.nav}>
+          <nav className="crm-nav">
             <button 
               onClick={() => setActiveView('dashboard')}
-              style={{
-                ...styles.navLink,
-                ...(activeView === 'dashboard' ? styles.activeNavLink : {})
-              }}
+              className={`crm-nav-link ${activeView === 'dashboard' ? 'crm-active-nav-link' : ''}`}
             >
               Dashboard
             </button>
             <button 
               onClick={() => setActiveView('leads')}
-              style={{
-                ...styles.navLink,
-                ...(activeView === 'leads' ? styles.activeNavLink : {})
-              }}
+              className={`crm-nav-link ${activeView === 'leads' ? 'crm-active-nav-link' : ''}`}
             >
               Leads
             </button>
@@ -241,7 +235,7 @@ const CRMApp = () => {
         )}
       </div>
       
-      <footer style={styles.footer}>
+      <footer className="crm-footer">
         © {new Date().getFullYear()} SellForCash CRM | Firebase Edition
       </footer>
     </div>

@@ -86,7 +86,7 @@ const styles = {
   },
   button: {
     padding: '8px 16px',
-    background: '#4285F4',
+    background: '#2e7b7d',
     color: 'white',
     border: 'none',
     borderRadius: '4px',
@@ -96,8 +96,8 @@ const styles = {
   secondaryButton: {
     padding: '8px 16px',
     background: 'white',
-    color: '#4285F4',
-    border: '1px solid #4285F4',
+    color: '#2e7b7d',
+    border: '1px solid #2e7b7d',
     borderRadius: '4px',
     cursor: 'pointer',
     fontSize: '14px',
@@ -133,9 +133,9 @@ const styles = {
     fontSize: '14px',
   },
   activePageButton: {
-    background: '#4285F4',
+    background: '#2e7b7d',
     color: 'white',
-    border: '1px solid #4285F4',
+    border: '1px solid #2e7b7d',
   },
   noResults: {
     textAlign: 'center',
@@ -146,13 +146,13 @@ const styles = {
 
 // Status color mapping
 const statusColors = {
-  'New': { background: '#BBDEFB', color: '#0D47A1' },
+  'New': { background: '#B2DFDB', color: '#2e7b7d' },
   'Contacted': { background: '#C8E6C9', color: '#1B5E20' },
-  'Qualified': { background: '#FFF9C4', color: '#F57F17' },
-  'Appointment': { background: '#FFE0B2', color: '#E65100' },
-  'Offer': { background: '#FFCCBC', color: '#BF360C' },
-  'Contract': { background: '#D1C4E9', color: '#4527A0' },
-  'Closed': { background: '#B2DFDB', color: '#004D40' },
+  'Qualified': { background: '#E0F2F1', color: '#00695C' },
+  'Appointment': { background: '#E0F7FA', color: '#006064' },
+  'Offer': { background: '#B3E5FC', color: '#01579B' },
+  'Contract': { background: '#BBDEFB', color: '#0D47A1' },
+  'Closed': { background: '#C5CAE9', color: '#303F9F' },
   'Dead': { background: '#FFCDD2', color: '#B71C1C' },
 };
 

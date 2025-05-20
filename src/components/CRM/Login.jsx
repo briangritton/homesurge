@@ -9,7 +9,7 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: '100vh',
-    background: 'linear-gradient(135deg, #4285F4 0%, #34A853 100%)',
+    background: 'linear-gradient(135deg, #2e7b7d 0%, #1e5253 100%)',
     padding: '20px',
   },
   formContainer: {
@@ -52,7 +52,7 @@ const styles = {
   button: {
     width: '100%',
     padding: '14px',
-    background: '#4285F4',
+    background: '#2e7b7d',
     color: 'white',
     border: 'none',
     borderRadius: '4px',
@@ -63,11 +63,11 @@ const styles = {
     marginTop: '20px',
   },
   buttonHover: {
-    background: '#3367D6',
+    background: '#1e5253',
   },
   error: {
     backgroundColor: '#FFEBEE',
-    color: '#2e7d61',
+    color: '#2e7b7d',
     padding: '12px',
     borderRadius: '4px',
     marginBottom: '20px',
@@ -93,7 +93,7 @@ const styles = {
     marginTop: '5px',
   },
   link: {
-    color: '#4285F4',
+    color: '#2e7b7d',
     textDecoration: 'none',
     cursor: 'pointer',
   },
@@ -138,19 +138,19 @@ const Login = () => {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.formContainer}>
-        <h1 style={styles.title}>SellForCash CRM</h1>
+    <div className="crm-login-container">
+      <div className="crm-form-container">
+        <h1 className="crm-login-title">SellForCash CRM</h1>
         
-        {error && <div style={styles.error}>{error}</div>}
+        {error && <div className="crm-error-message">{error}</div>}
         
         <form onSubmit={handleLogin}>
-          <div style={styles.formGroup}>
-            <label style={styles.label} htmlFor="email">Email Address</label>
+          <div className="crm-form-group">
+            <label className="crm-login-label" htmlFor="email">Email Address</label>
             <input
               id="email"
               type="email"
-              style={styles.input}
+              className="crm-login-input"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
@@ -159,21 +159,21 @@ const Login = () => {
             />
           </div>
           
-          <div style={styles.formGroup}>
-            <label style={styles.label} htmlFor="password">Password</label>
+          <div className="crm-form-group">
+            <label className="crm-login-label" htmlFor="password">Password</label>
             <input
               id="password"
               type="password"
-              style={styles.input}
+              className="crm-login-input"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               disabled={loading}
               required
             />
-            <div style={styles.forgotPassword}>
+            <div className="crm-forgot-password">
               <a 
-                style={styles.link} 
+                className="crm-link" 
                 onClick={() => alert('Password reset functionality would be implemented here.')}
               >
                 Forgot Password?
@@ -183,21 +183,20 @@ const Login = () => {
           
           <button
             type="submit"
-            style={{
-              ...styles.button,
-              ...(buttonHover ? styles.buttonHover : {}),
-              opacity: loading ? 0.7 : 1,
-              cursor: loading ? 'not-allowed' : 'pointer',
-            }}
+            className="crm-login-button"
             disabled={loading}
             onMouseEnter={() => setButtonHover(true)}
             onMouseLeave={() => setButtonHover(false)}
+            style={{
+              opacity: loading ? 0.7 : 1,
+              cursor: loading ? 'not-allowed' : 'pointer',
+            }}
           >
             {loading ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
         
-        <div style={styles.devMessage}>
+        <div className="crm-dev-message">
           <p><strong>Development Environment Notice:</strong></p>
           <p>This login screen connects to Firebase Authentication. You will need to create users in the Firebase Console before you can log in.</p>
           <p>See the FIREBASE_SETUP.md file for instructions on creating your first admin user.</p>

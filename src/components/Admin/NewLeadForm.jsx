@@ -90,7 +90,7 @@ const styles = {
   },
   submitButton: {
     padding: '10px 15px',
-    background: '#4285F4',
+    background: '#2e7b7d',
     color: 'white',
     border: 'none',
     borderRadius: '4px',

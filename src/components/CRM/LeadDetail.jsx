@@ -108,8 +108,8 @@ export default function LeadDetail({ lead }) {
         }
         
         .lead-tabs button.active {
-          border-bottom: 2px solid #2e7d61;
-          color: #2e7d61;
+          border-bottom: 2px solid #2e7b7d;
+          color: #2e7b7d;
           font-weight: bold;
         }
         
