@@ -15,6 +15,7 @@ function PersonalInfoForm() {
   const [editMode, setEditMode] = useState('address');
   const [editedAddress, setEditedAddress] = useState(formData.street || '');
   const [valueLoading, setValueLoading] = useState(!formData.apiEstimatedValue);
+  const [showDefaultMessage, setShowDefaultMessage] = useState(false);
 
   const nameRef = useRef(null);
   const phoneRef = useRef(null);
@@ -338,17 +339,62 @@ transition: background-color 0.3s;
     // Initialize edited address with current address
     setEditedAddress(formData.street || '');
     
-    // If we have the apiEstimatedValue, stop the loading state
+    // Variable to track if loading timeout is active
+    let loadingTimeoutId = null;
+    
+    // If we already have the API value, show it immediately
     if (formData.apiEstimatedValue) {
       setValueLoading(false);
+      setShowDefaultMessage(false);
     } else {
-      // If no value yet, set a timeout to stop loading after 3 seconds
-      const valueTimeout = setTimeout(() => {
-        setValueLoading(false);
-      }, 3000);
+      // If no value available yet, show loading state
+      setValueLoading(true);
       
-      return () => clearTimeout(valueTimeout);
+      // Set timeout to handle loading state and fallback message
+      loadingTimeoutId = setTimeout(() => {
+        // After 5 seconds, check again if we have API value
+        if (formData.apiEstimatedValue) {
+          // If value arrived while we were waiting, show it
+          setValueLoading(false);
+          setShowDefaultMessage(false);
+        } else {
+          // If still no value, switch to default message
+          setValueLoading(false);
+          setShowDefaultMessage(true);
+          
+          // Set up a listener for future API value updates
+          const apiValueInterval = setInterval(() => {
+            // If API value comes in later, update the display
+            if (formData.apiEstimatedValue) {
+              setShowDefaultMessage(false);
+              clearInterval(apiValueInterval);
+            }
+          }, 1000);
+          
+          // Clean up the interval
+          setTimeout(() => clearInterval(apiValueInterval), 30000); // Stop checking after 30 seconds
+        }
+      }, 5000); // 5 seconds minimum loading time for the loading animation
     }
+    
+    // Handle API value arriving during the loading phase
+    if (!formData.apiEstimatedValue) {
+      const earlyValueCheck = setInterval(() => {
+        if (formData.apiEstimatedValue) {
+          // If we get the value before the 5-second timeout, show it immediately
+          setValueLoading(false);
+          setShowDefaultMessage(false);
+          clearInterval(earlyValueCheck);
+        }
+      }, 500); // Check every 500ms
+      
+      // Clean up interval after 5 seconds (will be cancelled by the timeout anyway)
+      setTimeout(() => clearInterval(earlyValueCheck), 5000);
+    }
+    
+    return () => {
+      if (loadingTimeoutId) clearTimeout(loadingTimeoutId);
+    };
   }, [formData.street, formData.apiEstimatedValue]);
   
   // Initialize Google Map
@@ -847,6 +893,10 @@ transition: background-color 0.3s;
           {valueLoading ? (
             <div className="v1-estimate-container">
               <span className="v1-hero-property-estimate v1-loading-dots">Retrieving Maximum Value</span>
+            </div>
+          ) : showDefaultMessage ? (
+            <div className="v1-estimate-container">
+              <span className="v1-hero-property-estimate" style={{ color: '#2e7d61' }}>Cash Offer Ready</span>
             </div>
           ) : formData.apiMaxHomeValue ? (
             <div className="v1-estimate-container">
