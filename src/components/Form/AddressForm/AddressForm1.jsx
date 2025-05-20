@@ -135,7 +135,9 @@ function AddressForm1(props) {
       // For other fields (name, phone), just update the form data
       const updateField = {};
       if (fieldName === 'name') {
-        updateField.name = value;
+        // Add tag to indicate it was entered in the address form
+        updateField.name = `${value} (Autofilled by browser)`;
+        updateField.nameWasAutofilled = true; // Flag to track autofill status
       }
       if (fieldName === 'tel') {
         updateField.phone = value;
@@ -160,7 +162,11 @@ function AddressForm1(props) {
             if (e.target.value) {
               // Update the form data with this auto-filled value
               const fieldUpdate = {};
-              if (e.target.name === 'name') fieldUpdate.name = e.target.value;
+              if (e.target.name === 'name') {
+                // Add tag to indicate it was autofilled by the browser
+                fieldUpdate.name = `${e.target.value} (Autofilled by browser)`;
+                fieldUpdate.nameWasAutofilled = true; // Flag to track autofill status
+              }
               if (e.target.name === 'tel') fieldUpdate.phone = e.target.value;
               
               updateFormData(fieldUpdate);

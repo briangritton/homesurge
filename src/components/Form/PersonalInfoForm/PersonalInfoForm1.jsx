@@ -615,12 +615,19 @@ transition: background-color 0.3s;
     try {
       setIsSubmitting(true);
       
-      const cleanName = formData.name.trim();
+      // Clean the input values
+      let cleanName = formData.name.trim();
       const cleanPhone = formData.phone.trim();
+      
+      // If the name had the autofill tag, remove it when user confirms
+      if (cleanName.includes('(Autofilled by browser)')) {
+        cleanName = cleanName.replace(' (Autofilled by browser)', '');
+      }
       
       updateFormData({
         name: cleanName,
         phone: cleanPhone,
+        nameWasAutofilled: false, // Clear the autofill flag
         leadStage: 'Contact Info Provided'
       });
       
