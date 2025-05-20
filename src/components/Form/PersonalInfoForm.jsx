@@ -637,11 +637,11 @@ function PersonalInfoForm() {
           /> */}
           
           <div className="v1-simple-address-display">
-            <strong className="v1-confirmation-header"> 
+            <div className="v1-confirmation-header"> 
               {formData.templateType === 'FAST' 
                 ? <>Next, where do you want us to text your fast sell offer?</> 
                 : <>Next, where do you want us to text your maximum cash offer?</>}
-            </strong>
+            </ div>
           </div>
           
           {/* Name and Phone Fields */}
