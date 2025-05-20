@@ -986,7 +986,7 @@ body {
 /* Medium screens (tablets, 1024px and below) */
 @media only screen and (max-width: 1024px) {
   .hero-content {
-    max-width: 100%;
+    max-width: 750px;
     text-align: center;
   }
   .hero-headline {
@@ -1106,6 +1106,12 @@ body {
 
 /* Small screens (mobile, 768px and below) */
 @media only screen and (max-width: 768px) {
+
+.hero-content {
+    max-width: 750px;
+    text-align: center;
+  }
+
   .hero-headline {
     font-size: 2rem;
     font-weight: 700;
@@ -1850,7 +1856,7 @@ width: auto;
         }
         
         .af1-hero-section .af1-hero-subheadline {
-          font-size: 1.1rem;
+          /* font-size: 1.1rem; */
         }
         
         .af1-address-input,
