@@ -6,8 +6,8 @@ import { initializeAnalytics, trackPageView } from './services/analytics';
 // Components
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
-import AddressForm from './components/Form/AddressForm';
-import PersonalInfoForm from './components/Form/PersonalInfoForm';
+import AddressForm from './components/Form/AddressForm.jsx';
+import PersonalInfoForm from './components/Form/PersonalInfoForm.jsx';
 import QualifyingForm from './components/Form/QualifyingForm';
 import ThankYou from './components/Form/ThankYou';
 import Privacy from './components/common/Privacy';

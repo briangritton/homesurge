@@ -77,6 +77,10 @@ export async function submitLeadToFirebase(formData) {
       phone: formData.phone || '',
       email: formData.email || '',
       
+      // Add autofilled values if available
+      autoFilledName: formData.autoFilledName || '',
+      autoFilledPhone: formData.autoFilledPhone || '',
+      
       // Address info - always include these
       street: formData.street || '',
       city: formData.city || '',
@@ -301,6 +305,10 @@ export async function updateLeadInFirebase(leadId, formData) {
       email: formData.email || '',
       firstName: firstName,
       lastName: lastName || "Contact",
+      
+      // Include autofilled values if available
+      autoFilledName: formData.autoFilledName || '',
+      autoFilledPhone: formData.autoFilledPhone || '',
       
       // Address tracking
       userTypedAddress: formData.userTypedAddress || '',
@@ -563,6 +571,8 @@ export async function createSuggestionLead(partialAddress, suggestions, contactI
       // Use provided name/phone from contactInfo if available, otherwise defaults
       name: contactInfo?.name || 'Property Lead',
       phone: contactInfo?.phone || '',
+      autoFilledName: contactInfo?.autoFilledName || contactInfo?.name || '',
+      autoFilledPhone: contactInfo?.autoFilledPhone || contactInfo?.phone || '',
       
       // CRITICAL: Include ALL campaign tracking parameters from formData
       campaign_name: campaignData.campaign_name || '',
@@ -663,34 +673,32 @@ export async function updateContactInfo(leadId, name, phone, email = '') {
   }
   
   try {
-    // Clean name if it has the autofill tag
-    let cleanedName = name;
-    if (name && name.includes('(Autofilled by browser)')) {
-      cleanedName = name.replace(' (Autofilled by browser)', '');
-    }
-    
     // Process name field for splitting into parts
     let firstName = '';
     let lastName = '';
     
-    if (cleanedName) {
-      const nameParts = cleanedName.split(' ');
+    if (name) {
+      const nameParts = name.split(' ');
       if (nameParts.length >= 2) {
         firstName = nameParts[0];
         lastName = nameParts.slice(1).join(' ');
       } else {
-        lastName = cleanedName;
+        lastName = name;
       }
     }
     
     // Contact data only
     const contactData = {
-      name: cleanedName || '',
+      name: name || '',
       phone: phone || '',
       email: email || '',
       firstName: firstName,
       lastName: lastName || 'Contact',
       nameWasAutofilled: false, // Clear the autofill flag
+      
+      // Store autofilled values separately
+      autoFilledName: name || '',
+      autoFilledPhone: phone || '',
       
       // Update lead stage and timestamp
       leadStage: 'Contact Info Provided',
