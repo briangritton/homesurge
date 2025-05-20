@@ -4,7 +4,7 @@ import PersonalInfoForm1 from './PersonalInfoForm1';
 
 function PersonalInfoForm(props) {
   const [selectedVariant, setSelectedVariant] = useState(null);
-
+ 
   useEffect(() => {
     try {
       const storageKey = 'personal_info_form_variant';
