@@ -232,12 +232,21 @@ function AddressForm() {
                       // Request suggestions in a separate function to avoid nesting issues
                       const getAndProcessSuggestions = () => {
                         return new Promise((resolve) => {
+                          // Add timeout to prevent waiting indefinitely
+                          const timeoutId = setTimeout(() => {
+                            console.log('⚠️ Address suggestions request timed out after 2 seconds');
+                            // Proceed with manual submission
+                            resolve(false);
+                          }, 2000); // 2 second timeout
+                          
                           autocompleteServiceRef.current.getPlacePredictions({
                             input: inputRef.current.value,
                             sessionToken: sessionTokenRef.current,
                             componentRestrictions: { country: 'us' },
                             types: ['address']
                           }, (predictions, status) => {
+                            clearTimeout(timeoutId); // Clear timeout since we got a response
+                            
                             if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
                               console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Got suggestions:', predictions);
                               // Store the first suggestion
@@ -360,15 +369,24 @@ function AddressForm() {
         document.createElement('div')
       );
       
+      // Add timeout to prevent waiting indefinitely
+      const timeoutId = setTimeout(() => {
+        console.log('⚠️ Place details request timed out after 3 seconds');
+        resolve(null); // Resolve with null to allow fallback instead of rejecting
+      }, 3000); // 3 second timeout
+      
       placesService.getDetails({
         placeId: placeId,
         fields: ['address_components', 'formatted_address', 'geometry', 'name'],
         sessionToken: sessionTokenRef.current
       }, (place, status) => {
+        clearTimeout(timeoutId); // Clear the timeout since we got a response
+        
         if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
           resolve(place);
         } else {
-          reject(new Error(`Place details request failed: ${status}`));
+          console.log(`⚠️ Place details request failed: ${status}`);
+          resolve(null); // Resolve with null to allow fallback instead of rejecting
         }
       });
     });
@@ -1304,6 +1322,13 @@ function AddressForm() {
                     return;
                   }
                   
+                  // Add timeout to prevent waiting indefinitely
+                  const timeoutId = setTimeout(() => {
+                    console.log('⚠️ Address suggestions request timed out after 2 seconds');
+                    // Proceed with manual submission
+                    resolve(false);
+                  }, 2000); // 2 second timeout
+                  
                   console.log('🔍 AUTOFILL DIAGNOSIS: Requesting suggestions for autofilled address');
                   // Request suggestions for this address
                   autocompleteServiceRef.current.getPlacePredictions({
@@ -1312,6 +1337,8 @@ function AddressForm() {
                     componentRestrictions: { country: 'us' },
                     types: ['address']
                   }, (predictions, status) => {
+                    clearTimeout(timeoutId); // Clear timeout since we got a response
+                    
                     if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
                       console.log('🔍 AUTOFILL DIAGNOSIS: Got suggestions:', predictions);
                       // Store the first suggestion in state, but also pass it directly in the resolve
