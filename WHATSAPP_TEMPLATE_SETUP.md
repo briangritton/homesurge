@@ -45,6 +45,17 @@ To test your WhatsApp notification system:
 3. Assign the lead to a sales rep with a valid WhatsApp-enabled phone number
 4. Check that both the sales rep and admin receive WhatsApp notifications
 
+## WhatsApp Opt-In Process
+
+**Important**: For a WhatsApp Business account, the opt-in is a one-time action:
+
+1. Each recipient (sales rep or admin) needs to send ONE message to your business WhatsApp number
+2. This single message serves as their opt-in for future communications
+3. After the initial opt-in, they can receive template messages indefinitely 
+4. They remain opted in until they explicitly block your business or opt out
+
+For testing purposes, have each sales rep send a "Hello" message to your Twilio WhatsApp number. This single message serves as their opt-in, and you'll be able to send them template messages afterward.
+
 ## Troubleshooting
 
 If WhatsApp notifications aren't working:
