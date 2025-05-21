@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { FormProvider, useFormContext } from './contexts/FormContext';
-import { initializeAnalytics, trackPageView, updateAnalyticsConsent } from './services/analytics';
+import { initializeAnalytics, trackPageView } from './services/analytics';
 
 // Components
 import Header from './components/common/Header';
@@ -40,9 +40,6 @@ function AnalyticsTracker() {
   const location = useLocation();
   
   useEffect(() => {
-    // Ensure consent is granted on every route change
-    updateAnalyticsConsent(true);
-    
     // Track page view whenever location changes
     trackPageView(location.pathname + location.search);
   }, [location]);
@@ -59,15 +56,7 @@ function FormContainer() {
     // Initialize analytics
     initializeAnalytics();
     
-    // Grant consent for analytics storage - this enables Google Analytics to store data
-    let consentRetry = null;
-    if (!updateAnalyticsConsent(true)) {
-      console.log('gtag not available yet, will retry consent update');
-      // Retry updating consent after a short delay if gtag isn't available yet
-      consentRetry = setTimeout(() => {
-        updateAnalyticsConsent(true);
-      }, 1000);
-    }
+    // Analytics already initialized above, no additional consent needed
     
     // Initialize dynamic content from URL parameters
     initFromUrlParams();
@@ -89,7 +78,6 @@ function FormContainer() {
     
     return () => {
       clearTimeout(timer); // Cleanup on unmount
-      if (consentRetry) clearTimeout(consentRetry);
     };
     
     // No dependencies - only run once on mount
