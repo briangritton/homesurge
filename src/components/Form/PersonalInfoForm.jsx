@@ -409,152 +409,127 @@ function PersonalInfoForm() {
       if (submitSuccess || contactUpdateSuccess) {
         console.log('Lead captured successfully - preparing to advance to next step');
         
-        // NOTIFICATION TRACKING - Explicit console logs for tracking notification attempts
-        console.log('🔍🔍🔍 NOTIFICATION TRACKING: Starting notification section');
-        console.log('🔍🔍🔍 NOTIFICATION TRACKING: Lead data ready for notifications', {
+        // Store data needed for notifications
+        const leadData = {
           name: cleanName,
           phone: cleanPhone,
           address: formData.street,
-          leadId: existingLeadId || localStorage.getItem('leadId') || 'none'
-        });
+          email: formData.email || '',
+          leadSource: formData.leadSource || 'Website Form',
+          campaign_name: formData.campaignName || formData.campaign_name || 'Direct',
+          utm_source: formData.utm_source || '',
+          utm_medium: formData.utm_medium || '',
+          utm_campaign: formData.utm_campaign || '',
+          id: existingLeadId || localStorage.getItem('leadId') || ''
+        };
         
-        // PUSHOVER TEST - Direct call to Pushover API from frontend
-        try {
-          console.log('🟢🟢🟢 DIRECT DEBUG: Attempting direct Pushover API call from frontend');
-          
-          // Get the user key with explicit logging
-          const pushoverKey = localStorage.getItem('pushoverUserKey');
-          console.log('🟢🟢🟢 DIRECT DEBUG: Pushover key retrieved from localStorage:', pushoverKey ? 'Found key' : 'No key found');
-          
-          if (!pushoverKey) {
-            console.log('🟢🟢🟢 DIRECT DEBUG: No Pushover key in localStorage, checking URL params');
-            // Try URL parameters as fallback
-            const urlParams = new URLSearchParams(window.location.search);
-            const urlKey = urlParams.get('pushover');
-            console.log('🟢🟢🟢 DIRECT DEBUG: Pushover key from URL:', urlKey ? 'Found key' : 'No key found');
-          }
-          
-          // Directly call the Pushover API endpoint with FIXED hardcoded values
-          console.log('🟢🟢🟢 DIRECT DEBUG: Preparing to fetch from /api/pushover/send-notification');
-          
-          // Get the lead ID for linking to CRM
-          const leadId = existingLeadId || localStorage.getItem('leadId') || '';
-          
-          // Create the CRM deep link URL
-          const crmUrl = leadId ? `https://sellforcash.online/crm?leadId=${leadId}` : '';
-          
-          // Create request body with actual lead information and deep link
-          const requestBody = {
-            user: "um62xd21dr7pfugnwanooxi6mqxc3n", // Your Pushover user key
-            message: `New lead: ${cleanName}\nPhone: ${cleanPhone}\nAddress: ${formData.street || 'No address'}\nLead ID: ${leadId || 'N/A'}`,
-            title: "New Lead Notification",
-            priority: 1,
-            sound: "persistent",
-            url: crmUrl,
-            url_title: "View in CRM"
-          };
-          
-          // List of additional Pushover user keys to notify
-          const additionalRecipients = [
-            "uvp9m12h4jdcq1kjsh4djc2q1hhccp" // Add any additional user keys here
-          ];
-          
-          // Send to each recipient
-          const sendPromises = [
-            // Send to primary user
-            fetch('/api/pushover/send-notification', {
-              method: 'POST',
-              headers: { 
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-              },
-              body: JSON.stringify(requestBody)
-            })
-          ];
-          
-          // Also send to additional recipients if configured
-          additionalRecipients.forEach(recipientKey => {
-            if (recipientKey && recipientKey.trim()) {
-              sendPromises.push(
-                fetch('/api/pushover/send-notification', {
-                  method: 'POST',
-                  headers: { 
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                  },
-                  body: JSON.stringify({
-                    ...requestBody,
-                    user: recipientKey
-                  })
-                })
-              );
-            }
+        // ------------------------
+        // NON-BLOCKING NOTIFICATIONS
+        // ------------------------
+        // We use setTimeout with 0ms delay to move this to the next event loop,
+        // allowing the UI to continue without waiting for notifications
+        setTimeout(() => {
+          // NOTIFICATION TRACKING - Send notifications in background
+          console.log('🔍🔍🔍 NOTIFICATION TRACKING: Starting background notification section');
+          console.log('🔍🔍🔍 NOTIFICATION TRACKING: Lead data ready for notifications', {
+            name: leadData.name,
+            phone: leadData.phone,
+            address: leadData.address,
+            leadId: leadData.id
           });
           
-          console.log('🟢🟢🟢 DIRECT DEBUG: Request body prepared:', requestBody);
-          console.log('🟢🟢🟢 DIRECT DEBUG: Sending to multiple recipients:', 1 + additionalRecipients.filter(k => k && k.trim()).length);
-          
-          // Execute all send promises in parallel
-          const results = await Promise.allSettled(sendPromises);
-          
-          console.log('🟢🟢🟢 DIRECT DEBUG: All Pushover API calls completed, results:', 
-            results.map((r, i) => `Recipient ${i}: ${r.status === 'fulfilled' ? 'Success' : 'Failed'}`));
-          
-          // Process the results
-          let successCount = 0;
-          let failureCount = 0;
-          
-          for (const [index, result] of results.entries()) {
-            if (result.status === 'fulfilled') {
-              const response = result.value;
-              console.log(`🟢🟢🟢 DIRECT DEBUG: Recipient ${index} response status:`, response.status);
-              
-              if (response.ok) {
-                const responseData = await response.json();
-                console.log(`🟢🟢🟢 DIRECT DEBUG: Recipient ${index} success:`, responseData);
-                successCount++;
-              } else {
-                const errorText = await response.text();
-                console.error(`🟢🟢🟢 DIRECT DEBUG: Recipient ${index} failed:`, errorText);
-                failureCount++;
+          // Background promise for all notification tasks
+          (async () => {
+            try {
+              // PUSHOVER NOTIFICATION
+              try {
+                console.log('🟢🟢🟢 DIRECT DEBUG: Attempting Pushover notification in background');
+                
+                // Get the lead ID for linking to CRM
+                const leadId = leadData.id;
+                
+                // Create the CRM deep link URL
+                const crmUrl = leadId ? `https://sellforcash.online/crm?leadId=${leadId}` : '';
+                
+                // Create request body with actual lead information and deep link
+                const requestBody = {
+                  user: "um62xd21dr7pfugnwanooxi6mqxc3n", // Your Pushover user key
+                  message: `New lead: ${leadData.name}\nPhone: ${leadData.phone}\nAddress: ${leadData.address || 'No address'}\nLead ID: ${leadId || 'N/A'}`,
+                  title: "New Lead Notification",
+                  priority: 1,
+                  sound: "persistent",
+                  url: crmUrl,
+                  url_title: "View in CRM"
+                };
+                
+                // List of additional Pushover user keys to notify
+                const additionalRecipients = [
+                  "uvp9m12h4jdcq1kjsh4djc2q1hhccp" // Add any additional user keys here
+                ];
+                
+                // Send to each recipient
+                const sendPromises = [
+                  // Send to primary user
+                  fetch('/api/pushover/send-notification', {
+                    method: 'POST',
+                    headers: { 
+                      'Content-Type': 'application/json',
+                      'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                  })
+                ];
+                
+                // Also send to additional recipients if configured
+                additionalRecipients.forEach(recipientKey => {
+                  if (recipientKey && recipientKey.trim()) {
+                    sendPromises.push(
+                      fetch('/api/pushover/send-notification', {
+                        method: 'POST',
+                        headers: { 
+                          'Content-Type': 'application/json',
+                          'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                          ...requestBody,
+                          user: recipientKey
+                        })
+                      })
+                    );
+                  }
+                });
+                
+                // Execute all Pushover send promises in parallel
+                const results = await Promise.allSettled(sendPromises);
+                
+                // Log summary
+                const successCount = results.filter(r => r.status === 'fulfilled' && r.value.ok).length;
+                const failureCount = results.length - successCount;
+                console.log(`🟢🟢🟢 DIRECT DEBUG: Pushover notification summary - Success: ${successCount}, Failed: ${failureCount}`);
+                
+              } catch (pushoverError) {
+                console.error('🟢🟢🟢 DIRECT DEBUG: Error sending Pushover notification in background:', pushoverError);
               }
-            } else {
-              console.error(`🟢🟢🟢 DIRECT DEBUG: Recipient ${index} request rejected:`, result.reason);
-              failureCount++;
+              
+              // EMAIL NOTIFICATION (also non-blocking)
+              try {
+                console.log('📧📧📧 EMAIL DEBUG: Sending EmailJS notification in background');
+                await sendLeadNotificationEmail(
+                  leadData, 
+                  'service_zeuf0n8', // Service ID
+                  'template_kuv08p4'  // Template ID
+                );
+                console.log('📧📧📧 EMAIL DEBUG: EmailJS notification sent successfully');
+              } catch (error) {
+                console.warn('📧📧📧 EMAIL DEBUG: Failed to send email notification:', error);
+              }
+              
+              console.log('🔍🔍🔍 NOTIFICATION TRACKING: All background notifications completed');
+            } catch (error) {
+              console.error('🔍🔍🔍 NOTIFICATION TRACKING: Error in background notification process:', error);
             }
-          }
-          
-          console.log(`🟢🟢🟢 DIRECT DEBUG: Pushover notification summary - Success: ${successCount}, Failed: ${failureCount}`);
-        } catch (pushoverError) {
-          console.error('🟢🟢🟢 DIRECT DEBUG: Error sending direct Pushover notification:', pushoverError);
-        }
-        
-        // Send email notification using EmailJS
-        console.log('📧📧📧 EMAIL DEBUG: Preparing to send EmailJS notification');
-        try {
-          await sendLeadNotificationEmail(
-            {
-              name: cleanName,
-              phone: cleanPhone,
-              street: formData.street,
-              email: formData.email || '',
-              leadSource: formData.leadSource || 'Website Form',
-              campaign_name: formData.campaignName || formData.campaign_name || 'Direct',
-              utm_source: formData.utm_source || '',
-              utm_medium: formData.utm_medium || '',
-              utm_campaign: formData.utm_campaign || '',
-              // Include the lead ID for CRM linking
-              id: existingLeadId || localStorage.getItem('leadId') || ''
-            }, 
-            'service_zeuf0n8', // Service ID
-            'template_kuv08p4'  // Template ID
-          );
-          console.log('📧📧📧 EMAIL DEBUG: EmailJS notification sent successfully');
-        } catch (error) {
-          console.warn('📧📧📧 EMAIL DEBUG: Failed to send email notification:', error);
-        }
-        
-        console.log('🔍🔍🔍 NOTIFICATION TRACKING: All notifications attempted');
+          })(); // Self-executing async function
+        }, 0); // setTimeout with 0ms = next event loop
         
         trackPhoneNumberLead();
         
