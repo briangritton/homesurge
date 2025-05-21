@@ -568,7 +568,7 @@ export function FormProvider({ children }) {
       const hasCash = simplifiedCampaignName.includes('cash');
       const hasFast = simplifiedCampaignName.includes('fast');
       const hasValue = simplifiedCampaignName.includes('value');
-      
+       
       console.log('Contains "cash":', hasCash);
       console.log('Contains "fast":', hasFast);
       console.log('Contains "value":', hasValue);
