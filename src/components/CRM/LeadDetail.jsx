@@ -150,6 +150,27 @@ export default function LeadDetail({ lead }) {
           flex: 1;
         }
         
+        .crm-array-field {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+        }
+        
+        .crm-array-item {
+          padding: 3px 0;
+        }
+        
+        .crm-phone-link,
+        .crm-email-link {
+          color: #2e7b7d;
+          text-decoration: none;
+        }
+        
+        .crm-phone-link:hover,
+        .crm-email-link:hover {
+          text-decoration: underline;
+        }
+        
         @media (min-width: 768px) {
           .lead-detail-fields {
             grid-template-columns: 1fr 1fr;

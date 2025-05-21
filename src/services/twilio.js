@@ -1,4 +1,4 @@
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 
 /**
  * Send WhatsApp notification when a lead is assigned
@@ -9,6 +9,15 @@ import { getFirestore, doc, getDoc } from 'firebase/firestore';
 export async function sendLeadAssignmentMessage(leadId, salesRepId) {
   try {
     const db = getFirestore();
+    
+    // Check notification settings first
+    const settingsDoc = await getDoc(doc(db, 'settings', 'notifications'));
+    
+    // If notification settings exist and WhatsApp notifications are disabled, skip sending
+    if (settingsDoc.exists() && settingsDoc.data().smsNotificationsEnabled === false) {
+      console.log('WhatsApp notifications are disabled in settings, skipping notification');
+      return false;
+    }
     
     // Get lead details
     const leadDoc = await getDoc(doc(db, 'leads', leadId));
@@ -34,6 +43,16 @@ export async function sendLeadAssignmentMessage(leadId, salesRepId) {
       return false;
     }
     
+    // Check if this specific notification event is enabled
+    if (settingsDoc.exists()) {
+      const settings = settingsDoc.data();
+      // Check if lead assignment notifications are enabled
+      if (settings.notifyOnLeadAssignment === false) {
+        console.log('Lead assignment notifications are disabled in settings, skipping notification');
+        return false;
+      }
+    }
+    
     // Create lead URL for the CRM
     const leadURL = `${window.location.origin}/crm?leadId=${leadId}`;
     
@@ -44,6 +63,15 @@ export async function sendLeadAssignmentMessage(leadId, salesRepId) {
       phone: lead.phone || null,
       leadURL
     };
+    
+    // Get notification settings from Firestore to pass to API
+    const notificationSettings = settingsDoc.exists() ? {
+      smsNotificationsEnabled: settingsDoc.data().smsNotificationsEnabled !== false,
+      notifyOnLeadAssignment: settingsDoc.data().notifyOnLeadAssignment !== false,
+      notifyOnNewLead: settingsDoc.data().notifyOnNewLead !== false,
+      notifyRepOnAssignment: true, // Default to true if not specified
+      notifyAdminOnAssignment: true // Default to true if not specified
+    } : null;
     
     // Send WhatsApp message via API endpoint
     const response = await fetch('/api/twilio/send-whatsapp', {
@@ -56,7 +84,8 @@ export async function sendLeadAssignmentMessage(leadId, salesRepId) {
         salesRepId,
         salesRepPhone: salesRep.phone,
         salesRepName: salesRep.name,
-        templateData
+        templateData,
+        notificationSettings
       })
     });
     

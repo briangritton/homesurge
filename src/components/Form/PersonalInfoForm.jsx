@@ -3,6 +3,7 @@ import { useFormContext } from '../../contexts/FormContext';
 import { validateName, validatePhone, validateAddress } from '../../utils/validation.js';
 import { trackPhoneNumberLead, trackFormStepComplete, trackFormError } from '../../services/analytics';
 import { updateContactInfo } from '../../services/firebase.js';
+import { sendLeadNotificationEmail } from '../../services/emailjs.js';
 
 function PersonalInfoForm() {
   const { formData, updateFormData, nextStep, submitLead } = useFormContext();
@@ -407,6 +408,26 @@ function PersonalInfoForm() {
       
       if (submitSuccess || contactUpdateSuccess) {
         console.log('Lead captured successfully - preparing to advance to next step');
+        
+        // Send email notification using EmailJS
+        // Send email notification using EmailJS
+        sendLeadNotificationEmail(
+          {
+            name: cleanName,
+            phone: cleanPhone,
+            street: formData.street,
+            email: formData.email || '',
+            leadSource: formData.leadSource || 'Website Form',
+            campaign_name: formData.campaignName || formData.campaign_name || 'Direct',
+            utm_source: formData.utm_source || '',
+            utm_medium: formData.utm_medium || '',
+            utm_campaign: formData.utm_campaign || ''
+          }, 
+          'service_zeuf0n8', // Service ID
+          'template_kuv08p4'  // Template ID
+        ).catch(error => {
+          console.warn('Failed to send email notification, but continuing:', error);
+        });
         
         trackPhoneNumberLead();
         

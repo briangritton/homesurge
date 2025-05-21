@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { FormProvider, useFormContext } from './contexts/FormContext';
 import { initializeAnalytics, trackPageView } from './services/analytics';
+import { initEmailJS } from './services/emailjs.js';
 
 // Components
 import Header from './components/common/Header';
@@ -55,6 +56,10 @@ function FormContainer() {
   useEffect(() => {
     // Initialize analytics
     initializeAnalytics();
+    
+    // Initialize EmailJS for lead notifications
+    // This replaces the previous Firebase Extension email system
+    initEmailJS('afTroSYel0GQS1oMc'); // Public Key
     
     // Analytics already initialized above, no additional consent needed
     

@@ -4,6 +4,7 @@ import { validateAddress } from '../../utils/validation.js';
 import { trackAddressSelected, trackFormStepComplete, trackFormError } from '../../services/analytics';
 import { trackPropertyValue } from '../../services/facebook';
 import { lookupPropertyInfo } from '../../services/maps.js';
+import { lookupPhoneNumbers } from '../../services/batchdata.js';
 import { createSuggestionLead, updateLeadInFirebase } from '../../services/firebase.js';
 import { formatSubheadline, formatText } from '../../utils/textFormatting';
 import axios from 'axios';
@@ -706,13 +707,74 @@ function AddressForm() {
       console.error('Error sending address data to Firebase:', error);
     }
     
-    // Fetch property data in the background - don't await this
+    // Fetch property data and phone numbers in the background - don't await this
     const leadId = localStorage.getItem('leadId') || suggestionLeadId;
     if (leadId) {
       fetchPropertyDataInBackground(place.formatted_address, leadId, addressComponents);
+      lookupPhoneNumbersInBackground(place.formatted_address, leadId, addressComponents);
     }
     
     return true; // Return success immediately without waiting for API
+  };
+  
+  // Lookup phone numbers in background without blocking the UI
+  const lookupPhoneNumbersInBackground = (address, leadId, addressComponents) => {
+    // Start the phone number lookup in background
+    lookupPhoneNumbers({
+      street: address,
+      city: addressComponents.city || '',
+      state: addressComponents.state || '',
+      zip: addressComponents.zip || ''
+    })
+      .then(phoneData => {
+        // If we got phone data, update the lead with this information
+        if (phoneData && leadId && (phoneData.phoneNumbers.length > 0 || phoneData.emails.length > 0)) {
+          try {
+            // Get campaign data from formContext 
+            const { campaign_name, campaign_id, adgroup_id, adgroup_name, keyword, gclid, device, traffic_source, template_type } = formData;
+            
+            console.log("%c BACKGROUND: BATCHDATA PHONE UPDATE TO FIREBASE", "background: #4caf50; color: white; font-size: 14px; padding: 5px;");
+            
+            // Create an update object with the phone numbers
+            const phoneUpdateData = {
+              // IMPORTANT: Keep BatchData phone numbers separate from user input
+              // These are stored in separate fields and won't overwrite user-entered data
+              batchDataPhoneNumbers: phoneData.phoneNumbers,
+              batchDataEmails: phoneData.emails,
+              
+              // CRITICAL: Include ALL campaign data with phone update
+              campaign_name: campaign_name || '',
+              campaign_id: campaign_id || '',
+              adgroup_id: adgroup_id || '',
+              adgroup_name: adgroup_name || '',
+              keyword: keyword || '',
+              gclid: gclid || '',
+              device: device || '',
+              traffic_source: traffic_source || 'Direct',
+              template_type: template_type || '',
+              
+              // Set a flag to indicate BatchData was processed
+              batchDataProcessed: true,
+              
+              // Include timestamp for when this was processed
+              batchDataProcessedAt: new Date().toISOString()
+            };
+            
+            // Update the lead with phone data
+            updateLeadInFirebase(leadId, phoneUpdateData)
+              .then(() => console.log('Background: Successfully updated lead with BatchData phone numbers'))
+              .catch(err => console.error('Background: Error updating lead with phone numbers:', err));
+            
+          } catch (error) {
+            console.error('Background: Error handling phone data:', error);
+          }
+        } else {
+          console.log('No BatchData phone numbers found or lead ID not available');
+        }
+      })
+      .catch(error => {
+        console.error('Background: Error fetching BatchData phone numbers:', error);
+      });
   };
   
   // Process property data in background without blocking the UI

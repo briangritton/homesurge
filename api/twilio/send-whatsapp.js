@@ -18,17 +18,27 @@ module.exports = async (req, res) => {
   if (!process.env.TWILIO_ACCOUNT_SID || 
       !process.env.TWILIO_AUTH_TOKEN || 
       !process.env.TWILIO_WHATSAPP_NUMBER || 
-      !process.env.ADMIN_PHONE_NUMBER) {
+      !process.env.ADMIN_PHONE_NUMBER ||
+      !process.env.TWILIO_TEMPLATE_SID) {
     console.error('Missing required environment variables for Twilio');
-    return res.status(500).json({ error: 'Server configuration error' });
+    return res.status(500).json({ error: 'Server configuration error - Make sure TWILIO_TEMPLATE_SID is set with your approved template' });
   }
 
   try {
-    const { salesRepPhone, salesRepName, templateData } = req.body;
+    const { salesRepPhone, salesRepName, templateData, notificationSettings } = req.body;
     
     // Validate required inputs
     if (!salesRepPhone || !templateData) {
       return res.status(400).json({ error: 'Missing required fields' });
+    }
+    
+    // Check if WhatsApp notifications are enabled based on settings passed from frontend
+    if (notificationSettings && notificationSettings.smsNotificationsEnabled === false) {
+      return res.status(200).json({ 
+        success: true, 
+        skipped: true,
+        reason: 'WhatsApp notifications are disabled in settings'
+      });
     }
     
     // Initialize Twilio client
@@ -65,37 +75,51 @@ module.exports = async (req, res) => {
     const whatsappPrefix = fromWhatsApp.startsWith('whatsapp:') ? '' : 'whatsapp:';
     const fromWhatsAppFormatted = `${whatsappPrefix}${fromWhatsApp}`;
     
-    // Create message content based on template
-    const contactInfo = templateData.phone ? `Contact: ${templateData.phone}` : "No phone provided";
-    const salesRepMessage = `Your new lead ${templateData.leadName} is now ready in the CRM. Property address: ${templateData.address}. ${contactInfo}. View details: ${templateData.leadURL}`;
-    const adminMessage = `Lead ${templateData.leadName} assigned to ${salesRepName}. ${contactInfo}. View details: ${templateData.leadURL}`;
+    // Use the approved WhatsApp template with variables
+    // Prepare the messages array and tracking for successful messages
+    const messages = [];
+    const results = {
+      success: true,
+      messages: {}
+    };
     
-    // Send message to sales rep
-    const salesRepSMS = await client.messages.create({
-      body: salesRepMessage,
-      from: fromWhatsAppFormatted,
-      to: toSalesRepWhatsApp
-    });
+    // Send message to sales rep if rep notifications are not explicitly disabled
+    if (!notificationSettings || notificationSettings.notifyRepOnAssignment !== false) {
+      const salesRepSMS = await client.messages.create({
+        from: fromWhatsAppFormatted,
+        to: toSalesRepWhatsApp,
+        // Use templateId for your approved template
+        contentSid: process.env.TWILIO_TEMPLATE_SID || '',
+        contentVariables: JSON.stringify({
+          1: templateData.leadName || 'New Lead',
+          2: templateData.address || 'Address not available',
+          3: templateData.phone || 'Phone not available',
+          4: templateData.leadURL || window.location.origin + '/crm'
+        })
+      });
+      results.messages.salesRep = salesRepSMS.sid;
+    }
     
-    // Send message to admin
-    const adminSMS = await client.messages.create({
-      body: adminMessage,
-      from: fromWhatsAppFormatted,
-      to: toAdminWhatsApp
-    });
+    // Send message to admin if admin notifications are not explicitly disabled
+    if (!notificationSettings || notificationSettings.notifyAdminOnAssignment !== false) {
+      const adminSMS = await client.messages.create({
+        from: fromWhatsAppFormatted,
+        to: toAdminWhatsApp,
+        // Use templateId for your approved template
+        contentSid: process.env.TWILIO_TEMPLATE_SID || '',
+        contentVariables: JSON.stringify({
+          1: `${templateData.leadName} (assigned to ${salesRepName})`,
+          2: templateData.address || 'Address not available',
+          3: templateData.phone || 'Phone not available',
+          4: templateData.leadURL || window.location.origin + '/crm'
+        })
+      });
+      results.messages.admin = adminSMS.sid;
+    }
     
-    console.log('WhatsApp messages sent successfully', { 
-      salesRepSid: salesRepSMS.sid,
-      adminSid: adminSMS.sid
-    });
+    console.log('WhatsApp messages sent successfully', results.messages);
     
-    return res.status(200).json({ 
-      success: true, 
-      messages: {
-        salesRep: salesRepSMS.sid,
-        admin: adminSMS.sid
-      }
-    });
+    return res.status(200).json(results);
   } catch (error) {
     console.error('Error sending WhatsApp message:', error);
     return res.status(500).json({ 
