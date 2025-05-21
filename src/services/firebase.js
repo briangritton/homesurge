@@ -899,7 +899,7 @@ export function getCurrentUser() {
  * @param {string} role - User role (admin, sales_rep)
  * @returns {Promise<Object>} - Created user object
  */
-export async function createUser(email, password, name, phone = '', role = 'sales_rep') {
+export async function createUser(email, password, name, phone = '', role = 'sales_rep', pushoverUserKey = '') {
   try {
     // Create Firebase auth user
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -909,6 +909,7 @@ export async function createUser(email, password, name, phone = '', role = 'sale
       email,
       name,
       phone, // Add phone field for SMS notifications
+      pushoverUserKey, // Add Pushover user key for mobile notifications
       role,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -922,6 +923,7 @@ export async function createUser(email, password, name, phone = '', role = 'sale
       email,
       name,
       phone,
+      pushoverUserKey,
       role
     };
   } catch (error) {

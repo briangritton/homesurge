@@ -151,6 +151,8 @@ const NotificationSettings = () => {
     adminEmail: '',
     emailNotificationsEnabled: true,
     smsNotificationsEnabled: true,
+    pushoverNotificationsEnabled: false,
+    pushoverAdminUserKey: '',
     notifyOnNewLead: true,
     notifyOnLeadAssignment: true,
     notifyOnAppointment: true
@@ -175,6 +177,8 @@ const NotificationSettings = () => {
             adminEmail: data.adminEmail || '',
             emailNotificationsEnabled: data.emailNotificationsEnabled !== false, // default to true
             smsNotificationsEnabled: data.smsNotificationsEnabled !== false, // default to true
+            pushoverNotificationsEnabled: data.pushoverNotificationsEnabled === true, // default to false
+            pushoverAdminUserKey: data.pushoverAdminUserKey || '',
             notifyOnNewLead: data.notifyOnNewLead !== false, // default to true
             notifyOnLeadAssignment: data.notifyOnLeadAssignment !== false, // default to true
             notifyOnAppointment: data.notifyOnAppointment !== false // default to true
@@ -339,6 +343,58 @@ const NotificationSettings = () => {
           
           <p style={styles.description}>
             WhatsApp notifications are sent to the phone numbers in user profiles. Make sure all sales representatives have valid phone numbers with WhatsApp installed and have opted in to receive messages.
+          </p>
+        </div>
+        
+        <div style={styles.divider}></div>
+        
+        <div style={styles.section}>
+          <div style={styles.sectionTitle}>Pushover Notifications</div>
+          
+          <div style={styles.switchContainer}>
+            <label style={styles.switch}>
+              <input
+                type="checkbox"
+                name="pushoverNotificationsEnabled"
+                checked={settings.pushoverNotificationsEnabled}
+                onChange={handleInputChange}
+                style={styles.switchInput}
+              />
+              <span style={{
+                ...styles.switchSlider,
+                backgroundColor: settings.pushoverNotificationsEnabled ? '#2e7b7d' : '#ccc',
+                '&:before': {
+                  ...styles.switchSliderBefore,
+                  transform: settings.pushoverNotificationsEnabled ? 'translateX(26px)' : 'translateX(0)'
+                }
+              }}></span>
+            </label>
+            <span style={styles.switchLabel}>
+              {settings.pushoverNotificationsEnabled ? 'Pushover notifications enabled' : 'Pushover notifications disabled'}
+            </span>
+          </div>
+          
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Admin Pushover User Key</label>
+            <p style={styles.description}>
+              Your Pushover user key for receiving admin notifications. Sales reps will need to enter their own Pushover 
+              user keys in their profiles.
+            </p>
+            <input
+              type="text"
+              name="pushoverAdminUserKey"
+              value={settings.pushoverAdminUserKey}
+              onChange={handleInputChange}
+              style={styles.input}
+              placeholder="Enter your Pushover user key"
+              disabled={!settings.pushoverNotificationsEnabled}
+            />
+          </div>
+          
+          <p style={styles.description}>
+            Pushover is a simple app that sends push notifications to your phone or tablet. 
+            Sales reps will need to purchase the Pushover app ($4.99 one-time fee) and enter their user key 
+            in their profile to receive notifications.
           </p>
         </div>
         

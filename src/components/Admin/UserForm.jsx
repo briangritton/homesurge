@@ -92,6 +92,7 @@ const UserForm = ({ onComplete }) => {
     confirmPassword: '',
     name: '',
     phone: '',
+    pushoverUserKey: '',
     role: 'sales_rep',
     active: true, // Always set new users as active by default
   });
@@ -176,7 +177,8 @@ const UserForm = ({ onComplete }) => {
         formData.password,
         formData.name,
         formattedPhone,
-        formData.role
+        formData.role,
+        formData.pushoverUserKey
       );
       
       // Show success message
@@ -189,6 +191,7 @@ const UserForm = ({ onComplete }) => {
         confirmPassword: '',
         name: '',
         phone: '',
+        pushoverUserKey: '',
         role: 'sales_rep',
       });
       
@@ -295,6 +298,23 @@ const UserForm = ({ onComplete }) => {
           />
           <div style={styles.phoneInfo}>
             Phone number must have WhatsApp installed and include country code (e.g., +1 for US)
+          </div>
+        </div>
+        
+        <div style={styles.formGroup}>
+          <label style={styles.label}>
+            Pushover User Key (for mobile notifications)
+          </label>
+          <input
+            type="text"
+            name="pushoverUserKey"
+            value={formData.pushoverUserKey}
+            onChange={handleInputChange}
+            style={styles.input}
+            placeholder="Enter Pushover user key"
+          />
+          <div style={styles.phoneInfo}>
+            Optional: For Pushover app notifications. See the Pushover Setup Guide for instructions.
           </div>
         </div>
         
