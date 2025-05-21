@@ -312,7 +312,7 @@ const NotificationSettings = () => {
         <div style={styles.divider}></div>
         
         <div style={styles.section}>
-          <div style={styles.sectionTitle}>SMS Notifications</div>
+          <div style={styles.sectionTitle}>WhatsApp Notifications</div>
           
           <div style={styles.switchContainer}>
             <label style={styles.switch}>
@@ -333,12 +333,12 @@ const NotificationSettings = () => {
               }}></span>
             </label>
             <span style={styles.switchLabel}>
-              {settings.smsNotificationsEnabled ? 'SMS notifications enabled' : 'SMS notifications disabled'}
+              {settings.smsNotificationsEnabled ? 'WhatsApp notifications enabled' : 'WhatsApp notifications disabled'}
             </span>
           </div>
           
           <p style={styles.description}>
-            SMS notifications are sent to the phone numbers in user profiles. Make sure all sales representatives have valid phone numbers configured.
+            WhatsApp notifications are sent to the phone numbers in user profiles. Make sure all sales representatives have valid phone numbers with WhatsApp installed and have opted in to receive messages.
           </p>
         </div>
         

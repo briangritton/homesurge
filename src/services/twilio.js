@@ -1,12 +1,12 @@
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 
 /**
- * Send SMS notification when a lead is assigned
+ * Send WhatsApp notification when a lead is assigned
  * @param {string} leadId - The ID of the assigned lead
  * @param {string} salesRepId - The ID of the sales rep assigned to the lead
  * @returns {Promise<boolean>} - Success indicator
  */
-export async function sendLeadAssignmentSMS(leadId, salesRepId) {
+export async function sendLeadAssignmentMessage(leadId, salesRepId) {
   try {
     const db = getFirestore();
     
@@ -37,14 +37,15 @@ export async function sendLeadAssignmentSMS(leadId, salesRepId) {
     // Create lead URL for the CRM
     const leadURL = `${window.location.origin}/crm?leadId=${leadId}`;
     
-    // Message to sales rep
-    const salesRepMessage = `New lead assigned to you: ${lead.name || 'Unnamed Lead'} at ${lead.street || 'No address'}, ${lead.city || ''} ${lead.state || ''} ${lead.zip || ''}. View details: ${leadURL}`;
+    // Create data for WhatsApp template
+    const templateData = {
+      leadName: lead.name || 'Unnamed Lead',
+      address: `${lead.street || 'No address'}, ${lead.city || ''} ${lead.state || ''} ${lead.zip || ''}`,
+      leadURL
+    };
     
-    // Message to admin (using the admin phone from environment)
-    const adminMessage = `Lead ${lead.name || 'Unnamed Lead'} assigned to ${salesRep.name}. View details: ${leadURL}`;
-    
-    // Send SMS via API endpoint
-    const response = await fetch('/api/twilio/send-sms', {
+    // Send WhatsApp message via API endpoint
+    const response = await fetch('/api/twilio/send-whatsapp', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -53,25 +54,32 @@ export async function sendLeadAssignmentSMS(leadId, salesRepId) {
         leadId,
         salesRepId,
         salesRepPhone: salesRep.phone,
-        salesRepMessage,
-        adminMessage
+        salesRepName: salesRep.name,
+        templateData
       })
     });
     
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('Error sending SMS:', errorData);
+      console.error('Error sending WhatsApp message:', errorData);
       return false;
     }
     
     const result = await response.json();
     return result.success;
   } catch (error) {
-    console.error('Error sending SMS notification:', error);
+    console.error('Error sending WhatsApp notification:', error);
     return false;
   }
 }
 
+/**
+ * Legacy function for backwards compatibility
+ * @deprecated Use sendLeadAssignmentMessage instead
+ */
+export const sendLeadAssignmentSMS = sendLeadAssignmentMessage;
+
 export default {
-  sendLeadAssignmentSMS
+  sendLeadAssignmentMessage,
+  sendLeadAssignmentSMS // For backwards compatibility
 };
