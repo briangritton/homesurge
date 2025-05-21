@@ -12,6 +12,7 @@ import NewLeadForm from './NewLeadForm';
 import SalesRepsList from './SalesRepsList';
 import AutoAssignmentSettings from './AutoAssignmentSettings';
 import NotificationSettings from './NotificationSettings';
+import TestAssignment from './TestAssignment';
 
 // CSS for the admin dashboard
 const styles = {
@@ -449,6 +450,7 @@ const AdminDashboard = () => {
         <div className="crm-dashboard-settings">
           <AutoAssignmentSettings />
           <NotificationSettings />
+          <TestAssignment />
         </div>
       )}
       </div>

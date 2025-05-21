@@ -221,22 +221,130 @@ export async function submitLeadToFirebase(formData) {
     
     // Check settings and handle notifications/assignments
     try {
-      // Check auto-assignment settings
-      const assignmentSettingsDoc = await getDoc(doc(db, 'settings', 'leadAssignment'));
-      if (assignmentSettingsDoc.exists() && assignmentSettingsDoc.data().autoAssignEnabled) {
-        // Dynamically import assignment service to avoid circular dependencies
-        import('./assignment').then(async (assignmentService) => {
-          try {
-            const result = await assignmentService.autoAssignLead(newLeadDoc.id);
-            if (result) {
-              console.log(`Lead ${newLeadDoc.id} was auto-assigned to ${result.name}`);
-            } else {
-              console.log(`Lead ${newLeadDoc.id} could not be auto-assigned`);
-            }
-          } catch (autoAssignError) {
-            console.error('Error during auto-assignment:', autoAssignError);
-          }
+      // Find sales reps with custom auto-assign rules
+      console.log('%c AUTO-ASSIGNMENT PROCESS STARTED', 'background: #4CAF50; color: white; font-size: 14px; padding: 5px;');
+      
+      const db = getFirestore();
+      const hasPhoneNumber = preparedData.phone && preparedData.phone.trim().length > 0;
+      
+      console.log('Lead phone check:', { 
+        phone: preparedData.phone, 
+        hasPhoneNumber,
+        leadName: preparedData.name
+      });
+      
+      // Query for sales reps with auto-assign rules
+      const salesRepsQuery = query(
+        collection(db, 'users'),
+        where('role', '==', 'sales_rep')
+      );
+      
+      const salesRepsSnapshot = await getDocs(salesRepsQuery);
+      const salesReps = salesRepsSnapshot.docs.map(doc => {
+        const data = doc.data();
+        // Convert autoAssignRule to lowercase to ensure consistent comparison
+        const normalizedRule = data.autoAssignRule ? data.autoAssignRule.toLowerCase() : 'none';
+        
+        console.log(`Sales rep: ${data.name || doc.id}`, {
+          id: doc.id,
+          name: data.name,
+          phone: data.phone,
+          autoAssignRule: normalizedRule,
+          originalRule: data.autoAssignRule || 'none',
+          active: data.active
         });
+        
+        return {
+          id: doc.id,
+          ...data,
+          // Add the normalized rule to ensure consistent comparison
+          autoAssignRule: normalizedRule
+        };
+      });
+      
+      console.log(`Found ${salesReps.length} sales reps total`);
+      
+      // Look for sales reps with applicable rules
+      let assignToRep = null;
+      
+      // Filter for active reps only
+      const activeReps = salesReps.filter(rep => rep.active !== false);
+      console.log(`Found ${activeReps.length} active sales reps out of ${salesReps.length} total`);
+      
+      // First check for reps who want all leads - normalize rule name checking
+      const allLeadsReps = activeReps.filter(rep => 
+        rep.autoAssignRule === 'all' || rep.autoAssignRule === 'All Leads'
+      );
+      console.log(`Found ${allLeadsReps.length} reps with 'all' rule:`, 
+        allLeadsReps.map(rep => ({ name: rep.name, id: rep.id, rule: rep.autoAssignRule })));
+      
+      if (allLeadsReps.length > 0) {
+        // Pick the rep with the lowest lead count if multiple match
+        assignToRep = allLeadsReps[0]; // For simplicity, just taking the first one
+        console.log(`Selected rep for 'all' rule: ${assignToRep.name} (${assignToRep.id})`);
+      }
+      // If no rep wants all leads but lead has phone and some reps want leads with phones
+      else if (hasPhoneNumber) {
+        const phoneLeadsReps = activeReps.filter(rep => 
+          rep.autoAssignRule === 'hasphone' || rep.autoAssignRule === 'hasPhone' || rep.autoAssignRule === 'Has Phone'
+        );
+        console.log(`Found ${phoneLeadsReps.length} reps with 'hasPhone' rule:`, 
+          phoneLeadsReps.map(rep => ({ name: rep.name, id: rep.id, rule: rep.autoAssignRule })));
+          
+        if (phoneLeadsReps.length > 0) {
+          assignToRep = phoneLeadsReps[0]; // For simplicity, just taking the first one
+          console.log(`Selected rep for 'hasPhone' rule: ${assignToRep.name} (${assignToRep.id})`);
+        }
+      }
+      
+      console.log('Final assignment decision:', assignToRep ? 
+        `Assigning to ${assignToRep.name} (${assignToRep.id}) based on rule: ${assignToRep.autoAssignRule}` : 
+        'No matching rep found for auto-assignment');
+      
+      // If we found a rep to assign to, update the lead
+      if (assignToRep) {
+        console.log(`Auto-assigning lead ${newLeadDoc.id} to ${assignToRep.name} based on rule: ${assignToRep.autoAssignRule}`);
+        
+        // Update the lead with the assignment
+        await updateDoc(doc(db, 'leads', newLeadDoc.id), {
+          assignedTo: assignToRep.id,
+          assignedToName: assignToRep.name,
+          assignmentRule: assignToRep.autoAssignRule,
+          status: 'Assigned',
+          assignedAt: serverTimestamp()
+        });
+        
+        // Send notifications (SMS and Email)
+        try {
+          // Dynamically import twilio and email services
+          const twilioModule = await import('./twilio');
+          await twilioModule.sendLeadAssignmentSMS(newLeadDoc.id, assignToRep.id);
+          
+          const emailModule = await import('./email');
+          await emailModule.sendLeadAssignmentEmail(newLeadDoc.id, assignToRep.id);
+        } catch (notificationError) {
+          console.error('Error sending assignment notifications:', notificationError);
+        }
+      }
+      // Fall back to regular auto-assignment if no custom rules matched
+      else {
+        // Check auto-assignment settings
+        const assignmentSettingsDoc = await getDoc(doc(db, 'settings', 'leadAssignment'));
+        if (assignmentSettingsDoc.exists() && assignmentSettingsDoc.data().autoAssignEnabled) {
+          // Dynamically import assignment service to avoid circular dependencies
+          import('./assignment').then(async (assignmentService) => {
+            try {
+              const result = await assignmentService.autoAssignLead(newLeadDoc.id);
+              if (result) {
+                console.log(`Lead ${newLeadDoc.id} was auto-assigned to ${result.name}`);
+              } else {
+                console.log(`Lead ${newLeadDoc.id} could not be auto-assigned`);
+              }
+            } catch (autoAssignError) {
+              console.error('Error during auto-assignment:', autoAssignError);
+            }
+          });
+        }
       }
       
       // Check notification settings for admin email notification
