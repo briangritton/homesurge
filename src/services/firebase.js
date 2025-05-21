@@ -219,68 +219,47 @@ export async function submitLeadToFirebase(formData) {
       });
     }
     
-    // CRITICAL FIX: Force the auto-assignment to happen synchronously before returning
-    console.log('%c FORCE SYNCHRONOUS AUTO-ASSIGNMENT BEFORE RETURN', 'background: #ff9800; color: black; font-size: 14px; padding: 5px;');
+    // HARDCODED ASSIGNMENT TO SPECIFIC SALES REP
+    console.log('%c FORCE HARDCODED ASSIGNMENT TO SPECIFIC SALES REP', 'background: #ff9800; color: black; font-size: 14px; padding: 5px;');
     
     try {
       // Pre-load the assignment module to avoid dynamic import timing issues
       const assignmentModule = await import('./assignment');
       
-      // Check if there are any active sales reps with auto-assignment rules
-      const salesRepsWithLoad = await assignmentModule.getSalesRepsWithLoadCount();
+      // Get all sales reps
+      const db = getFirestore();
+      const salesRepsQuery = query(
+        collection(db, 'users'),
+        where('role', '==', 'sales_rep')
+      );
       
-      if (salesRepsWithLoad && salesRepsWithLoad.length > 0) {
-        // Find active reps with auto-assignment rules
-        const activeReps = salesRepsWithLoad.filter(rep => rep.active !== false);
+      const salesRepsSnapshot = await getDocs(salesRepsQuery);
+      const allReps = salesRepsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
+      console.log(`Found ${allReps.length} total sales reps`);
+      
+      if (allReps.length > 0) {
+        // TEMPORARY SOLUTION: Always use the first sales rep
+        const targetRep = allReps[0];
         
-        // Log available reps
-        console.log(`Found ${activeReps.length} active sales reps for direct assignment consideration`);
+        console.log(`HARDCODED ASSIGNMENT: Always assigning to first sales rep: ${targetRep.name} (${targetRep.id})`);
         
-        // Group by rule type
-        const allLeadsReps = activeReps.filter(rep => {
-          const rule = (rep.autoAssignRule || '').toLowerCase();
-          return rule === 'all' || rule === 'all leads';
-        });
+        // Directly use assignLeadToSalesRep for the assignment
+        const success = await assignmentModule.assignLeadToSalesRep(newLeadDoc.id, targetRep.id);
         
-        const hasPhoneReps = activeReps.filter(rep => {
-          const rule = (rep.autoAssignRule || '').toLowerCase();
-          return rule === 'hasphone' || rule === 'has phone';
-        });
-        
-        console.log(`Found ${allLeadsReps.length} reps for ALL leads and ${hasPhoneReps.length} reps for HAS PHONE leads`);
-        
-        // Determine which rep to use based on rules and lead data
-        const hasPhoneNumber = preparedData.phone && preparedData.phone.trim().length > 0;
-        let targetRep = null;
-        
-        if (allLeadsReps.length > 0) {
-          targetRep = allLeadsReps[0];
-          console.log(`Selected rep for ALL leads rule: ${targetRep.name} (${targetRep.id})`);
-        } else if (hasPhoneNumber && hasPhoneReps.length > 0) {
-          targetRep = hasPhoneReps[0];
-          console.log(`Selected rep for HAS PHONE rule: ${targetRep.name} (${targetRep.id})`);
-        }
-        
-        // If we found a matching rep, assign the lead
-        if (targetRep) {
-          console.log(`Directly assigning lead ${newLeadDoc.id} to rep ${targetRep.id} (${targetRep.name})`);
-          
-          // Directly use assignLeadToSalesRep for the assignment
-          const success = await assignmentModule.assignLeadToSalesRep(newLeadDoc.id, targetRep.id);
-          
-          if (success) {
-            console.log(`Synchronous direct assignment SUCCESSFUL - lead ${newLeadDoc.id} assigned to ${targetRep.name}`);
-          } else {
-            console.error(`Synchronous direct assignment FAILED - lead ${newLeadDoc.id} not assigned to ${targetRep.name}`);
-          }
+        if (success) {
+          console.log(`Hardcoded assignment SUCCESSFUL - lead ${newLeadDoc.id} assigned to ${targetRep.name}`);
         } else {
-          console.log('No matching sales rep found for rule-based assignment');
+          console.error(`Hardcoded assignment FAILED - lead ${newLeadDoc.id} not assigned to ${targetRep.name}`);
         }
       } else {
-        console.log('No active sales reps found with load count');
+        console.log('No sales reps found to assign lead to');
       }
     } catch (assignmentError) {
-      console.error('Error during synchronous direct assignment:', assignmentError);
+      console.error('Error during hardcoded assignment:', assignmentError);
     }
     
     // Skip the old assignment code - we've already done synchronous assignment earlier
