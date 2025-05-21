@@ -65,8 +65,7 @@ export async function getSalesRepsWithLoadCount() {
   try {
     const db = getFirestore();
     
-    // Get all sales reps with or without the active flag
-    // First create a query without the active filter to ensure we get all reps
+    // Get all sales reps without filtering for active status
     const salesRepsQuery = query(
       collection(db, 'users'),
       where('role', '==', 'sales_rep')
@@ -74,12 +73,13 @@ export async function getSalesRepsWithLoadCount() {
     
     // Execute the query for all sales reps
     const salesRepsSnapshot = await getDocs(salesRepsQuery);
-    
-    const salesRepsSnapshot = await getDocs(salesRepsQuery);
     const salesReps = salesRepsSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
+    
+    // Log found sales reps for debugging
+    console.log(`Found ${salesReps.length} sales reps`);
     
     // For each sales rep, count their assigned leads
     const repsWithLoadCount = await Promise.all(salesReps.map(async (rep) => {
