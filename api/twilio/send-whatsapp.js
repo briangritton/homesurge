@@ -77,7 +77,6 @@ module.exports = async (req, res) => {
     
     // Use the approved WhatsApp template with variables
     // Prepare the messages array and tracking for successful messages
-    const messages = [];
     const results = {
       success: true,
       messages: {}
@@ -89,13 +88,8 @@ module.exports = async (req, res) => {
         from: fromWhatsAppFormatted,
         to: toSalesRepWhatsApp,
         // Use templateId for your approved template
-        contentSid: process.env.TWILIO_TEMPLATE_SID || '',
-        contentVariables: JSON.stringify({
-          1: templateData.leadName || 'New Lead',
-          2: templateData.address || 'Address not available',
-          3: templateData.phone || 'Phone not available',
-          4: templateData.leadURL || window.location.origin + '/crm'
-        })
+        contentSid: process.env.TWILIO_TEMPLATE_SID || ''
+        // No variables needed for the simplified template
       });
       results.messages.salesRep = salesRepSMS.sid;
     }
@@ -106,13 +100,8 @@ module.exports = async (req, res) => {
         from: fromWhatsAppFormatted,
         to: toAdminWhatsApp,
         // Use templateId for your approved template
-        contentSid: process.env.TWILIO_TEMPLATE_SID || '',
-        contentVariables: JSON.stringify({
-          1: `${templateData.leadName} (assigned to ${salesRepName})`,
-          2: templateData.address || 'Address not available',
-          3: templateData.phone || 'Phone not available',
-          4: templateData.leadURL || window.location.origin + '/crm'
-        })
+        contentSid: process.env.TWILIO_TEMPLATE_SID || ''
+        // No variables needed for the simplified template
       });
       results.messages.admin = adminSMS.sid;
     }

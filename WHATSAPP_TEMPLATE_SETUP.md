@@ -26,29 +26,15 @@ Add the following environment variables to your Vercel project:
 5. Select your approved template
 6. The Template SID will be displayed or can be found in the URL
 
-## Template Variables
+## Current Template
 
-The WhatsApp notification system expects your template to have four variables:
-
-1. Lead name
-2. Property address
-3. Lead phone number
-4. CRM link
-
-Make sure your approved template includes these variables in the correct order.
-
-## Example Template
-
-An example of what your approved template might look like:
+The WhatsApp notification system is using a simple approved template with no variables:
 
 ```
-Your new lead {{1}} is ready in the CRM. 
-
-Property address: {{2}}
-Contact: {{3}}
-
-View details: {{4}}
+New Lead, Check CRM https://sellforcash.online/CRM
 ```
+
+This simplified template has been approved by WhatsApp and doesn't require any variables to be passed from the application.
 
 ## Testing
 
