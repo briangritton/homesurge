@@ -131,9 +131,9 @@ const TestAssignment = () => {
       // Add the test lead
       const leadRef = await addDoc(collection(db, 'leads'), leadData);
       
-      // Wait a moment for assignments to process
+      // Wait longer for assignments to process completely
       console.log('Waiting for lead auto-assignment to process...');
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise(resolve => setTimeout(resolve, 5000)); // Increased to 5 seconds
       
       // Check if the lead was assigned
       console.log(`Checking assignment status for lead ${leadRef.id}...`);

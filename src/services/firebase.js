@@ -343,16 +343,30 @@ export async function submitLeadToFirebase(formData) {
           console.error('Error updating lead with assignment:', err);
         }
         
-        // Send notifications (SMS and Email)
+        // Send notifications (SMS and Email) - synchronously to ensure they complete
         try {
-          // Dynamically import twilio and email services
-          const twilioModule = await import('./twilio');
-          await twilioModule.sendLeadAssignmentSMS(newLeadDoc.id, assignToRep.id);
+          console.log(`Sending assignment notifications for lead ${newLeadDoc.id} to rep ${assignToRep.id}`);
           
+          // Load modules synchronously
+          const twilioModule = await import('./twilio');
           const emailModule = await import('./email');
-          await emailModule.sendLeadAssignmentEmail(newLeadDoc.id, assignToRep.id);
+          
+          // Send notifications sequentially with proper error handling
+          try {
+            await twilioModule.sendLeadAssignmentSMS(newLeadDoc.id, assignToRep.id);
+            console.log(`SMS notification sent to rep ${assignToRep.id} for lead ${newLeadDoc.id}`);
+          } catch (smsError) {
+            console.error('Error sending SMS notification:', smsError);
+          }
+          
+          try {
+            await emailModule.sendLeadAssignmentEmail(newLeadDoc.id, assignToRep.id);
+            console.log(`Email notification sent to rep ${assignToRep.id} for lead ${newLeadDoc.id}`);
+          } catch (emailError) {
+            console.error('Error sending email notification:', emailError);
+          }
         } catch (notificationError) {
-          console.error('Error sending assignment notifications:', notificationError);
+          console.error('Error setting up notifications:', notificationError);
         }
       }
       // Fall back to regular auto-assignment if no custom rules matched
@@ -360,19 +374,26 @@ export async function submitLeadToFirebase(formData) {
         // Check auto-assignment settings
         const assignmentSettingsDoc = await getDoc(doc(db, 'settings', 'leadAssignment'));
         if (assignmentSettingsDoc.exists() && assignmentSettingsDoc.data().autoAssignEnabled) {
-          // Dynamically import assignment service to avoid circular dependencies
-          import('./assignment').then(async (assignmentService) => {
-            try {
-              const result = await assignmentService.autoAssignLead(newLeadDoc.id);
-              if (result) {
-                console.log(`Lead ${newLeadDoc.id} was auto-assigned to ${result.name}`);
-              } else {
-                console.log(`Lead ${newLeadDoc.id} could not be auto-assigned`);
-              }
-            } catch (autoAssignError) {
-              console.error('Error during auto-assignment:', autoAssignError);
+          console.log(`No matching rule-based assignment, falling back to default auto-assignment for lead ${newLeadDoc.id}`);
+          
+          try {
+            // Load the assignment module
+            const assignmentService = await import('./assignment');
+            
+            // Wait for auto-assignment to complete
+            console.log(`Calling autoAssignLead for lead ${newLeadDoc.id}`);
+            const result = await assignmentService.autoAssignLead(newLeadDoc.id);
+            
+            if (result) {
+              console.log(`Lead ${newLeadDoc.id} was auto-assigned to ${result.name}`);
+            } else {
+              console.log(`Lead ${newLeadDoc.id} could not be auto-assigned`);
             }
-          });
+          } catch (autoAssignError) {
+            console.error('Error during auto-assignment:', autoAssignError);
+          }
+        } else {
+          console.log(`Auto-assignment is disabled in settings or settings not found for lead ${newLeadDoc.id}`);
         }
       }
       
@@ -382,18 +403,22 @@ export async function submitLeadToFirebase(formData) {
           notificationSettingsDoc.data().emailNotificationsEnabled &&
           notificationSettingsDoc.data().notifyOnNewLead &&
           notificationSettingsDoc.data().adminEmail) {
-        // Dynamically import email service to avoid circular dependencies
-        import('./email').then(async (emailService) => {
-          try {
-            await emailService.sendAdminLeadNotificationEmail(
-              newLeadDoc.id, 
-              notificationSettingsDoc.data().adminEmail
-            );
-            console.log(`Admin notification email sent for new lead ${newLeadDoc.id}`);
-          } catch (emailError) {
-            console.error('Error sending admin email notification:', emailError);
-          }
-        });
+        
+        try {
+          // Load email service synchronously to ensure it completes
+          const emailService = await import('./email');
+          
+          // Wait for the notification to complete
+          await emailService.sendAdminLeadNotificationEmail(
+            newLeadDoc.id, 
+            notificationSettingsDoc.data().adminEmail
+          );
+          console.log(`Admin notification email sent for new lead ${newLeadDoc.id}`);
+        } catch (emailError) {
+          console.error('Error sending admin email notification:', emailError);
+        }
+      } else {
+        console.log(`Admin email notification skipped for lead ${newLeadDoc.id} - not configured`);
       }
     } catch (settingsError) {
       console.error('Error checking settings:', settingsError);
