@@ -136,6 +136,7 @@ const TestAssignment = () => {
       await new Promise(resolve => setTimeout(resolve, 3000));
       
       // Check if the lead was assigned
+      console.log(`Checking assignment status for lead ${leadRef.id}...`);
       const updatedLeadDoc = await getDoc(doc(db, 'leads', leadRef.id));
       
       if (!updatedLeadDoc.exists()) {
@@ -143,14 +144,48 @@ const TestAssignment = () => {
       }
       
       const updatedLead = updatedLeadDoc.data();
+      console.log('Updated lead data:', {
+        leadId: leadRef.id,
+        assignedTo: updatedLead.assignedTo || 'Not assigned',
+        assignmentRule: updatedLead.assignmentRule || 'No rule applied',
+        status: updatedLead.status,
+        hasPhone: Boolean(updatedLead.phone),
+        phone: updatedLead.phone || 'No phone'
+      });
+      
+      // Fetch all sales reps with assignment rules to debug
+      console.log('Fetching all sales reps to check assignment rules...');
+      const salesRepsQuery = query(
+        collection(db, 'users'),
+        where('role', '==', 'sales_rep')
+      );
+      const salesRepsSnapshot = await getDocs(salesRepsQuery);
+      const salesReps = salesRepsSnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          name: data.name,
+          autoAssignRule: data.autoAssignRule || 'none',
+          active: data.active
+        };
+      });
+      console.log('Available sales reps and their rules:', salesReps);
       
       // If assigned, get details about the sales rep
       let assignedToDetails = null;
       if (updatedLead.assignedTo) {
+        console.log(`Lead was assigned to ${updatedLead.assignedTo}, getting details...`);
         const salesRepDoc = await getDoc(doc(db, 'users', updatedLead.assignedTo));
         if (salesRepDoc.exists()) {
           assignedToDetails = salesRepDoc.data();
+          console.log('Assigned sales rep details:', {
+            id: updatedLead.assignedTo,
+            name: assignedToDetails.name,
+            rule: assignedToDetails.autoAssignRule || 'none'
+          });
         }
+      } else {
+        console.log('Lead was NOT assigned to any sales rep');
       }
       
       // Set the result
