@@ -7,6 +7,7 @@ import {
   where, 
   orderBy 
 } from 'firebase/firestore';
+import UserForm from './UserForm';
 
 const styles = {
   container: {
@@ -92,6 +93,7 @@ const SalesRepsList = () => {
   const [salesReps, setSalesReps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showAddUserForm, setShowAddUserForm] = useState(false);
   
   useEffect(() => {
     const fetchSalesReps = async () => {
@@ -171,63 +173,121 @@ const SalesRepsList = () => {
   
   return (
     <div style={styles.container}>
-      <div style={styles.header}>
-        <h2 style={styles.title}>Sales Representatives</h2>
-        <button style={styles.button}>Add Sales Rep</button>
-      </div>
-      
-      {salesReps.length === 0 ? (
-        <div style={styles.emptyMessage}>
-          No sales representatives found. Add some to get started.
-        </div>
+      {showAddUserForm ? (
+        <UserForm onComplete={() => {
+          setShowAddUserForm(false);
+          // Refresh sales reps list after adding a new user
+          const fetchSalesReps = async () => {
+            try {
+              setLoading(true);
+              const db = getFirestore();
+              
+              // Query for sales reps
+              const salesRepsQuery = query(
+                collection(db, 'users'),
+                where('role', '==', 'sales_rep'),
+                orderBy('name', 'asc')
+              );
+              
+              const snapshot = await getDocs(salesRepsQuery);
+              const repsList = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                // Convert timestamps to dates for display
+                createdAt: doc.data().createdAt?.toDate?.() || new Date(),
+                lastLogin: doc.data().lastLogin?.toDate?.() || null
+              }));
+              
+              setSalesReps(repsList);
+              setLoading(false);
+            } catch (err) {
+              console.error('Error fetching sales reps:', err);
+              setError('Failed to load sales representatives. Please try again.');
+              setLoading(false);
+            }
+          };
+          
+          fetchSalesReps();
+        }} />
       ) : (
-        <table style={styles.table}>
-          <thead>
-            <tr>
-              <th style={styles.tableHeader}>Name</th>
-              <th style={styles.tableHeader}>Email</th>
-              <th style={styles.tableHeader}>Status</th>
-              <th style={styles.tableHeader}>Created</th>
-              <th style={styles.tableHeader}>Last Login</th>
-              <th style={styles.tableHeader}>Assigned Leads</th>
-            </tr>
-          </thead>
-          <tbody>
-            {salesReps.map(rep => (
-              <tr key={rep.id} style={styles.tableRow}>
-                <td style={styles.tableCell}>
-                  <div style={styles.userDisplay}>
-                    <div style={styles.avatar}>
-                      {rep.name ? rep.name[0].toUpperCase() : 'S'}
-                    </div>
-                    {rep.name || 'Unnamed Rep'}
-                  </div>
-                </td>
-                <td style={styles.tableCell}>{rep.email || 'N/A'}</td>
-                <td style={styles.tableCell}>
-                  <span 
-                    style={{
-                      ...styles.statusBadge,
-                      background: rep.active ? '#C8E6C9' : '#FFCDD2',
-                      color: rep.active ? '#1B5E20' : '#B71C1C',
-                    }}
-                  >
-                    {rep.active ? 'Active' : 'Inactive'}
-                  </span>
-                </td>
-                <td style={styles.tableCell}>{formatDate(rep.createdAt)}</td>
-                <td style={styles.tableCell}>{formatDate(rep.lastLogin)}</td>
-                <td style={styles.tableCell}>
-                  {/* In a full implementation, we would fetch this count */}
-                  {/* For demo purposes, let's just show a link */}
-                  <a href="#" style={{ color: '#2e7b7d', textDecoration: 'none' }}>
-                    View Leads
-                  </a>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <>
+          <div style={styles.header}>
+            <h2 style={styles.title}>Sales Representatives</h2>
+            <button 
+              style={styles.button}
+              onClick={() => setShowAddUserForm(true)}
+            >
+              Add Sales Rep
+            </button>
+          </div>
+          
+          {salesReps.length === 0 ? (
+            <div style={styles.emptyMessage}>
+              No sales representatives found. Add some to get started.
+            </div>
+          ) : (
+            <table style={styles.table}>
+              <thead>
+                <tr>
+                  <th style={styles.tableHeader}>Name</th>
+                  <th style={styles.tableHeader}>Email</th>
+                  <th style={styles.tableHeader}>Phone</th>
+                  <th style={styles.tableHeader}>Status</th>
+                  <th style={styles.tableHeader}>Created</th>
+                  <th style={styles.tableHeader}>Last Login</th>
+                  <th style={styles.tableHeader}>Assigned Leads</th>
+                </tr>
+              </thead>
+              <tbody>
+                {salesReps.map(rep => (
+                  <tr key={rep.id} style={styles.tableRow}>
+                    <td style={styles.tableCell}>
+                      <div style={styles.userDisplay}>
+                        <div style={styles.avatar}>
+                          {rep.name ? rep.name[0].toUpperCase() : 'S'}
+                        </div>
+                        {rep.name || 'Unnamed Rep'}
+                      </div>
+                    </td>
+                    <td style={styles.tableCell}>{rep.email || 'N/A'}</td>
+                    <td style={styles.tableCell}>
+                      {rep.phone ? (
+                        <a 
+                          href={`tel:${rep.phone}`} 
+                          style={{ color: '#2e7b7d', textDecoration: 'none' }}
+                        >
+                          {rep.phone}
+                        </a>
+                      ) : (
+                        <span style={{ color: 'red' }}>No phone (SMS unavailable)</span>
+                      )}
+                    </td>
+                    <td style={styles.tableCell}>
+                      <span 
+                        style={{
+                          ...styles.statusBadge,
+                          background: rep.active ? '#C8E6C9' : '#FFCDD2',
+                          color: rep.active ? '#1B5E20' : '#B71C1C',
+                        }}
+                      >
+                        {rep.active ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td style={styles.tableCell}>{formatDate(rep.createdAt)}</td>
+                    <td style={styles.tableCell}>{formatDate(rep.lastLogin)}</td>
+                    <td style={styles.tableCell}>
+                      {/* In a full implementation, we would fetch this count */}
+                      {/* For demo purposes, let's just show a link */}
+                      <a href="#" style={{ color: '#2e7b7d', textDecoration: 'none' }}>
+                        View Leads
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </>
       )}
     </div>
   );

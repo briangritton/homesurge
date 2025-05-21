@@ -11,6 +11,7 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 import { trackFirebaseConversion, deleteLeadFromFirebase } from '../../services/firebase';
+import { sendLeadAssignmentSMS } from '../../services/twilio';
 
 // CSS for the lead detail view
 const styles = {
@@ -319,6 +320,9 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
       const db = getFirestore();
       const leadRef = doc(db, 'leads', leadId);
       
+      // Check if assignedTo field has changed and is not empty
+      const isNewAssignment = formData.assignedTo && formData.assignedTo !== lead.assignedTo;
+      
       // Prepare update data
       const updateData = {
         ...formData,
@@ -333,6 +337,22 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
       delete updateData.updatedAt;
       
       await updateDoc(leadRef, updateData);
+      
+      // If this is a new assignment, send SMS notification
+      if (isNewAssignment) {
+        console.log(`Sending SMS notification for lead ${leadId} assigned to ${formData.assignedTo}`);
+        try {
+          const smsResult = await sendLeadAssignmentSMS(leadId, formData.assignedTo);
+          if (smsResult) {
+            console.log('SMS notification sent successfully');
+          } else {
+            console.warn('Failed to send SMS notification');
+          }
+        } catch (smsError) {
+          console.error('Error sending SMS notification:', smsError);
+          // Don't fail the whole operation if SMS fails
+        }
+      }
       
       // Refresh lead data
       fetchLead(leadId);
