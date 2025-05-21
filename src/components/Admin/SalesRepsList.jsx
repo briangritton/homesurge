@@ -3,9 +3,12 @@ import {
   getFirestore, 
   collection, 
   getDocs, 
+  doc,
+  updateDoc,
   query, 
   where, 
-  orderBy 
+  orderBy,
+  serverTimestamp
 } from 'firebase/firestore';
 import UserForm from './UserForm';
 
@@ -101,11 +104,11 @@ const SalesRepsList = () => {
         setLoading(true);
         const db = getFirestore();
         
-        // Query for sales reps
+        // Query for sales reps - removing active filter to show all sales reps
         const salesRepsQuery = query(
           collection(db, 'users'),
-          where('role', '==', 'sales_rep'),
-          orderBy('name', 'asc')
+          where('role', '==', 'sales_rep')
+          // Note: No orderBy to avoid index requirements
         );
         
         const snapshot = await getDocs(salesRepsQuery);
@@ -152,6 +155,38 @@ const SalesRepsList = () => {
     } catch (err) {
       console.error('Error getting lead count:', err);
       return 0;
+    }
+  };
+  
+  // Handle changing the auto-assign rule for a sales rep
+  const handleRuleChange = async (repId, newRule) => {
+    try {
+      setLoading(true);
+      const db = getFirestore();
+      const userRef = doc(db, 'users', repId);
+      
+      // Update the user document with the new rule
+      await updateDoc(userRef, {
+        autoAssignRule: newRule,
+        updatedAt: serverTimestamp()
+      });
+      
+      // Update the local state
+      setSalesReps(prevReps => 
+        prevReps.map(rep => 
+          rep.id === repId ? { ...rep, autoAssignRule: newRule } : rep
+        )
+      );
+      
+      // Show a temporary success message
+      setError(`Assignment rule updated for sales rep`);
+      setTimeout(() => setError(null), 3000);
+      
+      setLoading(false);
+    } catch (err) {
+      console.error('Error updating assignment rule:', err);
+      setError('Failed to update assignment rule. Please try again.');
+      setLoading(false);
     }
   };
   
@@ -235,6 +270,7 @@ const SalesRepsList = () => {
                   <th style={styles.tableHeader}>Status</th>
                   <th style={styles.tableHeader}>Created</th>
                   <th style={styles.tableHeader}>Last Login</th>
+                  <th style={styles.tableHeader}>Auto-Assign Rule</th>
                   <th style={styles.tableHeader}>Assigned Leads</th>
                 </tr>
               </thead>
@@ -275,6 +311,22 @@ const SalesRepsList = () => {
                     </td>
                     <td style={styles.tableCell}>{formatDate(rep.createdAt)}</td>
                     <td style={styles.tableCell}>{formatDate(rep.lastLogin)}</td>
+                    <td style={styles.tableCell}>
+                      <select
+                        style={{
+                          padding: '5px 10px',
+                          borderRadius: '4px',
+                          border: '1px solid #ddd',
+                          background: '#f5f5f5'
+                        }}
+                        value={rep.autoAssignRule || 'none'}
+                        onChange={(e) => handleRuleChange(rep.id, e.target.value)}
+                      >
+                        <option value="none">No Auto-Assign</option>
+                        <option value="all">All Leads</option>
+                        <option value="hasPhone">Has Phone Only</option>
+                      </select>
+                    </td>
                     <td style={styles.tableCell}>
                       {/* In a full implementation, we would fetch this count */}
                       {/* For demo purposes, let's just show a link */}
