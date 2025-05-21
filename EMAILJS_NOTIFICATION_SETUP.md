@@ -49,15 +49,21 @@ To modify the email templates:
 3. Edit the template design, subject line, or recipient list
 4. Save changes - they will take effect immediately
 
-### Adding the CRM Link
+### Adding Clickable Links
 
-In your template, you can now add a link to view the lead directly in the CRM:
+In your template, you can now add clickable links for both the CRM and phone number:
 
 ```html
+<!-- Clickable CRM Link -->
 <p><strong>View Lead in CRM:</strong> <a href="{{crm_link}}">Click here to view lead details</a></p>
+
+<!-- Clickable Phone Number -->
+<p><strong>Phone:</strong> <a href="tel:{{lead_phone}}">{{lead_phone}}</a></p>
 ```
 
-This will generate a clickable link that takes the recipient directly to the lead's page in the CRM system.
+These will generate clickable links that:
+- Take the recipient directly to the lead's page in the CRM system
+- Allow for one-tap calling of the lead's phone number (especially useful on mobile devices)
 
 ## Troubleshooting
 
