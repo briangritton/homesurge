@@ -281,7 +281,7 @@ const UserForm = ({ onComplete }) => {
         
         <div style={styles.formGroup}>
           <label style={styles.label}>
-            Phone Number<span style={styles.required}>*</span> (for SMS notifications)
+            Phone Number<span style={styles.required}>*</span> (for WhatsApp notifications)
           </label>
           <input
             type="tel"
@@ -293,7 +293,7 @@ const UserForm = ({ onComplete }) => {
             required
           />
           <div style={styles.phoneInfo}>
-            Phone number should include country code (e.g., +1 for US)
+            Phone number must have WhatsApp installed and include country code (e.g., +1 for US)
           </div>
         </div>
         

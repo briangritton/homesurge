@@ -49,6 +49,10 @@ export const ContactFields = [
   { id: 'email', label: 'Email', section: 'contact', type: 'email' },
   { id: 'autoFilledName', label: 'Auto Filled Name', section: 'contact', type: 'text' },
   { id: 'autoFilledPhone', label: 'Auto Filled Phone', section: 'contact', type: 'phone' },
+  { id: 'batchDataPhoneNumbers', label: 'BatchData Phone Numbers', section: 'contact', type: 'phoneArray' },
+  { id: 'batchDataEmails', label: 'BatchData Emails', section: 'contact', type: 'emailArray' },
+  { id: 'batchDataProcessed', label: 'BatchData Processed', section: 'contact', type: 'boolean' },
+  { id: 'batchDataProcessedAt', label: 'BatchData Processed At', section: 'contact', type: 'text' },
 ];
 
 export const LeadFields = [
@@ -87,6 +91,37 @@ export const renderFieldValue = (lead, field) => {
     
     case 'email':
       return <a href={`mailto:${lead[field.id]}`} className="crm-email-link">{lead[field.id]}</a>;
+    
+    case 'phoneArray':
+      if (Array.isArray(lead[field.id]) && lead[field.id].length > 0) {
+        return (
+          <div className="crm-array-field">
+            {lead[field.id].map((phone, index) => (
+              <div key={index} className="crm-array-item">
+                <a href={`tel:${phone}`} className="crm-phone-link">{phone}</a>
+              </div>
+            ))}
+          </div>
+        );
+      }
+      return '-';
+    
+    case 'emailArray':
+      if (Array.isArray(lead[field.id]) && lead[field.id].length > 0) {
+        return (
+          <div className="crm-array-field">
+            {lead[field.id].map((email, index) => (
+              <div key={index} className="crm-array-item">
+                <a href={`mailto:${email}`} className="crm-email-link">{email}</a>
+              </div>
+            ))}
+          </div>
+        );
+      }
+      return '-';
+    
+    case 'boolean':
+      return lead[field.id] === true ? 'Yes' : 'No';
     
     default:
       return lead[field.id];

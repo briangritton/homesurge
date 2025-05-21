@@ -4,22 +4,22 @@ This guide explains the different notification methods available in your SellFor
 
 ## Notification Methods
 
-### 1. SMS Notifications via Twilio
+### 1. WhatsApp Notifications via Twilio (Primary Method)
 
-SMS notifications are sent to sales representatives and administrators when a lead is assigned. This provides immediate notification of new leads requiring action.
+WhatsApp notifications are sent to sales representatives and administrators when a lead is assigned. We've chosen WhatsApp as the primary notification channel due to its better deliverability, rich features, and simpler compliance requirements compared to SMS.
 
 **Setup Requirements:**
-- Twilio account with active phone number
+- Twilio account with WhatsApp Business API access
 - Environment variables set in Vercel:
   - `TWILIO_ACCOUNT_SID`
   - `TWILIO_AUTH_TOKEN`
-  - `TWILIO_PHONE_NUMBER`
+  - `TWILIO_WHATSAPP_NUMBER`
   - `ADMIN_PHONE_NUMBER`
-- Valid phone numbers for all sales reps in their user profiles
+- Valid phone numbers with WhatsApp installed for all sales reps
 
 ### 2. Email Notifications via Firebase Extensions
 
-Email notifications can be sent for various lead events. These provide more detailed information than SMS and can include links to the CRM.
+Email notifications are sent for various lead events. These provide more detailed information than WhatsApp and can include links to the CRM.
 
 **Setup Requirements:**
 - Firebase Extension "Trigger Email" installed in your Firebase project
@@ -28,15 +28,19 @@ Email notifications can be sent for various lead events. These provide more deta
   - `admin-new-lead` - For notifying admins of new leads
 - Admin email configured in Notification Settings
 
-### 3. In-App Notifications (Future Enhancement)
+### 3. SMS Notifications (Future Alternative)
+
+Traditional SMS can be implemented later if needed, but requires additional compliance work for US numbers (10DLC registration).
+
+### 4. In-App Notifications (Future Enhancement)
 
 Real-time in-app notifications can be implemented using Firebase Firestore listeners, allowing users to see notifications while using the CRM.
 
-### 4. Firebase Cloud Messaging (Web Push)
+### 5. Firebase Cloud Messaging (Web Push)
 
 Browser push notifications can be implemented using Firebase Cloud Messaging (FCM) to notify users even when they don't have the CRM open.
 
-### 5. Webhook Integrations (Future Enhancement)
+### 6. Webhook Integrations (Future Enhancement)
 
 Webhooks can be used to send notifications to external systems like Slack, Discord, or other business tools.
 
@@ -52,14 +56,15 @@ Webhooks can be used to send notifications to external systems like Slack, Disco
 2. **Notification Settings:**
    - Configure admin email address
    - Enable/disable email notifications
-   - Enable/disable SMS notifications
+   - Enable/disable WhatsApp notifications
    - Select which events trigger notifications
 
 ### User Management
 
 Each sales representative should have:
-- A valid phone number (with country code) for SMS notifications
+- A valid phone number with WhatsApp installed (with country code)
 - A valid email address for email notifications
+- Opt-in to receive WhatsApp messages from your business number
 
 ## Notification Workflows
 
@@ -69,12 +74,12 @@ Each sales representative should have:
 2. Lead is created in Firebase
 3. If auto-assignment is enabled, lead is assigned to a sales rep
 4. Admin receives email notification of new lead
-5. If assigned, sales rep receives SMS and email notifications
+5. If assigned, sales rep receives WhatsApp and email notifications
 
 ### Lead Assignment
 
 1. Admin manually assigns a lead or auto-assignment occurs
-2. Sales rep receives SMS notification with lead details and CRM link
+2. Sales rep receives WhatsApp notification with lead details and CRM link
 3. Sales rep receives email notification with complete lead details
 4. Admin receives notification confirming the assignment
 
@@ -120,13 +125,14 @@ To enable email notifications, you'll need to install the "Trigger Email" extens
 
 ## Troubleshooting
 
-### SMS Notifications
+### WhatsApp Notifications
 
-If SMS notifications aren't working:
-- Check Twilio credentials in Vercel environment variables
+If WhatsApp notifications aren't working:
+- Ensure recipients have WhatsApp installed on their phones
+- Verify recipients have opted in to receive messages
+- Check if your message templates are approved (for first contact)
 - Verify phone numbers are in E.164 format (e.g., +15551234567)
 - Check Twilio logs for delivery issues
-- Ensure your Twilio account has sufficient funds
 
 ### Email Notifications
 
@@ -135,6 +141,15 @@ If email notifications aren't working:
 - Check email templates exist and are correctly formatted
 - Ensure admin email is correctly set in Notification Settings
 - Check Firebase functions logs for any errors
+
+## Advantages of WhatsApp Over SMS
+
+1. **No 10DLC Registration**: Avoid complex US carrier registration
+2. **Higher Deliverability**: Better reliable delivery rates
+3. **Rich Messages**: Support for images, documents, quick reply buttons
+4. **Read Receipts**: Know when messages are delivered and read
+5. **No Character Limits**: Send longer, more detailed notifications
+6. **Cost-Effective**: Often cheaper, especially for international numbers
 
 ## Future Enhancements
 
