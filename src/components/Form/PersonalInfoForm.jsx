@@ -434,18 +434,27 @@ function PersonalInfoForm() {
             console.log('🟢🟢🟢 DIRECT DEBUG: Pushover key from URL:', urlKey ? 'Found key' : 'No key found');
           }
           
-          // Directly call the Pushover API endpoint with a test key
+          // Directly call the Pushover API endpoint with FIXED hardcoded values
           console.log('🟢🟢🟢 DIRECT DEBUG: Preparing to fetch from /api/pushover/send-notification');
+          
+          // Create request body separately to verify content
+          const requestBody = {
+            user: "um62xd21dr7pfugnwanooxi6mqxc3n", // HARDCODED key - guaranteed to be present
+            message: "FIXED TEST MESSAGE - Lead notification test",
+            title: "Frontend Direct Test",
+            priority: 1,
+            sound: "persistent"
+          };
+          
+          console.log('🟢🟢🟢 DIRECT DEBUG: Request body prepared:', requestBody);
+          
           const response = await fetch('/api/pushover/send-notification', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              user: pushoverKey || 'um62xd21dr7pfugnwanooxi6mqxc3n', // Use the key from localStorage or hardcoded key
-              message: `FRONTEND TEST - New lead created: ${cleanName}\nPhone: ${cleanPhone}\nAddress: ${formData.street || 'No address'}`,
-              title: "Frontend Direct Test",
-              priority: 1,
-              sound: "persistent"
-            })
+            headers: { 
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
           });
           
           console.log('🟢🟢🟢 DIRECT DEBUG: Pushover API fetch completed, response status:', response.status);
