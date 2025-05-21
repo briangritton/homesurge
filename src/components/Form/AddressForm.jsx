@@ -1225,29 +1225,59 @@ function AddressForm() {
             // Update the autofill flag
             setAutofillDetected(true);
             
-            // Process the address similarly to how Google Places dropdown handles it
-            if (firstSuggestion && firstSuggestion.place_id) {
-              // Use the first Google suggestion if available
-              console.log('Using first suggestion after browser rapid input detection:', firstSuggestion.description);
+            console.log('🔍 AUTOFILL DIAGNOSIS: Input field contains:', inputRef.current ? inputRef.current.value : 'not available');
+            console.log('🔍 AUTOFILL DIAGNOSIS: formData.street =', formData.street);
+            console.log('🔍 AUTOFILL DIAGNOSIS: firstSuggestion =', firstSuggestion);
+            console.log('🔍 AUTOFILL DIAGNOSIS: autofilledFields =', Array.from(autofilledFields));
+            
+            // Need to ensure formData is updated with the current input value
+            if (inputRef.current && inputRef.current.value) {
+              console.log('🔍 AUTOFILL DIAGNOSIS: Updating formData with current input value');
+              updateFormData({ street: inputRef.current.value });
               
-              // Get place details and process it
-              getPlaceDetails(firstSuggestion.place_id)
-                .then(placeDetails => {
-                  if (placeDetails && placeDetails.formatted_address) {
-                    // Process the selected address with full Google Places data
-                    processAddressSelection(placeDetails);
-                    
-                    // Proceed to next step
-                    nextStep();
-                  }
-                })
-                .catch(error => {
-                  console.error('Error getting place details for autofill:', error);
-                  // Fallback to direct submission if API fails
+              // Give a moment for formData to update
+              setTimeout(() => {
+                // Process the address similarly to how Google Places dropdown handles it
+                if (firstSuggestion && firstSuggestion.place_id) {
+                  // Use the first Google suggestion if available
+                  console.log('🔍 AUTOFILL DIAGNOSIS: Using first suggestion after browser rapid input detection:', firstSuggestion.description);
+                  
+                  // Get place details and process it
+                  getPlaceDetails(firstSuggestion.place_id)
+                    .then(placeDetails => {
+                      console.log('🔍 AUTOFILL DIAGNOSIS: Got place details:', placeDetails);
+                      if (placeDetails && placeDetails.formatted_address) {
+                        // Log the exact object shape
+                        console.log('🔍 AUTOFILL DIAGNOSIS: placeDetails object keys:', Object.keys(placeDetails));
+                        console.log('🔍 AUTOFILL DIAGNOSIS: placeDetails.formatted_address =', placeDetails.formatted_address);
+                        
+                        // Process the selected address with full Google Places data
+                        const processed = processAddressSelection(placeDetails);
+                        console.log('🔍 AUTOFILL DIAGNOSIS: processAddressSelection result =', processed);
+                        
+                        // Proceed to next step
+                        console.log('🔍 AUTOFILL DIAGNOSIS: Calling nextStep()');
+                        nextStep();
+                      } else {
+                        console.error('🔍 AUTOFILL DIAGNOSIS: Missing formatted_address in placeDetails');
+                        handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                      }
+                    })
+                    .catch(error => {
+                      console.error('🔍 AUTOFILL DIAGNOSIS: Error getting place details for autofill:', error);
+                      // Fallback to direct submission if API fails
+                      handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                    });
+                } else {
+                  console.log('🔍 AUTOFILL DIAGNOSIS: No Google suggestion available, trying manual submission with current address:', 
+                    formData.street || (inputRef.current ? inputRef.current.value : 'not available'));
+                  
+                  // No Google suggestion available, use standard button click handler
                   handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
-                });
+                }
+              }, 200);
             } else {
-              // No Google suggestion available, use standard button click handler
+              console.log('🔍 AUTOFILL DIAGNOSIS: No value in input field, using standard submission');
               handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
             }
           }, 400);
