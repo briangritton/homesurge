@@ -215,14 +215,82 @@ function AddressForm() {
                 
                 // Allow time for all browser autofill data to be populated
                 setTimeout(() => {
-                  // Create a custom event object with preventDefault method
-                  const customEvent = { 
-                    preventDefault: () => {}, 
-                    stopPropagation: () => {},
-                    target: document.getElementById('address-submit-button')
-                  };
-                  // Simulate a button click to submit the form
-                  handleButtonClick(customEvent);
+                  console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Input field contains:', inputRef.current ? inputRef.current.value : 'not available');
+                  console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: formData.street =', formData.street);
+                  console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: firstSuggestion =', firstSuggestion);
+                  console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: autofilledFields =', Array.from(autofilledFields));
+                  
+                  // Need to ensure formData is updated with the current input value
+                  if (inputRef.current && inputRef.current.value) {
+                    console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Updating formData with current input value');
+                    updateFormData({ street: inputRef.current.value });
+                    
+                    // If we don't already have suggestions, try to get them now
+                    if (!firstSuggestion && googleApiLoaded && autocompleteServiceRef.current && inputRef.current.value.length > 3) {
+                      console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Requesting suggestions for autofilled address');
+                      // Request suggestions for this address
+                      autocompleteServiceRef.current.getPlacePredictions({
+                        input: inputRef.current.value,
+                        sessionToken: sessionTokenRef.current,
+                        componentRestrictions: { country: 'us' },
+                        types: ['address']
+                      }, (predictions, status) => {
+                        if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
+                          console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Got suggestions:', predictions);
+                          // Store the first suggestion
+                          setFirstSuggestion(predictions[0]);
+                        } else {
+                          console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: No suggestions found for:', inputRef.current.value);
+                        }
+                      });
+                    }
+                    
+                    // Give a moment for formData to update
+                    setTimeout(() => {
+                      // Process the address similarly to how Google Places dropdown handles it
+                      if (firstSuggestion && firstSuggestion.place_id) {
+                        // Use the first Google suggestion if available
+                        console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Using first suggestion after browser autofill:', firstSuggestion.description);
+                        
+                        // Get place details and process it
+                        getPlaceDetails(firstSuggestion.place_id)
+                          .then(placeDetails => {
+                            console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Got place details:', placeDetails);
+                            if (placeDetails && placeDetails.formatted_address) {
+                              // Log the exact object shape
+                              console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: placeDetails object keys:', Object.keys(placeDetails));
+                              console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: placeDetails.formatted_address =', placeDetails.formatted_address);
+                              
+                              // Process the selected address with full Google Places data
+                              const processed = processAddressSelection(placeDetails);
+                              console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: processAddressSelection result =', processed);
+                              
+                              // Proceed to next step
+                              console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Calling nextStep()');
+                              nextStep();
+                            } else {
+                              console.error('🔍 AUTOFILL ANIMATION DIAGNOSIS: Missing formatted_address in placeDetails');
+                              handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                            }
+                          })
+                          .catch(error => {
+                            console.error('🔍 AUTOFILL ANIMATION DIAGNOSIS: Error getting place details for autofill:', error);
+                            // Fallback to direct submission if API fails
+                            handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                          });
+                      } else {
+                        console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: No Google suggestion available, trying manual submission with current address:', 
+                          formData.street || (inputRef.current ? inputRef.current.value : 'not available'));
+                        
+                        // No Google suggestion available, use standard button click handler
+                        // This will try to validate the address and continue
+                        handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                      }
+                    }, 200);
+                  } else {
+                    console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: No value in input field, using standard submission');
+                    handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                  }
                 }, 300);
               }
             }
@@ -1203,18 +1271,84 @@ function AddressForm() {
           autoSubmitTimer = setTimeout(() => {
             console.log('Auto-submitting form after browser autofill detected');
             
-            // Create a custom event object
-            const customEvent = { 
-              preventDefault: () => {}, 
-              stopPropagation: () => {},
-              target: document.getElementById('address-submit-button')
-            };
-            
             // Update the autofill flag
             setAutofillDetected(true);
             
-            // Trigger form submission
-            handleButtonClick(customEvent);
+            console.log('🔍 AUTOFILL DIAGNOSIS: Input field contains:', inputRef.current ? inputRef.current.value : 'not available');
+            console.log('🔍 AUTOFILL DIAGNOSIS: formData.street =', formData.street);
+            console.log('🔍 AUTOFILL DIAGNOSIS: firstSuggestion =', firstSuggestion);
+            console.log('🔍 AUTOFILL DIAGNOSIS: autofilledFields =', Array.from(autofilledFields));
+            
+            // Need to ensure formData is updated with the current input value
+            if (inputRef.current && inputRef.current.value) {
+              console.log('🔍 AUTOFILL DIAGNOSIS: Updating formData with current input value');
+              updateFormData({ street: inputRef.current.value });
+              
+              // If we don't already have suggestions, try to get them now
+              if (!firstSuggestion && googleApiLoaded && autocompleteServiceRef.current && inputRef.current.value.length > 3) {
+                console.log('🔍 AUTOFILL DIAGNOSIS: Requesting suggestions for autofilled address');
+                // Request suggestions for this address
+                autocompleteServiceRef.current.getPlacePredictions({
+                  input: inputRef.current.value,
+                  sessionToken: sessionTokenRef.current,
+                  componentRestrictions: { country: 'us' },
+                  types: ['address']
+                }, (predictions, status) => {
+                  if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
+                    console.log('🔍 AUTOFILL DIAGNOSIS: Got suggestions:', predictions);
+                    // Store the first suggestion
+                    setFirstSuggestion(predictions[0]);
+                  } else {
+                    console.log('🔍 AUTOFILL DIAGNOSIS: No suggestions found for:', inputRef.current.value);
+                  }
+                });
+              }
+              
+              // Give a moment for formData to update
+              setTimeout(() => {
+                // Process the address similarly to how Google Places dropdown handles it
+                if (firstSuggestion && firstSuggestion.place_id) {
+                  // Use the first Google suggestion if available
+                  console.log('🔍 AUTOFILL DIAGNOSIS: Using first suggestion after browser rapid input detection:', firstSuggestion.description);
+                  
+                  // Get place details and process it
+                  getPlaceDetails(firstSuggestion.place_id)
+                    .then(placeDetails => {
+                      console.log('🔍 AUTOFILL DIAGNOSIS: Got place details:', placeDetails);
+                      if (placeDetails && placeDetails.formatted_address) {
+                        // Log the exact object shape
+                        console.log('🔍 AUTOFILL DIAGNOSIS: placeDetails object keys:', Object.keys(placeDetails));
+                        console.log('🔍 AUTOFILL DIAGNOSIS: placeDetails.formatted_address =', placeDetails.formatted_address);
+                        
+                        // Process the selected address with full Google Places data
+                        const processed = processAddressSelection(placeDetails);
+                        console.log('🔍 AUTOFILL DIAGNOSIS: processAddressSelection result =', processed);
+                        
+                        // Proceed to next step
+                        console.log('🔍 AUTOFILL DIAGNOSIS: Calling nextStep()');
+                        nextStep();
+                      } else {
+                        console.error('🔍 AUTOFILL DIAGNOSIS: Missing formatted_address in placeDetails');
+                        handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                      }
+                    })
+                    .catch(error => {
+                      console.error('🔍 AUTOFILL DIAGNOSIS: Error getting place details for autofill:', error);
+                      // Fallback to direct submission if API fails
+                      handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                    });
+                } else {
+                  console.log('🔍 AUTOFILL DIAGNOSIS: No Google suggestion available, trying manual submission with current address:', 
+                    formData.street || (inputRef.current ? inputRef.current.value : 'not available'));
+                  
+                  // No Google suggestion available, use standard button click handler
+                  handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                }
+              }, 200);
+            } else {
+              console.log('🔍 AUTOFILL DIAGNOSIS: No value in input field, using standard submission');
+              handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+            }
           }, 400);
         }
       }
@@ -1244,7 +1378,7 @@ function AddressForm() {
         clearTimeout(autoSubmitTimer);
       }
     };
-  }, [handleButtonClick]);
+  }, [handleButtonClick, firstSuggestion, nextStep, getPlaceDetails, processAddressSelection]);
   
   return (
     <div className="af1-hero-section hero-section">
