@@ -269,6 +269,8 @@ export async function submitLeadToFirebase(formData) {
       
       // Check notification settings for admin email notification
       const notificationSettingsDoc = await getDoc(doc(db, 'settings', 'notifications'));
+      
+      // Check if we should send email notification
       if (notificationSettingsDoc.exists() && 
           notificationSettingsDoc.data().emailNotificationsEnabled &&
           notificationSettingsDoc.data().notifyOnNewLead &&
@@ -289,6 +291,45 @@ export async function submitLeadToFirebase(formData) {
         }
       } else {
         console.log(`Admin email notification skipped for lead ${newLeadDoc.id} - not configured`);
+      }
+
+      // ALWAYS send Pushover notification for new leads (temporarily hard-coded)
+      try {
+        // Get admin Pushover user key from notification settings
+        const adminPushoverUserKey = notificationSettingsDoc.exists() ? 
+          notificationSettingsDoc.data().pushoverAdminUserKey : null;
+        
+        if (adminPushoverUserKey) {
+          console.log(`Sending hard-coded Pushover notification for new lead ${newLeadDoc.id}`);
+          
+          // Format address
+          const address = [
+            preparedData.street || 'No address',
+            preparedData.city || '',
+            preparedData.state || '',
+            preparedData.zip || ''
+          ].filter(Boolean).join(', ');
+          
+          // Send Pushover notification directly to API endpoint
+          const response = await fetch('/api/pushover/send-notification', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user: adminPushoverUserKey,
+              message: `New lead created: ${preparedData.name || 'Unnamed Lead'}\nAddress: ${address}${preparedData.phone ? `\nPhone: ${preparedData.phone}` : ''}`,
+              title: "New Lead Created",
+              priority: 1,
+              sound: "persistent"
+            })
+          });
+          
+          const result = await response.json();
+          console.log('Pushover notification result:', result);
+        } else {
+          console.error('Cannot send Pushover notification: No admin user key found in settings');
+        }
+      } catch (pushoverError) {
+        console.error('Error sending hard-coded Pushover notification:', pushoverError);
       }
     } catch (settingsError) {
       console.error('Error checking settings:', settingsError);
@@ -899,7 +940,7 @@ export function getCurrentUser() {
  * @param {string} role - User role (admin, sales_rep)
  * @returns {Promise<Object>} - Created user object
  */
-export async function createUser(email, password, name, phone = '', role = 'sales_rep') {
+export async function createUser(email, password, name, phone = '', role = 'sales_rep', pushoverUserKey = '') {
   try {
     // Create Firebase auth user
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -909,6 +950,7 @@ export async function createUser(email, password, name, phone = '', role = 'sale
       email,
       name,
       phone, // Add phone field for SMS notifications
+      pushoverUserKey, // Add Pushover user key for mobile notifications
       role,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -922,6 +964,7 @@ export async function createUser(email, password, name, phone = '', role = 'sale
       email,
       name,
       phone,
+      pushoverUserKey,
       role
     };
   } catch (error) {

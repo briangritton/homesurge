@@ -13,6 +13,7 @@ import {
 } from 'firebase/firestore';
 import { sendLeadAssignmentSMS } from './twilio';
 import { sendLeadAssignmentEmail, sendAdminLeadNotificationEmail } from './email';
+import { sendLeadAssignmentNotification } from './pushover';
 
 /**
  * Assign a lead to a specific sales rep
@@ -32,19 +33,36 @@ export async function assignLeadToSalesRep(leadId, salesRepId) {
       updatedAt: serverTimestamp()
     });
     
-    // Send notifications (SMS and Email)
+    // Send notifications (SMS, Email, and Pushover)
     try {
-      // Send SMS notification
-      await sendLeadAssignmentSMS(leadId, salesRepId);
-      
-      // Send email notification to sales rep
-      await sendLeadAssignmentEmail(leadId, salesRepId);
-      
-      // Get admin email for notification
       const settingsDoc = await getDoc(doc(db, 'settings', 'notifications'));
-      if (settingsDoc.exists() && settingsDoc.data().adminEmail) {
-        await sendAdminLeadNotificationEmail(leadId, settingsDoc.data().adminEmail);
+      const settings = settingsDoc.exists() ? settingsDoc.data() : {};
+      
+      // Array to hold notification promises
+      const notificationPromises = [];
+      
+      // Send WhatsApp notification (if enabled)
+      if (settings.smsNotificationsEnabled !== false) {
+        notificationPromises.push(sendLeadAssignmentSMS(leadId, salesRepId));
       }
+      
+      // Send email notification to sales rep (if enabled)
+      if (settings.emailNotificationsEnabled !== false) {
+        notificationPromises.push(sendLeadAssignmentEmail(leadId, salesRepId));
+      }
+      
+      // Send Pushover notification (if enabled)
+      if (settings.pushoverNotificationsEnabled !== false) {
+        notificationPromises.push(sendLeadAssignmentNotification(leadId, salesRepId));
+      }
+      
+      // Send admin email notification (if enabled and admin email exists)
+      if (settings.adminEmail && settings.notifyAdminOnAssignment !== false) {
+        notificationPromises.push(sendAdminLeadNotificationEmail(leadId, settings.adminEmail));
+      }
+      
+      // Wait for all notifications to complete (don't block on individual failures)
+      await Promise.allSettled(notificationPromises);
     } catch (notificationError) {
       console.error('Error sending notifications:', notificationError);
       // Don't fail the assignment if notifications fail
