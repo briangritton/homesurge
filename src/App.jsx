@@ -56,6 +56,8 @@ function FormContainer() {
     // Initialize analytics
     initializeAnalytics();
     
+    // Analytics already initialized above, no additional consent needed
+    
     // Initialize dynamic content from URL parameters
     initFromUrlParams();
     
@@ -74,7 +76,9 @@ function FormContainer() {
       });
     }, 500); // Longer delay to ensure state updates complete
     
-    return () => clearTimeout(timer); // Cleanup on unmount
+    return () => {
+      clearTimeout(timer); // Cleanup on unmount
+    };
     
     // No dependencies - only run once on mount
   }, []);

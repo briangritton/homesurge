@@ -16,24 +16,14 @@
     <link rel="preconnect" href="https://maps.googleapis.com" crossorigin />
     <link rel="preconnect" href="https://maps.gstatic.com" crossorigin />
 
-    <!-- Google Tag Manager - optimized to load after initial render -->
+    <!-- Google Tag Manager -->
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('consent', 'default', {
-        'analytics_storage': 'denied'
-      });
-      
-      // Postpone GTM loading until page has started rendering
-      window.addEventListener('load', function() {
-        setTimeout(function() {
-          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-          })(window,document,'script','dataLayer','GTM-NGC4HNKG');
-        }, 500); // Brief delay to prioritize page rendering
-      });
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-NGC4HNKG');
     </script>
     <!-- End Google Tag Manager -->
 

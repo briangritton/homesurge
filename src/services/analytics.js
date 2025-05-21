@@ -10,6 +10,8 @@ const GTM_ID = process.env.REACT_APP_GTM_ID || '';
 // Debug mode for development
 const isDebug = process.env.NODE_ENV === 'development';
 
+// No consent management needed
+
 // Initialize analytics services
 export function initializeAnalytics() {
   if (isDebug) console.log('Analytics - Initializing with:', { GA_TRACKING_ID, GTM_ID });
@@ -37,6 +39,8 @@ export function initializeAnalytics() {
 
   // Initialize Facebook Pixel
   FacebookPixel.initializeFacebookPixel();
+  
+  // No consent management needed
 
   // Track initial page view
   trackPageView(window.location.pathname + window.location.search);
@@ -54,6 +58,8 @@ export function initializeAnalytics() {
 // Track page views (GA4-compliant)
 export function trackPageView(path) {
   if (isDebug) console.log('Analytics - Page View:', path);
+  
+  // No consent management needed
 
   // Only track if GA is initialized
   if (GA_TRACKING_ID) {

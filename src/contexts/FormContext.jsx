@@ -559,7 +559,7 @@ export function FormProvider({ children }) {
       // Simplify campaign name for matching (remove spaces, convert to lowercase)
       const simplifiedCampaignName = cleanCampaignName.toLowerCase().replace(/[\s\-_\.]/g, '');
       
-      // Log each step of the process
+      // Log each step of the process 
       console.log('Original campaign name:', campaignName);
       console.log('Cleaned campaign name:', cleanCampaignName);
       console.log('Simplified campaign name for matching:', simplifiedCampaignName);
