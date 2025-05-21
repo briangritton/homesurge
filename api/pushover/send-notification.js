@@ -33,6 +33,14 @@ export default async function handler(req, res) {
     // Use server-side token from environment variable
     const pushoverToken = process.env.PUSHOVER_APP_TOKEN;
     
+    // Debugging info
+    console.log('Pushover notification request received:', {
+      hasUser: !!user,
+      hasMessage: !!message,
+      hasToken: !!pushoverToken,
+      messagePreview: message ? message.substring(0, 30) + '...' : 'N/A'
+    });
+    
     if (!pushoverToken) {
       console.error('PUSHOVER_APP_TOKEN environment variable not set');
       return res.status(500).json({ 

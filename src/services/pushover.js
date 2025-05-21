@@ -69,7 +69,7 @@ export async function sendLeadAssignmentNotification(leadId, salesRepId) {
     
     // Prepare the request payload for Pushover API
     const payload = {
-      token: process.env.REACT_APP_PUSHOVER_APP_TOKEN, // This will be replaced by actual token in API
+      // Do not include token here - it will be added by the API endpoint
       user: salesRep.pushoverUserKey,
       message: message,
       title: "New Lead Assigned",
@@ -79,7 +79,14 @@ export async function sendLeadAssignmentNotification(leadId, salesRepId) {
       sound: "persistent", // Distinctive sound
     };
     
-    // Send notification via API endpoint (we'll create this)
+    // Log the notification attempt for debugging
+    console.log('Attempting to send Pushover notification:', {
+      salesRepId,
+      salesRepName: salesRep.name,
+      userKey: salesRep.pushoverUserKey?.substring(0, 5) + '...' // Only show first few chars for security
+    });
+    
+    // Send notification via API endpoint 
     const response = await fetch('/api/pushover/send-notification', {
       method: 'POST',
       headers: {
