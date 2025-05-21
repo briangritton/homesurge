@@ -251,9 +251,9 @@ function AddressForm() {
                       }, (predictions, status) => {
                         if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
                           console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Got suggestions:', predictions);
-                          // Store the first suggestion
+                          // Store the first suggestion in state, but also pass it directly in the resolve
                           setFirstSuggestion(predictions[0]);
-                          resolve(true);
+                          resolve(predictions[0]); // Pass the suggestion directly to avoid relying on state updates
                         } else {
                           console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: No suggestions found for:', inputRef.current.value);
                           resolve(false);
@@ -262,18 +262,17 @@ function AddressForm() {
                     });
                     
                     // Wait for suggestions to be retrieved before proceeding
-                    getSuggestionsPromise.then(hasSuggestions => {
-                      console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Finished getting suggestions, proceeding with hasSuggestions =', hasSuggestions);
+                    getSuggestionsPromise.then(suggestionResult => {
+                      console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Finished getting suggestions, proceeding with result =', suggestionResult);
                       
-                      // Give a slight delay to ensure state is updated
-                      setTimeout(() => {
+                      // No need to wait for state update since we have the suggestion directly
                       // Process the address similarly to how Google Places dropdown handles it
-                      if (firstSuggestion && firstSuggestion.place_id) {
+                      if (suggestionResult && suggestionResult.place_id) {
                         // Use the first Google suggestion if available
-                        console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Using first suggestion after browser autofill:', firstSuggestion.description);
+                        console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Using first suggestion after browser autofill:', suggestionResult.description);
                         
                         // Get place details and process it
-                        getPlaceDetails(firstSuggestion.place_id)
+                        getPlaceDetails(suggestionResult.place_id)
                           .then(placeDetails => {
                             console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Got place details:', placeDetails);
                             if (placeDetails && placeDetails.formatted_address) {
@@ -1331,9 +1330,9 @@ function AddressForm() {
                 }, (predictions, status) => {
                   if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
                     console.log('🔍 AUTOFILL DIAGNOSIS: Got suggestions:', predictions);
-                    // Store the first suggestion
+                    // Store the first suggestion in state, but also pass it directly in the resolve
                     setFirstSuggestion(predictions[0]);
-                    resolve(true);
+                    resolve(predictions[0]); // Pass the suggestion directly to avoid relying on state updates
                   } else {
                     console.log('🔍 AUTOFILL DIAGNOSIS: No suggestions found for:', inputRef.current.value);
                     resolve(false);
@@ -1342,18 +1341,17 @@ function AddressForm() {
               });
               
               // Wait for suggestions to be retrieved before proceeding
-              getSuggestionsPromise.then(hasSuggestions => {
-                console.log('🔍 AUTOFILL DIAGNOSIS: Finished getting suggestions, proceeding with hasSuggestions =', hasSuggestions);
+              getSuggestionsPromise.then(suggestionResult => {
+                console.log('🔍 AUTOFILL DIAGNOSIS: Finished getting suggestions, proceeding with result =', suggestionResult);
                 
-                // Give a slight delay to ensure state is updated
-                setTimeout(() => {
+                // No need to wait for state update since we have the suggestion directly
                 // Process the address similarly to how Google Places dropdown handles it
-                if (firstSuggestion && firstSuggestion.place_id) {
+                if (suggestionResult && suggestionResult.place_id) {
                   // Use the first Google suggestion if available
-                  console.log('🔍 AUTOFILL DIAGNOSIS: Using first suggestion after browser rapid input detection:', firstSuggestion.description);
+                  console.log('🔍 AUTOFILL DIAGNOSIS: Using first suggestion after browser rapid input detection:', suggestionResult.description);
                   
                   // Get place details and process it
-                  getPlaceDetails(firstSuggestion.place_id)
+                  getPlaceDetails(suggestionResult.place_id)
                     .then(placeDetails => {
                       console.log('🔍 AUTOFILL DIAGNOSIS: Got place details:', placeDetails);
                       if (placeDetails && placeDetails.formatted_address) {
