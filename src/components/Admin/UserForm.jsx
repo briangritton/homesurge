@@ -93,6 +93,7 @@ const UserForm = ({ onComplete }) => {
     name: '',
     phone: '',
     role: 'sales_rep',
+    active: true, // Always set new users as active by default
   });
   
   const [error, setError] = useState(null);
