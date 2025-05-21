@@ -572,7 +572,7 @@ export function FormProvider({ children }) {
       console.log('Contains "cash":', hasCash);
       console.log('Contains "fast":', hasFast);
       console.log('Contains "value":', hasValue);
-      
+       
       // Simple, straightforward content selection by keyword in campaign name
       // Priority: cash > value > fast (as requested)
       if (hasCash) {
