@@ -13,6 +13,7 @@ import SalesRepsList from './SalesRepsList';
 import AutoAssignmentSettings from './AutoAssignmentSettings';
 import NotificationSettings from './NotificationSettings';
 import TestAssignment from './TestAssignment';
+import TestPushover from './TestPushover';
 
 // CSS for the admin dashboard
 const styles = {
@@ -451,6 +452,7 @@ const AdminDashboard = () => {
           <AutoAssignmentSettings />
           <NotificationSettings />
           <TestAssignment />
+          <TestPushover />
         </div>
       )}
       </div>
