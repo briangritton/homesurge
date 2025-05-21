@@ -437,35 +437,94 @@ function PersonalInfoForm() {
           // Directly call the Pushover API endpoint with FIXED hardcoded values
           console.log('🟢🟢🟢 DIRECT DEBUG: Preparing to fetch from /api/pushover/send-notification');
           
-          // Create request body with actual lead information
+          // Get the lead ID for linking to CRM
+          const leadId = existingLeadId || localStorage.getItem('leadId') || '';
+          
+          // Create the CRM deep link URL
+          const crmUrl = leadId ? `https://sellforcash.online/crm?leadId=${leadId}` : '';
+          
+          // Create request body with actual lead information and deep link
           const requestBody = {
             user: "um62xd21dr7pfugnwanooxi6mqxc3n", // Your Pushover user key
-            message: `New lead: ${cleanName}\nPhone: ${cleanPhone}\nAddress: ${formData.street || 'No address'}\nLead ID: ${existingLeadId || localStorage.getItem('leadId') || 'N/A'}`,
+            message: `New lead: ${cleanName}\nPhone: ${cleanPhone}\nAddress: ${formData.street || 'No address'}\nLead ID: ${leadId || 'N/A'}`,
             title: "New Lead Notification",
             priority: 1,
-            sound: "persistent"
+            sound: "persistent",
+            url: crmUrl,
+            url_title: "View in CRM"
           };
           
-          console.log('🟢🟢🟢 DIRECT DEBUG: Request body prepared:', requestBody);
+          // List of additional Pushover user keys to notify
+          const additionalRecipients = [
+            "uvp9m12h4jdcq1kjsh4djc2q1hhccp" // Add any additional user keys here
+          ];
           
-          const response = await fetch('/api/pushover/send-notification', {
-            method: 'POST',
-            headers: { 
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            },
-            body: JSON.stringify(requestBody)
+          // Send to each recipient
+          const sendPromises = [
+            // Send to primary user
+            fetch('/api/pushover/send-notification', {
+              method: 'POST',
+              headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              },
+              body: JSON.stringify(requestBody)
+            })
+          ];
+          
+          // Also send to additional recipients if configured
+          additionalRecipients.forEach(recipientKey => {
+            if (recipientKey && recipientKey.trim()) {
+              sendPromises.push(
+                fetch('/api/pushover/send-notification', {
+                  method: 'POST',
+                  headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    ...requestBody,
+                    user: recipientKey
+                  })
+                })
+              );
+            }
           });
           
-          console.log('🟢🟢🟢 DIRECT DEBUG: Pushover API fetch completed, response status:', response.status);
+          console.log('🟢🟢🟢 DIRECT DEBUG: Request body prepared:', requestBody);
+          console.log('🟢🟢🟢 DIRECT DEBUG: Sending to multiple recipients:', 1 + additionalRecipients.filter(k => k && k.trim()).length);
           
-          if (response.ok) {
-            const result = await response.json();
-            console.log('🟢🟢🟢 DIRECT DEBUG: Pushover notification success:', result);
-          } else {
-            const errorText = await response.text();
-            console.error('🟢🟢🟢 DIRECT DEBUG: Pushover notification failed:', errorText);
+          // Execute all send promises in parallel
+          const results = await Promise.allSettled(sendPromises);
+          
+          console.log('🟢🟢🟢 DIRECT DEBUG: All Pushover API calls completed, results:', 
+            results.map((r, i) => `Recipient ${i}: ${r.status === 'fulfilled' ? 'Success' : 'Failed'}`));
+          
+          // Process the results
+          let successCount = 0;
+          let failureCount = 0;
+          
+          for (const [index, result] of results.entries()) {
+            if (result.status === 'fulfilled') {
+              const response = result.value;
+              console.log(`🟢🟢🟢 DIRECT DEBUG: Recipient ${index} response status:`, response.status);
+              
+              if (response.ok) {
+                const responseData = await response.json();
+                console.log(`🟢🟢🟢 DIRECT DEBUG: Recipient ${index} success:`, responseData);
+                successCount++;
+              } else {
+                const errorText = await response.text();
+                console.error(`🟢🟢🟢 DIRECT DEBUG: Recipient ${index} failed:`, errorText);
+                failureCount++;
+              }
+            } else {
+              console.error(`🟢🟢🟢 DIRECT DEBUG: Recipient ${index} request rejected:`, result.reason);
+              failureCount++;
+            }
           }
+          
+          console.log(`🟢🟢🟢 DIRECT DEBUG: Pushover notification summary - Success: ${successCount}, Failed: ${failureCount}`);
         } catch (pushoverError) {
           console.error('🟢🟢🟢 DIRECT DEBUG: Error sending direct Pushover notification:', pushoverError);
         }
