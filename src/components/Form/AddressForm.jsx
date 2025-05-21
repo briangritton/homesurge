@@ -215,14 +215,33 @@ function AddressForm() {
                 
                 // Allow time for all browser autofill data to be populated
                 setTimeout(() => {
-                  // Create a custom event object with preventDefault method
-                  const customEvent = { 
-                    preventDefault: () => {}, 
-                    stopPropagation: () => {},
-                    target: document.getElementById('address-submit-button')
-                  };
-                  // Simulate a button click to submit the form
-                  handleButtonClick(customEvent);
+                  // Process the address similarly to how Google Places dropdown handles it
+                  // This makes sure we get proper address formatting and API calls
+                  if (firstSuggestion && firstSuggestion.place_id) {
+                    // Use the first Google suggestion if available
+                    console.log('Using first suggestion after browser autofill:', firstSuggestion.description);
+                    
+                    // Get place details and process it
+                    getPlaceDetails(firstSuggestion.place_id)
+                      .then(placeDetails => {
+                        if (placeDetails && placeDetails.formatted_address) {
+                          // Process the selected address with full Google Places data
+                          processAddressSelection(placeDetails);
+                          
+                          // Proceed to next step
+                          nextStep();
+                        }
+                      })
+                      .catch(error => {
+                        console.error('Error getting place details for autofill:', error);
+                        // Fallback to direct submission if API fails
+                        handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                      });
+                  } else {
+                    // No Google suggestion available, use standard button click handler
+                    // This will try to validate the address and continue
+                    handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                  }
                 }, 300);
               }
             }
@@ -1203,18 +1222,34 @@ function AddressForm() {
           autoSubmitTimer = setTimeout(() => {
             console.log('Auto-submitting form after browser autofill detected');
             
-            // Create a custom event object
-            const customEvent = { 
-              preventDefault: () => {}, 
-              stopPropagation: () => {},
-              target: document.getElementById('address-submit-button')
-            };
-            
             // Update the autofill flag
             setAutofillDetected(true);
             
-            // Trigger form submission
-            handleButtonClick(customEvent);
+            // Process the address similarly to how Google Places dropdown handles it
+            if (firstSuggestion && firstSuggestion.place_id) {
+              // Use the first Google suggestion if available
+              console.log('Using first suggestion after browser rapid input detection:', firstSuggestion.description);
+              
+              // Get place details and process it
+              getPlaceDetails(firstSuggestion.place_id)
+                .then(placeDetails => {
+                  if (placeDetails && placeDetails.formatted_address) {
+                    // Process the selected address with full Google Places data
+                    processAddressSelection(placeDetails);
+                    
+                    // Proceed to next step
+                    nextStep();
+                  }
+                })
+                .catch(error => {
+                  console.error('Error getting place details for autofill:', error);
+                  // Fallback to direct submission if API fails
+                  handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                });
+            } else {
+              // No Google suggestion available, use standard button click handler
+              handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+            }
           }, 400);
         }
       }
@@ -1244,7 +1279,7 @@ function AddressForm() {
         clearTimeout(autoSubmitTimer);
       }
     };
-  }, [handleButtonClick]);
+  }, [handleButtonClick, firstSuggestion, nextStep, getPlaceDetails, processAddressSelection]);
   
   return (
     <div className="af1-hero-section hero-section">
