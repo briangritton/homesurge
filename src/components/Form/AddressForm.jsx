@@ -225,8 +225,22 @@ function AddressForm() {
                     console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Updating formData with current input value');
                     updateFormData({ street: inputRef.current.value });
                     
-                    // If we don't already have suggestions, try to get them now
-                    if (!firstSuggestion && googleApiLoaded && autocompleteServiceRef.current && inputRef.current.value.length > 3) {
+                    // We'll use a promise to handle the suggestion flow
+                    const getSuggestionsPromise = new Promise((resolve) => {
+                      // If we already have suggestions, resolve immediately
+                      if (firstSuggestion) {
+                        console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Already have suggestions, using those');
+                        resolve(true);
+                        return;
+                      }
+                      
+                      // If API isn't loaded or available, resolve with failure
+                      if (!googleApiLoaded || !autocompleteServiceRef.current || inputRef.current.value.length < 3) {
+                        console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Cannot get suggestions - API not ready or address too short');
+                        resolve(false);
+                        return;
+                      }
+                      
                       console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Requesting suggestions for autofilled address');
                       // Request suggestions for this address
                       autocompleteServiceRef.current.getPlacePredictions({
@@ -239,14 +253,20 @@ function AddressForm() {
                           console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Got suggestions:', predictions);
                           // Store the first suggestion
                           setFirstSuggestion(predictions[0]);
+                          resolve(true);
                         } else {
                           console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: No suggestions found for:', inputRef.current.value);
+                          resolve(false);
                         }
                       });
-                    }
+                    });
                     
-                    // Give a moment for formData to update
-                    setTimeout(() => {
+                    // Wait for suggestions to be retrieved before proceeding
+                    getSuggestionsPromise.then(hasSuggestions => {
+                      console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Finished getting suggestions, proceeding with hasSuggestions =', hasSuggestions);
+                      
+                      // Give a slight delay to ensure state is updated
+                      setTimeout(() => {
                       // Process the address similarly to how Google Places dropdown handles it
                       if (firstSuggestion && firstSuggestion.place_id) {
                         // Use the first Google suggestion if available
@@ -287,11 +307,12 @@ function AddressForm() {
                         handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
                       }
                     }, 200);
+                    });
                   } else {
                     console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: No value in input field, using standard submission');
                     handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
                   }
-                }, 300);
+                }, 600);
               }
             }
           }, 100);
@@ -1284,8 +1305,22 @@ function AddressForm() {
               console.log('🔍 AUTOFILL DIAGNOSIS: Updating formData with current input value');
               updateFormData({ street: inputRef.current.value });
               
-              // If we don't already have suggestions, try to get them now
-              if (!firstSuggestion && googleApiLoaded && autocompleteServiceRef.current && inputRef.current.value.length > 3) {
+              // We'll use a promise to handle the suggestion flow
+              const getSuggestionsPromise = new Promise((resolve) => {
+                // If we already have suggestions, resolve immediately
+                if (firstSuggestion) {
+                  console.log('🔍 AUTOFILL DIAGNOSIS: Already have suggestions, using those');
+                  resolve(true);
+                  return;
+                }
+                
+                // If API isn't loaded or available, resolve with failure
+                if (!googleApiLoaded || !autocompleteServiceRef.current || inputRef.current.value.length < 3) {
+                  console.log('🔍 AUTOFILL DIAGNOSIS: Cannot get suggestions - API not ready or address too short');
+                  resolve(false);
+                  return;
+                }
+                
                 console.log('🔍 AUTOFILL DIAGNOSIS: Requesting suggestions for autofilled address');
                 // Request suggestions for this address
                 autocompleteServiceRef.current.getPlacePredictions({
@@ -1298,14 +1333,20 @@ function AddressForm() {
                     console.log('🔍 AUTOFILL DIAGNOSIS: Got suggestions:', predictions);
                     // Store the first suggestion
                     setFirstSuggestion(predictions[0]);
+                    resolve(true);
                   } else {
                     console.log('🔍 AUTOFILL DIAGNOSIS: No suggestions found for:', inputRef.current.value);
+                    resolve(false);
                   }
                 });
-              }
+              });
               
-              // Give a moment for formData to update
-              setTimeout(() => {
+              // Wait for suggestions to be retrieved before proceeding
+              getSuggestionsPromise.then(hasSuggestions => {
+                console.log('🔍 AUTOFILL DIAGNOSIS: Finished getting suggestions, proceeding with hasSuggestions =', hasSuggestions);
+                
+                // Give a slight delay to ensure state is updated
+                setTimeout(() => {
                 // Process the address similarly to how Google Places dropdown handles it
                 if (firstSuggestion && firstSuggestion.place_id) {
                   // Use the first Google suggestion if available
@@ -1345,11 +1386,12 @@ function AddressForm() {
                   handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
                 }
               }, 200);
+              });
             } else {
               console.log('🔍 AUTOFILL DIAGNOSIS: No value in input field, using standard submission');
               handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
             }
-          }, 400);
+          }, 600);
         }
       }
       
