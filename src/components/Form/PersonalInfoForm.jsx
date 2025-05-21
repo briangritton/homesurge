@@ -464,7 +464,8 @@ function PersonalInfoForm() {
                 
                 // List of additional Pushover user keys to notify
                 const additionalRecipients = [
-                  "uh5nkfdqcz161r35e6uy55j295to5y" // Additional user keys here
+                  "uh5nkfdqcz161r35e6uy55j295to5y", // Spencer user keys here
+                  "ufrb12nxavarvmx4vuct15ibz2augo"
                   // "uh5nkfdqcz161r35e6uy55j295teee"// DUMMY USER KEYS
                 ];
                 
