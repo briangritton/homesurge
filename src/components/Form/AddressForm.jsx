@@ -225,89 +225,79 @@ function AddressForm() {
                     console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Updating formData with current input value');
                     updateFormData({ street: inputRef.current.value });
                     
-                    // We'll use a promise to handle the suggestion flow
-                    const getSuggestionsPromise = new Promise((resolve) => {
-                      // If we already have suggestions, resolve immediately
-                      if (firstSuggestion) {
-                        console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Already have suggestions, using those');
-                        resolve(true);
-                        return;
-                      }
-                      
-                      // If API isn't loaded or available, resolve with failure
-                      if (!googleApiLoaded || !autocompleteServiceRef.current || inputRef.current.value.length < 3) {
-                        console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Cannot get suggestions - API not ready or address too short');
-                        resolve(false);
-                        return;
-                      }
-                      
+                    // Request suggestions for the address and process it
+                    if (inputRef.current && inputRef.current.value.length > 3 && googleApiLoaded && autocompleteServiceRef.current) {
                       console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Requesting suggestions for autofilled address');
-                      // Request suggestions for this address
-                      autocompleteServiceRef.current.getPlacePredictions({
-                        input: inputRef.current.value,
-                        sessionToken: sessionTokenRef.current,
-                        componentRestrictions: { country: 'us' },
-                        types: ['address']
-                      }, (predictions, status) => {
-                        if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
-                          console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Got suggestions:', predictions);
-                          // Store the first suggestion
-                          setFirstSuggestion(predictions[0]);
-                          resolve(true);
+                      
+                      // Request suggestions in a separate function to avoid nesting issues
+                      const getAndProcessSuggestions = () => {
+                        return new Promise((resolve) => {
+                          // Add timeout to prevent waiting indefinitely
+                          const timeoutId = setTimeout(() => {
+                            console.log('⚠️ Address suggestions request timed out after 2 seconds');
+                            // Proceed with manual submission
+                            resolve(false);
+                          }, 2000); // 2 second timeout
+                          
+                          autocompleteServiceRef.current.getPlacePredictions({
+                            input: inputRef.current.value,
+                            sessionToken: sessionTokenRef.current,
+                            componentRestrictions: { country: 'us' },
+                            types: ['address']
+                          }, (predictions, status) => {
+                            clearTimeout(timeoutId); // Clear timeout since we got a response
+                            
+                            if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
+                              console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Got suggestions:', predictions);
+                              // Store the first suggestion
+                              setFirstSuggestion(predictions[0]);
+                              resolve(predictions[0]);
+                            } else {
+                              console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: No suggestions found for:', inputRef.current.value);
+                              resolve(false);
+                            }
+                          });
+                        });
+                      };
+                      
+                      // Get suggestions and process them
+                      getAndProcessSuggestions().then(suggestion => {
+                        console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Processed suggestions:', suggestion);
+                        
+                        if (suggestion && suggestion.place_id) {
+                          // Use the suggestion if available
+                          console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Using suggestion:', suggestion.description);
+                          
+                          // Get place details
+                          getPlaceDetails(suggestion.place_id)
+                            .then(placeDetails => {
+                              if (placeDetails && placeDetails.formatted_address) {
+                                console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Got place details:', placeDetails.formatted_address);
+                                
+                                // Process the address selection
+                                processAddressSelection(placeDetails);
+                                
+                                // Move to next step
+                                nextStep();
+                              } else {
+                                console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: No valid place details, using button click');
+                                handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                              }
+                            })
+                            .catch(error => {
+                              console.error('🔍 AUTOFILL ANIMATION DIAGNOSIS: Error getting place details:', error);
+                              handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                            });
                         } else {
-                          console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: No suggestions found for:', inputRef.current.value);
-                          resolve(false);
+                          console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: No suggestion available, using button click');
+                          handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
                         }
                       });
-                    });
-                    
-                    // Wait for suggestions to be retrieved before proceeding
-                    getSuggestionsPromise.then(hasSuggestions => {
-                      console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Finished getting suggestions, proceeding with hasSuggestions =', hasSuggestions);
-                      
-                      // Give a slight delay to ensure state is updated
-                      setTimeout(() => {
-                      // Process the address similarly to how Google Places dropdown handles it
-                      if (firstSuggestion && firstSuggestion.place_id) {
-                        // Use the first Google suggestion if available
-                        console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Using first suggestion after browser autofill:', firstSuggestion.description);
-                        
-                        // Get place details and process it
-                        getPlaceDetails(firstSuggestion.place_id)
-                          .then(placeDetails => {
-                            console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Got place details:', placeDetails);
-                            if (placeDetails && placeDetails.formatted_address) {
-                              // Log the exact object shape
-                              console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: placeDetails object keys:', Object.keys(placeDetails));
-                              console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: placeDetails.formatted_address =', placeDetails.formatted_address);
-                              
-                              // Process the selected address with full Google Places data
-                              const processed = processAddressSelection(placeDetails);
-                              console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: processAddressSelection result =', processed);
-                              
-                              // Proceed to next step
-                              console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Calling nextStep()');
-                              nextStep();
-                            } else {
-                              console.error('🔍 AUTOFILL ANIMATION DIAGNOSIS: Missing formatted_address in placeDetails');
-                              handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
-                            }
-                          })
-                          .catch(error => {
-                            console.error('🔍 AUTOFILL ANIMATION DIAGNOSIS: Error getting place details for autofill:', error);
-                            // Fallback to direct submission if API fails
-                            handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
-                          });
-                      } else {
-                        console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: No Google suggestion available, trying manual submission with current address:', 
-                          formData.street || (inputRef.current ? inputRef.current.value : 'not available'));
-                        
-                        // No Google suggestion available, use standard button click handler
-                        // This will try to validate the address and continue
-                        handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
-                      }
-                    }, 200);
-                    });
+                    } else {
+                      // If we can't get suggestions, fall back to button click
+                      console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Cannot get suggestions, using button click');
+                      handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                    }
                   } else {
                     console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: No value in input field, using standard submission');
                     handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
@@ -379,15 +369,24 @@ function AddressForm() {
         document.createElement('div')
       );
       
+      // Add timeout to prevent waiting indefinitely
+      const timeoutId = setTimeout(() => {
+        console.log('⚠️ Place details request timed out after 3 seconds');
+        resolve(null); // Resolve with null to allow fallback instead of rejecting
+      }, 3000); // 3 second timeout
+      
       placesService.getDetails({
         placeId: placeId,
         fields: ['address_components', 'formatted_address', 'geometry', 'name'],
         sessionToken: sessionTokenRef.current
       }, (place, status) => {
+        clearTimeout(timeoutId); // Clear the timeout since we got a response
+        
         if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
           resolve(place);
         } else {
-          reject(new Error(`Place details request failed: ${status}`));
+          console.log(`⚠️ Place details request failed: ${status}`);
+          resolve(null); // Resolve with null to allow fallback instead of rejecting
         }
       });
     });
@@ -1306,76 +1305,79 @@ function AddressForm() {
               updateFormData({ street: inputRef.current.value });
               
               // We'll use a promise to handle the suggestion flow
-              const getSuggestionsPromise = new Promise((resolve) => {
-                // If we already have suggestions, resolve immediately
-                if (firstSuggestion) {
-                  console.log('🔍 AUTOFILL DIAGNOSIS: Already have suggestions, using those');
-                  resolve(true);
-                  return;
-                }
-                
-                // If API isn't loaded or available, resolve with failure
-                if (!googleApiLoaded || !autocompleteServiceRef.current || inputRef.current.value.length < 3) {
-                  console.log('🔍 AUTOFILL DIAGNOSIS: Cannot get suggestions - API not ready or address too short');
-                  resolve(false);
-                  return;
-                }
-                
-                console.log('🔍 AUTOFILL DIAGNOSIS: Requesting suggestions for autofilled address');
-                // Request suggestions for this address
-                autocompleteServiceRef.current.getPlacePredictions({
-                  input: inputRef.current.value,
-                  sessionToken: sessionTokenRef.current,
-                  componentRestrictions: { country: 'us' },
-                  types: ['address']
-                }, (predictions, status) => {
-                  if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
-                    console.log('🔍 AUTOFILL DIAGNOSIS: Got suggestions:', predictions);
-                    // Store the first suggestion
-                    setFirstSuggestion(predictions[0]);
-                    resolve(true);
-                  } else {
-                    console.log('🔍 AUTOFILL DIAGNOSIS: No suggestions found for:', inputRef.current.value);
-                    resolve(false);
+              // Request suggestions in a separate function to avoid nesting issues
+              const getAndProcessSuggestions = () => {
+                return new Promise((resolve) => {
+                  // If we already have suggestions, resolve immediately
+                  if (firstSuggestion) {
+                    console.log('🔍 AUTOFILL DIAGNOSIS: Already have suggestions, using those');
+                    resolve(firstSuggestion);
+                    return;
                   }
-                });
-              });
-              
-              // Wait for suggestions to be retrieved before proceeding
-              getSuggestionsPromise.then(hasSuggestions => {
-                console.log('🔍 AUTOFILL DIAGNOSIS: Finished getting suggestions, proceeding with hasSuggestions =', hasSuggestions);
-                
-                // Give a slight delay to ensure state is updated
-                setTimeout(() => {
-                // Process the address similarly to how Google Places dropdown handles it
-                if (firstSuggestion && firstSuggestion.place_id) {
-                  // Use the first Google suggestion if available
-                  console.log('🔍 AUTOFILL DIAGNOSIS: Using first suggestion after browser rapid input detection:', firstSuggestion.description);
                   
-                  // Get place details and process it
-                  getPlaceDetails(firstSuggestion.place_id)
+                  // If API isn't loaded or available, resolve with failure
+                  if (!googleApiLoaded || !autocompleteServiceRef.current || inputRef.current.value.length < 3) {
+                    console.log('🔍 AUTOFILL DIAGNOSIS: Cannot get suggestions - API not ready or address too short');
+                    resolve(false);
+                    return;
+                  }
+                  
+                  // Add timeout to prevent waiting indefinitely
+                  const timeoutId = setTimeout(() => {
+                    console.log('⚠️ Address suggestions request timed out after 2 seconds');
+                    // Proceed with manual submission
+                    resolve(false);
+                  }, 2000); // 2 second timeout
+                  
+                  console.log('🔍 AUTOFILL DIAGNOSIS: Requesting suggestions for autofilled address');
+                  // Request suggestions for this address
+                  autocompleteServiceRef.current.getPlacePredictions({
+                    input: inputRef.current.value,
+                    sessionToken: sessionTokenRef.current,
+                    componentRestrictions: { country: 'us' },
+                    types: ['address']
+                  }, (predictions, status) => {
+                    clearTimeout(timeoutId); // Clear timeout since we got a response
+                    
+                    if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
+                      console.log('🔍 AUTOFILL DIAGNOSIS: Got suggestions:', predictions);
+                      // Store the first suggestion in state, but also pass it directly in the resolve
+                      setFirstSuggestion(predictions[0]);
+                      resolve(predictions[0]); // Pass the suggestion directly to avoid relying on state updates
+                    } else {
+                      console.log('🔍 AUTOFILL DIAGNOSIS: No suggestions found for:', inputRef.current.value);
+                      resolve(false);
+                    }
+                  });
+                });
+              };
+              
+              // Get suggestions and process them
+              getAndProcessSuggestions().then(suggestion => {
+                console.log('🔍 AUTOFILL DIAGNOSIS: Processed suggestions:', suggestion);
+                
+                if (suggestion && suggestion.place_id) {
+                  // Use the suggestion if available
+                  console.log('🔍 AUTOFILL DIAGNOSIS: Using suggestion:', suggestion.description);
+                  
+                  // Get place details
+                  getPlaceDetails(suggestion.place_id)
                     .then(placeDetails => {
-                      console.log('🔍 AUTOFILL DIAGNOSIS: Got place details:', placeDetails);
                       if (placeDetails && placeDetails.formatted_address) {
-                        // Log the exact object shape
-                        console.log('🔍 AUTOFILL DIAGNOSIS: placeDetails object keys:', Object.keys(placeDetails));
-                        console.log('🔍 AUTOFILL DIAGNOSIS: placeDetails.formatted_address =', placeDetails.formatted_address);
+                        console.log('🔍 AUTOFILL DIAGNOSIS: Got place details:', placeDetails.formatted_address);
                         
-                        // Process the selected address with full Google Places data
-                        const processed = processAddressSelection(placeDetails);
-                        console.log('🔍 AUTOFILL DIAGNOSIS: processAddressSelection result =', processed);
+                        // Process the address selection
+                        processAddressSelection(placeDetails);
                         
-                        // Proceed to next step
-                        console.log('🔍 AUTOFILL DIAGNOSIS: Calling nextStep()');
+                        // Move to next step
                         nextStep();
                       } else {
-                        console.error('🔍 AUTOFILL DIAGNOSIS: Missing formatted_address in placeDetails');
+                        console.log('🔍 AUTOFILL DIAGNOSIS: No valid place details, using button click');
                         handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
                       }
                     })
                     .catch(error => {
-                      console.error('🔍 AUTOFILL DIAGNOSIS: Error getting place details for autofill:', error);
-                      // Fallback to direct submission if API fails
+                      console.error('🔍 AUTOFILL DIAGNOSIS: Error getting place details:', error);
                       handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
                     });
                 } else {
@@ -1385,7 +1387,6 @@ function AddressForm() {
                   // No Google suggestion available, use standard button click handler
                   handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
                 }
-              }, 200);
               });
             } else {
               console.log('🔍 AUTOFILL DIAGNOSIS: No value in input field, using standard submission');
