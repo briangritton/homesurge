@@ -564,7 +564,7 @@ export function FormProvider({ children }) {
       console.log('Cleaned campaign name:', cleanCampaignName);
       console.log('Simplified campaign name for matching:', simplifiedCampaignName);
       
-      // Simple keyword checks on the simplified name
+      // Simple keyword checks on the simplified name 
       const hasCash = simplifiedCampaignName.includes('cash');
       const hasFast = simplifiedCampaignName.includes('fast');
       const hasValue = simplifiedCampaignName.includes('value');
