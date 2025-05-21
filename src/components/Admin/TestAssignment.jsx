@@ -10,6 +10,7 @@ import {
   doc,
   getDoc
 } from 'firebase/firestore';
+import { assignLeadToSalesRep } from '../../services/assignment';
 
 const styles = {
   container: {
@@ -135,7 +136,64 @@ const TestAssignment = () => {
       console.log('Waiting for lead auto-assignment to process...');
       await new Promise(resolve => setTimeout(resolve, 5000)); // Increased to 5 seconds
       
-      // Check if the lead was assigned
+      // DIRECTLY assign the lead using the known working assignment method
+      console.log(`DIRECTLY assigning lead ${leadRef.id} using assignLeadToSalesRep function...`);
+      
+      // Get sales reps with assignment rules
+      const salesRepsQuery = query(
+        collection(db, 'users'),
+        where('role', '==', 'sales_rep')
+      );
+      const salesRepsSnapshot = await getDocs(salesRepsQuery);
+      const salesReps = salesRepsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
+      console.log('Available sales reps:', salesReps.map(rep => ({
+        id: rep.id,
+        name: rep.name,
+        autoAssignRule: rep.autoAssignRule || 'none'
+      })));
+      
+      // Find a sales rep with matching rule based on phone status
+      const hasPhoneNumber = includePhone && testPhone.trim().length > 0;
+      let targetRepId = null;
+      
+      // First look for a rep that wants all leads
+      const allLeadsRep = salesReps.find(rep => 
+        (rep.autoAssignRule || '').toLowerCase() === 'all leads' || 
+        (rep.autoAssignRule || '').toLowerCase() === 'all'
+      );
+      
+      if (allLeadsRep) {
+        console.log(`Found rep for ALL leads: ${allLeadsRep.name} (${allLeadsRep.id})`);
+        targetRepId = allLeadsRep.id;
+      }
+      // If no all-leads rep and lead has phone, look for has-phone rep
+      else if (hasPhoneNumber) {
+        const hasPhoneRep = salesReps.find(rep => 
+          (rep.autoAssignRule || '').toLowerCase() === 'has phone' || 
+          (rep.autoAssignRule || '').toLowerCase() === 'hasphone'
+        );
+        
+        if (hasPhoneRep) {
+          console.log(`Found rep for HAS PHONE: ${hasPhoneRep.name} (${hasPhoneRep.id})`);
+          targetRepId = hasPhoneRep.id;
+        }
+      }
+      
+      // If we found a matching rep, assign the lead
+      let directAssignmentResult = false;
+      if (targetRepId) {
+        console.log(`Directly assigning lead to rep ${targetRepId}`);
+        directAssignmentResult = await assignLeadToSalesRep(leadRef.id, targetRepId);
+        console.log(`Direct assignment result: ${directAssignmentResult ? 'SUCCESS' : 'FAILED'}`);
+      } else {
+        console.log(`No matching rep found for rule-based assignment`);
+      }
+      
+      // Check the lead status after our direct assignment attempt
       console.log(`Checking assignment status for lead ${leadRef.id}...`);
       const updatedLeadDoc = await getDoc(doc(db, 'leads', leadRef.id));
       
@@ -150,7 +208,9 @@ const TestAssignment = () => {
         assignmentRule: updatedLead.assignmentRule || 'No rule applied',
         status: updatedLead.status,
         hasPhone: Boolean(updatedLead.phone),
-        phone: updatedLead.phone || 'No phone'
+        phone: updatedLead.phone || 'No phone',
+        directAssignmentAttempted: Boolean(targetRepId),
+        directAssignmentResult
       });
       
       // Fetch all sales reps with assignment rules to debug

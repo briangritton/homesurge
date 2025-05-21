@@ -320,53 +320,24 @@ export async function submitLeadToFirebase(formData) {
         `Assigning to ${assignToRep.name} (${assignToRep.id}) based on rule: ${assignToRep.autoAssignRule}` : 
         'No matching rep found for auto-assignment');
       
-      // If we found a rep to assign to, update the lead
+      // If we found a rep to assign to, use the proven assignLeadToSalesRep function
       if (assignToRep) {
         console.log(`Auto-assigning lead ${newLeadDoc.id} to ${assignToRep.name} based on rule: ${assignToRep.autoAssignRule}`);
         
-        // Prepare the update data for assignment
-        const assignmentData = {
-          assignedTo: assignToRep.id,
-          assignedToName: assignToRep.name || 'Sales Rep',
-          assignmentRule: assignToRep.autoAssignRule || 'auto-assignment',
-          status: 'Assigned',
-          assignedAt: serverTimestamp()
-        };
-        
-        console.log('Updating lead with assignment data:', assignmentData);
-        
         try {
-          // Update the lead with the assignment
-          await updateDoc(doc(db, 'leads', newLeadDoc.id), assignmentData);
-          console.log(`Successfully assigned lead ${newLeadDoc.id} to ${assignToRep.name}`);
+          // CRITICAL FIX: Import and use the assignment.js module's proven function
+          const assignmentModule = await import('./assignment');
+          
+          // This is the critical fix - using the function that works for manual assignment
+          const success = await assignmentModule.assignLeadToSalesRep(newLeadDoc.id, assignToRep.id);
+          
+          if (success) {
+            console.log(`Successfully assigned lead ${newLeadDoc.id} to ${assignToRep.name} using assignLeadToSalesRep`);
+          } else {
+            console.error(`Failed to assign lead ${newLeadDoc.id} to ${assignToRep.name}`);
+          }
         } catch (err) {
-          console.error('Error updating lead with assignment:', err);
-        }
-        
-        // Send notifications (SMS and Email) - synchronously to ensure they complete
-        try {
-          console.log(`Sending assignment notifications for lead ${newLeadDoc.id} to rep ${assignToRep.id}`);
-          
-          // Load modules synchronously
-          const twilioModule = await import('./twilio');
-          const emailModule = await import('./email');
-          
-          // Send notifications sequentially with proper error handling
-          try {
-            await twilioModule.sendLeadAssignmentSMS(newLeadDoc.id, assignToRep.id);
-            console.log(`SMS notification sent to rep ${assignToRep.id} for lead ${newLeadDoc.id}`);
-          } catch (smsError) {
-            console.error('Error sending SMS notification:', smsError);
-          }
-          
-          try {
-            await emailModule.sendLeadAssignmentEmail(newLeadDoc.id, assignToRep.id);
-            console.log(`Email notification sent to rep ${assignToRep.id} for lead ${newLeadDoc.id}`);
-          } catch (emailError) {
-            console.error('Error sending email notification:', emailError);
-          }
-        } catch (notificationError) {
-          console.error('Error setting up notifications:', notificationError);
+          console.error('Error using assignLeadToSalesRep function:', err);
         }
       }
       // Fall back to regular auto-assignment if no custom rules matched
@@ -378,16 +349,33 @@ export async function submitLeadToFirebase(formData) {
           
           try {
             // Load the assignment module
-            const assignmentService = await import('./assignment');
+            const assignmentModule = await import('./assignment');
             
-            // Wait for auto-assignment to complete
-            console.log(`Calling autoAssignLead for lead ${newLeadDoc.id}`);
-            const result = await assignmentService.autoAssignLead(newLeadDoc.id);
+            // Use getSalesRepsWithLoadCount directly to find the best rep
+            const salesRepsWithLoad = await assignmentModule.getSalesRepsWithLoadCount();
             
-            if (result) {
-              console.log(`Lead ${newLeadDoc.id} was auto-assigned to ${result.name}`);
+            if (salesRepsWithLoad && salesRepsWithLoad.length > 0) {
+              // Filter out inactive reps
+              const activeReps = salesRepsWithLoad.filter(rep => rep.active !== false);
+              
+              if (activeReps.length > 0) {
+                // Take the rep with the lowest load
+                const targetRep = activeReps[0];
+                console.log(`Selected rep with lowest load: ${targetRep.name} (${targetRep.id}) with ${targetRep.loadCount} leads`);
+                
+                // Use the proven assignLeadToSalesRep function
+                const success = await assignmentModule.assignLeadToSalesRep(newLeadDoc.id, targetRep.id);
+                
+                if (success) {
+                  console.log(`Successfully assigned lead ${newLeadDoc.id} to ${targetRep.name} using lowest-load method`);
+                } else {
+                  console.error(`Failed to assign lead ${newLeadDoc.id} to ${targetRep.name}`);
+                }
+              } else {
+                console.log(`No active sales reps found for auto-assignment of lead ${newLeadDoc.id}`);
+              }
             } else {
-              console.log(`Lead ${newLeadDoc.id} could not be auto-assigned`);
+              console.log(`No sales reps found for auto-assignment of lead ${newLeadDoc.id}`);
             }
           } catch (autoAssignError) {
             console.error('Error during auto-assignment:', autoAssignError);
