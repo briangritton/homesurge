@@ -409,7 +409,35 @@ function PersonalInfoForm() {
       if (submitSuccess || contactUpdateSuccess) {
         console.log('Lead captured successfully - preparing to advance to next step');
         
-        // Send email notification using EmailJS
+        // PUSHOVER TEST - Direct call to Pushover API from frontend
+        try {
+          console.log('🟢🟢🟢 DIRECT DEBUG: Attempting direct Pushover API call from frontend');
+          
+          // Directly call the Pushover API endpoint with a test key
+          const response = await fetch('/api/pushover/send-notification', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user: localStorage.getItem('pushoverUserKey') || '', // Get from localStorage or empty
+              message: `FRONTEND TEST - New lead created: ${cleanName}\nPhone: ${cleanPhone}\nAddress: ${formData.street || 'No address'}`,
+              title: "Frontend Direct Test",
+              priority: 1,
+              sound: "persistent"
+            })
+          });
+          
+          console.log('🟢🟢🟢 DIRECT DEBUG: Pushover API response status:', response.status);
+          
+          if (response.ok) {
+            const result = await response.json();
+            console.log('🟢🟢🟢 DIRECT DEBUG: Pushover notification response:', result);
+          } else {
+            console.error('🟢🟢🟢 DIRECT DEBUG: Pushover notification failed:', await response.text());
+          }
+        } catch (pushoverError) {
+          console.error('🟢🟢🟢 DIRECT DEBUG: Error sending direct Pushover notification:', pushoverError);
+        }
+        
         // Send email notification using EmailJS
         sendLeadNotificationEmail(
           {
