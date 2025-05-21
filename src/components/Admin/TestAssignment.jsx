@@ -123,13 +123,17 @@ const TestAssignment = () => {
       // Only include phone if the checkbox is checked
       if (includePhone && testPhone.trim()) {
         leadData.phone = testPhone.trim();
+        console.log(`Test lead created with phone: ${testPhone.trim()}`);
+      } else {
+        console.log('Test lead created without phone number');
       }
       
       // Add the test lead
       const leadRef = await addDoc(collection(db, 'leads'), leadData);
       
       // Wait a moment for assignments to process
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log('Waiting for lead auto-assignment to process...');
+      await new Promise(resolve => setTimeout(resolve, 3000));
       
       // Check if the lead was assigned
       const updatedLeadDoc = await getDoc(doc(db, 'leads', leadRef.id));

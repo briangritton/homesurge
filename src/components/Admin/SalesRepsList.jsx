@@ -170,21 +170,35 @@ const SalesRepsList = () => {
       const db = getFirestore();
       const userRef = doc(db, 'users', repId);
       
-      // Update the user document with the new rule
-      await updateDoc(userRef, {
+      // Build update object
+      const updateData = {
         autoAssignRule: newRule,
         updatedAt: serverTimestamp()
-      });
+      };
+      
+      console.log(`Updating sales rep ${repId} with rule:`, updateData);
+      
+      // Update the user document with the new rule
+      await updateDoc(userRef, updateData);
+      console.log(`Firestore update complete for rep ${repId}`);
       
       // Update the local state
-      setSalesReps(prevReps => 
-        prevReps.map(rep => 
+      setSalesReps(prevReps => {
+        const newReps = prevReps.map(rep => 
           rep.id === repId ? { ...rep, autoAssignRule: newRule } : rep
-        )
-      );
+        );
+        console.log('Updated local state:', newReps.find(r => r.id === repId));
+        return newReps;
+      });
+      
+      // Verify the document was updated by reading it again
+      const updatedDoc = await getDoc(userRef);
+      if (updatedDoc.exists()) {
+        console.log(`Verified update for ${repId}:`, updatedDoc.data());
+      }
       
       // Show a temporary success message
-      setError(`Assignment rule updated for sales rep`);
+      setError(`Assignment rule updated for sales rep to "${newRule}"`);
       setTimeout(() => setError(null), 3000);
       
       setLoading(false);
@@ -336,11 +350,14 @@ const SalesRepsList = () => {
                           background: '#f5f5f5'
                         }}
                         value={rep.autoAssignRule || 'none'}
-                        onChange={(e) => handleRuleChange(rep.id, e.target.value)}
+                        onChange={(e) => {
+                          console.log(`Changing rule for ${rep.name} from ${rep.autoAssignRule || 'none'} to ${e.target.value}`);
+                          handleRuleChange(rep.id, e.target.value);
+                        }}
                       >
                         <option value="none">No Auto-Assign</option>
                         <option value="all">All Leads</option>
-                        <option value="hasPhone">Has Phone Only</option>
+                        <option value="hasPhone">Has Phone</option>
                       </select>
                     </td>
                     <td style={styles.tableCell}>
