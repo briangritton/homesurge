@@ -464,7 +464,8 @@ function PersonalInfoForm() {
                 
                 // List of additional Pushover user keys to notify
                 const additionalRecipients = [
-                  "uvp9m12h4jdcq1kjsh4djc2q1hhccp" // Add any additional user keys here
+                  "uh5nkfdqcz161r35e6uy55j295to5y" // Additional user keys here
+                  // "uh5nkfdqcz161r35e6uy55j295teee"// DUMMY USER KEYS
                 ];
                 
                 // Send to each recipient
@@ -514,12 +515,25 @@ function PersonalInfoForm() {
               // EMAIL NOTIFICATION (also non-blocking)
               try {
                 console.log('📧📧📧 EMAIL DEBUG: Sending EmailJS notification in background');
-                await sendLeadNotificationEmail(
+                
+                // Define additional templates for secondary recipients
+                const additionalTemplates = [
+                  {
+                    serviceId: 'service_zeuf0n8', // Same or different service ID
+                    templateId: 'template_85tw59u' // Secondary template ID
+                  }
+                  // Add more templates here as needed
+                ];
+                
+                // Send to primary and all additional recipients
+                const emailResult = await sendLeadNotificationEmail(
                   leadData, 
-                  'service_zeuf0n8', // Service ID
-                  'template_kuv08p4'  // Template ID
+                  'service_zeuf0n8', // Primary Service ID
+                  'template_kuv08p4', // Primary Template ID
+                  additionalTemplates // Additional templates
                 );
-                console.log('📧📧📧 EMAIL DEBUG: EmailJS notification sent successfully');
+                
+                console.log('📧📧📧 EMAIL DEBUG: EmailJS notification summary:', emailResult.summary);
               } catch (error) {
                 console.warn('📧📧📧 EMAIL DEBUG: Failed to send email notification:', error);
               }
