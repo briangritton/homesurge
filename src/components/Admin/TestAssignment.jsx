@@ -213,14 +213,14 @@ const TestAssignment = () => {
         directAssignmentResult
       });
       
-      // Fetch all sales reps with assignment rules to debug
-      console.log('Fetching all sales reps to check assignment rules...');
-      const salesRepsQuery = query(
+      // Fetch all sales reps again to get the latest state
+      console.log('Fetching all sales reps again to check final state...');
+      const finalSalesRepsQuery = query(
         collection(db, 'users'),
         where('role', '==', 'sales_rep')
       );
-      const salesRepsSnapshot = await getDocs(salesRepsQuery);
-      const salesReps = salesRepsSnapshot.docs.map(doc => {
+      const finalSalesRepsSnapshot = await getDocs(finalSalesRepsQuery);
+      const finalSalesReps = finalSalesRepsSnapshot.docs.map(doc => {
         const data = doc.data();
         return {
           id: doc.id,
@@ -229,7 +229,7 @@ const TestAssignment = () => {
           active: data.active
         };
       });
-      console.log('Available sales reps and their rules:', salesReps);
+      console.log('Final sales rep states:', finalSalesReps);
       
       // If assigned, get details about the sales rep
       let assignedToDetails = null;
