@@ -219,6 +219,50 @@ export async function submitLeadToFirebase(formData) {
       });
     }
     
+    // Check settings and handle notifications/assignments
+    try {
+      // Check auto-assignment settings
+      const assignmentSettingsDoc = await getDoc(doc(db, 'settings', 'leadAssignment'));
+      if (assignmentSettingsDoc.exists() && assignmentSettingsDoc.data().autoAssignEnabled) {
+        // Dynamically import assignment service to avoid circular dependencies
+        import('./assignment').then(async (assignmentService) => {
+          try {
+            const result = await assignmentService.autoAssignLead(newLeadDoc.id);
+            if (result) {
+              console.log(`Lead ${newLeadDoc.id} was auto-assigned to ${result.name}`);
+            } else {
+              console.log(`Lead ${newLeadDoc.id} could not be auto-assigned`);
+            }
+          } catch (autoAssignError) {
+            console.error('Error during auto-assignment:', autoAssignError);
+          }
+        });
+      }
+      
+      // Check notification settings for admin email notification
+      const notificationSettingsDoc = await getDoc(doc(db, 'settings', 'notifications'));
+      if (notificationSettingsDoc.exists() && 
+          notificationSettingsDoc.data().emailNotificationsEnabled &&
+          notificationSettingsDoc.data().notifyOnNewLead &&
+          notificationSettingsDoc.data().adminEmail) {
+        // Dynamically import email service to avoid circular dependencies
+        import('./email').then(async (emailService) => {
+          try {
+            await emailService.sendAdminLeadNotificationEmail(
+              newLeadDoc.id, 
+              notificationSettingsDoc.data().adminEmail
+            );
+            console.log(`Admin notification email sent for new lead ${newLeadDoc.id}`);
+          } catch (emailError) {
+            console.error('Error sending admin email notification:', emailError);
+          }
+        });
+      }
+    } catch (settingsError) {
+      console.error('Error checking settings:', settingsError);
+      // Don't block lead creation if settings checks fail
+    }
+    
     console.log("Successfully created lead in Firebase with ID:", newLeadDoc.id);
     return newLeadDoc.id;
   } catch (error) {
@@ -819,10 +863,11 @@ export function getCurrentUser() {
  * @param {string} email - User email
  * @param {string} password - User password
  * @param {string} name - User's full name
+ * @param {string} phone - User's phone number (for SMS notifications)
  * @param {string} role - User role (admin, sales_rep)
  * @returns {Promise<Object>} - Created user object
  */
-export async function createUser(email, password, name, role = 'sales_rep') {
+export async function createUser(email, password, name, phone = '', role = 'sales_rep') {
   try {
     // Create Firebase auth user
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -831,6 +876,7 @@ export async function createUser(email, password, name, role = 'sales_rep') {
     const userData = {
       email,
       name,
+      phone, // Add phone field for SMS notifications
       role,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -843,6 +889,7 @@ export async function createUser(email, password, name, role = 'sales_rep') {
       uid: userCredential.user.uid,
       email,
       name,
+      phone,
       role
     };
   } catch (error) {

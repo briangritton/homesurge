@@ -10,6 +10,8 @@ import {
 } from 'firebase/firestore';
 import NewLeadForm from './NewLeadForm';
 import SalesRepsList from './SalesRepsList';
+import AutoAssignmentSettings from './AutoAssignmentSettings';
+import NotificationSettings from './NotificationSettings';
 
 // CSS for the admin dashboard
 const styles = {
@@ -445,7 +447,8 @@ const AdminDashboard = () => {
       
       {activeTab === 'settings' && (
         <div className="crm-dashboard-settings">
-          <p className="crm-dashboard-placeholder">Settings content will be implemented here.</p>
+          <AutoAssignmentSettings />
+          <NotificationSettings />
         </div>
       )}
       </div>
