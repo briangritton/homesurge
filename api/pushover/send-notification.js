@@ -34,11 +34,16 @@ export default async function handler(req, res) {
     const pushoverToken = process.env.PUSHOVER_APP_TOKEN;
     
     // Debugging info
-    console.log('Pushover notification request received:', {
+    console.log('🔵🔵🔵 PUSHOVER API: Notification request received:', {
       hasUser: !!user,
       hasMessage: !!message,
       hasToken: !!pushoverToken,
-      messagePreview: message ? message.substring(0, 30) + '...' : 'N/A'
+      messagePreview: message ? message.substring(0, 30) + '...' : 'N/A',
+      requestInfo: {
+        method: req.method,
+        contentType: req.headers['content-type'],
+        bodySize: req.body ? JSON.stringify(req.body).length : 0
+      }
     });
     
     if (!pushoverToken) {
@@ -62,6 +67,8 @@ export default async function handler(req, res) {
     if (sound) pushoverPayload.append('sound', sound);
     
     // Send request to Pushover API
+    console.log('🔵🔵🔵 PUSHOVER API: Sending request to Pushover API with payload:', Object.fromEntries(pushoverPayload));
+    
     const pushoverResponse = await fetch('https://api.pushover.net/1/messages.json', {
       method: 'POST',
       body: pushoverPayload,
@@ -70,7 +77,21 @@ export default async function handler(req, res) {
       }
     });
     
-    const responseData = await pushoverResponse.json();
+    const responseText = await pushoverResponse.text();
+    console.log('🔵🔵🔵 PUSHOVER API: Raw response:', responseText);
+    
+    let responseData;
+    try {
+      responseData = JSON.parse(responseText);
+      console.log('🔵🔵🔵 PUSHOVER API: Parsed response data:', responseData);
+    } catch (err) {
+      console.error('🔵🔵🔵 PUSHOVER API: Error parsing response:', err);
+      return res.status(500).json({
+        success: false,
+        error: 'Error parsing Pushover API response',
+        rawResponse: responseText
+      });
+    }
     
     if (responseData.status !== 1) {
       console.error('Pushover API error:', responseData);
