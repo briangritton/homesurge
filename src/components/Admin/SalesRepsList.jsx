@@ -112,14 +112,19 @@ const SalesRepsList = () => {
         );
         
         const snapshot = await getDocs(salesRepsQuery);
-        const repsList = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          // Convert timestamps to dates for display
-          createdAt: doc.data().createdAt?.toDate?.() || new Date(),
-          lastLogin: doc.data().lastLogin?.toDate?.() || null
-        }));
+        const repsList = snapshot.docs.map(doc => {
+          const data = doc.data();
+          console.log('Sales rep data:', doc.id, data);
+          return {
+            id: doc.id,
+            ...data,
+            // Convert timestamps to dates for display
+            createdAt: data.createdAt?.toDate?.() || new Date(),
+            lastLogin: data.lastLogin?.toDate?.() || null
+          };
+        });
         
+        console.log('Processed sales reps:', repsList);
         setSalesReps(repsList);
         setLoading(false);
       } catch (err) {
@@ -217,11 +222,11 @@ const SalesRepsList = () => {
               setLoading(true);
               const db = getFirestore();
               
-              // Query for sales reps
+              // Query for sales reps - removing active filter to show all sales reps
               const salesRepsQuery = query(
                 collection(db, 'users'),
-                where('role', '==', 'sales_rep'),
-                orderBy('name', 'asc')
+                where('role', '==', 'sales_rep')
+                // Note: No orderBy to avoid index requirements
               );
               
               const snapshot = await getDocs(salesRepsQuery);
@@ -287,16 +292,27 @@ const SalesRepsList = () => {
                     </td>
                     <td style={styles.tableCell}>{rep.email || 'N/A'}</td>
                     <td style={styles.tableCell}>
-                      {rep.phone ? (
-                        <a 
-                          href={`tel:${rep.phone}`} 
-                          style={{ color: '#2e7b7d', textDecoration: 'none' }}
-                        >
-                          {rep.phone}
-                        </a>
-                      ) : (
-                        <span style={{ color: 'red' }}>No phone (SMS unavailable)</span>
-                      )}
+                      {(() => {
+                        console.log(`Phone check for ${rep.name}:`, {
+                          phoneValue: rep.phone,
+                          phoneType: typeof rep.phone,
+                          hasPhone: Boolean(rep.phone),
+                          phoneLength: rep.phone ? rep.phone.length : 0,
+                          phoneTrimmed: rep.phone ? rep.phone.trim() : null,
+                          hasTrimmedPhone: rep.phone && rep.phone.trim() ? true : false
+                        });
+                        
+                        return rep.phone && rep.phone.trim() ? (
+                          <a 
+                            href={`tel:${rep.phone}`} 
+                            style={{ color: '#2e7b7d', textDecoration: 'none' }}
+                          >
+                            {rep.phone} {/* Phone: {JSON.stringify(rep.phone)} */}
+                          </a>
+                        ) : (
+                          <span style={{ color: 'red' }}>No phone (SMS unavailable) {/* Debug: {JSON.stringify(rep.phone)} */}</span>
+                        );
+                      })()}
                     </td>
                     <td style={styles.tableCell}>
                       <span 
