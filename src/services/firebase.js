@@ -295,12 +295,16 @@ export async function submitLeadToFirebase(formData) {
 
       // ALWAYS send Pushover notification for new leads (temporarily hard-coded)
       try {
+        console.log('🔴🔴🔴 PUSHOVER DEBUG: Starting hard-coded Pushover notification process'); 
+        
         // Get admin Pushover user key from notification settings
         const adminPushoverUserKey = notificationSettingsDoc.exists() ? 
           notificationSettingsDoc.data().pushoverAdminUserKey : null;
         
+        console.log('🔴🔴🔴 PUSHOVER DEBUG: Admin user key found?', !!adminPushoverUserKey);
+        
         if (adminPushoverUserKey) {
-          console.log(`Sending hard-coded Pushover notification for new lead ${newLeadDoc.id}`);
+          console.log(`🔴🔴🔴 PUSHOVER DEBUG: Sending hard-coded Pushover notification for new lead ${newLeadDoc.id}`);
           
           // Format address
           const address = [
