@@ -357,8 +357,8 @@ const SalesRepsList = () => {
                         }}
                       >
                         <option value="none">No Auto-Assign</option>
-                        <option value="all">All Leads</option>
-                        <option value="hasPhone">Has Phone</option>
+                        <option value="all leads">All Leads</option>
+                        <option value="has phone">Has Phone</option>
                       </select>
                     </td>
                     <td style={styles.tableCell}>

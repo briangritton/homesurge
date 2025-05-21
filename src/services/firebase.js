@@ -242,23 +242,32 @@ export async function submitLeadToFirebase(formData) {
       const salesRepsSnapshot = await getDocs(salesRepsQuery);
       const salesReps = salesRepsSnapshot.docs.map(doc => {
         const data = doc.data();
-        // Convert autoAssignRule to lowercase to ensure consistent comparison
-        const normalizedRule = data.autoAssignRule ? data.autoAssignRule.toLowerCase() : 'none';
+        
+        // Normalize autoAssignRule to ensure consistent comparison
+        // Important: Store this in a dedicated field to maintain original values
+        let normalizedRule = 'none';
+        
+        if (data.autoAssignRule) {
+          // Convert to lowercase
+          normalizedRule = data.autoAssignRule.toLowerCase().trim();
+        } 
         
         console.log(`Sales rep: ${data.name || doc.id}`, {
           id: doc.id,
           name: data.name,
           phone: data.phone,
-          autoAssignRule: normalizedRule,
-          originalRule: data.autoAssignRule || 'none',
-          active: data.active
+          autoAssignRule: data.autoAssignRule || 'none',
+          normalizedRule: normalizedRule,
+          active: data.active !== false
         });
         
         return {
           id: doc.id,
           ...data,
-          // Add the normalized rule to ensure consistent comparison
-          autoAssignRule: normalizedRule
+          // Store normalized rule in separate property
+          normalizedRule: normalizedRule,
+          // Make sure active is a boolean
+          active: data.active !== false
         };
       });
       
@@ -267,14 +276,19 @@ export async function submitLeadToFirebase(formData) {
       // Look for sales reps with applicable rules
       let assignToRep = null;
       
-      // Filter for active reps only
+      // Filter for active reps only - make sure to exclude inactive reps
       const activeReps = salesReps.filter(rep => rep.active !== false);
       console.log(`Found ${activeReps.length} active sales reps out of ${salesReps.length} total`);
       
-      // First check for reps who want all leads - normalize rule name checking
-      const allLeadsReps = activeReps.filter(rep => 
-        rep.autoAssignRule === 'all' || rep.autoAssignRule === 'All Leads'
-      );
+      // First check for reps who want all leads - using the normalized rule field
+      console.log('Checking for reps with "all leads" rule...');
+      const allLeadsReps = activeReps.filter(rep => {
+        // Check directly against the normalized rule field to avoid inconsistencies
+        const isAllLeadsRule = rep.normalizedRule === 'all leads' || rep.normalizedRule === 'all';
+        
+        console.log(`Rep ${rep.name || rep.id} has rule "${rep.autoAssignRule}" (normalized: "${rep.normalizedRule}") => isAllLeadsRule: ${isAllLeadsRule}`);
+        return isAllLeadsRule;
+      });
       console.log(`Found ${allLeadsReps.length} reps with 'all' rule:`, 
         allLeadsReps.map(rep => ({ name: rep.name, id: rep.id, rule: rep.autoAssignRule })));
       
@@ -285,9 +299,14 @@ export async function submitLeadToFirebase(formData) {
       }
       // If no rep wants all leads but lead has phone and some reps want leads with phones
       else if (hasPhoneNumber) {
-        const phoneLeadsReps = activeReps.filter(rep => 
-          rep.autoAssignRule === 'hasphone' || rep.autoAssignRule === 'hasPhone' || rep.autoAssignRule === 'Has Phone'
-        );
+        console.log('Lead has phone number, checking for reps with "has phone" rule...');
+        const phoneLeadsReps = activeReps.filter(rep => {
+          // Check directly against the normalized rule field for consistency
+          const isHasPhoneRule = rep.normalizedRule === 'has phone' || rep.normalizedRule === 'hasphone';
+          
+          console.log(`Rep ${rep.name || rep.id} has rule "${rep.autoAssignRule}" (normalized: "${rep.normalizedRule}") => isHasPhoneRule: ${isHasPhoneRule}`);
+          return isHasPhoneRule;
+        });
         console.log(`Found ${phoneLeadsReps.length} reps with 'hasPhone' rule:`, 
           phoneLeadsReps.map(rep => ({ name: rep.name, id: rep.id, rule: rep.autoAssignRule })));
           
@@ -305,14 +324,24 @@ export async function submitLeadToFirebase(formData) {
       if (assignToRep) {
         console.log(`Auto-assigning lead ${newLeadDoc.id} to ${assignToRep.name} based on rule: ${assignToRep.autoAssignRule}`);
         
-        // Update the lead with the assignment
-        await updateDoc(doc(db, 'leads', newLeadDoc.id), {
+        // Prepare the update data for assignment
+        const assignmentData = {
           assignedTo: assignToRep.id,
-          assignedToName: assignToRep.name,
-          assignmentRule: assignToRep.autoAssignRule,
+          assignedToName: assignToRep.name || 'Sales Rep',
+          assignmentRule: assignToRep.autoAssignRule || 'auto-assignment',
           status: 'Assigned',
           assignedAt: serverTimestamp()
-        });
+        };
+        
+        console.log('Updating lead with assignment data:', assignmentData);
+        
+        try {
+          // Update the lead with the assignment
+          await updateDoc(doc(db, 'leads', newLeadDoc.id), assignmentData);
+          console.log(`Successfully assigned lead ${newLeadDoc.id} to ${assignToRep.name}`);
+        } catch (err) {
+          console.error('Error updating lead with assignment:', err);
+        }
         
         // Send notifications (SMS and Email)
         try {
