@@ -219,171 +219,74 @@ export async function submitLeadToFirebase(formData) {
       });
     }
     
-    // Check settings and handle notifications/assignments
+    // CRITICAL FIX: Force the auto-assignment to happen synchronously before returning
+    console.log('%c FORCE SYNCHRONOUS AUTO-ASSIGNMENT BEFORE RETURN', 'background: #ff9800; color: black; font-size: 14px; padding: 5px;');
+    
     try {
-      // Find sales reps with custom auto-assign rules
-      console.log('%c AUTO-ASSIGNMENT PROCESS STARTED', 'background: #4CAF50; color: white; font-size: 14px; padding: 5px;');
+      // Pre-load the assignment module to avoid dynamic import timing issues
+      const assignmentModule = await import('./assignment');
       
-      const db = getFirestore();
-      const hasPhoneNumber = preparedData.phone && preparedData.phone.trim().length > 0;
+      // Check if there are any active sales reps with auto-assignment rules
+      const salesRepsWithLoad = await assignmentModule.getSalesRepsWithLoadCount();
       
-      console.log('Lead phone check:', { 
-        phone: preparedData.phone, 
-        hasPhoneNumber,
-        leadName: preparedData.name
-      });
-      
-      // Query for sales reps with auto-assign rules
-      const salesRepsQuery = query(
-        collection(db, 'users'),
-        where('role', '==', 'sales_rep')
-      );
-      
-      const salesRepsSnapshot = await getDocs(salesRepsQuery);
-      const salesReps = salesRepsSnapshot.docs.map(doc => {
-        const data = doc.data();
+      if (salesRepsWithLoad && salesRepsWithLoad.length > 0) {
+        // Find active reps with auto-assignment rules
+        const activeReps = salesRepsWithLoad.filter(rep => rep.active !== false);
         
-        // Normalize autoAssignRule to ensure consistent comparison
-        // Important: Store this in a dedicated field to maintain original values
-        let normalizedRule = 'none';
+        // Log available reps
+        console.log(`Found ${activeReps.length} active sales reps for direct assignment consideration`);
         
-        if (data.autoAssignRule) {
-          // Convert to lowercase
-          normalizedRule = data.autoAssignRule.toLowerCase().trim();
-        } 
-        
-        console.log(`Sales rep: ${data.name || doc.id}`, {
-          id: doc.id,
-          name: data.name,
-          phone: data.phone,
-          autoAssignRule: data.autoAssignRule || 'none',
-          normalizedRule: normalizedRule,
-          active: data.active !== false
+        // Group by rule type
+        const allLeadsReps = activeReps.filter(rep => {
+          const rule = (rep.autoAssignRule || '').toLowerCase();
+          return rule === 'all' || rule === 'all leads';
         });
         
-        return {
-          id: doc.id,
-          ...data,
-          // Store normalized rule in separate property
-          normalizedRule: normalizedRule,
-          // Make sure active is a boolean
-          active: data.active !== false
-        };
-      });
-      
-      console.log(`Found ${salesReps.length} sales reps total`);
-      
-      // Look for sales reps with applicable rules
-      let assignToRep = null;
-      
-      // Filter for active reps only - make sure to exclude inactive reps
-      const activeReps = salesReps.filter(rep => rep.active !== false);
-      console.log(`Found ${activeReps.length} active sales reps out of ${salesReps.length} total`);
-      
-      // First check for reps who want all leads - using the normalized rule field
-      console.log('Checking for reps with "all leads" rule...');
-      const allLeadsReps = activeReps.filter(rep => {
-        // Check directly against the normalized rule field to avoid inconsistencies
-        const isAllLeadsRule = rep.normalizedRule === 'all leads' || rep.normalizedRule === 'all';
-        
-        console.log(`Rep ${rep.name || rep.id} has rule "${rep.autoAssignRule}" (normalized: "${rep.normalizedRule}") => isAllLeadsRule: ${isAllLeadsRule}`);
-        return isAllLeadsRule;
-      });
-      console.log(`Found ${allLeadsReps.length} reps with 'all' rule:`, 
-        allLeadsReps.map(rep => ({ name: rep.name, id: rep.id, rule: rep.autoAssignRule })));
-      
-      if (allLeadsReps.length > 0) {
-        // Pick the rep with the lowest lead count if multiple match
-        assignToRep = allLeadsReps[0]; // For simplicity, just taking the first one
-        console.log(`Selected rep for 'all' rule: ${assignToRep.name} (${assignToRep.id})`);
-      }
-      // If no rep wants all leads but lead has phone and some reps want leads with phones
-      else if (hasPhoneNumber) {
-        console.log('Lead has phone number, checking for reps with "has phone" rule...');
-        const phoneLeadsReps = activeReps.filter(rep => {
-          // Check directly against the normalized rule field for consistency
-          const isHasPhoneRule = rep.normalizedRule === 'has phone' || rep.normalizedRule === 'hasphone';
-          
-          console.log(`Rep ${rep.name || rep.id} has rule "${rep.autoAssignRule}" (normalized: "${rep.normalizedRule}") => isHasPhoneRule: ${isHasPhoneRule}`);
-          return isHasPhoneRule;
+        const hasPhoneReps = activeReps.filter(rep => {
+          const rule = (rep.autoAssignRule || '').toLowerCase();
+          return rule === 'hasphone' || rule === 'has phone';
         });
-        console.log(`Found ${phoneLeadsReps.length} reps with 'hasPhone' rule:`, 
-          phoneLeadsReps.map(rep => ({ name: rep.name, id: rep.id, rule: rep.autoAssignRule })));
-          
-        if (phoneLeadsReps.length > 0) {
-          assignToRep = phoneLeadsReps[0]; // For simplicity, just taking the first one
-          console.log(`Selected rep for 'hasPhone' rule: ${assignToRep.name} (${assignToRep.id})`);
+        
+        console.log(`Found ${allLeadsReps.length} reps for ALL leads and ${hasPhoneReps.length} reps for HAS PHONE leads`);
+        
+        // Determine which rep to use based on rules and lead data
+        const hasPhoneNumber = preparedData.phone && preparedData.phone.trim().length > 0;
+        let targetRep = null;
+        
+        if (allLeadsReps.length > 0) {
+          targetRep = allLeadsReps[0];
+          console.log(`Selected rep for ALL leads rule: ${targetRep.name} (${targetRep.id})`);
+        } else if (hasPhoneNumber && hasPhoneReps.length > 0) {
+          targetRep = hasPhoneReps[0];
+          console.log(`Selected rep for HAS PHONE rule: ${targetRep.name} (${targetRep.id})`);
         }
-      }
-      
-      console.log('Final assignment decision:', assignToRep ? 
-        `Assigning to ${assignToRep.name} (${assignToRep.id}) based on rule: ${assignToRep.autoAssignRule}` : 
-        'No matching rep found for auto-assignment');
-      
-      // If we found a rep to assign to, use the proven assignLeadToSalesRep function
-      if (assignToRep) {
-        console.log(`Auto-assigning lead ${newLeadDoc.id} to ${assignToRep.name} based on rule: ${assignToRep.autoAssignRule}`);
         
-        try {
-          // CRITICAL FIX: Import and use the assignment.js module's proven function
-          const assignmentModule = await import('./assignment');
+        // If we found a matching rep, assign the lead
+        if (targetRep) {
+          console.log(`Directly assigning lead ${newLeadDoc.id} to rep ${targetRep.id} (${targetRep.name})`);
           
-          // This is the critical fix - using the function that works for manual assignment
-          const success = await assignmentModule.assignLeadToSalesRep(newLeadDoc.id, assignToRep.id);
+          // Directly use assignLeadToSalesRep for the assignment
+          const success = await assignmentModule.assignLeadToSalesRep(newLeadDoc.id, targetRep.id);
           
           if (success) {
-            console.log(`Successfully assigned lead ${newLeadDoc.id} to ${assignToRep.name} using assignLeadToSalesRep`);
+            console.log(`Synchronous direct assignment SUCCESSFUL - lead ${newLeadDoc.id} assigned to ${targetRep.name}`);
           } else {
-            console.error(`Failed to assign lead ${newLeadDoc.id} to ${assignToRep.name}`);
-          }
-        } catch (err) {
-          console.error('Error using assignLeadToSalesRep function:', err);
-        }
-      }
-      // Fall back to regular auto-assignment if no custom rules matched
-      else {
-        // Check auto-assignment settings
-        const assignmentSettingsDoc = await getDoc(doc(db, 'settings', 'leadAssignment'));
-        if (assignmentSettingsDoc.exists() && assignmentSettingsDoc.data().autoAssignEnabled) {
-          console.log(`No matching rule-based assignment, falling back to default auto-assignment for lead ${newLeadDoc.id}`);
-          
-          try {
-            // Load the assignment module
-            const assignmentModule = await import('./assignment');
-            
-            // Use getSalesRepsWithLoadCount directly to find the best rep
-            const salesRepsWithLoad = await assignmentModule.getSalesRepsWithLoadCount();
-            
-            if (salesRepsWithLoad && salesRepsWithLoad.length > 0) {
-              // Filter out inactive reps
-              const activeReps = salesRepsWithLoad.filter(rep => rep.active !== false);
-              
-              if (activeReps.length > 0) {
-                // Take the rep with the lowest load
-                const targetRep = activeReps[0];
-                console.log(`Selected rep with lowest load: ${targetRep.name} (${targetRep.id}) with ${targetRep.loadCount} leads`);
-                
-                // Use the proven assignLeadToSalesRep function
-                const success = await assignmentModule.assignLeadToSalesRep(newLeadDoc.id, targetRep.id);
-                
-                if (success) {
-                  console.log(`Successfully assigned lead ${newLeadDoc.id} to ${targetRep.name} using lowest-load method`);
-                } else {
-                  console.error(`Failed to assign lead ${newLeadDoc.id} to ${targetRep.name}`);
-                }
-              } else {
-                console.log(`No active sales reps found for auto-assignment of lead ${newLeadDoc.id}`);
-              }
-            } else {
-              console.log(`No sales reps found for auto-assignment of lead ${newLeadDoc.id}`);
-            }
-          } catch (autoAssignError) {
-            console.error('Error during auto-assignment:', autoAssignError);
+            console.error(`Synchronous direct assignment FAILED - lead ${newLeadDoc.id} not assigned to ${targetRep.name}`);
           }
         } else {
-          console.log(`Auto-assignment is disabled in settings or settings not found for lead ${newLeadDoc.id}`);
+          console.log('No matching sales rep found for rule-based assignment');
         }
+      } else {
+        console.log('No active sales reps found with load count');
       }
+    } catch (assignmentError) {
+      console.error('Error during synchronous direct assignment:', assignmentError);
+    }
+    
+    // Skip the old assignment code - we've already done synchronous assignment earlier
+    try {
+      // Notification handling only - assignment is now done synchronously right after lead creation
+      console.log('%c ASSIGNMENT ALREADY HANDLED - SENDING NOTIFICATIONS ONLY', 'background: #4CAF50; color: white; font-size: 14px; padding: 5px;');
       
       // Check notification settings for admin email notification
       const notificationSettingsDoc = await getDoc(doc(db, 'settings', 'notifications'));
