@@ -421,7 +421,9 @@ function PersonalInfoForm() {
             campaign_name: formData.campaignName || formData.campaign_name || 'Direct',
             utm_source: formData.utm_source || '',
             utm_medium: formData.utm_medium || '',
-            utm_campaign: formData.utm_campaign || ''
+            utm_campaign: formData.utm_campaign || '',
+            // Include the lead ID for CRM linking
+            id: existingLeadId || localStorage.getItem('leadId') || ''
           }, 
           'service_zeuf0n8', // Service ID
           'template_kuv08p4'  // Template ID
