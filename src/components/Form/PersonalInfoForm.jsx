@@ -437,11 +437,11 @@ function PersonalInfoForm() {
           // Directly call the Pushover API endpoint with FIXED hardcoded values
           console.log('🟢🟢🟢 DIRECT DEBUG: Preparing to fetch from /api/pushover/send-notification');
           
-          // Create request body separately to verify content
+          // Create request body with actual lead information
           const requestBody = {
-            user: "um62xd21dr7pfugnwanooxi6mqxc3n", // HARDCODED key - guaranteed to be present
-            message: "FIXED TEST MESSAGE - Lead notification test",
-            title: "Frontend Direct Test",
+            user: "um62xd21dr7pfugnwanooxi6mqxc3n", // Your Pushover user key
+            message: `New lead: ${cleanName}\nPhone: ${cleanPhone}\nAddress: ${formData.street || 'No address'}\nLead ID: ${existingLeadId || localStorage.getItem('leadId') || 'N/A'}`,
+            title: "New Lead Notification",
             priority: 1,
             sound: "persistent"
           };
