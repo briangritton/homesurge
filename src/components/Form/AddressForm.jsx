@@ -165,11 +165,17 @@ function AddressForm() {
   // Track browser autofill and capture name and phone when available
   
   useEffect(() => {
+    // Keep track of which fields have been autofilled
+    const autofilledFields = new Set();
+    
     const handleAnimationStart = (e) => {
       // In Chrome, autocomplete fields will have animation-name: onAutoFillStart
       if (e.animationName === 'onAutoFillStart') {
         setAutofillDetected(true);
         console.log('Autofill detected on field:', e.target.name);
+        
+        // Add this field to our tracking set
+        autofilledFields.add(e.target.name);
         
         // Check if the field that was auto-filled is name or phone
         if (e.target.name === 'name' || e.target.name === 'tel') {
@@ -193,6 +199,34 @@ function AddressForm() {
               updateFormData(fieldUpdate);
             }
           }, 100); // Small delay to ensure the browser has filled in the value
+        }
+        
+        // Check if the address field was auto-filled
+        if (e.target.name === 'address-line1') {
+          // Wait a bit for the autofill to complete
+          setTimeout(() => {
+            if (e.target.value && e.target.value.length > 10) {
+              console.log('Address autofilled with value:', e.target.value);
+              
+              // If the address is sufficiently filled, and we have at least one more field autofilled,
+              // trigger form submission
+              if (autofilledFields.size > 1 || autofilledFields.has('name') || autofilledFields.has('tel')) {
+                console.log('Multiple fields autofilled, triggering form submission');
+                
+                // Allow time for all browser autofill data to be populated
+                setTimeout(() => {
+                  // Create a custom event object with preventDefault method
+                  const customEvent = { 
+                    preventDefault: () => {}, 
+                    stopPropagation: () => {},
+                    target: document.getElementById('address-submit-button')
+                  };
+                  // Simulate a button click to submit the form
+                  handleButtonClick(customEvent);
+                }, 300);
+              }
+            }
+          }, 100);
         }
       }
     };
@@ -221,7 +255,7 @@ function AddressForm() {
     
     if (formInputs) {
       formInputs.forEach(input => {
-        if (input.name === 'name' || input.name === 'tel') {
+        if (input.name === 'name' || input.name === 'tel' || input.name === 'address-line1') {
           input.addEventListener('animationstart', handleAnimationStart);
         }
       });
@@ -235,7 +269,7 @@ function AddressForm() {
       
       if (formInputs) {
         formInputs.forEach(input => {
-          if (input.name === 'name' || input.name === 'tel') {
+          if (input.name === 'name' || input.name === 'tel' || input.name === 'address-line1') {
             input.removeEventListener('animationstart', handleAnimationStart);
           }
         });
@@ -1137,6 +1171,80 @@ function AddressForm() {
       document.removeEventListener('keydown', handleKeyDown, true);
     };
   }, [firstSuggestion, formData.street, isLoading]);
+
+  // Additional listener for input events to detect browser autofill
+  // This catches cases that the animation approach might miss
+  useEffect(() => {
+    let lastInputTime = 0;
+    let autofilledFields = new Set();
+    let autoSubmitTimer = null;
+    
+    // Function to handle any input event
+    const handleInput = (e) => {
+      const now = Date.now();
+      
+      // If multiple input events fire almost simultaneously (< 50ms apart),
+      // this is likely browser autofill
+      if (now - lastInputTime < 50) {
+        console.log('Rapid input detected, likely browser autofill on:', e.target.name);
+        autofilledFields.add(e.target.name);
+        
+        // Clear any pending auto submit
+        if (autoSubmitTimer) {
+          clearTimeout(autoSubmitTimer);
+        }
+        
+        // If we have address and at least one more field or 3+ fields filled,
+        // auto-submit after a short delay
+        if ((autofilledFields.has('address-line1') && autofilledFields.size > 1) || 
+            autofilledFields.size >= 3) {
+          
+          // Schedule an auto-submit
+          autoSubmitTimer = setTimeout(() => {
+            console.log('Auto-submitting form after browser autofill detected');
+            
+            // Create a custom event object
+            const customEvent = { 
+              preventDefault: () => {}, 
+              stopPropagation: () => {},
+              target: document.getElementById('address-submit-button')
+            };
+            
+            // Update the autofill flag
+            setAutofillDetected(true);
+            
+            // Trigger form submission
+            handleButtonClick(customEvent);
+          }, 400);
+        }
+      }
+      
+      // Update last input time
+      lastInputTime = now;
+    };
+    
+    // Add listeners to all form inputs
+    const formInputs = formRef.current?.querySelectorAll('input');
+    
+    if (formInputs) {
+      formInputs.forEach(input => {
+        input.addEventListener('input', handleInput);
+      });
+    }
+    
+    return () => {
+      // Clean up all listeners
+      if (formInputs) {
+        formInputs.forEach(input => {
+          input.removeEventListener('input', handleInput);
+        });
+      }
+      
+      if (autoSubmitTimer) {
+        clearTimeout(autoSubmitTimer);
+      }
+    };
+  }, [handleButtonClick]);
   
   return (
     <div className="af1-hero-section hero-section">
