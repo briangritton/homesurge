@@ -19,6 +19,11 @@ export const initEmailJS = (userId) => {
 export const sendLeadNotificationEmail = async (leadData, serviceId, templateId) => {
   try {
     // Prepare the template parameters
+    // Create the CRM URL for the lead
+    const leadId = leadData.id || leadData.leadId || ''; 
+    const baseUrl = window.location.origin || 'https://sellforcash.online';
+    const crmLink = leadId ? `${baseUrl}/crm?leadId=${leadId}` : `${baseUrl}/crm`;
+    
     const templateParams = {
       lead_name: leadData.name || 'New Lead',
       lead_phone: leadData.phone || 'N/A',
@@ -29,7 +34,8 @@ export const sendLeadNotificationEmail = async (leadData, serviceId, templateId)
       campaign_name: leadData.campaign_name || 'Direct',
       utm_source: leadData.utm_source || 'N/A',
       utm_medium: leadData.utm_medium || 'N/A',
-      utm_campaign: leadData.utm_campaign || 'N/A'
+      utm_campaign: leadData.utm_campaign || 'N/A',
+      crm_link: crmLink
     };
 
     console.log('Sending email notification with data:', templateParams);

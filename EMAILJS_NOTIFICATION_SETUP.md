@@ -24,13 +24,14 @@ The EmailJS service is configured with the following information:
    - EmailJS sends the notification to the designated recipients (configured in the EmailJS template)
 
 3. The following data is sent to the email template:
-   - Lead name
-   - Lead phone number
-   - Property address
-   - Lead email (if provided)
-   - Lead source
-   - Campaign information
-   - Submission time
+   - Lead name (`{{lead_name}}`)
+   - Lead phone number (`{{lead_phone}}`)
+   - Property address (`{{lead_address}}`)
+   - Lead email (`{{lead_email}}`, if provided)
+   - Lead source (`{{lead_source}}`)
+   - Campaign information (`{{campaign_name}}`, `{{utm_source}}`, etc.)
+   - Submission time (`{{submission_time}}`)
+   - **CRM Link** (`{{crm_link}}`) - Direct link to view the lead in the CRM
 
 ## Advantages Over Previous Method
 
@@ -47,6 +48,16 @@ To modify the email templates:
 2. Select the template with ID `template_kuv08p4`
 3. Edit the template design, subject line, or recipient list
 4. Save changes - they will take effect immediately
+
+### Adding the CRM Link
+
+In your template, you can now add a link to view the lead directly in the CRM:
+
+```html
+<p><strong>View Lead in CRM:</strong> <a href="{{crm_link}}">Click here to view lead details</a></p>
+```
+
+This will generate a clickable link that takes the recipient directly to the lead's page in the CRM system.
 
 ## Troubleshooting
 

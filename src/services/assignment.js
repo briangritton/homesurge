@@ -65,31 +65,21 @@ export async function getSalesRepsWithLoadCount() {
   try {
     const db = getFirestore();
     
-    // Get all sales reps (active or not to diagnose issue)
-    // First try to get only active reps
-    let salesRepsQuery = query(
+    // Get all sales reps without filtering for active status
+    const salesRepsQuery = query(
       collection(db, 'users'),
-      where('role', '==', 'sales_rep'),
-      where('active', '==', true)
+      where('role', '==', 'sales_rep')
     );
     
-    let salesRepsSnapshot = await getDocs(salesRepsQuery);
-    
-    // If no active reps found, try without the active filter
-    if (salesRepsSnapshot.empty) {
-      console.log('No active sales reps found, fetching all sales reps');
-      salesRepsQuery = query(
-        collection(db, 'users'),
-        where('role', '==', 'sales_rep')
-      );
-      salesRepsSnapshot = await getDocs(salesRepsQuery);
-    }
-    
+    // Execute the query for all sales reps
     const salesRepsSnapshot = await getDocs(salesRepsQuery);
     const salesReps = salesRepsSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
+    
+    // Log found sales reps for debugging
+    console.log(`Found ${salesReps.length} sales reps`);
     
     // For each sales rep, count their assigned leads
     const repsWithLoadCount = await Promise.all(salesReps.map(async (rep) => {
