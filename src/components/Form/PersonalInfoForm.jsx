@@ -409,16 +409,38 @@ function PersonalInfoForm() {
       if (submitSuccess || contactUpdateSuccess) {
         console.log('Lead captured successfully - preparing to advance to next step');
         
+        // NOTIFICATION TRACKING - Explicit console logs for tracking notification attempts
+        console.log('🔍🔍🔍 NOTIFICATION TRACKING: Starting notification section');
+        console.log('🔍🔍🔍 NOTIFICATION TRACKING: Lead data ready for notifications', {
+          name: cleanName,
+          phone: cleanPhone,
+          address: formData.street,
+          leadId: existingLeadId || localStorage.getItem('leadId') || 'none'
+        });
+        
         // PUSHOVER TEST - Direct call to Pushover API from frontend
         try {
           console.log('🟢🟢🟢 DIRECT DEBUG: Attempting direct Pushover API call from frontend');
           
+          // Get the user key with explicit logging
+          const pushoverKey = localStorage.getItem('pushoverUserKey');
+          console.log('🟢🟢🟢 DIRECT DEBUG: Pushover key retrieved from localStorage:', pushoverKey ? 'Found key' : 'No key found');
+          
+          if (!pushoverKey) {
+            console.log('🟢🟢🟢 DIRECT DEBUG: No Pushover key in localStorage, checking URL params');
+            // Try URL parameters as fallback
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlKey = urlParams.get('pushover');
+            console.log('🟢🟢🟢 DIRECT DEBUG: Pushover key from URL:', urlKey ? 'Found key' : 'No key found');
+          }
+          
           // Directly call the Pushover API endpoint with a test key
+          console.log('🟢🟢🟢 DIRECT DEBUG: Preparing to fetch from /api/pushover/send-notification');
           const response = await fetch('/api/pushover/send-notification', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              user: localStorage.getItem('pushoverUserKey') || '', // Get from localStorage or empty
+              user: pushoverKey || 'um62xd21dr7pfugnwanooxi6mqxc3n', // Use the key from localStorage or hardcoded key
               message: `FRONTEND TEST - New lead created: ${cleanName}\nPhone: ${cleanPhone}\nAddress: ${formData.street || 'No address'}`,
               title: "Frontend Direct Test",
               priority: 1,
@@ -426,38 +448,45 @@ function PersonalInfoForm() {
             })
           });
           
-          console.log('🟢🟢🟢 DIRECT DEBUG: Pushover API response status:', response.status);
+          console.log('🟢🟢🟢 DIRECT DEBUG: Pushover API fetch completed, response status:', response.status);
           
           if (response.ok) {
             const result = await response.json();
-            console.log('🟢🟢🟢 DIRECT DEBUG: Pushover notification response:', result);
+            console.log('🟢🟢🟢 DIRECT DEBUG: Pushover notification success:', result);
           } else {
-            console.error('🟢🟢🟢 DIRECT DEBUG: Pushover notification failed:', await response.text());
+            const errorText = await response.text();
+            console.error('🟢🟢🟢 DIRECT DEBUG: Pushover notification failed:', errorText);
           }
         } catch (pushoverError) {
           console.error('🟢🟢🟢 DIRECT DEBUG: Error sending direct Pushover notification:', pushoverError);
         }
         
         // Send email notification using EmailJS
-        sendLeadNotificationEmail(
-          {
-            name: cleanName,
-            phone: cleanPhone,
-            street: formData.street,
-            email: formData.email || '',
-            leadSource: formData.leadSource || 'Website Form',
-            campaign_name: formData.campaignName || formData.campaign_name || 'Direct',
-            utm_source: formData.utm_source || '',
-            utm_medium: formData.utm_medium || '',
-            utm_campaign: formData.utm_campaign || '',
-            // Include the lead ID for CRM linking
-            id: existingLeadId || localStorage.getItem('leadId') || ''
-          }, 
-          'service_zeuf0n8', // Service ID
-          'template_kuv08p4'  // Template ID
-        ).catch(error => {
-          console.warn('Failed to send email notification, but continuing:', error);
-        });
+        console.log('📧📧📧 EMAIL DEBUG: Preparing to send EmailJS notification');
+        try {
+          await sendLeadNotificationEmail(
+            {
+              name: cleanName,
+              phone: cleanPhone,
+              street: formData.street,
+              email: formData.email || '',
+              leadSource: formData.leadSource || 'Website Form',
+              campaign_name: formData.campaignName || formData.campaign_name || 'Direct',
+              utm_source: formData.utm_source || '',
+              utm_medium: formData.utm_medium || '',
+              utm_campaign: formData.utm_campaign || '',
+              // Include the lead ID for CRM linking
+              id: existingLeadId || localStorage.getItem('leadId') || ''
+            }, 
+            'service_zeuf0n8', // Service ID
+            'template_kuv08p4'  // Template ID
+          );
+          console.log('📧📧📧 EMAIL DEBUG: EmailJS notification sent successfully');
+        } catch (error) {
+          console.warn('📧📧📧 EMAIL DEBUG: Failed to send email notification:', error);
+        }
+        
+        console.log('🔍🔍🔍 NOTIFICATION TRACKING: All notifications attempted');
         
         trackPhoneNumberLead();
         
