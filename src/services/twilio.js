@@ -41,6 +41,7 @@ export async function sendLeadAssignmentMessage(leadId, salesRepId) {
     const templateData = {
       leadName: lead.name || 'Unnamed Lead',
       address: `${lead.street || 'No address'}, ${lead.city || ''} ${lead.state || ''} ${lead.zip || ''}`,
+      phone: lead.phone || null,
       leadURL
     };
     

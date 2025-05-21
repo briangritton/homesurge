@@ -66,8 +66,9 @@ module.exports = async (req, res) => {
     const fromWhatsAppFormatted = `${whatsappPrefix}${fromWhatsApp}`;
     
     // Create message content based on template
-    const salesRepMessage = `Your new lead ${templateData.leadName} is now ready in the CRM. Property address: ${templateData.address}. View details: ${templateData.leadURL}`;
-    const adminMessage = `Lead ${templateData.leadName} assigned to ${salesRepName}. View details: ${templateData.leadURL}`;
+    const contactInfo = templateData.phone ? `Contact: ${templateData.phone}` : "No phone provided";
+    const salesRepMessage = `Your new lead ${templateData.leadName} is now ready in the CRM. Property address: ${templateData.address}. ${contactInfo}. View details: ${templateData.leadURL}`;
+    const adminMessage = `Lead ${templateData.leadName} assigned to ${salesRepName}. ${contactInfo}. View details: ${templateData.leadURL}`;
     
     // Send message to sales rep
     const salesRepSMS = await client.messages.create({
