@@ -14,9 +14,10 @@ export const initEmailJS = (userId) => {
  * @param {object} leadData - The lead data to send in the notification
  * @param {string} serviceId - Your EmailJS service ID
  * @param {string} templateId - Your EmailJS template ID
+ * @param {Array} additionalTemplates - Optional array of additional template objects with service and template IDs
  * @returns {Promise} - Promise resolving to the emailjs response
  */
-export const sendLeadNotificationEmail = async (leadData, serviceId, templateId) => {
+export const sendLeadNotificationEmail = async (leadData, serviceId, templateId, additionalTemplates = []) => {
   try {
     // Prepare the template parameters
     // Create the CRM URL for the lead
@@ -40,15 +41,37 @@ export const sendLeadNotificationEmail = async (leadData, serviceId, templateId)
 
     console.log('Sending email notification with data:', templateParams);
     
-    // Send the email
-    const response = await emailjs.send(
-      serviceId, 
-      templateId, 
-      templateParams
-    );
+    // Create an array of promises for all email sends
+    const sendPromises = [
+      // Primary recipient
+      emailjs.send(serviceId, templateId, templateParams)
+    ];
     
-    console.log('Email notification sent successfully:', response);
-    return { success: true, response };
+    // Add promises for additional templates if provided
+    if (additionalTemplates && additionalTemplates.length > 0) {
+      additionalTemplates.forEach(template => {
+        if (template.serviceId && template.templateId) {
+          sendPromises.push(
+            emailjs.send(template.serviceId, template.templateId, templateParams)
+          );
+        }
+      });
+    }
+    
+    // Execute all email send promises in parallel
+    const results = await Promise.allSettled(sendPromises);
+    
+    // Count successes and failures
+    const successCount = results.filter(r => r.status === 'fulfilled').length;
+    const failureCount = results.length - successCount;
+    
+    console.log(`Email notifications summary - Success: ${successCount}, Failed: ${failureCount}`);
+    
+    return { 
+      success: successCount > 0, 
+      results: results,
+      summary: { total: results.length, success: successCount, failed: failureCount }
+    };
   } catch (error) {
     console.error('Error sending email notification:', error);
     return { success: false, error };
