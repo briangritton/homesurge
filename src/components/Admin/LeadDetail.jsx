@@ -12,6 +12,7 @@ import {
 } from 'firebase/firestore';
 import { trackFirebaseConversion, deleteLeadFromFirebase } from '../../services/firebase';
 import { sendLeadAssignmentSMS } from '../../services/twilio';
+import PriorityInfoFields from './PriorityInfoFields';
 
 // CSS for the lead detail view
 const styles = {
@@ -58,6 +59,14 @@ const styles = {
     borderRadius: '8px',
     padding: '20px',
     marginBottom: '20px',
+  },
+  prioritySection: {
+    background: '#f8f9fa',
+    border: '1px solid #e9ecef',
+    borderRadius: '8px',
+    padding: '20px',
+    marginBottom: '20px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
   },
   sectionTitle: {
     fontSize: '16px',
@@ -549,6 +558,12 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
             </>
           )}
         </div>
+      </div>
+
+      {/* Priority Information Section */}
+      <div style={styles.prioritySection} className="crm-lead-section crm-lead-priority-section">
+        <h3 style={styles.sectionTitle}>Priority Information</h3>
+        <PriorityInfoFields lead={lead} />
       </div>
       
       <div style={styles.tabs} className="crm-lead-detail-tabs">
