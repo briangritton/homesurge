@@ -8,6 +8,7 @@ export const PriorityFields = [
   { id: 'priorityName', label: 'Name', section: 'priority', type: 'special', specialRender: 'priorityName' },
   { id: 'priorityPhone', label: 'Phone', section: 'priority', type: 'special', specialRender: 'priorityPhone' },
   { id: 'apiMaxHomeValue', label: 'API Max Value', section: 'priority', type: 'currency', showOnlyIfExists: true },
+  { id: 'apiEquity', label: 'API Equity', section: 'priority', type: 'currency', showOnlyIfExists: true },
   { id: 'apiPercentage', label: 'API Equity Percentage', section: 'priority', type: 'percentage', showOnlyIfExists: true },
   { id: 'keyword', label: 'Keyword', section: 'priority', type: 'text', showOnlyIfExists: true },
   { id: 'matchtype', label: 'Match Type', section: 'priority', type: 'special', specialRender: 'matchType', showOnlyIfExists: true },
