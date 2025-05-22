@@ -531,6 +531,7 @@ function PersonalInfoForm() {
                   leadData, 
                   'service_zeuf0n8', // Primary Service ID
                   'template_kuv08p4', // Primary Template ID
+                  additionalTemplates // Additional templates
                 );
                 
                 console.log('📧📧📧 EMAIL DEBUG: EmailJS notification summary:', emailResult.summary);
