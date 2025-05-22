@@ -5,6 +5,7 @@ import {
   AddressFields,
   ContactFields,
   LeadFields,
+  PriorityFields,
   renderFieldValue
 } from './LeadDetailFields';
 
@@ -21,17 +22,26 @@ export default function LeadDetail({ lead }) {
     // Make sure all fields from the lead are displayed even if they aren't
     // explicitly defined in the field arrays
     const shouldShowField = (field) => {
+      if (field.showOnlyIfExists) {
+        return lead[field.id] !== undefined && lead[field.id] !== null && lead[field.id] !== '';
+      }
       return lead[field.id] !== undefined && lead[field.id] !== null && lead[field.id] !== '';
     };
 
     return (
       <div className="lead-detail-fields crm-lead-detail-fields">
-        {fields.filter(shouldShowField).map(field => (
-          <div className={`field-row crm-field-row ${field.id.includes('autoFilled') ? 'crm-auto-filled-field' : ''}`} key={field.id}>
-            <div className="field-label crm-field-label">{field.label}:</div>
-            <div className="field-value crm-field-value">{renderFieldValue(lead, field)}</div>
-          </div>
-        ))}
+        {fields.filter(shouldShowField).map(field => {
+          const fieldValue = renderFieldValue(lead, field);
+          // Skip fields that return null (conditionally hidden)
+          if (fieldValue === null) return null;
+          
+          return (
+            <div className={`field-row crm-field-row ${field.id.includes('autoFilled') ? 'crm-auto-filled-field' : ''}`} key={field.id}>
+              <div className="field-label crm-field-label">{field.label}:</div>
+              <div className="field-value crm-field-value">{fieldValue}</div>
+            </div>
+          );
+        })}
       </div>
     );
   };
@@ -39,6 +49,12 @@ export default function LeadDetail({ lead }) {
   return (
     <div className="lead-detail-container crm-lead-detail-container">
       <h2 className="crm-lead-title">Lead: {lead.name || 'Unnamed Lead'}</h2>
+      
+      {/* Priority Information Card */}
+      <div className="crm-priority-card">
+        <h3 className="crm-section-title">Priority Information</h3>
+        {renderFields(PriorityFields)}
+      </div>
       
       {/* Tabs for different sections */}
       <div className="lead-tabs crm-lead-tabs crm-lead-detail-tabs">
@@ -169,6 +185,23 @@ export default function LeadDetail({ lead }) {
         .crm-phone-link:hover,
         .crm-email-link:hover {
           text-decoration: underline;
+        }
+        
+        .crm-priority-card {
+          background: #f8f9fa;
+          border: 1px solid #e9ecef;
+          border-radius: 8px;
+          padding: 15px;
+          margin-bottom: 20px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .crm-priority-card .crm-section-title {
+          margin-top: 0;
+          color: #2e7b7d;
+          border-bottom: 1px solid #e9ecef;
+          padding-bottom: 8px;
+          margin-bottom: 15px;
         }
         
         @media (min-width: 768px) {

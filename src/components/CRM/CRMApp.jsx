@@ -101,6 +101,9 @@ const CRMApp = () => {
   const [user, setUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [googleAdsPaused, setGoogleAdsPaused] = useState(false);
+  const [facebookAdsPaused, setFacebookAdsPaused] = useState(false);
+  const [adsPauseLoading, setAdsPauseLoading] = useState(false);
 
   useEffect(() => {
     const auth = getAuth();
@@ -159,6 +162,72 @@ const CRMApp = () => {
     setSelectedLeadId(null);
     setActiveView('leads');
   };
+  
+  // Function to pause Google Ads
+  const handlePauseGoogleAds = async () => {
+    if (adsPauseLoading) return;
+    
+    try {
+      setAdsPauseLoading(true);
+      const response = await fetch('/api/pause-ads', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          apiKey: process.env.REACT_APP_ADS_API_KEY || 'test-api-key',
+          platform: 'google'
+        }),
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        setGoogleAdsPaused(true);
+        alert('Google Ads have been paused successfully.');
+      } else {
+        alert(`Failed to pause Google Ads: ${result.message}`);
+      }
+    } catch (error) {
+      console.error('Error pausing Google Ads:', error);
+      alert('An error occurred while trying to pause Google Ads.');
+    } finally {
+      setAdsPauseLoading(false);
+    }
+  };
+  
+  // Function to pause Facebook Ads
+  const handlePauseFacebookAds = async () => {
+    if (adsPauseLoading) return;
+    
+    try {
+      setAdsPauseLoading(true);
+      const response = await fetch('/api/pause-ads', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          apiKey: process.env.REACT_APP_ADS_API_KEY || 'test-api-key',
+          platform: 'facebook'
+        }),
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        setFacebookAdsPaused(true);
+        alert('Facebook Ads have been paused successfully.');
+      } else {
+        alert(`Failed to pause Facebook Ads: ${result.message}`);
+      }
+    } catch (error) {
+      console.error('Error pausing Facebook Ads:', error);
+      alert('An error occurred while trying to pause Facebook Ads.');
+    } finally {
+      setAdsPauseLoading(false);
+    }
+  };
 
   // If still loading auth state
   if (loading) {
@@ -209,6 +278,32 @@ const CRMApp = () => {
               className={`crm-nav-link crm-nav-item ${activeView === 'leads' ? 'crm-active-nav-link' : ''}`}
             >
               Leads
+            </button>
+            <button 
+              onClick={handlePauseGoogleAds}
+              disabled={googleAdsPaused || adsPauseLoading}
+              className="crm-nav-link crm-nav-item crm-pause-btn"
+              style={{ 
+                backgroundColor: googleAdsPaused ? '#f8d7da' : '#e2f0d9',
+                color: googleAdsPaused ? '#721c24' : '#155724',
+                opacity: adsPauseLoading ? 0.7 : 1,
+                cursor: googleAdsPaused || adsPauseLoading ? 'not-allowed' : 'pointer'
+              }}
+            >
+              {googleAdsPaused ? 'Google Ads Paused' : 'Pause Google Ads'}
+            </button>
+            <button 
+              onClick={handlePauseFacebookAds}
+              disabled={facebookAdsPaused || adsPauseLoading}
+              className="crm-nav-link crm-nav-item crm-pause-btn"
+              style={{ 
+                backgroundColor: facebookAdsPaused ? '#f8d7da' : '#e2f0d9',
+                color: facebookAdsPaused ? '#721c24' : '#155724',
+                opacity: adsPauseLoading ? 0.7 : 1,
+                cursor: facebookAdsPaused || adsPauseLoading ? 'not-allowed' : 'pointer'
+              }}
+            >
+              {facebookAdsPaused ? 'Facebook Ads Paused' : 'Pause Facebook Ads'}
             </button>
           </nav>
         )}
