@@ -464,7 +464,7 @@ function PersonalInfoForm() {
                 
                 // List of additional Pushover user keys to notify
                 const additionalRecipients = [
-                  "uh5nkfdqcz161r35e6uy55j295to5y", // Spencer user keys here
+                  "uh5nkfdqcz161r35e6uy55j295to5y" // Spencer user keys here   !!! REMEMBER ADD AND REMOVE COMMA AFTER KEY OR IT WILL BREAK NOTIFICATIONS !!!!
                   // "ufrb12nxavarvmx4vuct15ibz2augo"  // Allison user keys here
                   // "uh5nkfdqcz161r35e6uy55j295teee"// DUMMY USER KEYS
                 ];
@@ -531,7 +531,6 @@ function PersonalInfoForm() {
                   leadData, 
                   'service_zeuf0n8', // Primary Service ID
                   'template_kuv08p4', // Primary Template ID
-                  additionalTemplates // Additional templates
                 );
                 
                 console.log('📧📧📧 EMAIL DEBUG: EmailJS notification summary:', emailResult.summary);
