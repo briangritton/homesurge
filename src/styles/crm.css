@@ -775,7 +775,11 @@ overflow:visible !important;}
   .crm-lead-detail-content {
     flex-direction: column;
   }
-  
+  .crm-title {
+font-size: 16px;
+font-weight: 700;
+margin: 0;
+}
   .crm-lead-detail-tabs {
     flex-wrap: wrap;
     justify-content: flex-start;

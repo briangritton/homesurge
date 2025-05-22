@@ -3,6 +3,16 @@ import React from 'react';
 // This component defines the field structure for the CRM dashboard
 // It ensures all the fields from Zoho CRM are mirrored in the Firebase CRM
 
+// Priority Information Fields
+export const PriorityFields = [
+  { id: 'priorityName', label: 'Name', section: 'priority', type: 'special', specialRender: 'priorityName' },
+  { id: 'priorityPhone', label: 'Phone', section: 'priority', type: 'special', specialRender: 'priorityPhone' },
+  { id: 'apiMaxHomeValue', label: 'API Max Value', section: 'priority', type: 'currency', showOnlyIfExists: true },
+  { id: 'apiPercentage', label: 'API Equity Percentage', section: 'priority', type: 'percentage', showOnlyIfExists: true },
+  { id: 'keyword', label: 'Keyword', section: 'priority', type: 'text', showOnlyIfExists: true },
+  { id: 'matchtype', label: 'Match Type', section: 'priority', type: 'special', specialRender: 'matchType', showOnlyIfExists: true },
+];
+
 export const PropertyFields = [
   { id: 'apiOwnerName', label: 'API Owner Name', section: 'property', type: 'text' },
   { id: 'apiEstimatedValue', label: 'API Estimated Value', section: 'property', type: 'currency' },
@@ -65,8 +75,38 @@ export const LeadFields = [
 
 // Helper function to render field based on type
 export const renderFieldValue = (lead, field) => {
+  // Check if field should only be shown if it has a value
+  if (field.showOnlyIfExists && (!lead || lead[field.id] === undefined || lead[field.id] === null || lead[field.id] === '')) {
+    return null;
+  }
+
   if (!lead || lead[field.id] === undefined || lead[field.id] === null) {
     return '-';
+  }
+
+  // Handle special render cases
+  if (field.type === 'special') {
+    switch (field.specialRender) {
+      case 'priorityName':
+        // Use name if available, otherwise use autoFilledName
+        return lead.name || lead.autoFilledName || '-';
+      
+      case 'priorityPhone':
+        // Use phone if available, otherwise use autoFilledPhone
+        const phone = lead.phone || lead.autoFilledPhone || '-';
+        return phone !== '-' ? <a href={`tel:${phone}`} className="crm-phone-link">{phone}</a> : '-';
+      
+      case 'matchType':
+        // Format match type: e to exact, p to phrase match, b to broad match
+        const matchType = lead.matchtype;
+        if (matchType === 'e') return 'Exact Match';
+        if (matchType === 'p') return 'Phrase Match';
+        if (matchType === 'b') return 'Broad Match';
+        return matchType || '-';
+        
+      default:
+        return lead[field.id];
+    }
   }
 
   switch (field.type) {
@@ -130,6 +170,7 @@ export const renderFieldValue = (lead, field) => {
 
 // Export all fields for easy access
 export const AllFields = [
+  ...PriorityFields,
   ...ContactFields,
   ...AddressFields,
   ...PropertyFields,
