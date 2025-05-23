@@ -38,6 +38,8 @@
   padding-top: 2rem;
   margin-bottom: 5px;
   color: #333;
+  word-break: keep-all;
+  hyphens: none;
 }
 
 .vb-subheadline {
@@ -77,8 +79,8 @@
 }
 
 .vb-input:focus {
-  border-color: #2e7b7d;
-  box-shadow: 0 0 0 2px rgba(52, 144, 209, 0.25);
+  border-color: #00b8e6;
+  box-shadow: 0 0 0 2px rgba(0, 184, 230, 0.25);
   outline: none;
 }
 
@@ -103,8 +105,8 @@
 }
 
 .vb-button {
-  background-color: #2e7b7d;
-  border: 1px solid #236869;
+  background-color: #236b6d;
+  border: 1px solid #1a5b5d;
   border-radius: 5px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   color: #fff;
@@ -120,11 +122,11 @@
 }
 
 .vb-button:hover {
-  background-color: #35908f;
+  background-color: #2a8084;
 }
 
 .vb-error-message {
-  color: #35908f;
+  color: #2a8084;
   font-size: 1.5rem;
   height: 0px;
   line-height: 1;
@@ -138,11 +140,13 @@
   width: 90%;
   max-width: 500px;
   margin: 0 auto 30px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 12px;
+  border: 1px solid;
+  border-image: linear-gradient(135deg, #00b8e6 0%, #236b6d 100%) 1;
+  box-shadow: 0 0 20px 4px rgba(0, 184, 230, 0.15), 0 4px 15px rgba(0, 0, 0, 0.05);
   overflow: hidden;
   position: relative;
+  background: white;
 }
 
 /* Progress bar styles */
@@ -234,7 +238,7 @@
   font-weight: bold;
   margin-bottom: 20px;
   text-align: center;
-  color: #2e7b7d;
+  color: #236b6d;
 }
 
 /* Report-specific styles */
@@ -335,14 +339,14 @@
 .vb-lock-icon {
   font-size: 60px;
   margin-bottom: 20px;
-  color: #2e7b7d;
+  color: #236b6d;
 }
 
 .vb-feature-item {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
-  background-color: rgba(0, 102, 204, 0.1);
+  background-color: rgba(0, 184, 230, 0.1);
   border-radius: 8px;
   padding: 10px 15px;
   max-width: 500px;
@@ -380,8 +384,15 @@
   padding: 12px 15px;
   font-size: 16px;
   border-radius: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid rgba(0, 184, 230, 0.3);
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.vb-form-input:focus {
+  border-color: #00b8e6;
+  box-shadow: 0 0 0 2px rgba(0, 184, 230, 0.25);
+  outline: none;
 }
 
 .vb-form-error {
@@ -391,7 +402,7 @@
 }
 
 .vb-submit-button {
-  background-color: #2e7b7d;
+  background-color: #236b6d;
   color: white;
   border: none;
   border-radius: 8px;
@@ -401,11 +412,11 @@
   cursor: pointer;
   transition: background-color 0.3s ease;
   width: 100%;
-  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 184, 230, 0.3);
 }
 
 .vb-submit-button:hover {
-  background-color: #236869;
+  background-color: #1a5b5d;
 }
 
 .vb-submit-button:disabled {
@@ -463,10 +474,51 @@
   color: #555;
 }
 
-/* Animations */
-@keyframes vb-scanGlow {
-  0% { opacity: 0.6; box-shadow: 0 0 10px 2px rgba(63, 204, 255, 0.5); }
-  100% { opacity: 1; box-shadow: 0 0 20px 5px rgba(63, 204, 255, 0.9); }
+/* Modern Animations */
+@keyframes modernScanGlow {
+  0% { 
+    opacity: 0.8; 
+    box-shadow: 0 0 20px 4px rgba(0, 212, 255, 0.4), 0 0 40px 8px rgba(0, 212, 255, 0.2);
+    transform: scaleX(1);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 30px 6px rgba(0, 212, 255, 0.6), 0 0 60px 12px rgba(0, 212, 255, 0.3);
+    transform: scaleX(1.02);
+  }
+  100% { 
+    opacity: 0.8; 
+    box-shadow: 0 0 20px 4px rgba(0, 212, 255, 0.4), 0 0 40px 8px rgba(0, 212, 255, 0.2);
+    transform: scaleX(1);
+  }
+}
+
+@keyframes dataPointPulse {
+  0% { 
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.4);
+    opacity: 0.8;
+  }
+  100% { 
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+@keyframes progressShimmer {
+  0% { left: '-100%'; }
+  50% { left: '0%'; }
+  100% { left: '100%'; }
+}
+
+@keyframes dotFadeInOut {
+  0% { opacity: 0; }
+  25% { opacity: 1; }
+  75% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
 @keyframes vb-spin {
@@ -544,5 +596,189 @@
   .vb-input {
     font-size: 1.2rem;
     height: 56px;
+  }
+}
+
+/* ValueBoost AddressForm Modern Overrides */
+.vb-af1-address-input,
+.af1-address-input.vb-af1-address-input,
+.address-input.vb-af1-address-input {
+  border: 2px solid rgba(0, 184, 230, 0.5) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 184, 230, 0.1) !important;
+  background: white !important;
+  font-size: 1.5rem !important;
+  height: 60px !important;
+  padding-left: 20px !important;
+  transition: all 0.3s ease !important;
+}
+
+.vb-af1-address-input:focus,
+.af1-address-input.vb-af1-address-input:focus,
+.address-input.vb-af1-address-input:focus {
+  border-color: #00b8e6 !important;
+  box-shadow: 0 0 0 3px rgba(0, 184, 230, 0.2), 0 4px 15px rgba(0, 184, 230, 0.15) !important;
+  outline: none !important;
+}
+
+.vb-af1-address-input-invalid,
+.af1-address-input-invalid.vb-af1-address-input-invalid,
+.address-input-invalid.vb-af1-address-input-invalid {
+  border: 2px solid #ff4d4f !important;
+  border-radius: 12px !important;
+  box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2) !important;
+  background-color: rgba(255, 77, 79, 0.05) !important;
+}
+
+
+.vb-af1-submit-button,
+.af1-submit-button.vb-af1-submit-button,
+.submit-button.vb-af1-submit-button {
+  background: linear-gradient(135deg, #00b8e6 0%, #236b6d 100%) !important;
+  border: none !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 20px rgba(0, 184, 230, 0.3) !important;
+  color: white !important;
+  font-size: 18px !important;
+  font-weight: bold !important;
+  padding: 18px 30px !important;
+  transition: all 0.3s ease !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.vb-af1-submit-button::before,
+.af1-submit-button.vb-af1-submit-button::before,
+.submit-button.vb-af1-submit-button::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: -100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%) !important;
+  transition: left 0.6s ease !important;
+  z-index: 1 !important;
+}
+
+.vb-af1-submit-button:hover::before,
+.af1-submit-button.vb-af1-submit-button:hover::before,
+.submit-button.vb-af1-submit-button:hover::before {
+  left: 100% !important;
+}
+
+.vb-af1-submit-button:hover,
+.af1-submit-button.vb-af1-submit-button:hover,
+.submit-button.vb-af1-submit-button:hover {
+  background: linear-gradient(135deg, #0099cc 0%, #1a5b5d 100%) !important;
+  box-shadow: 0 12px 25px rgba(0, 184, 230, 0.4) !important;
+}
+
+.vb-af1-submit-button:disabled,
+.af1-submit-button.vb-af1-submit-button:disabled,
+.submit-button.vb-af1-submit-button:disabled {
+  background: linear-gradient(135deg, #95d8c0 0%, #a8e6cf 100%) !important;
+  transform: none !important;
+  cursor: default !important;
+}
+
+.vb-af1-error-message,
+.af1-error-message.vb-af1-error-message,
+.error-message.vb-af1-error-message {
+  color: #ff4d4f !important;
+  font-size: 16px !important;
+  margin-top: 10px !important;
+  padding: 10px !important;
+  background-color: rgba(255, 77, 79, 0.1) !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(255, 77, 79, 0.3) !important;
+}
+
+/* Sliding Flare Effect for Buttons */
+.vb-button-flare {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.vb-button-flare::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: -100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%) !important;
+  transition: left 0.6s ease !important;
+  z-index: 1 !important;
+}
+
+.vb-button-flare:hover::before {
+  left: 100% !important;
+}
+
+/* ValueBoost Logo Styles */
+.valueboost-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.valueboost-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+}
+
+.valueboost-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.valueboost-brand {
+  font-size: 18px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #00b8e6 0%, #236b6d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 1px;
+}
+
+.valueboost-boost {
+  font-size: 18px;
+  font-weight: 900;
+  font-style: italic;
+  background: linear-gradient(135deg, #00b8e6 0%, #236b6d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 1.5px;
+  margin-top: -2px;
+}
+
+/* Responsive adjustments for logo */
+@media (max-width: 768px) {
+  .valueboost-logo {
+    gap: 8px;
+  }
+  
+  .valueboost-icon {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .valueboost-icon svg {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .valueboost-brand,
+  .valueboost-boost {
+    font-size: 16px;
   }
 }
