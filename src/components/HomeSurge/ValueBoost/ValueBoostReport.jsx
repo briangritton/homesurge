@@ -1389,7 +1389,13 @@ function ValueBoostReport() {
               </div>
 
               <button
-                onClick={() => window.scrollTo({ top: document.getElementById('recommendations-section').offsetTop - 50, behavior: 'smooth' })}
+                onClick={() => {
+                  // Simply focus on the recommendations section without scrolling
+                  const element = document.getElementById('recommendations-section');
+                  if (element) {
+                    element.focus();
+                  }
+                }}
                 style={{
                   backgroundColor: '#2e7d32',
                   color: 'white',
