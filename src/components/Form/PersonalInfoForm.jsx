@@ -462,16 +462,9 @@ function PersonalInfoForm() {
                   url_title: "View in CRM"
                 };
                 
-                // List of additional Pushover user keys to notify
-                const additionalRecipients = [
-                  "uh5nkfdqcz161r35e6uy55j295to5y" // Spencer user keys here   !!! REMEMBER ADD AND REMOVE COMMA AFTER KEY OR IT WILL BREAK NOTIFICATIONS !!!!
-                  // "ufrb12nxavarvmx4vuct15ibz2augo"  // Allison user keys here
-                  // "uh5nkfdqcz161r35e6uy55j295teee"// DUMMY USER KEYS
-                ];
-                
-                // Send to each recipient
+                // Send to primary user (this will always run)
                 const sendPromises = [
-                  // Send to primary user
+                  // Primary user notification
                   fetch('/api/pushover/send-notification', {
                     method: 'POST',
                     headers: { 
@@ -482,24 +475,41 @@ function PersonalInfoForm() {
                   })
                 ];
                 
-                // Also send to additional recipients if configured
-                additionalRecipients.forEach(recipientKey => {
-                  if (recipientKey && recipientKey.trim()) {
-                    sendPromises.push(
-                      fetch('/api/pushover/send-notification', {
-                        method: 'POST',
-                        headers: { 
-                          'Content-Type': 'application/json',
-                          'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                          ...requestBody,
-                          user: recipientKey
-                        })
-                      })
-                    );
-                  }
-                });
+                // ================= ADDITIONAL RECIPIENTS SECTION ==================
+                // To disable ALL additional notifications:
+                // 1. Simply comment out this entire block (from BEGIN to END tags)
+                // ================= BEGIN ADDITIONAL RECIPIENTS ===================
+                
+                // // List of additional Pushover user keys to notify
+                // const additionalRecipients = [
+                //   "uh5nkfdqcz161r35e6uy55j295to5y" // Spencer user keys here
+                //   // Add more recipients here - each on a new line
+                //   // "ufrb12nxavarvmx4vuct15ibz2augo"  // Allison user keys here
+                //   // "uh5nkfdqcz161r35e6uy55j295teee"  // DUMMY USER KEYS
+                // ];
+                
+                // // Send to each additional recipient
+                // if (additionalRecipients && additionalRecipients.length > 0) {
+                //   additionalRecipients.forEach(recipientKey => {
+                //     if (recipientKey && recipientKey.trim()) {
+                //       sendPromises.push(
+                //         fetch('/api/pushover/send-notification', {
+                //           method: 'POST',
+                //           headers: { 
+                //             'Content-Type': 'application/json',
+                //             'Accept': 'application/json'
+                //           },
+                //           body: JSON.stringify({
+                //             ...requestBody,
+                //             user: recipientKey
+                //           })
+                //         })
+                //       );
+                //     }
+                //   });
+                // }
+                
+                // ================= END ADDITIONAL RECIPIENTS =====================
                 
                 // Execute all Pushover send promises in parallel
                 const results = await Promise.allSettled(sendPromises);
@@ -517,21 +527,33 @@ function PersonalInfoForm() {
               try {
                 console.log('📧📧📧 EMAIL DEBUG: Sending EmailJS notification in background');
                 
-                // Define additional templates for secondary recipients
-                const additionalTemplates = [
-                  {
-                    serviceId: 'service_zeuf0n8', // Same or different service ID
-                    templateId: 'template_85tw59u' // Secondary template ID
-                  }
-                  // Add more templates here as needed
-                ];
+                // Primary EmailJS notification - this will always run
+                const primaryServiceId = 'service_zeuf0n8'; // Primary Service ID
+                const primaryTemplateId = 'template_kuv08p4'; // Primary Template ID
                 
-                // Send to primary and all additional recipients
+                // ================= ADDITIONAL EMAIL TEMPLATES SECTION ==================
+                // To disable ALL additional email notifications:
+                // 1. Simply comment out this entire block (from BEGIN to END tags)
+                // ================= BEGIN ADDITIONAL EMAIL TEMPLATES ===================
+                
+                // // Define additional templates for secondary recipients
+                // const additionalTemplates = [
+                //   {
+                //     serviceId: 'service_zeuf0n8', // Same or different service ID
+                //     templateId: 'template_85tw59u' // Secondary template ID
+                //   }
+               
+                // ];
+                
+                // ================= END ADDITIONAL EMAIL TEMPLATES =====================
+                
+                // Send to primary and all additional recipients (if configured)
                 const emailResult = await sendLeadNotificationEmail(
                   leadData, 
-                  'service_zeuf0n8', // Primary Service ID
-                  'template_kuv08p4', // Primary Template ID
-                  additionalTemplates // Additional templates
+                  primaryServiceId,
+                  primaryTemplateId,
+                  // Pass empty array if additionalTemplates is commented out
+                  typeof additionalTemplates !== 'undefined' ? additionalTemplates : []
                 );
                 
                 console.log('📧📧📧 EMAIL DEBUG: EmailJS notification summary:', emailResult.summary);

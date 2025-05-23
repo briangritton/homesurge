@@ -528,8 +528,8 @@ export function FormProvider({ children }) {
       },
       "value": {
         type: 'VALUE',
-        headline: 'Check The Value Of Your Home!',
-        subHeadline: 'Find out how much your home is worth today.',
+        headline: 'Need to Check Your Home Value Fast?',
+        subHeadline: 'Find out how much equity you have now.',
         thankYouHeadline: 'Home Value Request Completed!',
         thankYouSubHeadline: 'You\'ll be receiving your home value details at your contact number shortly, thank you!',
         buttonText: 'CHECK VALUE'
