@@ -223,7 +223,7 @@ function AIProcessing() {
           <div style={{ 
             marginTop: '20px', 
             marginBottom: '30px',
-            minHeight: '50px',
+            minHeight: '70px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center'
@@ -313,29 +313,86 @@ function AIProcessing() {
               </>
             ) : (
               <>
-                {/* Fallback "House blueprint" background */}
+                {/* AI thinking background */}
                 <div style={{
                   position: 'absolute',
                   top: 0,
                   left: 0,
                   width: '100%',
                   height: '100%',
-                  backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'100%25\' height=\'100%25\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cdefs%3E%3Cpattern id=\'grid\' width=\'20\' height=\'20\' patternUnits=\'userSpaceOnUse\'%3E%3Cpath d=\'M 20 0 L 0 0 0 20\' fill=\'none\' stroke=\'%23e0e0e0\' stroke-width=\'0.5\'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width=\'100%25\' height=\'100%25\' fill=\'url(%23grid)\' /%3E%3C/svg%3E")',
-                  opacity: 0.4
+                  background: 'radial-gradient(circle at center, #f8faff 0%, #e6f3ff 100%)',
+                  borderRadius: '7px'
                 }} />
 
-                {/* House icon in center */}
+                {/* Central AI core */}
                 <div style={{
                   position: 'absolute',
                   top: '50%',
                   left: '50%',
+                  width: '40px',
+                  height: '40px',
+                  background: 'radial-gradient(circle, #00b8e6 0%, #236b6d 100%)',
+                  borderRadius: '50%',
                   transform: 'translate(-50%, -50%)',
-                  fontSize: '80px',
-                  color: '#555',
-                  opacity: 0.3
-                }}>
-                  🏠
-                </div>
+                  animation: 'aiCorePulse 3s ease-in-out infinite',
+                  boxShadow: '0 0 20px rgba(0, 184, 230, 0.6)',
+                  zIndex: 3
+                }} />
+
+                {/* Swirling orbs - different sizes and speeds */}
+                {[
+                  { size: 8, distance: 60, speed: 4, delay: 0 },
+                  { size: 6, distance: 80, speed: 6, delay: 1 },
+                  { size: 10, distance: 45, speed: 5, delay: 2 },
+                  { size: 4, distance: 100, speed: 7, delay: 0.5 },
+                  { size: 12, distance: 35, speed: 3, delay: 1.5 },
+                  { size: 5, distance: 90, speed: 8, delay: 2.5 }
+                ].map((orb, i) => (
+                  <div key={i} style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    width: `${orb.size}px`,
+                    height: `${orb.size}px`,
+                    background: `radial-gradient(circle, rgba(0, 184, 230, 0.8) 0%, rgba(35, 107, 109, 0.4) 100%)`,
+                    borderRadius: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    animation: `aiOrbSwirl${i} ${orb.speed}s linear infinite ${orb.delay}s`,
+                    boxShadow: `0 0 ${orb.size}px rgba(0, 184, 230, 0.5)`,
+                    zIndex: 2
+                  }} />
+                ))}
+
+                {/* Thinking particles */}
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <div key={`particle-${i}`} style={{
+                    position: 'absolute',
+                    top: `${45 + Math.sin(i * 0.5) * 15}%`,
+                    left: `${45 + Math.cos(i * 0.5) * 15}%`,
+                    width: '2px',
+                    height: '2px',
+                    backgroundColor: '#00b8e6',
+                    borderRadius: '50%',
+                    animation: `aiParticleFloat 2s ease-in-out infinite ${i * 0.2}s`,
+                    opacity: 0.7
+                  }} />
+                ))}
+
+                {/* Ripple effects */}
+                {[1, 2, 3].map((ring, i) => (
+                  <div key={`ripple-${i}`} style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    width: `${ring * 60}px`,
+                    height: `${ring * 60}px`,
+                    border: '1px solid rgba(0, 184, 230, 0.2)',
+                    borderRadius: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    animation: `aiRipple 4s ease-out infinite ${i * 0.8}s`,
+                    pointerEvents: 'none'
+                  }} />
+                ))}
               </>
             )}
             

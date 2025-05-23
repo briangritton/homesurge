@@ -165,7 +165,7 @@ function AddressForm() {
     }
   };
   
-  // Track browser autofill events
+  // Track browser autofill events with comprehensive address auto-submission
   useEffect(() => {
     // Keep track of which fields have been autofilled
     const autofilledFields = new Set();
@@ -184,18 +184,128 @@ function AddressForm() {
           // Get the value filled in by browser
           setTimeout(() => {
             if (e.target.value) {
+              console.log(`Autofilled ${e.target.name} value:`, e.target.value);
+              // Update the form data with this auto-filled value
               const fieldUpdate = {};
               if (e.target.name === 'name') {
+                // Store the original name without tags
                 fieldUpdate.name = e.target.value;
-                fieldUpdate.autoFilledName = e.target.value;
-                fieldUpdate.nameWasAutofilled = true;
+                fieldUpdate.autoFilledName = e.target.value; // Store original name separately
+                fieldUpdate.nameWasAutofilled = true; // Flag to track autofill status
               }
               if (e.target.name === 'tel') {
                 fieldUpdate.phone = e.target.value;
-                fieldUpdate.autoFilledPhone = e.target.value;
+                fieldUpdate.autoFilledPhone = e.target.value; // Store original phone separately
               }
               
               updateFormData(fieldUpdate);
+            }
+          }, 100); // Small delay to ensure the browser has filled in the value
+        }
+        
+        // Check if the address field was auto-filled
+        if (e.target.name === 'address-line1') {
+          // Wait a bit for the autofill to complete
+          setTimeout(() => {
+            if (e.target.value && e.target.value.length > 10) {
+              console.log('Address autofilled with value:', e.target.value);
+              
+              // If the address is sufficiently filled, and we have at least one more field autofilled,
+              // trigger form submission
+              if (autofilledFields.size > 1 || autofilledFields.has('name') || autofilledFields.has('tel')) {
+                console.log('Multiple fields autofilled, triggering form submission');
+                
+                // Allow time for all browser autofill data to be populated
+                setTimeout(() => {
+                  console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Input field contains:', inputRef.current ? inputRef.current.value : 'not available');
+                  console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: formData.street =', formData.street);
+                  console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: firstSuggestion =', firstSuggestion);
+                  console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: autofilledFields =', Array.from(autofilledFields));
+                  
+                  // Need to ensure formData is updated with the current input value
+                  if (inputRef.current && inputRef.current.value) {
+                    console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Updating formData with current input value');
+                    updateFormData({ street: inputRef.current.value });
+                    
+                    // Request suggestions for the address and process it
+                    if (inputRef.current && inputRef.current.value.length > 3 && googleApiLoaded && autocompleteServiceRef.current) {
+                      console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Requesting suggestions for autofilled address');
+                      
+                      // Request suggestions in a separate function to avoid nesting issues
+                      const getAndProcessSuggestions = () => {
+                        return new Promise((resolve) => {
+                          // Add timeout to prevent waiting indefinitely
+                          const timeoutId = setTimeout(() => {
+                            console.log('⚠️ Address suggestions request timed out after 2 seconds');
+                            // Proceed with manual submission
+                            resolve(false);
+                          }, 2000); // 2 second timeout
+                          
+                          autocompleteServiceRef.current.getPlacePredictions({
+                            input: inputRef.current.value,
+                            sessionToken: sessionTokenRef.current,
+                            componentRestrictions: { country: 'us' },
+                            types: ['address']
+                          }, (predictions, status) => {
+                            clearTimeout(timeoutId); // Clear timeout since we got a response
+                            
+                            if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
+                              console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Got suggestions:', predictions);
+                              // Store the first suggestion
+                              setFirstSuggestion(predictions[0]);
+                              resolve(predictions[0]);
+                            } else {
+                              console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: No suggestions found for:', inputRef.current.value);
+                              resolve(false);
+                            }
+                          });
+                        });
+                      };
+                      
+                      // Get suggestions and process them
+                      getAndProcessSuggestions().then(suggestion => {
+                        console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Processed suggestions:', suggestion);
+                        
+                        if (suggestion && suggestion.place_id) {
+                          // Use the suggestion if available
+                          console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Using suggestion:', suggestion.description);
+                          
+                          // Get place details
+                          getPlaceDetails(suggestion.place_id)
+                            .then(placeDetails => {
+                              if (placeDetails && placeDetails.formatted_address) {
+                                console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Got place details:', placeDetails.formatted_address);
+                                
+                                // Process the address selection
+                                processAddressSelection(placeDetails);
+                                
+                                // Move to next step
+                                nextStep();
+                              } else {
+                                console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: No valid place details, using button click');
+                                handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                              }
+                            })
+                            .catch(error => {
+                              console.error('🔍 AUTOFILL ANIMATION DIAGNOSIS: Error getting place details:', error);
+                              handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                            });
+                        } else {
+                          console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: No suggestion available, using button click');
+                          handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                        }
+                      });
+                    } else {
+                      // If we can't get suggestions, fall back to button click
+                      console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Cannot get suggestions, using button click');
+                      handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                    }
+                  } else {
+                    console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: No value in input field, using standard submission');
+                    handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                  }
+                }, 600);
+              }
             }
           }, 100);
         }
@@ -505,13 +615,6 @@ function AddressForm() {
       });
     }
     
-    // Log the extracted address components
-    console.log('Extracted address components:', {
-      city: addressComponents.city,
-      state: addressComponents.state,
-      zip: addressComponents.zip
-    });
-    
     // Get location data if available
     const location = place.geometry?.location ? {
       lat: place.geometry.location.lat(),
@@ -553,27 +656,60 @@ function AddressForm() {
     
     // Create or update lead with the final selection and address data
     try {
+      // Get campaign data from formContext
+      const { campaign_name, campaign_id, adgroup_id, adgroup_name, keyword, gclid, device, traffic_source, template_type } = formData;
+      
+      console.log("%c ValueBoost AddressForm - Campaign Data Check", "background: #ff9800; color: black; font-size: 12px; padding: 4px;");
+      console.log("Campaign Data in FormContext:", {
+        campaign_name,
+        campaign_id,
+        adgroup_id, 
+        adgroup_name,
+        keyword,
+        gclid,
+        device,
+        traffic_source,
+        template_type
+      });
+      
       // Prepare data for the lead
       const finalSelectionData = {
-        // Use the proper field names that will map to Zoho
+        // Use the proper field names that will map to Firebase
         street: place.formatted_address,
         city: addressComponents.city,
         state: addressComponents.state,
         zip: addressComponents.zip,
         
+        // Include name and phone if available
+        name: formData.name || '',
+        phone: formData.phone || '',
+        
+        // Include autofilled values if they exist
+        autoFilledName: formData.autoFilledName || formData.name || '',
+        autoFilledPhone: formData.autoFilledPhone || formData.phone || '',
+        
         userTypedAddress: lastTypedAddress,
         selectedSuggestionAddress: place.formatted_address,
-        suggestionOne: addressSuggestions[0]?.description || '',
-        suggestionTwo: addressSuggestions[1]?.description || '',
-        suggestionThree: addressSuggestions[2]?.description || '',
-        suggestionFour: addressSuggestions[3]?.description || '',
-        suggestionFive: addressSuggestions[4]?.description || '',
-        addressSelectionType: 'Google',
+        addressSelectionType: autofillDetected ? 'BrowserAutofill' : 'Google',
         leadStage: 'Address Selected',
-        funnel: 'homesurge_valueboost'
+        funnel: 'homesurge_valueboost',
+        
+        // Explicitly add campaign data to ensure it's passed to Firebase
+        campaign_name: campaign_name || '',
+        campaign_id: campaign_id || '',
+        adgroup_id: adgroup_id || '',
+        adgroup_name: adgroup_name || '',
+        keyword: keyword || '',
+        gclid: gclid || '',
+        device: device || '',
+        traffic_source: traffic_source || 'Direct',
+        template_type: template_type || '',
+        dynamicHeadline: formData.dynamicHeadline || '',
+        dynamicSubHeadline: formData.dynamicSubHeadline || '',
+        buttonText: formData.buttonText || ''
       };
       
-      console.log('Sending address components to Zoho:', {
+      console.log('Sending address components to Firebase:', {
         street: finalSelectionData.street,
         city: finalSelectionData.city,
         state: finalSelectionData.state,
@@ -584,20 +720,20 @@ function AddressForm() {
       let leadId, response;
       
       if (existingLeadId) {
-        // Update existing lead
-        response = await axios.post('/api/zoho', {
-          action: 'update',
-          leadId: existingLeadId,
-          formData: finalSelectionData
-        });
+        // Update existing lead with Firebase
+        await updateLeadInFirebase(existingLeadId, finalSelectionData);
         leadId = existingLeadId;
-        console.log('Updated lead with final selection:', response.data);
+        console.log('Updated lead with final selection in Firebase:', leadId);
       } else {
-        // Create a new lead with suggestions and address
-        const top5Suggestions = addressSuggestions.slice(0, 5);
-        // Pass the formData to include campaign data
-        leadId = await createSuggestionLead(place.formatted_address, top5Suggestions, null, addressComponents, formData);
-        console.log('Created new lead with ID:', leadId);
+        // Create a new lead with address, name and phone
+        const contactInfo = {
+          name: formData.name || '',
+          phone: formData.phone || ''
+        };
+        
+        // Pass the full formData object to ensure campaign data is captured in the initial lead creation
+        leadId = await createSuggestionLead(place.formatted_address, [], contactInfo, addressComponents, formData);
+        console.log('Created new lead with ID in Firebase:', leadId);
       }
       
       if (leadId) {
@@ -610,57 +746,237 @@ function AddressForm() {
         finalSelectionSavedRef.current = true;
       }
     } catch (error) {
-      console.error('Error sending address data to Zoho:', error);
+      console.error('Error sending address data to Firebase:', error);
     }
     
-    // Immediately fetch property data from Melissa API
-    console.log('Fetching property data immediately after address selection');
-    const propertyData = await fetchPropertyData(place.formatted_address);
-    
-    // If we got property data, update the lead again with this information
-    const updatedLeadId = localStorage.getItem('leadId') || suggestionLeadId;
-    if (propertyData && updatedLeadId) {
-      try {
-        // Update the lead with property data
-        const propertyUpdateData = {
-          // Include the address components again to ensure they are saved
-          street: place.formatted_address,
-          city: addressComponents.city,
-          state: addressComponents.state,
-          zip: addressComponents.zip,
-          
-          // Include property data
-          apiOwnerName: propertyData.apiOwnerName || '',
-          apiEstimatedValue: propertyData.apiEstimatedValue?.toString() || '0',
-          apiMaxHomeValue: propertyData.apiMaxValue?.toString() || '0',
-          apiEquity: propertyData.apiEquity?.toString() || '0',
-          apiPercentage: propertyData.apiPercentage?.toString() || '0',
-          apiHomeValue: propertyData.apiEstimatedValue?.toString() || '0',
-          funnel: 'homesurge_valueboost'
-        };
-        
-        await axios.post('/api/zoho', {
-          action: 'update',
-          leadId: updatedLeadId,
-          formData: propertyUpdateData
-        });
-        
-        console.log('Updated lead with property data from Melissa API');
-      } catch (error) {
-        console.error('Error updating lead with property data:', error);
-      }
+    // Fetch property data and phone numbers in the background - don't await this
+    const leadId = localStorage.getItem('leadId') || suggestionLeadId;
+    if (leadId) {
+      fetchPropertyDataInBackground(place.formatted_address, leadId, addressComponents);
+      lookupPhoneNumbersInBackground(place.formatted_address, leadId, addressComponents);
     }
     
-    return propertyData != null;
+    return true; // Return success immediately without waiting for API
   };
   
-  // Handle Enter key press
+  // Lookup phone numbers in background without blocking the UI
+  const lookupPhoneNumbersInBackground = (address, leadId, addressComponents) => {
+    // Start the phone number lookup in background
+    lookupPhoneNumbers({
+      street: address,
+      city: addressComponents.city || '',
+      state: addressComponents.state || '',
+      zip: addressComponents.zip || ''
+    })
+      .then(phoneData => {
+        // If we got phone data, update the lead with this information
+        if (phoneData && leadId && (phoneData.phoneNumbers.length > 0 || phoneData.emails.length > 0)) {
+          try {
+            // Get campaign data from formContext 
+            const { campaign_name, campaign_id, adgroup_id, adgroup_name, keyword, gclid, device, traffic_source, template_type } = formData;
+            
+            console.log("%c BACKGROUND: BATCHDATA PHONE UPDATE TO FIREBASE", "background: #4caf50; color: white; font-size: 14px; padding: 5px;");
+            
+            // Create an update object with the phone numbers
+            const phoneUpdateData = {
+              // IMPORTANT: Keep BatchData phone numbers separate from user input
+              // These are stored in separate fields and won't overwrite user-entered data
+              batchDataPhoneNumbers: phoneData.phoneNumbers,
+              batchDataEmails: phoneData.emails,
+              
+              // CRITICAL: Include ALL campaign data with phone update
+              campaign_name: campaign_name || '',
+              campaign_id: campaign_id || '',
+              adgroup_id: adgroup_id || '',
+              adgroup_name: adgroup_name || '',
+              keyword: keyword || '',
+              gclid: gclid || '',
+              device: device || '',
+              traffic_source: traffic_source || 'Direct',
+              template_type: template_type || '',
+              
+              // Set a flag to indicate BatchData was processed
+              batchDataProcessed: true,
+              
+              // Include timestamp for when this was processed
+              batchDataProcessedAt: new Date().toISOString()
+            };
+            
+            // Update the lead with phone data
+            updateLeadInFirebase(leadId, phoneUpdateData)
+              .then(() => console.log('Background: Successfully updated lead with BatchData phone numbers'))
+              .catch(err => console.error('Background: Error updating lead with phone numbers:', err));
+            
+          } catch (error) {
+            console.error('Background: Error handling phone data:', error);
+          }
+        } else {
+          console.log('No BatchData phone numbers found or lead ID not available');
+        }
+      })
+      .catch(error => {
+        console.error('Background: Error fetching BatchData phone numbers:', error);
+      });
+  };
+  
+  // Process property data in background without blocking the UI
+  const fetchPropertyDataInBackground = (address, leadId, addressComponents) => {
+    // Start the property data fetch in background
+    fetchPropertyData(address)
+      .then(propertyData => {
+        // If we got property data, update the lead with this information
+        if (propertyData && leadId) {
+          try {
+            // Get campaign data from formContext 
+            const { campaign_name, campaign_id, adgroup_id, adgroup_name, keyword, gclid, device, traffic_source, template_type } = formData;
+            
+            console.log("%c BACKGROUND: PROPERTY DATA UPDATE TO FIREBASE", "background: #4caf50; color: white; font-size: 14px; padding: 5px;");
+            
+            // Update the lead with property data AND campaign data
+            const propertyUpdateData = {
+              // Include the address components again to ensure they are saved
+              street: address,
+              city: addressComponents.city,
+              state: addressComponents.state,
+              zip: addressComponents.zip,
+              
+              // Include name and phone if available
+              name: formData.name || '',
+              phone: formData.phone || '',
+              
+              // Include property data
+              apiOwnerName: propertyData.apiOwnerName || '',
+              apiEstimatedValue: propertyData.apiEstimatedValue?.toString() || '0',
+              apiMaxHomeValue: propertyData.apiMaxValue?.toString() || '0',
+              apiEquity: propertyData.apiEquity?.toString() || '0',
+              apiPercentage: propertyData.apiPercentage?.toString() || '0',
+              apiHomeValue: propertyData.apiEstimatedValue?.toString() || '0',
+              // Add these duplicate field names for consistency
+              propertyEquity: propertyData.apiEquity?.toString() || '0', 
+              equityPercentage: propertyData.apiPercentage?.toString() || '0',
+              
+              // Include autofilled values in background update
+              autoFilledName: formData.autoFilledName || formData.name || '',
+              autoFilledPhone: formData.autoFilledPhone || formData.phone || '',
+              
+              // CRITICAL: Include ALL campaign data with property update
+              campaign_name: campaign_name || '',
+              campaign_id: campaign_id || '',
+              adgroup_id: adgroup_id || '',
+              adgroup_name: adgroup_name || '',
+              keyword: keyword || '',
+              gclid: gclid || '',
+              device: device || '',
+              traffic_source: traffic_source || 'Direct',
+              template_type: template_type || '',
+              matchtype: formData.matchtype || '',
+              url: formData.url || window.location.href || '',
+              
+              // Include dynamic content information
+              dynamicHeadline: formData.dynamicHeadline || '',
+              dynamicSubHeadline: formData.dynamicSubHeadline || '',
+              buttonText: formData.buttonText || '',
+              
+              // ValueBoost-specific data
+              funnel: 'homesurge_valueboost',
+              potentialValueIncrease: formData.potentialValueIncrease || 0,
+              formattedPotentialIncrease: formData.formattedPotentialIncrease || '',
+              upgradesNeeded: formData.upgradesNeeded || 0,
+              valueIncreasePercentage: formData.valueIncreasePercentage || 0,
+              
+              // Set a special flag for debugging
+              dataSourceComplete: true
+            };
+            
+            // Store this data in sessionStorage and localStorage for retrieval in subsequent steps
+            try {
+              const propertyDataForStorage = {
+                leadData: {
+                  contact: {
+                    name: formData.name || '',
+                    phone: formData.phone || '',
+                    email: formData.email || ''
+                  },
+                  address: {
+                    street: propertyUpdateData.street,
+                    city: propertyUpdateData.city,
+                    state: propertyUpdateData.state,
+                    zip: propertyUpdateData.zip
+                  },
+                  property: {
+                    apiOwnerName: propertyUpdateData.apiOwnerName,
+                    apiEstimatedValue: propertyUpdateData.apiEstimatedValue,
+                    apiMaxHomeValue: propertyUpdateData.apiMaxHomeValue,
+                    apiEquity: propertyUpdateData.apiEquity,
+                    apiPercentage: propertyUpdateData.apiPercentage,
+                    propertyEquity: propertyUpdateData.propertyEquity,
+                    equityPercentage: propertyUpdateData.equityPercentage,
+                    potentialValueIncrease: propertyUpdateData.potentialValueIncrease,
+                    formattedPotentialIncrease: propertyUpdateData.formattedPotentialIncrease,
+                    upgradesNeeded: propertyUpdateData.upgradesNeeded,
+                    valueIncreasePercentage: propertyUpdateData.valueIncreasePercentage
+                  },
+                  campaign: {
+                    campaign_name: propertyUpdateData.campaign_name,
+                    campaign_id: propertyUpdateData.campaign_id,
+                    adgroup_name: propertyUpdateData.adgroup_name,
+                    adgroup_id: propertyUpdateData.adgroup_id,
+                    keyword: propertyUpdateData.keyword,
+                    traffic_source: propertyUpdateData.traffic_source,
+                    template_type: propertyUpdateData.template_type || propertyUpdateData.templateType,
+                    templateType: propertyUpdateData.templateType || propertyUpdateData.template_type,
+                    matchtype: propertyUpdateData.matchtype,
+                    gclid: propertyUpdateData.gclid,
+                    device: propertyUpdateData.device,
+                    url: propertyUpdateData.url || window.location.href
+                  }
+                },
+                timestamp: new Date().toISOString()
+              };
+              
+              // Store in sessionStorage for debugging
+              sessionStorage.setItem('firebaseDataSent', JSON.stringify(propertyDataForStorage));
+              
+              // Also store property data in localStorage so it can be used in the next step
+              localStorage.setItem('apiPropertyData', JSON.stringify({
+                apiOwnerName: propertyData.apiOwnerName,
+                apiEstimatedValue: propertyData.apiEstimatedValue,
+                apiMaxHomeValue: propertyData.apiMaxValue,
+                apiEquity: propertyData.apiEquity,
+                apiPercentage: propertyData.apiPercentage,
+                mortgageAmount: propertyData.mortgageAmount,
+                bedrooms: propertyData.bedrooms,
+                bathrooms: propertyData.bathrooms,
+                finishedSquareFootage: propertyData.finishedSquareFootage,
+                potentialValueIncrease: formData.potentialValueIncrease,
+                formattedPotentialIncrease: formData.formattedPotentialIncrease,
+                upgradesNeeded: formData.upgradesNeeded,
+                valueIncreasePercentage: formData.valueIncreasePercentage
+              }));
+            } catch (e) {
+              // Error storing data in storage
+            }
+            
+            // Send the update to Firebase directly
+            updateLeadInFirebase(leadId, propertyUpdateData)
+              .then(() => console.log('Background: Successfully updated lead with API property data'))
+              .catch(err => console.error('Background: Error updating lead with property data:', err));
+            
+          } catch (error) {
+            console.error('Background: Error handling property data:', error);
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Background: Error fetching property data:', error);
+      });
+  };
+  
+  // Completely separate function for handling Enter key presses
   const handleEnterKeyPress = async (e) => {
-    // Always prevent default
+    // Always prevent default - critical!
     e.preventDefault();
     e.stopPropagation();
-    
-    console.log('ENTER key pressed - ValueBoost', firstSuggestion ? 'First suggestion available' : 'No suggestion yet');
     
     // If already loading, prevent action
     if (isLoading) return;
@@ -701,15 +1017,14 @@ function AddressForm() {
               addressSelectionType: 'EnterKey'
             });
             
-            // Process the selected address
-            await processAddressSelection(placeDetails);
+            // Process the selected address - no await
+            processAddressSelection(placeDetails);
             
-            // Proceed to next step
-            setTimeout(() => {
-              nextStep();
-              // Reset loading state after navigation
-              setIsLoading(false);
-            }, 200);
+            // Proceed to next step immediately
+            nextStep();
+            
+            // Reset loading state after navigation
+            setIsLoading(false);
             
             return;
           }
@@ -722,10 +1037,21 @@ function AddressForm() {
       // This provides a fallback if Google Places API fails
       if (formData.street && formData.street.length > 10 && validateAddress(formData.street)) {
         console.log('No suggestion available, but address text is reasonable - proceeding anyway');
-        await fetchPropertyData(formData.street);
+        
+        // Start API call in background
+        const addressComponents = {
+          city: '',
+          state: 'GA',
+          zip: ''
+        };
+        const leadId = localStorage.getItem('leadId') || suggestionLeadId;
+        if (leadId) {
+          fetchPropertyDataInBackground(formData.street, leadId, addressComponents);
+        }
         trackFormStepComplete(1, 'Address Form Completed (Fallback)', formData);
         nextStep();
         setIsLoading(false);
+        
         return;
       } else {
         // Only show error for short addresses
@@ -949,6 +1275,12 @@ function AddressForm() {
         try {
           const place = autocompleteRef.current.getPlace();
           
+          // Only proceed if we have a valid place with formatted_address
+          if (!place || !place.formatted_address) {
+            console.error('Invalid place selection');
+            return;
+          }
+          
           // Check for name and phone values that might have been auto-filled
           const nameInput = document.querySelector('input[name="name"]');
           const phoneInput = document.querySelector('input[name="tel"]');
@@ -1053,6 +1385,169 @@ function AddressForm() {
     };
   }, [googleApiLoaded]);
   
+  // Additional listener for input events to detect browser autofill
+  // This catches cases that the animation approach might miss
+  useEffect(() => {
+    let lastInputTime = 0;
+    let autofilledFields = new Set();
+    let autoSubmitTimer = null;
+    
+    // Function to handle any input event
+    const handleInput = (e) => {
+      const now = Date.now();
+      
+      // If multiple input events fire almost simultaneously (< 50ms apart),
+      // this is likely browser autofill
+      if (now - lastInputTime < 50) {
+        console.log('Rapid input detected, likely browser autofill on:', e.target.name);
+        autofilledFields.add(e.target.name);
+        
+        // Clear any pending auto submit
+        if (autoSubmitTimer) {
+          clearTimeout(autoSubmitTimer);
+        }
+        
+        // If we have address and at least one more field or 3+ fields filled,
+        // auto-submit after a short delay
+        if ((autofilledFields.has('address-line1') && autofilledFields.size > 1) || 
+            autofilledFields.size >= 3) {
+          
+          // Schedule an auto-submit
+          autoSubmitTimer = setTimeout(() => {
+            console.log('Auto-submitting form after browser autofill detected');
+            
+            // Update the autofill flag
+            setAutofillDetected(true);
+            
+            console.log('🔍 AUTOFILL DIAGNOSIS: Input field contains:', inputRef.current ? inputRef.current.value : 'not available');
+            console.log('🔍 AUTOFILL DIAGNOSIS: formData.street =', formData.street);
+            console.log('🔍 AUTOFILL DIAGNOSIS: firstSuggestion =', firstSuggestion);
+            console.log('🔍 AUTOFILL DIAGNOSIS: autofilledFields =', Array.from(autofilledFields));
+            
+            // Need to ensure formData is updated with the current input value
+            if (inputRef.current && inputRef.current.value) {
+              console.log('🔍 AUTOFILL DIAGNOSIS: Updating formData with current input value');
+              updateFormData({ street: inputRef.current.value });
+              
+              // We'll use a promise to handle the suggestion flow
+              // Request suggestions in a separate function to avoid nesting issues
+              const getAndProcessSuggestions = () => {
+                return new Promise((resolve) => {
+                  // If we already have suggestions, resolve immediately
+                  if (firstSuggestion) {
+                    console.log('🔍 AUTOFILL DIAGNOSIS: Already have suggestions, using those');
+                    resolve(firstSuggestion);
+                    return;
+                  }
+                  
+                  // If API isn't loaded or available, resolve with failure
+                  if (!googleApiLoaded || !autocompleteServiceRef.current || inputRef.current.value.length < 3) {
+                    console.log('🔍 AUTOFILL DIAGNOSIS: Cannot get suggestions - API not ready or address too short');
+                    resolve(false);
+                    return;
+                  }
+                  
+                  // Add timeout to prevent waiting indefinitely
+                  const timeoutId = setTimeout(() => {
+                    console.log('⚠️ Address suggestions request timed out after 2 seconds');
+                    // Proceed with manual submission
+                    resolve(false);
+                  }, 2000); // 2 second timeout
+                  
+                  console.log('🔍 AUTOFILL DIAGNOSIS: Requesting suggestions for autofilled address');
+                  // Request suggestions for this address
+                  autocompleteServiceRef.current.getPlacePredictions({
+                    input: inputRef.current.value,
+                    sessionToken: sessionTokenRef.current,
+                    componentRestrictions: { country: 'us' },
+                    types: ['address']
+                  }, (predictions, status) => {
+                    clearTimeout(timeoutId); // Clear timeout since we got a response
+                    
+                    if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
+                      console.log('🔍 AUTOFILL DIAGNOSIS: Got suggestions:', predictions);
+                      // Store the first suggestion in state, but also pass it directly in the resolve
+                      setFirstSuggestion(predictions[0]);
+                      resolve(predictions[0]); // Pass the suggestion directly to avoid relying on state updates
+                    } else {
+                      console.log('🔍 AUTOFILL DIAGNOSIS: No suggestions found for:', inputRef.current.value);
+                      resolve(false);
+                    }
+                  });
+                });
+              };
+              
+              // Get suggestions and process them
+              getAndProcessSuggestions().then(suggestion => {
+                console.log('🔍 AUTOFILL DIAGNOSIS: Processed suggestions:', suggestion);
+                
+                if (suggestion && suggestion.place_id) {
+                  // Use the suggestion if available
+                  console.log('🔍 AUTOFILL DIAGNOSIS: Using suggestion:', suggestion.description);
+                  
+                  // Get place details
+                  getPlaceDetails(suggestion.place_id)
+                    .then(placeDetails => {
+                      if (placeDetails && placeDetails.formatted_address) {
+                        console.log('🔍 AUTOFILL DIAGNOSIS: Got place details:', placeDetails.formatted_address);
+                        
+                        // Process the address selection
+                        processAddressSelection(placeDetails);
+                        
+                        // Move to next step
+                        nextStep();
+                      } else {
+                        console.log('🔍 AUTOFILL DIAGNOSIS: No valid place details, using button click');
+                        handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                      }
+                    })
+                    .catch(error => {
+                      console.error('🔍 AUTOFILL DIAGNOSIS: Error getting place details:', error);
+                      handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                    });
+                } else {
+                  console.log('🔍 AUTOFILL DIAGNOSIS: No Google suggestion available, trying manual submission with current address:', 
+                    formData.street || (inputRef.current ? inputRef.current.value : 'not available'));
+                  
+                  // No Google suggestion available, use standard button click handler
+                  handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                }
+              });
+            } else {
+              console.log('🔍 AUTOFILL DIAGNOSIS: No value in input field, using standard submission');
+              handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+            }
+          }, 600);
+        }
+      }
+      
+      // Update last input time
+      lastInputTime = now;
+    };
+    
+    // Add listeners to all form inputs
+    const formInputs = formRef.current?.querySelectorAll('input');
+    
+    if (formInputs) {
+      formInputs.forEach(input => {
+        input.addEventListener('input', handleInput);
+      });
+    }
+    
+    return () => {
+      // Clean up all listeners
+      if (formInputs) {
+        formInputs.forEach(input => {
+          input.removeEventListener('input', handleInput);
+        });
+      }
+      
+      if (autoSubmitTimer) {
+        clearTimeout(autoSubmitTimer);
+      }
+    };
+  }, [handleButtonClick, firstSuggestion, nextStep, getPlaceDetails, processAddressSelection]);
+  
   // Special effect to add key event listeners at the document level to catch Enter globally
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -1076,7 +1571,7 @@ function AddressForm() {
     return () => {
       document.removeEventListener('keydown', handleKeyDown, true);
     };
-  }, [firstSuggestion, formData.street, isLoading, handleEnterKeyPress]);
+  }, [firstSuggestion, formData.street, isLoading]);
   
   // Override styles to prevent conflicts
   useEffect(() => {
@@ -1099,7 +1594,7 @@ function AddressForm() {
       <div className="vb-af1-hero-middle-container af1-hero-middle-container hero-middle-container">
         <div className="vb-af1-hero-content af1-hero-content hero-content fade-in">
           <div className="vb-af1-hero-headline af1-hero-headline hero-headline">
-            {formatText("AI-Powered Home Value Boost Plan")}
+            {formatText("AI-Powered Home Value Boost\u00A0Plan")}
           </div>
           <div className="vb-af1-hero-subheadline af1-hero-subheadline hero-subheadline">
             {formatSubheadline("Find out how to increase your home's value by up to 32% with personalized AI recommendations")}

@@ -2,9 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { useFormContext } from '../../../contexts/FormContext';
 import additionalStrategies from './additionalStrategies';
 import { calculatePropertySpecificCost, calculatePropertySpecificROI } from './costCalculator';
+import gradientArrow from '../../../assets/images/gradient-arrow.png';
 
 function ValueBoostReport() {
   const { formData, updateFormData, updateLead } = useFormContext();
+  
+  // Add dummy data for localhost testing
+  const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  
+  // Use dummy data if on localhost and no API data available
+  const testFormData = isLocalhost && (!formData.apiEstimatedValue || formData.apiEstimatedValue === 0) ? {
+    ...formData,
+    apiEstimatedValue: 485000,
+    formattedApiEstimatedValue: '$485,000',
+    potentialValueIncrease: 116400,
+    formattedPotentialIncrease: '$116,400',
+    valueIncreasePercentage: 24,
+    street: formData.street || '123 Maple Street, Atlanta, GA 30309'
+  } : formData;
   const [showContactForm, setShowContactForm] = useState(false);
   const [contactInfo, setContactInfo] = useState({
     name: '',
@@ -647,10 +662,10 @@ function ValueBoostReport() {
   };
   
   // Get recommendations (either from form data or generate new ones)
-  const recommendations = formData.recommendations || generateRecommendations();
+  const recommendations = testFormData.recommendations || generateRecommendations();
   
   // Store recommendations in form data if not already there
-  if (!formData.recommendations) {
+  if (!testFormData.recommendations) {
     updateFormData({
       recommendations: recommendations
     });
@@ -659,12 +674,12 @@ function ValueBoostReport() {
   // Calculate property-specific value increase based on property attributes
   const calculatePotentialValueIncrease = () => {
     // Use stored value if available
-    if (formData.potentialValueIncrease) {
-      return formData.potentialValueIncrease;
+    if (testFormData.potentialValueIncrease) {
+      return testFormData.potentialValueIncrease;
     }
 
     // Get current property value
-    const currentValue = formData.apiEstimatedValue || 300000;
+    const currentValue = testFormData.apiEstimatedValue || 300000;
 
     // Extract property data
     const propertyRecord = formData.propertyRecord || {};
@@ -717,7 +732,7 @@ function ValueBoostReport() {
   };
 
   // Get potential value increase
-  const potentialIncrease = formData.potentialValueIncrease || calculatePotentialValueIncrease();
+  const potentialIncrease = testFormData.potentialValueIncrease || calculatePotentialValueIncrease();
   
   // Format currency values
   const formatCurrency = (value) => {
@@ -844,17 +859,34 @@ function ValueBoostReport() {
     <div className="vb-report-section">
       <div className="vb-report-container">
         <div className="vb-content vb-fade-in" style={contentStyle}>
+          {/* Development indicator */}
+          {isLocalhost && (!formData.apiEstimatedValue || formData.apiEstimatedValue === 0) && (
+            <div style={{
+              background: '#f0f9ff',
+              border: '1px solid #00b8e6',
+              borderRadius: '5px',
+              padding: '8px 12px',
+              margin: '0 auto 20px',
+              maxWidth: '300px',
+              fontSize: '14px',
+              color: '#236b6d',
+              textAlign: 'center'
+            }}>
+              🧪 Using dummy data for localhost testing
+            </div>
+          )}
+          
           {/* Header */}
           <div className="vb-headline">
             Value Scan Complete For:
           </div>
           <div className="vb-subheadline" style={{ marginBottom: '10px' }}>
-            {formData.street || '123 Main St'}
+            {testFormData.street || '123 Main St'}
           </div>
 
 
           {/* Combined Value Boost Summary Box - only show if API provided a valid value */}
-          {formData.apiEstimatedValue && formData.apiEstimatedValue > 0 ? (
+          {testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0 ? (
           <div style={{
             textAlign: 'center',
             marginBottom: '40px',
@@ -875,7 +907,7 @@ function ValueBoostReport() {
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
             }}>
-              Your Total Value Boost Potential
+              Your Total Value Boost\u00A0Potential
             </h2>
 
             {/* Responsive container for values */}
@@ -901,7 +933,7 @@ function ValueBoostReport() {
                   color: '#236b6d',
                   marginBottom: '5px'
                 }}>
-                  {formData.formattedApiEstimatedValue || '$554,000'}
+                  {testFormData.formattedApiEstimatedValue || '$554,000'}
                 </div>
                 <div style={{ fontSize: '16px', color: '#555' }}>
                   Current Value
@@ -910,18 +942,33 @@ function ValueBoostReport() {
 
               {/* Arrow - responsive */}
               <div className="value-boost-arrow" style={{
-                fontSize: '42px',
-                color: '#00a3d1',
                 padding: '0 8px',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: '900',
-                transform: 'scaleX(1.2)'
+                justifyContent: 'center'
               }}>
-                <div className="horizontal-arrow" style={{ display: 'block' }}>⟶</div>
-                <div className="vertical-arrow" style={{ display: 'none' }}>⤓</div>
+                <img 
+                  src={gradientArrow}
+                  alt="Value boost arrow"
+                  className="horizontal-arrow"
+                  style={{
+                    width: '50px',
+                    height: 'auto',
+                    display: 'block'
+                  }}
+                />
+                <img 
+                  src={gradientArrow}
+                  alt="Value boost arrow"
+                  className="vertical-arrow"
+                  style={{
+                    width: '40px',
+                    height: 'auto',
+                    display: 'none',
+                    transform: 'rotate(90deg)'
+                  }}
+                />
               </div>
 
               {/* Value Boost Potential - separate from new total */}
@@ -940,7 +987,7 @@ function ValueBoostReport() {
                   backgroundClip: 'text',
                   marginBottom: '5px'
                 }}>
-                  {formData.formattedPotentialIncrease || '$121,880'}
+                  {testFormData.formattedPotentialIncrease || '$121,880'}
                 </div>
                 <div style={{ fontSize: '16px', color: '#555' }}>
                   Value Boost Potential
@@ -973,21 +1020,21 @@ function ValueBoostReport() {
                     try {
                       // Get numeric values only, not strings
                       let currentValue;
-                      if (typeof formData.apiEstimatedValue === 'number') {
-                        currentValue = formData.apiEstimatedValue;
+                      if (typeof testFormData.apiEstimatedValue === 'number') {
+                        currentValue = testFormData.apiEstimatedValue;
                       } else {
                         // Parse from formatted value if needed
-                        currentValue = parseInt((formData.formattedApiEstimatedValue || '').replace(/\D/g, ''));
+                        currentValue = parseInt((testFormData.formattedApiEstimatedValue || '').replace(/\D/g, ''));
                         // Fallback
                         if (isNaN(currentValue)) currentValue = 554000;
                       }
 
                       let increaseValue;
-                      if (typeof formData.potentialValueIncrease === 'number') {
-                        increaseValue = formData.potentialValueIncrease;
+                      if (typeof testFormData.potentialValueIncrease === 'number') {
+                        increaseValue = testFormData.potentialValueIncrease;
                       } else {
                         // Try to parse from formatted value
-                        increaseValue = parseInt((formData.formattedPotentialIncrease || '').replace(/\D/g, ''));
+                        increaseValue = parseInt((testFormData.formattedPotentialIncrease || '').replace(/\D/g, ''));
                         // Fallback
                         if (isNaN(increaseValue)) increaseValue = 121880;
                       }
@@ -1021,7 +1068,7 @@ function ValueBoostReport() {
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
             }}>
-              Potential Increase: {formData.valueIncreasePercentage || '22'}%
+              Potential Increase: {testFormData.valueIncreasePercentage || '22'}%
             </p>
 
             {/* Responsive styles for different screen sizes */}
@@ -1318,7 +1365,7 @@ function ValueBoostReport() {
 
                   {/* Inline form fields */}
                   <div style={{ width: '100%', maxWidth: '500px', marginBottom: '20px' }}>
-                    <div style={{ display: 'flex', gap: '12px', marginBottom: '15px' }}>
+                    <div className="vb-optin-form-fields" style={{ display: 'flex', gap: '12px', marginBottom: '15px' }}>
                       <input
                         type="text"
                         name="name"
@@ -1403,7 +1450,7 @@ function ValueBoostReport() {
                     disabled={isSubmitting}
                     className="vb-button-flare"
                     style={{
-                      background: isSubmitting ? 'linear-gradient(135deg, #95d8c0 0%, #a8e6cf 100%)' : 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
+                      background: isSubmitting ? 'linear-gradient(135deg, #87ceeb 0%, #4682b4 100%)' : 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
                       color: 'white',
                       border: 'none',
                       borderRadius: '12px',
