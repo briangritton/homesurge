@@ -827,8 +827,11 @@ function ValueBoostReport() {
     position: 'relative'
   };
 
-  // Add a ::before override with empty content
+  // Scroll to top when component mounts and add style override
   useEffect(() => {
+    // Scroll to top
+    window.scrollTo(0, 0);
+    
     // Create a style element
     const styleEl = document.createElement('style');
     styleEl.innerHTML = `
@@ -1389,7 +1392,12 @@ function ValueBoostReport() {
               </div>
 
               <button
-                onClick={() => window.scrollTo({ top: document.getElementById('recommendations-section').offsetTop - 50, behavior: 'smooth' })}
+                onClick={() => {
+                  const element = document.getElementById('recommendations-section');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }}
                 style={{
                   backgroundColor: '#2e7d32',
                   color: 'white',
