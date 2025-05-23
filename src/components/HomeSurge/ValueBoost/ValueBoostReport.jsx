@@ -752,11 +752,7 @@ function ValueBoostReport() {
       errors.phone = 'Please enter a valid phone number';
     }
 
-    if (!contactInfo.email || contactInfo.email.trim() === '') {
-      errors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactInfo.email)) {
-      errors.email = 'Please enter a valid email address';
-    }
+    // Email is optional now
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -872,18 +868,27 @@ function ValueBoostReport() {
             textAlign: 'center',
             marginBottom: '40px',
             padding: '25px',
-            backgroundColor: '#e8f4ff',
-            borderRadius: '10px',
-            boxShadow: '0 3px 10px rgba(0,0,0,0.05)',
+            backgroundColor: 'white',
+            border: '1px solid',
+            borderImage: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%) 1',
+            borderRadius: '12px',
+            boxShadow: '0 0 20px 4px rgba(0, 184, 230, 0.15), 0 4px 15px rgba(0, 0, 0, 0.05)',
             maxWidth: '600px',
             margin: '0 auto 40px'
           }}>
-            <h2 style={{ fontSize: '26px', marginBottom: '20px', color: '#2e7b7d' }}>
+            <h2 style={{ 
+              fontSize: '26px', 
+              marginBottom: '20px', 
+              background: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}>
               Your Total Value Boost Potential
             </h2>
 
             {/* Responsive container for values */}
-            <div style={{
+            <div className="value-container" style={{
               display: 'flex',
               flexDirection: 'row',
               flexWrap: 'wrap',
@@ -902,31 +907,33 @@ function ValueBoostReport() {
                 <div style={{
                   fontSize: '28px',
                   fontWeight: 'bold',
-                  color: '#28a745',
+                  color: '#236b6d',
                   marginBottom: '5px'
                 }}>
                   {formData.formattedApiEstimatedValue || '$554,000'}
                 </div>
                 <div style={{ fontSize: '16px', color: '#555' }}>
-                  current Value
+                  Current Value
                 </div>
               </div>
 
-              {/* Arrow - horizontal for wider screens */}
+              {/* Arrow - responsive */}
               <div className="value-boost-arrow" style={{
-                fontSize: '24px',
-                color: '#2e7b7d',
-                padding: '0 5px',
+                fontSize: '42px',
+                color: '#00a3d1',
+                padding: '0 8px',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                fontWeight: '900',
+                transform: 'scaleX(1.2)'
               }}>
-                <div className="horizontal-arrow" style={{ display: 'block' }}>→</div>
-                <div className="vertical-arrow" style={{ display: 'none' }}>↓</div>
+                <div className="horizontal-arrow" style={{ display: 'block' }}>⟶</div>
+                <div className="vertical-arrow" style={{ display: 'none' }}>⤓</div>
               </div>
 
-              {/* New Value with Boost */}
+              {/* Value Boost Potential - separate from new total */}
               <div style={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -936,87 +943,150 @@ function ValueBoostReport() {
                 <div style={{
                   fontSize: '28px',
                   fontWeight: 'bold',
-                  color: '#2e7b7d',
+                  background: 'linear-gradient(135deg, #00b8e6 0%, #0099bb 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
                   marginBottom: '5px'
                 }}>
-                  {
-                    (() => {
-                      try {
-                        // Get numeric values only, not strings
-                        let currentValue;
-                        if (typeof formData.apiEstimatedValue === 'number') {
-                          currentValue = formData.apiEstimatedValue;
-                        } else {
-                          // Parse from formatted value if needed
-                          currentValue = parseInt((formData.formattedApiEstimatedValue || '').replace(/\D/g, ''));
-                          // Fallback
-                          if (isNaN(currentValue)) currentValue = 554000;
-                        }
-
-                        let increaseValue;
-                        if (typeof formData.potentialValueIncrease === 'number') {
-                          increaseValue = formData.potentialValueIncrease;
-                        } else {
-                          // Try to parse from formatted value
-                          increaseValue = parseInt((formData.formattedPotentialIncrease || '').replace(/\D/g, ''));
-                          // Fallback
-                          if (isNaN(increaseValue)) increaseValue = 121880;
-                        }
-
-                        // Ensure both are numbers and calculate
-                        const newValue = Number(currentValue) + Number(increaseValue);
-
-                        console.log('Value calculation:', {
-                          currentValue,
-                          increaseValue,
-                          newValue
-                        });
-
-                        return new Intl.NumberFormat('en-US', {
-                          style: 'currency',
-                          currency: 'USD',
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 0
-                        }).format(newValue);
-                      } catch (e) {
-                        console.error('Error calculating new value:', e);
-                        return '$675,880';
-                      }
-                    })()
-                  }
+                  {formData.formattedPotentialIncrease || '$121,880'}
                 </div>
                 <div style={{ fontSize: '16px', color: '#555' }}>
-                  + Value Boost Potential: {formData.formattedPotentialIncrease || '$121,880'}
+                  Value Boost Potential
                 </div>
+              </div>
+            </div>
+
+            {/* New Total Value - shown below */}
+            <div style={{
+              textAlign: 'center',
+              marginBottom: '25px',
+              padding: '15px',
+              backgroundColor: 'rgba(0, 184, 230, 0.05)',
+              borderRadius: '8px',
+              border: '1px solid rgba(0, 184, 230, 0.1)'
+            }}>
+              <div style={{ fontSize: '14px', color: '#666', marginBottom: '5px' }}>
+                New Total Value
+              </div>
+              <div style={{
+                fontSize: '32px',
+                fontWeight: 'bold',
+                background: 'linear-gradient(135deg, #00b8e6 0%, #0099bb 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}>
+                {
+                  (() => {
+                    try {
+                      // Get numeric values only, not strings
+                      let currentValue;
+                      if (typeof formData.apiEstimatedValue === 'number') {
+                        currentValue = formData.apiEstimatedValue;
+                      } else {
+                        // Parse from formatted value if needed
+                        currentValue = parseInt((formData.formattedApiEstimatedValue || '').replace(/\D/g, ''));
+                        // Fallback
+                        if (isNaN(currentValue)) currentValue = 554000;
+                      }
+
+                      let increaseValue;
+                      if (typeof formData.potentialValueIncrease === 'number') {
+                        increaseValue = formData.potentialValueIncrease;
+                      } else {
+                        // Try to parse from formatted value
+                        increaseValue = parseInt((formData.formattedPotentialIncrease || '').replace(/\D/g, ''));
+                        // Fallback
+                        if (isNaN(increaseValue)) increaseValue = 121880;
+                      }
+
+                      // Ensure both are numbers and calculate
+                      const newValue = Number(currentValue) + Number(increaseValue);
+
+                      return new Intl.NumberFormat('en-US', {
+                        style: 'currency',
+                        currency: 'USD',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                      }).format(newValue);
+                    } catch (e) {
+                      console.error('Error calculating new value:', e);
+                      return '$675,880';
+                    }
+                  })()
+                }
               </div>
             </div>
 
             <p style={{ fontSize: '18px', color: '#444', marginBottom: '5px' }}>
               <strong>{recommendations.length || '11'}</strong> value-boosting improvements identified by AI
             </p>
-            <p style={{ fontSize: '18px', color: '#2e7b7d', fontWeight: 'bold' }}>
+            <p style={{ 
+              fontSize: '18px', 
+              fontWeight: 'bold',
+              background: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}>
               Potential Increase: {formData.valueIncreasePercentage || '22'}%
             </p>
 
             {/* Responsive styles for different screen sizes */}
             <style jsx="true">{`
-              @media (max-width: 600px) {
+              @media (max-width: 700px) {
+                .value-container {
+                  flex-direction: column !important;
+                  gap: 15px !important;
+                }
                 .value-boost-arrow .horizontal-arrow {
-                  display: none;
+                  display: none !important;
                 }
                 .value-boost-arrow .vertical-arrow {
-                  display: block;
+                  display: block !important;
+                }
+                .value-boost-arrow {
+                  transform: scaleY(1.2) !important;
                 }
               }
             `}</style>
           </div>
 
           {/* Display recommendations */}
-          <div id="recommendations-section" style={{ marginBottom: '30px', position: 'relative' }}>
-            <h2 style={{ textAlign: 'center', marginBottom: '5px', fontSize: '22px' }}>
+          <div id="recommendations-section" style={{
+            marginBottom: '30px', 
+            position: 'relative',
+            padding: '25px',
+            backgroundColor: 'white',
+            border: '1px solid',
+            borderImage: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%) 1',
+            borderRadius: '12px',
+            boxShadow: '0 0 20px 4px rgba(0, 184, 230, 0.15), 0 4px 15px rgba(0, 0, 0, 0.05)',
+            maxWidth: '800px',
+            margin: '0 auto 30px'
+          }}>
+            <h2 style={{ 
+              textAlign: 'center', 
+              marginBottom: '5px', 
+              fontSize: '24px',
+              background: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}>
               Top 10 Value-Boosting Recommendations
             </h2>
-            <p style={{ textAlign: 'center', marginBottom: '20px', fontSize: '16px', color: '#666' }}>
+            <p style={{ 
+              textAlign: 'center', 
+              marginBottom: '20px', 
+              fontSize: '16px', 
+              background: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              fontWeight: '500'
+            }}>
               Highest-impact improvements ranked by ROI for your property
             </p>
 
@@ -1026,10 +1096,10 @@ function ValueBoostReport() {
               {primaryRecs.map((rec, index) => (
                 <div key={index} style={{
                   marginBottom: '20px',
-                  border: '1px solid #e0e0e0',
-                  borderRadius: '8px',
-                  padding: '15px',
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+                  border: '1px solid rgba(0, 184, 230, 0.2)',
+                  borderRadius: '12px',
+                  padding: '20px',
+                  boxShadow: '0 4px 12px rgba(0, 184, 230, 0.1)',
                   transition: 'transform 0.2s ease',
                   cursor: 'pointer',
                   backgroundColor: 'white',
@@ -1040,33 +1110,40 @@ function ValueBoostReport() {
                 onMouseOver={(e) => unlocked && (e.currentTarget.style.transform = 'translateY(-3px)')}
                 onMouseOut={(e) => unlocked && (e.currentTarget.style.transform = 'translateY(0)')}
                 >
-                  <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '10px' }}>
-                    <div style={{
-                      flex: '0 0 40px',
-                      height: '40px',
-                      borderRadius: '50%',
-                      backgroundColor: '#007bff',
-                      color: 'white',
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginBottom: '10px' }}>
+                    <h3 style={{ 
+                      margin: '0 0 10px 0', 
+                      fontSize: '20px', 
+                      background: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                      fontWeight: 'bold',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center',
-                      marginRight: '15px',
-                      fontWeight: 'bold'
+                      justifyContent: 'center'
                     }}>
-                      {index + 1}
-                    </div>
-                    <div style={{ flex: '1' }}>
-                      <h3 style={{ margin: '0 0 10px 0', fontSize: '18px', color: '#007bff' }}>{rec.strategy}</h3>
-                      <p style={{ margin: '0 0 10px 0', fontSize: '15px', color: '#555' }}>{rec.description}</p>
-                      <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                        <div style={{ marginRight: '20px', marginBottom: '5px' }}>
-                          <span style={{ fontSize: '14px', color: '#666', fontWeight: 'bold' }}>Est. Cost:</span>
-                          <span style={{ fontSize: '14px', marginLeft: '5px' }}>{rec.costEstimate}</span>
-                        </div>
-                        <div>
-                          <span style={{ fontSize: '14px', color: '#666', fontWeight: 'bold' }}>Est. ROI:</span>
-                          <span style={{ fontSize: '14px', marginLeft: '5px' }}>{rec.roiEstimate}</span>
-                        </div>
+                      <span style={{
+                        fontSize: '24px',
+                        fontWeight: '900',
+                        fontStyle: 'italic',
+                        color: '#00a3d1',
+                        marginRight: '12px',
+                        lineHeight: '1'
+                      }}>
+                        {index + 1}.
+                      </span>
+                      {rec.strategy}
+                    </h3>
+                    <p style={{ margin: '0 0 10px 0', fontSize: '15px', color: '#555', textAlign: 'center' }}>{rec.description}</p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '20px' }}>
+                      <div style={{ marginBottom: '5px' }}>
+                        <span style={{ fontSize: '14px', color: '#666', fontWeight: 'bold' }}>Est. Cost:</span>
+                        <span style={{ fontSize: '14px', marginLeft: '5px' }}>{rec.costEstimate}</span>
+                      </div>
+                      <div>
+                        <span style={{ fontSize: '14px', color: '#666', fontWeight: 'bold' }}>Est. ROI:</span>
+                        <span style={{ fontSize: '14px', marginLeft: '5px' }}>{rec.roiEstimate}</span>
                       </div>
                     </div>
                   </div>
@@ -1076,49 +1153,65 @@ function ValueBoostReport() {
               {/* Secondary recommendations section (only shown when unlocked) */}
               {unlocked && secondaryRecs.length > 0 && (
                 <>
-                  <h3 style={{ textAlign: 'center', marginTop: '40px', marginBottom: '15px', fontSize: '20px', color: '#666' }}>
+                  <h3 style={{ 
+                    textAlign: 'center', 
+                    marginTop: '40px', 
+                    marginBottom: '15px', 
+                    fontSize: '20px',
+                    background: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    fontWeight: 'bold'
+                  }}>
                     Additional Value-Boosting Opportunities
                   </h3>
 
                   {secondaryRecs.map((rec, index) => (
                     <div key={index} style={{
                       marginBottom: '15px',
-                      border: '1px solid #e8e8e8',
-                      borderRadius: '8px',
-                      padding: '12px',
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
-                      backgroundColor: '#fafafa',
+                      border: '1px solid rgba(0, 184, 230, 0.15)',
+                      borderRadius: '10px',
+                      padding: '16px',
+                      boxShadow: '0 2px 8px rgba(0, 184, 230, 0.08)',
+                      backgroundColor: 'rgba(0, 184, 230, 0.02)',
                       display: 'flex',
                       flexDirection: 'column'
                     }}>
-                      <div style={{ display: 'flex', alignItems: 'flex-start' }}>
-                        <div style={{
-                          flex: '0 0 30px',
-                          height: '30px',
-                          borderRadius: '50%',
-                          backgroundColor: '#6c757d',
-                          color: 'white',
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                        <h3 style={{ 
+                          margin: '0 0 8px 0', 
+                          fontSize: '18px',
+                          background: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
+                          WebkitBackgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent',
+                          backgroundClip: 'text',
+                          fontWeight: 'bold',
                           display: 'flex',
                           alignItems: 'center',
-                          justifyContent: 'center',
-                          marginRight: '15px',
-                          fontWeight: 'bold',
-                          fontSize: '14px'
+                          justifyContent: 'center'
                         }}>
-                          {primaryRecs.length + index + 1}
-                        </div>
-                        <div style={{ flex: '1' }}>
-                          <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#6c757d' }}>{rec.strategy}</h3>
-                          <p style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#666' }}>{rec.description}</p>
-                          <div style={{ display: 'flex', flexWrap: 'wrap', fontSize: '13px' }}>
-                            <div style={{ marginRight: '20px', marginBottom: '5px' }}>
-                              <span style={{ color: '#777', fontWeight: 'bold' }}>Est. Cost:</span>
-                              <span style={{ marginLeft: '5px' }}>{rec.costEstimate}</span>
-                            </div>
-                            <div>
-                              <span style={{ color: '#777', fontWeight: 'bold' }}>Est. ROI:</span>
-                              <span style={{ marginLeft: '5px' }}>{rec.roiEstimate}</span>
-                            </div>
+                          <span style={{
+                            fontSize: '20px',
+                            fontWeight: '900',
+                            fontStyle: 'italic',
+                            color: '#00a3d1',
+                            marginRight: '10px',
+                            lineHeight: '1'
+                          }}>
+                            {primaryRecs.length + index + 1}.
+                          </span>
+                          {rec.strategy}
+                        </h3>
+                        <p style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#666', textAlign: 'center' }}>{rec.description}</p>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', fontSize: '13px', justifyContent: 'center', gap: '15px' }}>
+                          <div style={{ marginBottom: '5px' }}>
+                            <span style={{ color: '#777', fontWeight: 'bold' }}>Est. Cost:</span>
+                            <span style={{ marginLeft: '5px' }}>{rec.costEstimate}</span>
+                          </div>
+                          <div>
+                            <span style={{ color: '#777', fontWeight: 'bold' }}>Est. ROI:</span>
+                            <span style={{ marginLeft: '5px' }}>{rec.roiEstimate}</span>
                           </div>
                         </div>
                       </div>
@@ -1135,115 +1228,206 @@ function ValueBoostReport() {
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 253, 255, 0.95) 100%)',
                   display: 'flex',
                   flexDirection: 'column',
-                  justifyContent: 'center',
+                  justifyContent: 'flex-start',
                   alignItems: 'center',
-                  backdropFilter: 'blur(7px)',
-                  borderRadius: '10px',
+                  paddingTop: '40px',
+                  backdropFilter: 'blur(12px)',
+                  borderRadius: '12px',
                   zIndex: 10,
                   padding: '30px',
-                  boxShadow: 'inset 0 0 20px rgba(0, 0, 0, 0.05)'
+                  boxShadow: 'inset 0 0 30px rgba(0, 184, 230, 0.1)'
                 }}>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    width: '90px',
-                    height: '90px',
+                    width: '100px',
+                    height: '100px',
                     borderRadius: '50%',
-                    backgroundColor: '#e8f4ff',
-                    marginBottom: '20px',
-                    boxShadow: '0 5px 15px rgba(0, 102, 204, 0.2)'
+                    background: 'linear-gradient(135deg, #e8f4ff 0%, #f0f9ff 100%)',
+                    marginBottom: '25px',
+                    boxShadow: '0 8px 25px rgba(0, 184, 230, 0.2)',
+                    border: '2px solid rgba(0, 184, 230, 0.1)'
                   }}>
                     <div style={{
-                      fontSize: '48px',
-                      color: '#2e7b7d',
+                      fontSize: '50px',
+                      background: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
                       animation: 'pulseLock 2s infinite alternate'
                     }}>
                       🔒
                     </div>
                   </div>
                   <h3 style={{
-                    fontSize: '28px',
+                    fontSize: '30px',
                     fontWeight: 'bold',
                     textAlign: 'center',
-                    marginBottom: '20px',
-                    color: '#2e7b7d'
+                    marginBottom: '25px',
+                    background: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
                   }}>
                     Unlock Your Full Value Boost Report
                   </h3>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    marginBottom: '10px',
-                    backgroundColor: 'rgba(0, 102, 204, 0.1)',
-                    borderRadius: '8px',
-                    padding: '10px 15px',
+                    marginBottom: '12px',
+                    background: 'linear-gradient(135deg, rgba(0, 184, 230, 0.08) 0%, rgba(35, 107, 109, 0.08) 100%)',
+                    borderRadius: '10px',
+                    padding: '12px 18px',
                     maxWidth: '500px',
-                    width: '100%'
+                    width: '100%',
+                    border: '1px solid rgba(0, 184, 230, 0.1)'
                   }}>
-                    <div style={{ fontSize: '22px', marginRight: '15px' }}>✓</div>
-                    <p style={{ margin: 0, fontSize: '16px', textAlign: 'left' }}>
+                    <div style={{ fontSize: '24px', marginRight: '15px' }}>✓</div>
+                    <p style={{ margin: 0, fontSize: '16px', textAlign: 'left', fontWeight: '500' }}>
                       <strong>All {recommendations.length} value-boosting recommendations</strong> for your property
                     </p>
                   </div>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    marginBottom: '10px',
-                    backgroundColor: 'rgba(0, 102, 204, 0.1)',
-                    borderRadius: '8px',
-                    padding: '10px 15px',
+                    marginBottom: '12px',
+                    background: 'linear-gradient(135deg, rgba(0, 184, 230, 0.08) 0%, rgba(35, 107, 109, 0.08) 100%)',
+                    borderRadius: '10px',
+                    padding: '12px 18px',
                     maxWidth: '500px',
-                    width: '100%'
+                    width: '100%',
+                    border: '1px solid rgba(0, 184, 230, 0.1)'
                   }}>
-                    <div style={{ fontSize: '22px', marginRight: '15px' }}>✓</div>
-                    <p style={{ margin: 0, fontSize: '16px', textAlign: 'left' }}>
+                    <div style={{ fontSize: '24px', marginRight: '15px' }}>✓</div>
+                    <p style={{ margin: 0, fontSize: '16px', textAlign: 'left', fontWeight: '500' }}>
                       <strong>Detailed ROI calculations</strong> for each improvement
                     </p>
                   </div>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    marginBottom: '25px',
-                    backgroundColor: 'rgba(0, 102, 204, 0.1)',
-                    borderRadius: '8px',
-                    padding: '10px 15px',
+                    marginBottom: '30px',
+                    background: 'linear-gradient(135deg, rgba(0, 184, 230, 0.08) 0%, rgba(35, 107, 109, 0.08) 100%)',
+                    borderRadius: '10px',
+                    padding: '12px 18px',
                     maxWidth: '500px',
-                    width: '100%'
+                    width: '100%',
+                    border: '1px solid rgba(0, 184, 230, 0.1)'
                   }}>
-                    <div style={{ fontSize: '22px', marginRight: '15px' }}>✓</div>
-                    <p style={{ margin: 0, fontSize: '16px', textAlign: 'left' }}>
+                    <div style={{ fontSize: '24px', marginRight: '15px' }}>✓</div>
+                    <p style={{ margin: 0, fontSize: '16px', textAlign: 'left', fontWeight: '500' }}>
                       <strong>Customized for your property</strong> at {formData.street}
                     </p>
                   </div>
 
+                  {/* Inline form fields */}
+                  <div style={{ width: '100%', maxWidth: '500px', marginBottom: '20px' }}>
+                    <div style={{ display: 'flex', gap: '12px', marginBottom: '15px' }}>
+                      <input
+                        type="text"
+                        name="name"
+                        value={contactInfo.name}
+                        onChange={handleInputChange}
+                        placeholder="Your name"
+                        style={{
+                          flex: 1,
+                          padding: '14px 16px',
+                          fontSize: '16px',
+                          borderRadius: '10px',
+                          border: formErrors.name ? '2px solid #ff4d4f' : '2px solid rgba(0, 184, 230, 0.2)',
+                          background: 'rgba(255, 255, 255, 0.9)',
+                          boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.05)',
+                          transition: 'all 0.2s ease',
+                          outline: 'none'
+                        }}
+                        onFocus={(e) => e.target.style.borderColor = '#00b8e6'}
+                        onBlur={(e) => e.target.style.borderColor = 'rgba(0, 184, 230, 0.2)'}
+                      />
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={contactInfo.phone}
+                        onChange={handleInputChange}
+                        placeholder="(555) 123-4567"
+                        style={{
+                          flex: 1,
+                          padding: '14px 16px',
+                          fontSize: '16px',
+                          borderRadius: '10px',
+                          border: formErrors.phone ? '2px solid #ff4d4f' : '2px solid rgba(0, 184, 230, 0.2)',
+                          background: 'rgba(255, 255, 255, 0.9)',
+                          boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.05)',
+                          transition: 'all 0.2s ease',
+                          outline: 'none'
+                        }}
+                        onFocus={(e) => e.target.style.borderColor = '#00b8e6'}
+                        onBlur={(e) => e.target.style.borderColor = 'rgba(0, 184, 230, 0.2)'}
+                      />
+                    </div>
+                    {(formErrors.name || formErrors.phone) && (
+                      <div style={{ fontSize: '14px', color: '#ff4d4f', marginBottom: '10px' }}>
+                        {formErrors.name || formErrors.phone}
+                      </div>
+                    )}
+                  </div>
+
                   <button
-                    onClick={(e) => {
+                    onClick={async (e) => {
                       e.preventDefault();
-                      setShowContactForm(true);
+                      if (!validateForm()) {
+                        return;
+                      }
+                      setIsSubmitting(true);
+                      updateFormData({
+                        name: contactInfo.name,
+                        phone: contactInfo.phone,
+                        email: contactInfo.email || '',
+                        leadStage: 'ValueBoost Report Qualified'
+                      });
+                      try {
+                        await updateLead();
+                        setIsSubmitting(false);
+                        setSubmitted(true);
+                        setUnlocked(true);
+                        if (window.gtag) {
+                          window.gtag('event', 'conversion', {
+                            'send_to': 'AW-123456789/AbC-D_efG-h12345',
+                            'event_category': 'lead',
+                            'event_label': 'ValueBoost Report Unlocked',
+                            'value': formData.apiEstimatedValue ? formData.apiEstimatedValue / 100 : 1,
+                            'currency': 'USD'
+                          });
+                        }
+                      } catch (error) {
+                        console.error('Error submitting lead:', error);
+                        setIsSubmitting(false);
+                        setFormErrors({ submit: 'Failed to submit your information. Please try again.' });
+                      }
                     }}
+                    disabled={isSubmitting}
                     style={{
-                      backgroundColor: '#2e7b7d',
+                      background: isSubmitting ? 'linear-gradient(135deg, #95d8c0 0%, #a8e6cf 100%)' : 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
                       color: 'white',
                       border: 'none',
-                      borderRadius: '8px',
-                      padding: '15px 30px',
+                      borderRadius: '12px',
+                      padding: '16px 32px',
                       fontSize: '18px',
                       fontWeight: 'bold',
-                      cursor: 'pointer',
-                      boxShadow: '0 4px 12px rgba(0, 102, 204, 0.3)',
-                      transition: 'all 0.2s ease',
+                      cursor: isSubmitting ? 'default' : 'pointer',
+                      boxShadow: '0 8px 20px rgba(0, 184, 230, 0.3)',
+                      transition: 'all 0.3s ease',
                       maxWidth: '500px',
                       width: '100%',
-                      marginBottom: '15px'
+                      marginBottom: '15px',
                     }}
-                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#236869'}
-                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2e7b7d'}
+                    onMouseOver={(e) => !isSubmitting && (e.currentTarget.style.transform = 'translateY(-2px)')}
+                    onMouseOut={(e) => !isSubmitting && (e.currentTarget.style.transform = 'translateY(0)')}
                   >
-                    Create Free Account to Unlock
+                    {isSubmitting ? 'Creating Account...' : 'Create Free Account to Unlock'}
                   </button>
 
                   <div style={{ fontSize: '14px', color: '#666', textAlign: 'center', maxWidth: '400px' }}>
@@ -1273,7 +1457,7 @@ function ValueBoostReport() {
               boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
               display: unlocked ? 'block' : 'none' // Only show when recommendations are unlocked
             }}>
-              <h3 style={{ margin: '0 0 15px 0', fontSize: '22px', color: '#2e7b7d' }}>
+              <h3 style={{ margin: '0 0 15px 0', fontSize: '22px', color: '#236b6d' }}>
                 Want These Upgrades Done At No Upfront Cost?
               </h3>
               <p style={{ margin: '0 0 20px 0', fontSize: '16px' }}>
@@ -1282,7 +1466,7 @@ function ValueBoostReport() {
               </p>
               <button
                 style={{
-                  backgroundColor: '#2e7b7d',
+                  backgroundColor: '#236b6d',
                   color: 'white',
                   border: 'none',
                   borderRadius: '5px',
@@ -1297,7 +1481,7 @@ function ValueBoostReport() {
                   setShowContactForm(true);
                 }}
                 onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#236869'}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2e7b7d'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#236b6d'}
               >
                 Check If I Qualify
               </button>
@@ -1467,7 +1651,7 @@ function ValueBoostReport() {
               >
                 ×
               </button>
-              <h3 style={{ margin: '0 0 20px 0', fontSize: '22px', color: '#2e7b7d', textAlign: 'center' }}>
+              <h3 style={{ margin: '0 0 20px 0', fontSize: '22px', color: '#236b6d', textAlign: 'center' }}>
                 Create Your Free Account
               </h3>
               <p style={{ margin: '0 0 25px 0', fontSize: '16px', textAlign: 'center', color: '#555' }}>
@@ -1554,7 +1738,7 @@ function ValueBoostReport() {
                     type="submit"
                     disabled={isSubmitting}
                     style={{
-                      backgroundColor: isSubmitting ? '#95d8c0' : '#2e7b7d',
+                      backgroundColor: isSubmitting ? '#95d8c0' : '#236b6d',
                       color: 'white',
                       border: 'none',
                       borderRadius: '8px',

@@ -155,18 +155,19 @@ function AIProcessing() {
     }
   }, [processingStep, processingSteps.length, nextStep]);
 
-  // Animated scan line effect
+  // Modern animated scan line effect
   const scanLineStyle = {
     position: 'absolute',
-    height: '4px',
+    height: '3px',
     width: '100%',
-    backgroundColor: '#3fccff',
-    boxShadow: '0 0 15px 3px rgba(63, 204, 255, 0.8)',
+    background: 'linear-gradient(90deg, transparent 0%, #00b8e6 20%, #0099cc 50%, #00b8e6 80%, transparent 100%)',
+    boxShadow: '0 0 20px 4px rgba(0, 184, 230, 0.4), 0 0 40px 8px rgba(0, 184, 230, 0.2)',
     top: `${(processingStep / processingSteps.length) * 100}%`,
     left: 0,
-    transition: 'top 0.5s ease-in-out',
-    animation: 'vb-scanGlow 1.5s infinite alternate',
-    zIndex: 10 // Make sure scan line is on top of everything
+    transition: 'top 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+    animation: 'modernScanGlow 2s ease-in-out infinite alternate',
+    zIndex: 10,
+    borderRadius: '2px'
   };
 
   // Map container styles - matching PersonalInfoForm style
@@ -219,8 +220,25 @@ function AIProcessing() {
         <div className="vb-content vb-fade-in" style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
           <div className="vb-headline">AI Home Analysis in Progress</div>
           
-          <div style={{ marginTop: '20px', marginBottom: '30px' }}>
-            <strong style={{ fontSize: '18px' }}>{processingSteps[processingStep] || 'Processing complete!'}</strong>
+          <div style={{ 
+            marginTop: '20px', 
+            marginBottom: '30px',
+            minHeight: '50px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <div style={{
+              fontSize: '18px',
+              fontWeight: '600',
+              color: '#236b6d',
+              textAlign: 'center',
+              opacity: 1,
+              transition: 'opacity 0.3s ease-in-out',
+              letterSpacing: '0.5px'
+            }}>
+              {processingSteps[processingStep] || 'Analysis complete!'}
+            </div>
           </div>
           
           {/* Processing visualization container */}
@@ -263,13 +281,13 @@ function AIProcessing() {
                       height: '40px',
                       borderRadius: '50%',
                       border: '3px solid rgba(0, 102, 204, 0.2)',
-                      borderTop: '3px solid #2e7b7d',
+                      borderTop: '3px solid #236b6d',
                       animation: 'vb-spin 1s linear infinite'
                     }} />
                     <div style={{
                       marginTop: '10px',
                       fontSize: '14px',
-                      color: '#2e7b7d',
+                      color: '#236b6d',
                       fontWeight: 'bold'
                     }}>
                       Loading map view...
@@ -321,43 +339,90 @@ function AIProcessing() {
             {/* Animated scan line */}
             <div style={scanLineStyle}></div>
             
-            {/* Data points animation - using the original static dots style */}
-            {Array.from({ length: 20 }).map((_, i) => (
-              <div key={i} style={{
+            {/* Data points animation - fewer dots with alternation */}
+            {Array.from({ length: 8 }).map((_, i) => {
+              const isActive = processingStep > i/2;
+              const animationDelay = (i % 3) * 1; // Stagger the animations
+              return isActive ? (
+                <div key={i} style={{
+                  position: 'absolute',
+                  left: `${Math.random() * 85 + 7.5}%`,
+                  top: `${Math.random() * 85 + 7.5}%`,
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  backgroundColor: '#00b8e6',
+                  opacity: 0,
+                  zIndex: 5,
+                  animation: `dotFadeInOut 4s ease-in-out infinite ${animationDelay}s`
+                }} />
+              ) : null;
+            })}
+          </div>
+          
+          {/* Modern progress bar */}
+          <div style={{
+            width: '88%',
+            maxWidth: '450px',
+            margin: '0 auto 25px',
+            height: '6px',
+            backgroundColor: 'rgba(46, 123, 125, 0.1)',
+            borderRadius: '3px',
+            overflow: 'hidden',
+            boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.1)'
+          }}>
+            <div style={{
+              height: '100%',
+              background: 'linear-gradient(90deg, #00b8e6 0%, #236b6d 50%, #00b8e6 100%)',
+              borderRadius: '3px',
+              transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+              width: `${progressPercent}%`,
+              boxShadow: '0 0 15px 2px rgba(0, 184, 230, 0.3)',
+              position: 'relative',
+              overflow: 'hidden'
+            }}>
+              <div style={{
                 position: 'absolute',
-                left: `${Math.random() * 90 + 5}%`,
-                top: `${Math.random() * 90 + 5}%`,
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                backgroundColor: processingStep > i/3 ? '#4caf50' : '#aaa',
-                opacity: processingStep > i/3 ? 0.8 : 0.3,
-                transition: 'background-color 0.5s ease, opacity 0.5s ease',
-                transform: `scale(${processingStep > i/3 ? 1 : 0.5})`,
-                zIndex: 5
+                top: 0,
+                left: '-100%',
+                width: '100%',
+                height: '100%',
+                background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)',
+                animation: 'progressShimmer 2s infinite'
               }} />
-            ))}
+            </div>
           </div>
           
-          {/* Progress bar */}
-          <div className="vb-progress-container">
-            <div className="vb-progress-bar" style={{ width: `${progressPercent}%` }} />
-          </div>
-          
-          {/* Step indicators */}
-          <div className="vb-step-indicators">
-            {processingSteps.map((_, index) => (
-              <div
-                key={index}
-                className={
-                  processingStep > index
-                    ? 'vb-indicator vb-indicator-completed'
-                    : processingStep === index
-                      ? 'vb-indicator vb-indicator-current'
-                      : 'vb-indicator vb-indicator-pending'
-                }
-              />
-            ))}
+          {/* Modern step indicators */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginBottom: '20px',
+            gap: '8px',
+            flexWrap: 'wrap'
+          }}>
+            {processingSteps.map((_, index) => {
+              const isCompleted = processingStep > index;
+              const isCurrent = processingStep === index;
+              const isPending = processingStep < index;
+              
+              return (
+                <div
+                  key={index}
+                  style={{
+                    width: isCurrent ? '16px' : '8px',
+                    height: '8px',
+                    borderRadius: isCurrent ? '8px' : '50%',
+                    backgroundColor: isCompleted ? '#00b8e6' : isCurrent ? '#236b6d' : '#e0e0e0',
+                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                    opacity: isPending ? 0.5 : 1,
+                    boxShadow: isCurrent ? '0 0 12px 2px rgba(46, 123, 125, 0.4)' : 
+                              isCompleted ? '0 0 8px 1px rgba(0, 184, 230, 0.3)' : 'none',
+                    transform: isCurrent ? 'scale(1.2)' : 'scale(1)'
+                  }}
+                />
+              );
+            })}
           </div>
           
           <div style={{ fontSize: '16px', color: '#555', maxWidth: '500px', margin: '0 auto' }}>
