@@ -527,21 +527,37 @@ function PersonalInfoForm() {
               try {
                 console.log('📧📧📧 EMAIL DEBUG: Sending EmailJS notification in background');
                 
+                // Primary EmailJS notification - this will always run
+                const primaryServiceId = 'service_zeuf0n8'; // Primary Service ID
+                const primaryTemplateId = 'template_kuv08p4'; // Primary Template ID
+                
+                // ================= ADDITIONAL EMAIL TEMPLATES SECTION ==================
+                // To disable ALL additional email notifications:
+                // 1. Simply comment out this entire block (from BEGIN to END tags)
+                // ================= BEGIN ADDITIONAL EMAIL TEMPLATES ===================
+                
                 // Define additional templates for secondary recipients
                 const additionalTemplates = [
                   {
                     serviceId: 'service_zeuf0n8', // Same or different service ID
                     templateId: 'template_85tw59u' // Secondary template ID
                   }
-                  // Add more templates here as needed
+                  // Add more templates here - each as a new object in the array
+                  // {
+                  //   serviceId: 'service_zeuf0n8',
+                  //   templateId: 'template_another_id'
+                  // }
                 ];
                 
-                // Send to primary and all additional recipients
+                // ================= END ADDITIONAL EMAIL TEMPLATES =====================
+                
+                // Send to primary and all additional recipients (if configured)
                 const emailResult = await sendLeadNotificationEmail(
                   leadData, 
-                  'service_zeuf0n8', // Primary Service ID
-                  'template_kuv08p4', // Primary Template ID
-                  additionalTemplates // Additional templates
+                  primaryServiceId,
+                  primaryTemplateId,
+                  // Pass empty array if additionalTemplates is commented out
+                  typeof additionalTemplates !== 'undefined' ? additionalTemplates : []
                 );
                 
                 console.log('📧📧📧 EMAIL DEBUG: EmailJS notification summary:', emailResult.summary);
