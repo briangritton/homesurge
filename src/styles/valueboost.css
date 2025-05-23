@@ -340,8 +340,8 @@
 }
 
 .vb-lock-icon {
-  font-size: 60px;
-  margin-bottom: 20px;
+  font-size: 8px;
+  margin: 2px 0 5px 0;
   color: #236b6d;
 }
 
@@ -713,9 +713,8 @@
   box-shadow: 0 4px 12px rgba(0, 184, 230, 0.1) !important;
   background: white !important;
   font-size: 1.2rem !important;
-  height: 60px !important;
-  padding-left: 20px !important;
-  padding-right: 20px !important;
+  height: 72px !important;
+  padding: 18px 20px !important;
   transition: all 0.3s ease !important;
 }
 
@@ -870,11 +869,6 @@
   margin-top: -2px;
 }
 
-.valueboost-gradient-image {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 
 /* Responsive adjustments for logo */
 @media (max-width: 768px) {
@@ -895,11 +889,6 @@
   .valueboost-brand,
   .valueboost-boost {
     font-size: 16px;
-  }
-  
-  .valueboost-gradient-image img {
-    height: 16px !important;
-    margin-left: 3px !important;
   }
 }
 
@@ -943,7 +932,247 @@
   color: #666 !important;
 }
 
+/* ValueBoost specific headline color overrides */
+.vb-af1-hero-headline {
+  color: #236b6d !important;
+}
+
+/* ValueBoost Demo/Results Box Styles */
+.vb-value-boost-box {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 25px;
+  background-color: white;
+  border: 1px solid;
+  border-image: linear-gradient(135deg, #00b8e6 0%, #236b6d 100%) 1;
+  border-radius: 12px;
+  box-shadow: 0 0 20px 4px rgba(0, 184, 230, 0.15), 0 4px 15px rgba(0, 0, 0, 0.05);
+  max-width: 600px;
+  margin: 0 auto 40px;
+  opacity: 0.85;
+  position: relative;
+}
+
+/* ValueBoost Box Tag */
+.vb-box-tag {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #00b8e6 0%, #236b6d 100%);
+  color: white;
+  font-size: 13px;
+  padding: 5px 14px;
+  border-radius: 12px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* ValueBoost Box Headline */
+.vb-box-headline {
+  font-size: 20px;
+  margin-bottom: 15px;
+  background: linear-gradient(135deg, #00b8e6 0%, #236b6d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Value Container */
+.vb-value-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+/* Individual Value Items */
+.vb-value-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 140px;
+}
+
+.vb-value-amount {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.vb-current-value {
+  color: #236b6d;
+}
+
+.vb-boost-value {
+  background: linear-gradient(135deg, #00b8e6 0%, #236b6d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.vb-value-label {
+  font-size: 14px;
+  color: #555;
+}
+
+/* Value Boost Arrow */
+.vb-value-arrow {
+  padding: 0 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.vb-arrow-horizontal {
+  width: 50px;
+  height: auto;
+  display: block;
+}
+
+.vb-arrow-vertical {
+  width: 40px;
+  height: auto;
+  display: none;
+  transform: rotate(90deg);
+}
+
+/* New Total Value Section */
+.vb-new-total {
+  text-align: center;
+  margin-bottom: 25px;
+  padding: 15px;
+  background-color: rgba(0, 184, 230, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 184, 230, 0.1);
+}
+
+.vb-new-total-label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.vb-new-total-amount {
+  font-size: 28px;
+  font-weight: bold;
+  background: linear-gradient(135deg, #00b8e6 0%, #0099bb 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Box Summary Text */
+.vb-opportunities-text {
+  font-size: 16px;
+  color: #444;
+  margin-bottom: 5px;
+}
+
+.vb-percentage-text {
+  font-size: 18px;
+  font-weight: bold;
+  background: linear-gradient(135deg, #00b8e6 0%, #236b6d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 360px) {
+  .vb-value-container {
+    flex-direction: column !important;
+    gap: 15px !important;
+  }
+  .vb-arrow-horizontal {
+    display: none !important;
+  }
+  .vb-arrow-vertical {
+    display: block !important;
+  }
+  .vb-value-arrow {
+    transform: scaleY(1.2) !important;
+  }
+}
+
+@media (max-width: 700px) and (min-width: 361px) {
+  .vb-value-container {
+    gap: 5px !important;
+  }
+  .vb-value-arrow {
+    padding: 0 2px !important;
+  }
+  .vb-arrow-horizontal {
+    width: 30px !important;
+  }
+}
+
+/* Unified Mobile Styling */
+@media (max-width: 768px) {
+  .vb-value-boost-box {
+    margin: 0 20px 40px !important;
+    padding: 20px 15px !important;
+    max-width: calc(100vw - 40px) !important;
+  }
+  
+  /* Consistent mobile spacing for all form elements */
+  .vb-af1-hero-subheadline,
+  .af1-hero-subheadline.vb-af1-hero-subheadline,
+  .hero-subheadline.vb-af1-hero-subheadline {
+    padding: 0 20px !important;
+    margin-bottom: 20px !important;
+  }
+  
+  /* Form container mobile spacing */
+  .vb-af1-form-container,
+  .af1-form-container.vb-af1-form-container,
+  .form-container.vb-af1-form-container {
+    padding: 0 20px !important;
+    margin: 20px auto !important;
+    max-width: calc(100vw - 40px) !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* Input and button mobile spacing */
+  .vb-af1-address-input,
+  .af1-address-input.vb-af1-address-input,
+  .address-input.vb-af1-address-input {
+    width: 100% !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+  }
+  
+  .vb-af1-submit-button,
+  .af1-submit-button.vb-af1-submit-button,
+  .submit-button.vb-af1-submit-button {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* Error message mobile spacing */
+  .vb-af1-error-message,
+  .af1-error-message.vb-af1-error-message,
+  .error-message.vb-af1-error-message {
+    margin: 0 20px !important;
+    max-width: calc(100vw - 40px) !important;
+    box-sizing: border-box !important;
+  }
+}
+
 @media screen and (max-width: 768px) {
+
+  .vb-af1-hero-middle-container{
+
+padding-top:8%;
+  }
+ 
+ 
   .pac-container {
     font-size: 14px !important;
   }
@@ -961,3 +1190,4 @@
     font-size: 11px !important;
   }
 }
+

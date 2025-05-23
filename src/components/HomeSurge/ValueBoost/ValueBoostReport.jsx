@@ -859,90 +859,48 @@ function ValueBoostReport() {
     <div className="vb-report-section">
       <div className="vb-report-container">
         <div className="vb-content vb-fade-in" style={contentStyle}>
-          {/* Development indicator */}
-          {isLocalhost && (!formData.apiEstimatedValue || formData.apiEstimatedValue === 0) && (
-            <div style={{
-              background: '#f0f9ff',
-              border: '1px solid #00b8e6',
-              borderRadius: '5px',
-              padding: '8px 12px',
-              margin: '0 auto 20px',
-              maxWidth: '300px',
-              fontSize: '14px',
-              color: '#236b6d',
-              textAlign: 'center'
-            }}>
-              🧪 Using dummy data for localhost testing
-            </div>
-          )}
           
           {/* Header */}
-          <div className="vb-headline">
+          <div className="vb-af1-hero-headline af1-hero-headline hero-headline">
             Value Scan Complete For:
           </div>
-          <div className="vb-subheadline" style={{ marginBottom: '10px' }}>
+          <div className="vb-af1-hero-subheadline af1-hero-subheadline hero-subheadline" style={{ marginBottom: '10px' }}>
             {testFormData.street || '123 Main St'}
           </div>
 
 
           {/* Combined Value Boost Summary Box - only show if API provided a valid value */}
           {testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0 ? (
-          <div style={{
-            textAlign: 'center',
-            marginBottom: '40px',
-            padding: '25px',
-            backgroundColor: 'white',
-            border: '1px solid',
-            borderImage: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%) 1',
-            borderRadius: '12px',
-            boxShadow: '0 0 20px 4px rgba(0, 184, 230, 0.15), 0 4px 15px rgba(0, 0, 0, 0.05)',
-            maxWidth: '600px',
-            margin: '0 auto 40px'
-          }}>
-            <h2 style={{ 
-              fontSize: '26px', 
-              marginBottom: '20px', 
-              background: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}>
-              Your Total Value Boost\u00A0Potential
+          <div className="vb-value-boost-box">
+            <h2 className="vb-box-headline">
+              Your ValueBoost Potential:
             </h2>
 
             {/* Responsive container for values */}
-            <div className="value-container" style={{
-              display: 'flex',
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: '20px',
-              marginBottom: '25px'
-            }}>
+            <div className="vb-value-container">
               {/* Current Value */}
               <div style={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                minWidth: '200px'
+                minWidth: '140px'
               }}>
                 <div style={{
-                  fontSize: '28px',
+                  fontSize: '22px',
                   fontWeight: 'bold',
                   color: '#236b6d',
                   marginBottom: '5px'
                 }}>
                   {testFormData.formattedApiEstimatedValue || '$554,000'}
                 </div>
-                <div style={{ fontSize: '16px', color: '#555' }}>
+                <div style={{ fontSize: '14px', color: '#555' }}>
                   Current Value
                 </div>
               </div>
 
               {/* Arrow - responsive */}
               <div className="value-boost-arrow" style={{
-                padding: '0 8px',
+                padding: '0 4px',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -976,12 +934,12 @@ function ValueBoostReport() {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                minWidth: '200px'
+                minWidth: '140px'
               }}>
                 <div style={{
-                  fontSize: '28px',
+                  fontSize: '22px',
                   fontWeight: 'bold',
-                  background: 'linear-gradient(135deg, #00b8e6 0%, #0099bb 100%)',
+                  background: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',
@@ -989,32 +947,18 @@ function ValueBoostReport() {
                 }}>
                   {testFormData.formattedPotentialIncrease || '$121,880'}
                 </div>
-                <div style={{ fontSize: '16px', color: '#555' }}>
+                <div style={{ fontSize: '14px', color: '#555' }}>
                   Value Boost Potential
                 </div>
               </div>
             </div>
 
             {/* New Total Value - shown below */}
-            <div style={{
-              textAlign: 'center',
-              marginBottom: '25px',
-              padding: '15px',
-              backgroundColor: 'rgba(0, 184, 230, 0.05)',
-              borderRadius: '8px',
-              border: '1px solid rgba(0, 184, 230, 0.1)'
-            }}>
-              <div style={{ fontSize: '14px', color: '#666', marginBottom: '5px' }}>
+            <div className="vb-new-total">
+              <div className="vb-new-total-label">
                 New Total Value
               </div>
-              <div style={{
-                fontSize: '32px',
-                fontWeight: 'bold',
-                background: 'linear-gradient(135deg, #00b8e6 0%, #0099bb 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
-              }}>
+              <div className="vb-new-total-amount">
                 {
                   (() => {
                     try {
@@ -1057,23 +1001,16 @@ function ValueBoostReport() {
               </div>
             </div>
 
-            <p style={{ fontSize: '18px', color: '#444', marginBottom: '5px' }}>
-              <strong>{recommendations.length || '11'}</strong> value-boosting improvements identified by AI
+            <p className="vb-opportunities-text">
+              <strong>{recommendations.length || '11'} ValueBoost opportunities found!</strong>
             </p>
-            <p style={{ 
-              fontSize: '18px', 
-              fontWeight: 'bold',
-              background: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}>
-              Potential Increase: {testFormData.valueIncreasePercentage || '22'}%
+            <p className="vb-percentage-text">
+              Potential Home Value Increase: {testFormData.valueIncreasePercentage || '22'}%!
             </p>
 
             {/* Responsive styles for different screen sizes */}
             <style jsx="true">{`
-              @media (max-width: 700px) {
+              @media (max-width: 360px) {
                 .value-container {
                   flex-direction: column !important;
                   gap: 15px !important;
@@ -1088,9 +1025,50 @@ function ValueBoostReport() {
                   transform: scaleY(1.2) !important;
                 }
               }
+              @media (max-width: 700px) and (min-width: 361px) {
+                .value-container {
+                  gap: 5px !important;
+                }
+                .value-boost-arrow {
+                  padding: 0 2px !important;
+                }
+                .value-boost-arrow img {
+                  width: 30px !important;
+                }
+              }
+              @media (max-width: 768px) {
+                .value-boost-results-box {
+                  margin: 0 10px 40px !important;
+                  padding: 20px 15px !important;
+                  max-width: calc(100vw - 20px) !important;
+                }
+              }
             `}</style>
           </div>
           ) : null}
+
+          {/* Down arrow to guide user to recommendations */}
+          {testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0 && (
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              margin: '-40px 0 -30px 0',
+              position: 'relative',
+              zIndex: 10
+            }}>
+              <img 
+                src={gradientArrow}
+                alt="Continue to recommendations"
+                style={{
+                  width: '80px',
+                  height: 'auto',
+                  transform: 'rotate(90deg)',
+                  filter: 'drop-shadow(0 2px 8px rgba(0, 184, 230, 0.3))'
+                }}
+              />
+            </div>
+          )}
 
           {/* Display recommendations */}
           <div id="recommendations-section" style={{
@@ -1267,32 +1245,33 @@ function ValueBoostReport() {
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 253, 255, 0.95) 100%)',
+                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.60) 0%, rgba(248, 253, 255, 0.60) 100%)',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'flex-start',
                   alignItems: 'center',
                   paddingTop: '40px',
-                  backdropFilter: 'blur(12px)',
+                  border: '2px solid rgba(0, 184, 230, 0.3)',
                   borderRadius: '12px',
+                  boxShadow: '0 8px 32px rgba(0, 184, 230, 0.15), inset 0 0 0 1px rgba(255, 255, 255, 0.8), inset 0 0 30px rgba(0, 184, 230, 0.1)',
+                  backdropFilter: 'blur(5px)',
                   zIndex: 10,
-                  padding: '30px',
-                  boxShadow: 'inset 0 0 30px rgba(0, 184, 230, 0.1)'
+                  padding: '30px'
                 }}>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    width: '100px',
-                    height: '100px',
+                    width: '60px',
+                    height: '60px',
                     borderRadius: '50%',
                     background: 'linear-gradient(135deg, #e8f4ff 0%, #f0f9ff 100%)',
-                    marginBottom: '25px',
+                    marginBottom: '15px',
                     boxShadow: '0 8px 25px rgba(0, 184, 230, 0.2)',
                     border: '2px solid rgba(0, 184, 230, 0.1)'
                   }}>
                     <div style={{
-                      fontSize: '50px',
+                      fontSize: '25px',
                       background: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor: 'transparent',
@@ -1303,16 +1282,16 @@ function ValueBoostReport() {
                     </div>
                   </div>
                   <h3 style={{
-                    fontSize: '30px',
+                    fontSize: '22px',
                     fontWeight: 'bold',
                     textAlign: 'center',
-                    marginBottom: '25px',
+                    marginBottom: '15px',
                     background: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text',
                   }}>
-                    Unlock Your Full Value Boost Report
+                    Unlock Your Free ValueBoost Report
                   </h3>
                   <div style={{
                     display: 'flex',
@@ -1327,7 +1306,7 @@ function ValueBoostReport() {
                   }}>
                     <div style={{ fontSize: '24px', marginRight: '15px' }}>✓</div>
                     <p style={{ margin: 0, fontSize: '16px', textAlign: 'left', fontWeight: '500' }}>
-                      <strong>All {recommendations.length} value-boosting recommendations</strong> for your property
+                      <strong>All ValueBoost recommendations</strong> for your property
                     </p>
                   </div>
                   <div style={{

@@ -7,18 +7,20 @@ function AIProcessing() {
   const [progressPercent, setProgressPercent] = useState(0);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(false);
+  const [animatedValue, setAnimatedValue] = useState(formData.apiEstimatedValue || 554000);
   const mapContainerRef = useRef(null);
+  const animationRef = useRef(null);
   
   // Steps in the AI processing sequence
   const processingSteps = [
-    'Initializing AI analysis...',
-    'Loading property data...',
+    'Initializing AI analysis and property scan...',
+    'Loading property data and market information...',
     'Evaluating current market conditions...',
     'Analyzing nearby comparable properties...',
-    'Identifying highest ROI improvements...',
-    'Calculating potential value increase...',
+    'Identifying highest ROI improvement opportunities...',
+    'Calculating potential value increase from improvements...',
     'Building customized value boost plan...',
-    'Finalizing AI recommendations...',
+    'Finalizing AI recommendations and strategies...',
     'Value boost report ready!'
   ];
 
@@ -155,6 +157,86 @@ function AIProcessing() {
     }
   }, [processingStep, processingSteps.length, nextStep]);
 
+  // Animated value counting effect - realistic staged increments
+  useEffect(() => {
+    // Start animation from step 0 (immediately when component loads)
+    if (processingStep >= 0) {
+      // Use dummy values if no API values are available
+      const startValue = formData.apiEstimatedValue || 554000; // Dummy value from first step
+      const valueIncrease = formData.potentialValueIncrease || 121880; // Dummy increase from first step
+      const endValue = startValue + valueIncrease;
+      
+      // Define realistic value progression based on processing steps
+      // Start at current value and increment to new total
+      let targetValue;
+      let duration;
+      
+      if (processingStep < 4) {
+        // Steps 0-3: Just maintain the starting value, no animation needed
+        return;
+      } else if (processingStep === 4) {
+        // Start identifying improvements - small incremental increase
+        targetValue = startValue + Math.round(valueIncrease * 0.15);
+        duration = 1500;
+      } else if (processingStep === 5) {
+        // Calculating potential - more significant increase
+        targetValue = startValue + Math.round(valueIncrease * 0.45);
+        duration = 1800;
+      } else if (processingStep === 6) {
+        // Building plan - further increase
+        targetValue = startValue + Math.round(valueIncrease * 0.75);
+        duration = 1500;
+      } else if (processingStep === 7) {
+        // Finalizing - nearly complete
+        targetValue = startValue + Math.round(valueIncrease * 0.95);
+        duration = 1200;
+      } else {
+        // Complete - full value
+        targetValue = endValue;
+        duration = 800;
+      }
+      
+      const startTime = Date.now();
+      const currentStart = animatedValue; // Start from current animated value
+
+      const animateValue = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Use easeOutCubic for more natural feel
+        const easeProgress = 1 - Math.pow(1 - progress, 3);
+        
+        // Animate from current value to target value in realistic increments
+        const currentValue = currentStart + (targetValue - currentStart) * easeProgress;
+        // Use a fixed irregular increment for this animation cycle (set once per step)
+        const irregularIncrement = 4900; // Fixed at $4,900 for more realistic feel
+        const roundedValue = Math.round(currentValue / irregularIncrement) * irregularIncrement;
+        setAnimatedValue(roundedValue);
+        
+        if (progress < 1) {
+          animationRef.current = requestAnimationFrame(animateValue);
+        }
+      };
+
+      // For steps before 4, no animation needed
+      if (processingStep < 4) {
+        return;
+      }
+      
+      // Start the animation with a small delay for natural feel
+      const timer = setTimeout(() => {
+        animationRef.current = requestAnimationFrame(animateValue);
+      }, 200);
+      
+      return () => {
+        clearTimeout(timer);
+        if (animationRef.current) {
+          cancelAnimationFrame(animationRef.current);
+        }
+      };
+    }
+  }, [processingStep, formData.apiEstimatedValue, formData.potentialValueIncrease]);
+
   // Modern animated scan line effect
   const scanLineStyle = {
     position: 'absolute',
@@ -218,29 +300,50 @@ function AIProcessing() {
     <div className="vb-section" style={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div className="vb-container">
         <div className="vb-content vb-fade-in" style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
-          <div className="vb-headline">AI Home Analysis in Progress</div>
+          <div className="vb-af1-hero-headline af1-hero-headline hero-headline">AI Home Analysis in Progress</div>
           
-          <div style={{ 
-            marginTop: '20px', 
-            marginBottom: '30px',
-            minHeight: '70px',
+          <div className="vb-af1-hero-subheadline af1-hero-subheadline hero-subheadline" style={{ 
+            marginTop: '10px', 
+            marginBottom: '5px',
+            minHeight: '50px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center'
           }}>
+            {processingSteps[processingStep] || 'Analysis complete!'}
+          </div>
+          
+          {/* Value display above scanning image */}
+          <div style={{ marginTop: '0px', marginBottom: '20px' }}>
             <div style={{
-              fontSize: '22px',
+              fontSize: '24px',
               fontWeight: 'bold',
               background: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
-              textAlign: 'center',
-              opacity: 1,
-              transition: 'opacity 0.3s ease-in-out',
+              margin: '10px 0',
               letterSpacing: '0.5px'
             }}>
-              {processingSteps[processingStep] || 'Analysis complete!'}
+              {new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+              }).format(animatedValue)}
+            </div>
+            
+            <div style={{ fontSize: '14px', color: '#00b8e6', fontWeight: 'bold' }}>
+              {animatedValue > (formData.apiEstimatedValue || 554000) ? (
+                `↗ Value boost: +${new Intl.NumberFormat('en-US', {
+                  style: 'currency',
+                  currency: 'USD',
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0
+                }).format(animatedValue - (formData.apiEstimatedValue || 554000))}`
+              ) : (
+                'ValueBoost: Calculating'
+              )}
             </div>
           </div>
           
@@ -489,12 +592,6 @@ function AIProcessing() {
             {formData.street && 
               <p>Analyzing property data for: <br /><strong>{formData.street}</strong></p>
             }
-            
-            {formData.apiEstimatedValue ? (
-              <p>Current estimated value: <strong>{formData.formattedApiEstimatedValue}</strong></p>
-            ) : (
-              <p>Retrieving property details...</p>
-            )}
           </div>
         </div>
       </div>

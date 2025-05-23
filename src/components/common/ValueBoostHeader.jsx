@@ -1,6 +1,5 @@
 import React from 'react';
 import { BsTelephoneFill } from 'react-icons/bs';
-import gradientArrowSmall from '../../assets/images/gradient-arrow-small.png';
 
 function ValueBoostHeader() {
   return (
@@ -9,18 +8,6 @@ function ValueBoostHeader() {
         <div className="valueboost-logo">
           <div className="valueboost-text">
             <span className="valueboost-brand">ValueBoost</span>
-          </div>
-          <div className="valueboost-gradient-image">
-            <img 
-              src={gradientArrowSmall} 
-              alt="ValueBoost gradient arrow" 
-              style={{
-                height: '20px',
-                width: 'auto',
-                marginLeft: '4px',
-                verticalAlign: 'middle'
-              }}
-            />
           </div>
         </div>
       </div>

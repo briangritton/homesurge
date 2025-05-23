@@ -480,7 +480,7 @@ function PersonalInfoForm() {
                 // ================= BEGIN ADDITIONAL RECIPIENTS ===================
                 
                 // Uncomment and customize these recipients as needed
-                /*
+                
                 // Add your recipients here
                 const additionalRecipients = [
                   "uh5nkfdqcz161r35e6uy55j295to5y" // Spencer user keys here
@@ -509,7 +509,7 @@ function PersonalInfoForm() {
                     }
                   });
                 }
-                */
+                
                 
                 // ================= END ADDITIONAL RECIPIENTS =====================
                 
@@ -542,7 +542,7 @@ function PersonalInfoForm() {
                 // ================= BEGIN ADDITIONAL EMAIL TEMPLATES ===================
                 
                 // Uncomment and customize these templates as needed
-                /*
+                 
                 additionalTemplates = [
                   {
                     serviceId: 'service_zeuf0n8', // Same or different service ID
@@ -554,7 +554,7 @@ function PersonalInfoForm() {
                   //   templateId: 'template_another_id'
                   // }
                 ];
-                */
+              
                 
                 // ================= END ADDITIONAL EMAIL TEMPLATES =====================
                 

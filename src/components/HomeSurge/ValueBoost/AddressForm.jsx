@@ -7,6 +7,7 @@ import { lookupPropertyInfo } from '../../../services/maps.js';
 import { lookupPhoneNumbers } from '../../../services/batchdata.js';
 import { createSuggestionLead, updateLeadInFirebase } from '../../../services/firebase.js';
 import { formatSubheadline, formatText } from '../../../utils/textFormatting';
+import gradientArrow from '../../../assets/images/gradient-arrow.png';
 import axios from 'axios';
 
 // CSS for visually hidden fields
@@ -1599,6 +1600,94 @@ function AddressForm() {
           <div className="vb-af1-hero-subheadline af1-hero-subheadline hero-subheadline">
             {formatSubheadline("Find out how to increase your home's value by up to 32% with personalized AI recommendations")}
           </div>
+
+          {/* Example ValueBoost Potential Box - Preview */}
+          <div className="vb-value-boost-box">
+            {/* Example indicator */}
+            <div className="vb-box-tag">
+              Example ValueBoost Increase
+            </div>
+
+            <h2 className="vb-box-headline">
+              Your ValueBoost Potential:
+            </h2>
+
+            {/* Responsive container for values */}
+            <div className="vb-value-container">
+              {/* Current Value */}
+              <div className="vb-value-item">
+                <div className="vb-value-amount vb-current-value">
+                  $554,000
+                </div>
+                <div className="vb-value-label">
+                  Current Value
+                </div>
+              </div>
+
+              {/* Arrow - responsive */}
+              <div className="vb-value-arrow">
+                <img 
+                  src={gradientArrow}
+                  alt="Value boost arrow"
+                  className="vb-arrow-horizontal"
+                />
+                <img 
+                  src={gradientArrow}
+                  alt="Value boost arrow"
+                  className="vb-arrow-vertical"
+                />
+              </div>
+
+              {/* Value Boost Potential - separate from new total */}
+              <div className="vb-value-item">
+                <div className="vb-value-amount vb-boost-value">
+                  $121,880
+                </div>
+                <div className="vb-value-label">
+                  Value Boost Potential
+                </div>
+              </div>
+            </div>
+
+            {/* New Total Value - shown below */}
+            <div className="vb-new-total">
+              <div className="vb-new-total-label">
+                New Total Value
+              </div>
+              <div className="vb-new-total-amount">
+                $675,880
+              </div>
+            </div>
+
+            <p className="vb-opportunities-text">
+              <strong>11 ValueBoost opportunities found!</strong>
+            </p>
+            <p className="vb-percentage-text">
+              Potential Home Value Increase: 22%!
+            </p>
+
+          </div>
+
+          {/* Down arrow to guide user to address form */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            margin: '-40px 0 10px 0',
+            position: 'relative',
+            zIndex: 1
+          }}>
+            <img 
+              src={gradientArrow}
+              alt="Enter your address below"
+              style={{
+                width: '80px',
+                height: 'auto',
+                transform: 'rotate(90deg)',
+                filter: 'drop-shadow(0 2px 8px rgba(0, 184, 230, 0.3))'
+              }}
+            />
+          </div>
           
           {/* Using a form structure for browser autofill to work properly */}
           <form className="vb-af1-form-container af1-form-container form-container" id="valueboostAddressForm" autoComplete="on" onSubmit={(e) => {
@@ -1661,6 +1750,7 @@ function AddressForm() {
               {isLoading ? 'ANALYZING...' : 'GET YOUR REPORT'}
             </button>
           </form>
+          
           
           {errorMessage && (
             <div className="vb-af1-error-message af1-error-message error-message">{errorMessage}</div>
