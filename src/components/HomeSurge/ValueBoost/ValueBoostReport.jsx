@@ -1297,10 +1297,10 @@ function ValueBoostReport() {
                     display: 'flex',
                     alignItems: 'center',
                     marginBottom: '12px',
-                    background: 'linear-gradient(135deg, rgba(0, 184, 230, 0.08) 0%, rgba(35, 107, 109, 0.08) 100%)',
+                    background: 'rgba(255, 255, 255, 0.95)',
                     borderRadius: '10px',
                     padding: '12px 18px',
-                    maxWidth: '500px',
+                    maxWidth: '450px',
                     width: '100%',
                     border: '1px solid rgba(0, 184, 230, 0.1)'
                   }}>
@@ -1313,10 +1313,10 @@ function ValueBoostReport() {
                     display: 'flex',
                     alignItems: 'center',
                     marginBottom: '12px',
-                    background: 'linear-gradient(135deg, rgba(0, 184, 230, 0.08) 0%, rgba(35, 107, 109, 0.08) 100%)',
+                    background: 'rgba(255, 255, 255, 0.95)',
                     borderRadius: '10px',
                     padding: '12px 18px',
-                    maxWidth: '500px',
+                    maxWidth: '450px',
                     width: '100%',
                     border: '1px solid rgba(0, 184, 230, 0.1)'
                   }}>
@@ -1329,10 +1329,10 @@ function ValueBoostReport() {
                     display: 'flex',
                     alignItems: 'center',
                     marginBottom: '30px',
-                    background: 'linear-gradient(135deg, rgba(0, 184, 230, 0.08) 0%, rgba(35, 107, 109, 0.08) 100%)',
+                    background: 'rgba(255, 255, 255, 0.95)',
                     borderRadius: '10px',
                     padding: '12px 18px',
-                    maxWidth: '500px',
+                    maxWidth: '450px',
                     width: '100%',
                     border: '1px solid rgba(0, 184, 230, 0.1)'
                   }}>

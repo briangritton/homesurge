@@ -7,7 +7,7 @@ function AIProcessing() {
   const [progressPercent, setProgressPercent] = useState(0);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(false);
-  const [animatedValue, setAnimatedValue] = useState(formData.apiEstimatedValue || 554000);
+  const [animatedValue, setAnimatedValue] = useState(formData.apiEstimatedValue ? formData.apiEstimatedValue : 554000);
   const mapContainerRef = useRef(null);
   const animationRef = useRef(null);
   
@@ -161,9 +161,9 @@ function AIProcessing() {
   useEffect(() => {
     // Start animation from step 0 (immediately when component loads)
     if (processingStep >= 0) {
-      // Use dummy values if no API values are available
-      const startValue = formData.apiEstimatedValue || 554000; // Dummy value from first step
-      const valueIncrease = formData.potentialValueIncrease || 121880; // Dummy increase from first step
+      // Use real API values if available, otherwise use dummy values
+      const startValue = formData.apiEstimatedValue ? formData.apiEstimatedValue : 554000;
+      const valueIncrease = formData.potentialValueIncrease ? formData.potentialValueIncrease : 121880;
       const endValue = startValue + valueIncrease;
       
       // Define realistic value progression based on processing steps
@@ -334,13 +334,13 @@ function AIProcessing() {
             </div>
             
             <div style={{ fontSize: '14px', color: '#00b8e6', fontWeight: 'bold' }}>
-              {animatedValue > (formData.apiEstimatedValue || 554000) ? (
+              {animatedValue > (formData.apiEstimatedValue ? formData.apiEstimatedValue : 554000) ? (
                 `↗ Value boost: +${new Intl.NumberFormat('en-US', {
                   style: 'currency',
                   currency: 'USD',
                   minimumFractionDigits: 0,
                   maximumFractionDigits: 0
-                }).format(animatedValue - (formData.apiEstimatedValue || 554000))}`
+                }).format(animatedValue - (formData.apiEstimatedValue ? formData.apiEstimatedValue : 554000))}`
               ) : (
                 'ValueBoost: Calculating'
               )}
