@@ -480,34 +480,37 @@ function PersonalInfoForm() {
                 // 1. Simply comment out this entire block (from BEGIN to END tags)
                 // ================= BEGIN ADDITIONAL RECIPIENTS ===================
                 
-                // // List of additional Pushover user keys to notify
-                // const additionalRecipients = [
-                //   "uh5nkfdqcz161r35e6uy55j295to5y" // Spencer user keys here
-                //   // Add more recipients here - each on a new line
-                //   // "ufrb12nxavarvmx4vuct15ibz2augo"  // Allison user keys here
-                //   // "uh5nkfdqcz161r35e6uy55j295teee"  // DUMMY USER KEYS
-                // ];
+                // Uncomment and customize these recipients as needed
+                /*
+                // Add your recipients here
+                const additionalRecipients = [
+                  "uh5nkfdqcz161r35e6uy55j295to5y" // Spencer user keys here
+                  // Add more recipients here - each on a new line
+                  // "ufrb12nxavarvmx4vuct15ibz2augo",  // Allison user keys here
+                  // "uh5nkfdqcz161r35e6uy55j295teee"   // DUMMY USER KEYS
+                ];
                 
-                // // Send to each additional recipient
-                // if (additionalRecipients && additionalRecipients.length > 0) {
-                //   additionalRecipients.forEach(recipientKey => {
-                //     if (recipientKey && recipientKey.trim()) {
-                //       sendPromises.push(
-                //         fetch('/api/pushover/send-notification', {
-                //           method: 'POST',
-                //           headers: { 
-                //             'Content-Type': 'application/json',
-                //             'Accept': 'application/json'
-                //           },
-                //           body: JSON.stringify({
-                //             ...requestBody,
-                //             user: recipientKey
-                //           })
-                //         })
-                //       );
-                //     }
-                //   });
-                // }
+                // Send to each additional recipient
+                if (additionalRecipients && additionalRecipients.length > 0) {
+                  additionalRecipients.forEach(recipientKey => {
+                    if (recipientKey && recipientKey.trim()) {
+                      sendPromises.push(
+                        fetch('/api/pushover/send-notification', {
+                          method: 'POST',
+                          headers: { 
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                          },
+                          body: JSON.stringify({
+                            ...requestBody,
+                            user: recipientKey
+                          })
+                        })
+                      );
+                    }
+                  });
+                }
+                */
                 
                 // ================= END ADDITIONAL RECIPIENTS =====================
                 
@@ -531,29 +534,37 @@ function PersonalInfoForm() {
                 const primaryServiceId = 'service_zeuf0n8'; // Primary Service ID
                 const primaryTemplateId = 'template_kuv08p4'; // Primary Template ID
                 
+                // Initialize with empty array by default
+                let additionalTemplates = [];
+                
                 // ================= ADDITIONAL EMAIL TEMPLATES SECTION ==================
                 // To disable ALL additional email notifications:
                 // 1. Simply comment out this entire block (from BEGIN to END tags)
                 // ================= BEGIN ADDITIONAL EMAIL TEMPLATES ===================
                 
-                // // Define additional templates for secondary recipients
-                // const additionalTemplates = [
-                //   {
-                //     serviceId: 'service_zeuf0n8', // Same or different service ID
-                //     templateId: 'template_85tw59u' // Secondary template ID
-                //   }
-               
-                // ];
+                // Uncomment and customize these templates as needed
+                /*
+                additionalTemplates = [
+                  {
+                    serviceId: 'service_zeuf0n8', // Same or different service ID
+                    templateId: 'template_85tw59u' // Secondary template ID
+                  }
+                  // Add more templates here - each as a new object in the array
+                  // {
+                  //   serviceId: 'service_zeuf0n8',
+                  //   templateId: 'template_another_id'
+                  // }
+                ];
+                */
                 
                 // ================= END ADDITIONAL EMAIL TEMPLATES =====================
                 
-                // Send to primary and all additional recipients (if configured)
+                // Send to primary and all additional recipients
                 const emailResult = await sendLeadNotificationEmail(
                   leadData, 
                   primaryServiceId,
                   primaryTemplateId,
-                  // Pass empty array if additionalTemplates is commented out
-                  typeof additionalTemplates !== 'undefined' ? additionalTemplates : []
+                  additionalTemplates // Will be empty array if section is commented out
                 );
                 
                 console.log('📧📧📧 EMAIL DEBUG: EmailJS notification summary:', emailResult.summary);
