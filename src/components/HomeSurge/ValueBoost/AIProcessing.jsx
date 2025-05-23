@@ -22,14 +22,8 @@ function AIProcessing() {
     'Value boost report ready!'
   ];
 
-  // Initialize Google Maps - TEMPORARILY DISABLED FOR SCROLL TESTING
+  // Initialize Google Maps
   useEffect(() => {
-    // DISABLED: Testing if Google Maps is causing scroll issues
-    console.log('Google Maps initialization disabled for testing');
-    setMapError(true); // Force fallback display
-    return;
-    
-    /*
     // Only try to load maps if we have location data
     if (!formData.location || !formData.location.lat || !formData.location.lng) {
       console.log('No location data available for map');
@@ -72,7 +66,6 @@ function AIProcessing() {
         script.parentNode.removeChild(script);
       }
     };
-    */
   }, [formData.location]);
 
   // Function to initialize map
