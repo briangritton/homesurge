@@ -2,9 +2,25 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useFormContext } from '../../../contexts/FormContext';
 import { validateAddress } from '../../../utils/validation.js';
 import { trackAddressSelected, trackFormStepComplete, trackFormError } from '../../../services/analytics';
+import { trackPropertyValue } from '../../../services/facebook';
 import { lookupPropertyInfo } from '../../../services/maps.js';
-import { createSuggestionLead } from '../../../services/firebase.js';
+import { lookupPhoneNumbers } from '../../../services/batchdata.js';
+import { createSuggestionLead, updateLeadInFirebase } from '../../../services/firebase.js';
+import { formatSubheadline, formatText } from '../../../utils/textFormatting';
 import axios from 'axios';
+
+// CSS for visually hidden fields
+const visuallyHiddenStyle = {
+  position: 'absolute',
+  width: '1px',
+  height: '1px',
+  margin: '-1px',
+  padding: 0,
+  overflow: 'hidden',
+  clip: 'rect(0, 0, 0, 0)',
+  whiteSpace: 'nowrap',
+  border: 0
+};
 
 function AddressForm() {
   const { formData, updateFormData, nextStep } = useFormContext();
@@ -26,17 +42,23 @@ function AddressForm() {
   // Reference to session token
   const sessionTokenRef = useRef(null);
   
+  // Reference to the form element
+  const formRef = useRef(null);
+  
   // Reference to autocomplete service
   const autocompleteServiceRef = useRef(null);
   
   // Flag to track if we've already saved a final selection
   const finalSelectionSavedRef = useRef(false);
   
+  // Track browser autofill and capture name and phone when available
+  const [lastStreetValue, setLastStreetValue] = useState('');
+  const [autofillDetected, setAutofillDetected] = useState(false);
+  
   // Initialize suggestionLeadId from localStorage if available
   useEffect(() => {
     const existingLeadId = localStorage.getItem('suggestionLeadId');
     if (existingLeadId) {
-      console.log("Retrieved suggestionLeadId from localStorage:", existingLeadId);
       setSuggestionLeadId(existingLeadId);
     }
     
@@ -57,71 +79,174 @@ function AddressForm() {
   // Handle form input changes
   const handleChange = (e) => {
     const value = e.target.value;
-    updateFormData({ 
-      street: value,
-      addressSelectionType: 'Manual',
-      userTypedAddress: value  // Always track what the user is typing
-    });
+    const fieldName = e.target.name;
     
-    // Keep track of the latest typed address
-    setLastTypedAddress(value);
-    
-    // Clear error message when user starts typing
-    if (errorMessage) {
-      setErrorMessage('');
-    }
-    
-    // Clear any existing suggestion timers
-    if (suggestionTimer) {
-      clearTimeout(suggestionTimer);
-    }
-    
-    // If the user has typed more than 2 characters, request address predictions
-    if (value.length >= 2 && googleApiLoaded && autocompleteServiceRef.current) {
-      // Set a timer to avoid too many API calls
-      const timer = setTimeout(() => {
-        autocompleteServiceRef.current.getPlacePredictions({
-          input: value,
-          sessionToken: sessionTokenRef.current,
-          componentRestrictions: { country: 'us' },
-          types: ['address']
-        }, async (predictions, status) => {
-          if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
-            // Store the first suggestion for potential use if user doesn't select one
-            setFirstSuggestion(predictions[0]);
-            console.log('Got suggestion:', predictions[0].description);
-            
-            // Store all suggestions
-            setAddressSuggestions(predictions);
-            
-            // Store suggestions in form data but don't send to Zoho yet
-            const top5Suggestions = predictions.slice(0, 5); // Only use top 5
-            const preparedData = {
-              userTypedAddress: value,
-              suggestionOne: top5Suggestions[0]?.description || '',
-              suggestionTwo: top5Suggestions[1]?.description || '',
-              suggestionThree: top5Suggestions[2]?.description || '',
-              suggestionFour: top5Suggestions[3]?.description || '',
-              suggestionFive: top5Suggestions[4]?.description || '',
-              leadStage: 'Address Typing'
-            };
-            
-            // Update the form data with suggestions only, don't update the street/address fields
-            updateFormData(preparedData);
-          } else {
-            setFirstSuggestion(null);
-            setAddressSuggestions([]);
-          }
-        });
-      }, 500); // 500ms debounce to prevent too many API calls
+    // Check if this might be browser autofill
+    if (fieldName === 'address-line1') {
+      // If the value changes significantly in one update, it might be autofill
+      if (value.length > 0 && Math.abs(value.length - lastStreetValue.length) > 5) {
+        setAutofillDetected(true);
+      }
       
-      setSuggestionTimer(timer);
-    } else if (value.length < 2) {
-      // Clear first suggestion if input is too short
-      setFirstSuggestion(null);
-      setAddressSuggestions([]);
+      setLastStreetValue(value);
+      
+      updateFormData({ 
+        street: value,
+        addressSelectionType: 'Manual',
+        userTypedAddress: value  // Always track what the user is typing
+      });
+      
+      // Keep track of the latest typed address
+      setLastTypedAddress(value);
+      
+      // Clear error message when user starts typing
+      if (errorMessage) {
+        setErrorMessage('');
+      }
+      
+      // Clear any existing suggestion timers
+      if (suggestionTimer) {
+        clearTimeout(suggestionTimer);
+      }
+      
+      // If the user has typed more than 2 characters, request address predictions
+      if (value.length >= 2 && googleApiLoaded && autocompleteServiceRef.current) {
+        // Set a timer to avoid too many API calls
+        const timer = setTimeout(() => {
+          autocompleteServiceRef.current.getPlacePredictions({
+            input: value,
+            sessionToken: sessionTokenRef.current,
+            componentRestrictions: { country: 'us' },
+            types: ['address']
+          }, async (predictions, status) => {
+            if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
+              // Store the first suggestion for potential use if user doesn't select one
+              setFirstSuggestion(predictions[0]);
+              
+              // Store all suggestions for UI only
+              setAddressSuggestions(predictions);
+              
+              // Only update user typed address in form data
+              const preparedData = {
+                userTypedAddress: value,
+                leadStage: 'Address Typing'
+              };
+              
+              // Update the form data with suggestions only, don't update the street/address fields
+              updateFormData(preparedData);
+            } else {
+              setFirstSuggestion(null);
+              setAddressSuggestions([]);
+            }
+          });
+        }, 500); // 500ms debounce to prevent too many API calls
+        
+        setSuggestionTimer(timer);
+      } else if (value.length < 2) {
+        // Clear first suggestion if input is too short
+        setFirstSuggestion(null);
+        setAddressSuggestions([]);
+      }
+    } else {
+      // For other fields (name, phone), just update the form data
+      const updateField = {};
+      if (fieldName === 'name') {
+        // Store the original name value without tags
+        updateField.name = value;
+        updateField.autoFilledName = value; // Store original name separately
+        updateField.nameWasAutofilled = true; // Flag to track autofill status
+      }
+      if (fieldName === 'tel') {
+        updateField.phone = value;
+        updateField.autoFilledPhone = value; // Store original phone separately
+      }
+      
+      updateFormData(updateField);
     }
   };
+  
+  // Track browser autofill events
+  useEffect(() => {
+    // Keep track of which fields have been autofilled
+    const autofilledFields = new Set();
+    
+    const handleAnimationStart = (e) => {
+      // In Chrome, autocomplete fields will have animation-name: onAutoFillStart
+      if (e.animationName === 'onAutoFillStart') {
+        setAutofillDetected(true);
+        console.log('Autofill detected on field:', e.target.name);
+        
+        // Add this field to our tracking set
+        autofilledFields.add(e.target.name);
+        
+        // Check if the field that was auto-filled is name or phone
+        if (e.target.name === 'name' || e.target.name === 'tel') {
+          // Get the value filled in by browser
+          setTimeout(() => {
+            if (e.target.value) {
+              const fieldUpdate = {};
+              if (e.target.name === 'name') {
+                fieldUpdate.name = e.target.value;
+                fieldUpdate.autoFilledName = e.target.value;
+                fieldUpdate.nameWasAutofilled = true;
+              }
+              if (e.target.name === 'tel') {
+                fieldUpdate.phone = e.target.value;
+                fieldUpdate.autoFilledPhone = e.target.value;
+              }
+              
+              updateFormData(fieldUpdate);
+            }
+          }, 100);
+        }
+      }
+    };
+    
+    // Add CSS to detect autofill
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes onAutoFillStart {
+        from {}
+        to {}
+      }
+      input:-webkit-autofill {
+        animation-name: onAutoFillStart;
+        animation-duration: 1ms;
+      }
+    `;
+    document.head.append(style);
+    
+    // Add listeners to all form fields that might be autofilled
+    const addressInput = inputRef.current;
+    const formInputs = formRef.current?.querySelectorAll('input');
+    
+    if (addressInput) {
+      addressInput.addEventListener('animationstart', handleAnimationStart);
+    }
+    
+    if (formInputs) {
+      formInputs.forEach(input => {
+        if (input.name === 'name' || input.name === 'tel' || input.name === 'address-line1') {
+          input.addEventListener('animationstart', handleAnimationStart);
+        }
+      });
+    }
+    
+    return () => {
+      document.head.removeChild(style);
+      if (addressInput) {
+        addressInput.removeEventListener('animationstart', handleAnimationStart);
+      }
+      
+      if (formInputs) {
+        formInputs.forEach(input => {
+          if (input.name === 'name' || input.name === 'tel' || input.name === 'address-line1') {
+            input.removeEventListener('animationstart', handleAnimationStart);
+          }
+        });
+      }
+    };
+  }, [updateFormData]);
   
   // Get place details for a prediction
   const getPlaceDetails = async (placeId) => {
@@ -136,15 +261,24 @@ function AddressForm() {
         document.createElement('div')
       );
       
+      // Add timeout to prevent waiting indefinitely
+      const timeoutId = setTimeout(() => {
+        console.log('⚠️ Place details request timed out after 3 seconds');
+        resolve(null); // Resolve with null to allow fallback instead of rejecting
+      }, 3000); // 3 second timeout
+      
       placesService.getDetails({
         placeId: placeId,
         fields: ['address_components', 'formatted_address', 'geometry', 'name'],
         sessionToken: sessionTokenRef.current
       }, (place, status) => {
+        clearTimeout(timeoutId); // Clear the timeout since we got a response
+        
         if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
           resolve(place);
         } else {
-          reject(new Error(`Place details request failed: ${status}`));
+          console.log(`⚠️ Place details request failed: ${status}`);
+          resolve(null); // Resolve with null to allow fallback instead of rejecting
         }
       });
     });
@@ -206,6 +340,74 @@ function AddressForm() {
         if (baseIncreasePercentage > MAX_INCREASE_PERCENTAGE) {
           baseIncreasePercentage = MAX_INCREASE_PERCENTAGE;
           console.log('Value increase capped at maximum 40%');
+        }
+
+        // Track property value obtained for Facebook audience creation
+        if (propertyData.apiEstimatedValue && propertyData.apiEstimatedValue > 0) {
+          // Get all campaign data from formContext
+          const { 
+            campaign_name, 
+            campaign_id, 
+            adgroup_id, 
+            adgroup_name, 
+            keyword, 
+            gclid, 
+            device, 
+            traffic_source, 
+            template_type 
+          } = formData;
+          
+          // Send the property data to Facebook for value-based audiences with campaign data
+          trackPropertyValue({
+            ...propertyData,
+            formattedApiEstimatedValue: formattedValue,
+            address: address, // Include the address the user entered
+            
+            // Explicitly include campaign data
+            campaign_name: campaign_name || '',
+            campaign_id: campaign_id || '',
+            adgroup_id: adgroup_id || '',
+            adgroup_name: adgroup_name || '',
+            keyword: keyword || '',
+            gclid: gclid || '',
+            device: device || '',
+            traffic_source: traffic_source || 'Direct',
+            template_type: template_type || ''
+          });
+
+          // Send to Google Analytics via dataLayer - IMMEDIATELY (no delay)
+          if (window.dataLayer) {
+            console.log('%c SENDING API_VALUE EVENT TO GTM', 'background: #4CAF50; color: white; font-weight: bold; padding: 4px;', {
+              apiEstimatedValue: propertyData.apiEstimatedValue,
+              address: address
+            });
+
+            // Create dataLayer event with the confirmed working format
+            const dataLayerEvent = {
+              event: 'api_value', // This exact name is expected by GTM trigger
+              apiValue: propertyData.apiEstimatedValue,
+              propertyAddress: address,
+              formattedValue: formattedValue,
+              propertyEquity: propertyData.apiEquity || 0,
+              propertyEquityPercentage: propertyData.apiPercentage || 0,
+              
+              // Campaign parameters at top level for GTM variables
+              campaign_name: formData.campaign_name || '',
+              campaign_id: formData.campaign_id || '',
+              adgroup_name: formData.adgroup_name || '',
+              adgroup_id: formData.adgroup_id || '',
+              keyword: formData.keyword || '',
+              matchtype: formData.matchtype || '',
+              gclid: formData.gclid || '',
+              device: formData.device || '',
+              traffic_source: formData.traffic_source || 'Direct',
+              template_type: formData.template_type || ''
+            };
+            
+            // Push event IMMEDIATELY with no delay
+            console.log('Pushing api_value event to dataLayer:', dataLayerEvent);
+            window.dataLayer.push(dataLayerEvent);
+          }
         }
 
         // Calculate potential value increase based on property
@@ -316,16 +518,19 @@ function AddressForm() {
       lng: place.geometry.location.lng()
     } : null;
     
-    // Update form data with selected place
+    // Update form data with selected place - preserve name and phone if they exist
     updateFormData({
       street: place.formatted_address,
       city: addressComponents.city,
       state: addressComponents.state,
       zip: addressComponents.zip,
       location: location,
-      addressSelectionType: 'Google',
+      addressSelectionType: autofillDetected ? 'BrowserAutofill' : 'Google',
       selectedSuggestionAddress: place.formatted_address,
-      leadStage: 'Address Selected'
+      leadStage: 'Address Selected',
+      // Preserve name and phone
+      name: formData.name || '',
+      phone: formData.phone || ''
     });
     
     // Ensure inputRef has the correct value
@@ -621,10 +826,17 @@ function AddressForm() {
     }
   };
   
-  // Load Google Maps API
-  useEffect(() => {
-    // Only run once
-    if (googleApiLoaded) return;
+  // Lazy load Google Maps API only when needed
+  const loadGoogleMapsAPI = () => {
+    // If already loaded, return resolved promise
+    if (window.google && window.google.maps && window.google.maps.places) {
+      return Promise.resolve();
+    }
+    
+    // If already loading, return existing promise
+    if (window.googleMapsPromise) {
+      return window.googleMapsPromise;
+    }
     
     // Get API key from environment variable
     const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
@@ -632,68 +844,87 @@ function AddressForm() {
     // Check if API key is available
     if (!apiKey) {
       console.error('Google Maps API key is missing. Please check your environment variables.');
-      // Still allow basic form functionality without Maps API
-      console.log('Continuing with basic address input without Google Places autocomplete');
-      return;
+      return Promise.reject(new Error('Google Maps API key is missing'));
     }
     
-    // Define a callback function for when the API loads
-    window.initGoogleMapsAutocomplete = () => {
-      console.log('Google Maps API loaded successfully');
-      setGoogleApiLoaded(true);
+    // Create a new promise for loading
+    window.googleMapsPromise = new Promise((resolve, reject) => {
+      // Define callback function
+      window.initGoogleMapsAutocomplete = () => {
+        console.log('Google Maps API loaded successfully');
+        setGoogleApiLoaded(true);
+        
+        // Create a session token right away
+        if (window.google.maps.places.AutocompleteSessionToken) {
+          sessionTokenRef.current = new window.google.maps.places.AutocompleteSessionToken();
+        }
+        
+        // Initialize the AutocompleteService for getting suggestions
+        if (window.google.maps.places.AutocompleteService) {
+          autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService();
+        }
+        
+        resolve();
+      };
       
-      // Create a session token right away
-      if (window.google.maps.places.AutocompleteSessionToken) {
-        sessionTokenRef.current = new window.google.maps.places.AutocompleteSessionToken();
-      }
+      // Define error handler for the API
+      window.gm_authFailure = () => {
+        const error = new Error('Google Maps API authentication failure');
+        console.error(error);
+        
+        // Track error for analytics
+        trackFormError('Google Maps API authentication failure', 'maps');
+        reject(error);
+      };
       
-      // Initialize the AutocompleteService for getting suggestions
-      if (window.google.maps.places.AutocompleteService) {
-        autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService();
+      // Load the API with a callback
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMapsAutocomplete`;
+      script.async = true;
+      script.defer = true;
+      script.onerror = (e) => {
+        const error = new Error('Failed to load Google Maps API script');
+        console.error(error, e);
+        
+        // Track error for analytics
+        trackFormError('Failed to load Google Maps API script', 'maps');
+        reject(error);
+      };
+      
+      document.body.appendChild(script);
+    });
+    
+    return window.googleMapsPromise;
+  };
+  
+  // Load Google Maps API when input is focused or when typing begins
+  useEffect(() => {
+    // Only trigger loading when the user starts interacting with the input
+    const handleInputInteraction = () => {
+      if (!googleApiLoaded) {
+        loadGoogleMapsAPI()
+          .then(() => {
+            console.log('Google Maps API loaded on user interaction');
+          })
+          .catch(error => {
+            console.error('Error loading Google Maps API:', error);
+          });
       }
     };
     
-    // Define an error handler for the API
-    window.gm_authFailure = () => {
-      console.error('Google Maps API authentication failure');
+    // Add event listeners to input when it exists
+    if (inputRef.current) {
+      inputRef.current.addEventListener('focus', handleInputInteraction);
+      inputRef.current.addEventListener('input', handleInputInteraction);
       
-      // Track error for analytics
-      trackFormError('Google Maps API authentication failure', 'maps');
-    };
-    
-    // Check if API is already loaded
-    if (window.google && window.google.maps && window.google.maps.places) {
-      console.log('Google Maps API already loaded');
-      setGoogleApiLoaded(true);
-      
-      // Initialize service if API is already loaded
-      if (window.google.maps.places.AutocompleteService) {
-        autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService();
-      }
-      
-      return;
+      return () => {
+        if (inputRef.current) {
+          inputRef.current.removeEventListener('focus', handleInputInteraction);
+          inputRef.current.removeEventListener('input', handleInputInteraction);
+        }
+      };
     }
-    
-    // Load the API with a callback
-    const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMapsAutocomplete`;
-    script.async = true;
-    script.defer = true;
-    script.onerror = (e) => {
-      console.error('Failed to load Google Maps API script:', e);
-      
-      // Track error for analytics
-      trackFormError('Failed to load Google Maps API script', 'maps');
-    };
-    
-    document.body.appendChild(script);
-    
-    return () => {
-      // Cleanup function to remove the global callbacks
-      delete window.initGoogleMapsAutocomplete;
-      delete window.gm_authFailure;
-    };
-  }, [googleApiLoaded]);
+  }, [googleApiLoaded, inputRef.current]);
   
   // Initialize autocomplete after API is loaded
   useEffect(() => {
@@ -718,26 +949,57 @@ function AddressForm() {
         try {
           const place = autocompleteRef.current.getPlace();
           
-          // Save that this was a user-selected suggestion
+          // Check for name and phone values that might have been auto-filled
+          const nameInput = document.querySelector('input[name="name"]');
+          const phoneInput = document.querySelector('input[name="tel"]');
+          
+          // Get name and phone values from the form inputs if they exist
+          let nameValue = '';
+          let phoneValue = '';
+          
+          if (nameInput && nameInput.value) {
+            nameValue = nameInput.value;
+            console.log('Name value from input field:', nameValue);
+          }
+          
+          if (phoneInput && phoneInput.value) {
+            phoneValue = phoneInput.value;
+            console.log('Phone value from input field:', phoneValue);
+          }
+          
+          // Save that this was a user-selected suggestion along with name and phone
           updateFormData({
             selectedSuggestionAddress: place.formatted_address,
             userTypedAddress: lastTypedAddress, // What the user typed before selecting
-            addressSelectionType: 'UserClicked'
+            addressSelectionType: 'UserClicked',
+            name: nameValue || formData.name || '',  // Use value from input if available, fallback to formData
+            phone: phoneValue || formData.phone || '', // Use value from input if available, fallback to formData
+            autoFilledName: nameValue || formData.autoFilledName || formData.name || '',
+            autoFilledPhone: phoneValue || formData.autoFilledPhone || formData.phone || ''
           });
           
-          // Start form submission process immediately - don't wait for property data
+          // Start form submission process immediately
           setIsLoading(true);
           
-          // Process the selected address but don't wait for it to complete
-          processAddressSelection(place);
+          console.log('Auto-submitting form after autocomplete selection with values:', {
+            address: place.formatted_address,
+            name: nameValue || formData.name || '',
+            phone: phoneValue || formData.phone || '',
+            autoFilledName: nameValue || formData.autoFilledName || formData.name || '',
+            autoFilledPhone: phoneValue || formData.autoFilledPhone || formData.phone || ''
+          });
           
-          // Proceed to next step immediately
+          // Process the selected address - no await
+          processAddressSelection(place);
+
+          // Track the form step completion for address
+          trackFormStepComplete(1, 'Address Form Completed (Suggestion)', formData);
+          
+          // Automatically proceed to next step immediately
           nextStep();
           
-          // Reset loading state after navigation
-          setTimeout(() => {
-            setIsLoading(false);
-          }, 100);
+          // Reset loading state right away
+          setIsLoading(false);
         } catch (error) {
           console.error('Error handling place selection:', error);
           
@@ -810,18 +1072,17 @@ function AddressForm() {
     // Add global event listener for keydown
     document.addEventListener('keydown', handleKeyDown, true);
     
-    // Cleanup
+    // Cleanup 
     return () => {
       document.removeEventListener('keydown', handleKeyDown, true);
     };
-  }, [firstSuggestion, formData.street, isLoading]);
+  }, [firstSuggestion, formData.street, isLoading, handleEnterKeyPress]);
   
-  // Add a ::before override with empty content
+  // Override styles to prevent conflicts
   useEffect(() => {
-    // Create a style element
     const styleEl = document.createElement('style');
     styleEl.innerHTML = `
-      .valueboost-content.hero-content::before {
+      .vb-af1-hero-content.hero-content::before {
         content: none !important;
         display: none !important;
       }
@@ -834,37 +1095,80 @@ function AddressForm() {
   }, []);
 
   return (
-    <div className="vb-section">
-      <div className="vb-container">
-        <div className="vb-content vb-fade-in">
-          <div className="vb-headline">AI-Powered Home Value Boost Plan</div>
-          <div className="vb-subheadline">Find out how to increase your home's value by up to 32% with personalized AI recommendations</div>
-
-          <div className="vb-form-container">
+    <div className="vb-af1-hero-section af1-hero-section hero-section">
+      <div className="vb-af1-hero-middle-container af1-hero-middle-container hero-middle-container">
+        <div className="vb-af1-hero-content af1-hero-content hero-content fade-in">
+          <div className="vb-af1-hero-headline af1-hero-headline hero-headline">
+            {formatText("AI-Powered Home Value Boost Plan")}
+          </div>
+          <div className="vb-af1-hero-subheadline af1-hero-subheadline hero-subheadline">
+            {formatSubheadline("Find out how to increase your home's value by up to 32% with personalized AI recommendations")}
+          </div>
+          
+          {/* Using a form structure for browser autofill to work properly */}
+          <form className="vb-af1-form-container af1-form-container form-container" id="valueboostAddressForm" autoComplete="on" onSubmit={(e) => {
+            e.preventDefault();
+            handleButtonClick(e);
+          }} ref={formRef}>
             <input
               ref={inputRef}
               type="text"
-              placeholder="Enter your property address..."
-              className={errorMessage ? 'vb-input-invalid' : 'vb-input'}
+              name="address-line1"
+              autoComplete="address-line1"
+              placeholder="Street address..."
+              className={errorMessage ? 'vb-af1-address-input-invalid af1-address-input-invalid address-input-invalid' : 'vb-af1-address-input af1-address-input address-input'}
               value={formData.street || ''}
               onChange={handleChange}
               onFocus={(e) => e.target.placeholder = ''}
-              onBlur={(e) => e.target.placeholder = 'Enter your property address...'}
+              onBlur={(e) => e.target.placeholder = 'Street address...'}
               disabled={isLoading}
+              required
             />
-
-            <button
-              className="vb-button"
-              id="address-submit-button"
+            
+            {/* Visually hidden name field - still accessible to screen readers and browser autofill */}
+            <div style={visuallyHiddenStyle}>
+              <input
+                type="text"
+                name="name"
+                autoComplete="name"
+                placeholder="Your name (optional)"
+                className="vb-af1-address-input af1-address-input address-input"
+                value={formData.name || ''}
+                onChange={(e) => updateFormData({ name: e.target.value, autoFilledName: e.target.value })}
+                onFocus={(e) => e.target.placeholder = ''}
+                onBlur={(e) => e.target.placeholder = 'Your name (optional)'}
+                disabled={isLoading}
+              />
+            </div>
+            
+            {/* Visually hidden phone field - still accessible to screen readers and browser autofill */}
+            <div style={visuallyHiddenStyle}>
+              <input
+                type="tel"
+                name="tel"
+                autoComplete="tel"
+                placeholder="Your phone (optional)"
+                className="vb-af1-address-input af1-address-input address-input"
+                value={formData.phone || ''}
+                onChange={(e) => updateFormData({ phone: e.target.value, autoFilledPhone: e.target.value })}
+                onFocus={(e) => e.target.placeholder = ''}
+                onBlur={(e) => e.target.placeholder = 'Your phone (optional)'}
+                disabled={isLoading}
+              />
+            </div>
+            
+            <button 
+              type="submit"
+              className="vb-af1-submit-button af1-submit-button submit-button"
+              id="valueboost-address-submit-button" 
               disabled={isLoading}
-              onClick={handleButtonClick}
             >
               {isLoading ? 'ANALYZING...' : 'GET YOUR REPORT'}
             </button>
-          </div>
-
+          </form>
+          
           {errorMessage && (
-            <div className="vb-error-message">{errorMessage}</div>
+            <div className="vb-af1-error-message af1-error-message error-message">{errorMessage}</div>
           )}
         </div>
       </div>
