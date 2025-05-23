@@ -26,9 +26,8 @@ function PersonalInfoForm() {
   
  
   
-  // Scroll to top when component mounts
+  // Initialize component state
   useEffect(() => {
-    window.scrollTo(0, 0);
 
     // Initialize edited address with current address
     setEditedAddress(formData.street || '');

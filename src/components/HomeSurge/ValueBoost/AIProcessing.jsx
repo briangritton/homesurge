@@ -122,11 +122,6 @@ function AIProcessing() {
     }
   };
 
-  // Scroll to top when component mounts
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-  
   // Effect to automatically progress through steps with timing
   useEffect(() => {
     // Calculate timing - faster at start, slower in the middle for realism
