@@ -130,9 +130,9 @@ function AIProcessing() {
     const getStepDuration = (step) => {
       // Middle steps take longer for more realistic analysis appearance
       if (step >= 2 && step <= 5) {
-        return 1000 + Math.random() * 1000; // 1-2 seconds for middle steps
+        return 2000 + Math.random() * 1000; // 2-3 seconds for middle steps
       } else {
-        return 600 + Math.random() * 400; // 0.6-1 second for other steps
+        return 1500 + Math.random() * 500; // 1.5-2 seconds for other steps
       }
     };
 
@@ -168,6 +168,16 @@ function AIProcessing() {
       const startValue = formData.apiEstimatedValue ? Number(formData.apiEstimatedValue) : 554000;
       const valueIncrease = formData.potentialValueIncrease ? Number(formData.potentialValueIncrease) : 121880;
       const endValue = startValue + valueIncrease;
+      
+      // Debug logging
+      console.log('AIProcessing Debug:', {
+        rawApiValue: formData.apiEstimatedValue,
+        rawValueIncrease: formData.potentialValueIncrease,
+        startValue,
+        valueIncrease,
+        endValue,
+        processingStep
+      });
       
       // Define realistic value progression based on processing steps
       // Start at current value and increment to new total
