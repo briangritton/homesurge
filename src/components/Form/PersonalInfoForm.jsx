@@ -481,34 +481,34 @@ function PersonalInfoForm() {
                 
                 // // Uncomment and customize these recipients as needed
                 
-                // // Add your recipients here
-                // const additionalRecipients = [
-                //   "uh5nkfdqcz161r35e6uy55j295to5y" // Spencer user keys here
-                //   // Add more recipients here - each on a new line
-                //   // "ufrb12nxavarvmx4vuct15ibz2augo",  // Allison user keys here
-                //   // "uh5nkfdqcz161r35e6uy55j295teee"   // DUMMY USER KEYS
-                // ];
+                // Add your recipients here
+                const additionalRecipients = [
+                  "uh5nkfdqcz161r35e6uy55j295to5y" // Spencer user keys here
+                  // Add more recipients here - each on a new line
+                  // "ufrb12nxavarvmx4vuct15ibz2augo",  // Allison user keys here
+                  // "uh5nkfdqcz161r35e6uy55j295teee"   // DUMMY USER KEYS
+                ];
                 
-                // // Send to each additional recipient
-                // if (additionalRecipients && additionalRecipients.length > 0) {
-                //   additionalRecipients.forEach(recipientKey => {
-                //     if (recipientKey && recipientKey.trim()) {
-                //       sendPromises.push(
-                //         fetch('/api/pushover/send-notification', {
-                //           method: 'POST',
-                //           headers: { 
-                //             'Content-Type': 'application/json',
-                //             'Accept': 'application/json'
-                //           },
-                //           body: JSON.stringify({
-                //             ...requestBody,
-                //             user: recipientKey
-                //           })
-                //         })
-                //       );
-                //     }
-                //   });
-                // }
+                // Send to each additional recipient
+                if (additionalRecipients && additionalRecipients.length > 0) {
+                  additionalRecipients.forEach(recipientKey => {
+                    if (recipientKey && recipientKey.trim()) {
+                      sendPromises.push(
+                        fetch('/api/pushover/send-notification', {
+                          method: 'POST',
+                          headers: { 
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                          },
+                          body: JSON.stringify({
+                            ...requestBody,
+                            user: recipientKey
+                          })
+                        })
+                      );
+                    }
+                  });
+                }
                 
                 
                 // ================= END ADDITIONAL RECIPIENTS =====================
@@ -543,17 +543,17 @@ function PersonalInfoForm() {
                 
                 // Uncomment and customize these templates as needed
                  
-                // additionalTemplates = [
-                //   {
-                //     serviceId: 'service_zeuf0n8', // Same or different service ID
-                //     templateId: 'template_85tw59u' // Secondary template ID
-                //   }
-                //   // Add more templates here - each as a new object in the array
-                //   // {
-                //   //   serviceId: 'service_zeuf0n8',
-                //   //   templateId: 'template_another_id'
-                //   // }
-                // ];
+                additionalTemplates = [
+                  {
+                    serviceId: 'service_zeuf0n8', // Same or different service ID
+                    templateId: 'template_85tw59u' // Secondary template ID
+                  }
+                  // Add more templates here - each as a new object in the array
+                  // {
+                  //   serviceId: 'service_zeuf0n8',
+                  //   templateId: 'template_another_id'
+                  // }
+                ];
               
                 
                 // ================= END ADDITIONAL EMAIL TEMPLATES =====================
