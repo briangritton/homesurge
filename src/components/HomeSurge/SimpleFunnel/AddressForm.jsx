@@ -784,7 +784,7 @@ function AddressForm() {
               disabled={isLoading}
               onClick={handleButtonClick}
             >
-              {isLoading ? 'CHECKING...' : 'GET REPORT'}
+              {isLoading ? 'CHECKING...' : 'VIEW MAXIMUM VALUE'}
             </button>
           </div>
           

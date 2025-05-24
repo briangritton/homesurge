@@ -7,7 +7,7 @@ function AIProcessing() {
   const [progressPercent, setProgressPercent] = useState(0);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(false);
-  const [animatedValue, setAnimatedValue] = useState(formData.apiEstimatedValue ? formData.apiEstimatedValue : 554000);
+  const [animatedValue, setAnimatedValue] = useState(formData.apiEstimatedValue ? Number(formData.apiEstimatedValue) : 554000);
   const mapContainerRef = useRef(null);
   const animationRef = useRef(null);
   
@@ -150,6 +150,9 @@ function AIProcessing() {
           setTimeout(() => {
             nextStep();
           }, 1000);
+          
+          // 🎨 STYLING DELAY: chagne line to 1000000 for development delay. 
+          // setTimeout(() => { nextStep(); }, 600000); // 10 minutes = 600000ms
         }
       }, getStepDuration(processingStep));
 
@@ -161,9 +164,9 @@ function AIProcessing() {
   useEffect(() => {
     // Start animation from step 0 (immediately when component loads)
     if (processingStep >= 0) {
-      // Use real API values if available, otherwise use dummy values
-      const startValue = formData.apiEstimatedValue ? formData.apiEstimatedValue : 554000;
-      const valueIncrease = formData.potentialValueIncrease ? formData.potentialValueIncrease : 121880;
+      // Use real API values if available, otherwise use dummy values - convert to numbers
+      const startValue = formData.apiEstimatedValue ? Number(formData.apiEstimatedValue) : 554000;
+      const valueIncrease = formData.potentialValueIncrease ? Number(formData.potentialValueIncrease) : 121880;
       const endValue = startValue + valueIncrease;
       
       // Define realistic value progression based on processing steps
@@ -171,29 +174,42 @@ function AIProcessing() {
       let targetValue;
       let duration;
       
-      if (processingStep < 4) {
-        // Steps 0-3: Just maintain the starting value, no animation needed
-        return;
-      } else if (processingStep === 4) {
-        // Start identifying improvements - small incremental increase
+      if (processingStep === 0) {
+        // Step 0: Start with small increase immediately
+        targetValue = startValue + Math.round(valueIncrease * 0.05);
+        duration = 800;
+      } else if (processingStep === 1) {
+        // Step 1: More increase
         targetValue = startValue + Math.round(valueIncrease * 0.15);
-        duration = 1500;
-      } else if (processingStep === 5) {
-        // Calculating potential - more significant increase
-        targetValue = startValue + Math.round(valueIncrease * 0.45);
-        duration = 1800;
-      } else if (processingStep === 6) {
-        // Building plan - further increase
-        targetValue = startValue + Math.round(valueIncrease * 0.75);
-        duration = 1500;
-      } else if (processingStep === 7) {
-        // Finalizing - nearly complete
-        targetValue = startValue + Math.round(valueIncrease * 0.95);
+        duration = 1000;
+      } else if (processingStep === 2) {
+        // Step 2: Continued growth
+        targetValue = startValue + Math.round(valueIncrease * 0.30);
         duration = 1200;
+      } else if (processingStep === 3) {
+        // Step 3: Accelerating
+        targetValue = startValue + Math.round(valueIncrease * 0.50);
+        duration = 1300;
+      } else if (processingStep === 4) {
+        // Step 4: Strong growth
+        targetValue = startValue + Math.round(valueIncrease * 0.65);
+        duration = 1200;
+      } else if (processingStep === 5) {
+        // Step 5: Major progress
+        targetValue = startValue + Math.round(valueIncrease * 0.80);
+        duration = 1100;
+      } else if (processingStep === 6) {
+        // Step 6: Nearly complete
+        targetValue = startValue + Math.round(valueIncrease * 0.95);
+        duration = 1000;
+      } else if (processingStep === 7) {
+        // Step 7: Final approach
+        targetValue = startValue + Math.round(valueIncrease * 0.98);
+        duration = 800;
       } else {
         // Complete - full value
         targetValue = endValue;
-        duration = 800;
+        duration = 600;
       }
       
       const startTime = Date.now();
@@ -218,11 +234,6 @@ function AIProcessing() {
         }
       };
 
-      // For steps before 4, no animation needed
-      if (processingStep < 4) {
-        return;
-      }
-      
       // Start the animation with a small delay for natural feel
       const timer = setTimeout(() => {
         animationRef.current = requestAnimationFrame(animateValue);
@@ -297,34 +308,20 @@ function AIProcessing() {
   }, []);
 
   return (
-    <div className="vb-section" style={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div className="vb-section vb-ai-section">
       <div className="vb-container">
-        <div className="vb-content vb-fade-in" style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
-          <div className="vb-af1-hero-headline af1-hero-headline hero-headline">AI Home Analysis in Progress</div>
+        <div className="vb-content vb-fade-in vb-ai-content">
+          <div className="vb-af1-hero-headline af1-hero-headline hero-headline">Finding Maximum Value...</div>
           
-          <div className="vb-af1-hero-subheadline af1-hero-subheadline hero-subheadline" style={{ 
-            marginTop: '10px', 
-            marginBottom: '5px',
-            minHeight: '50px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            {processingSteps[processingStep] || 'Analysis complete!'}
+          <div className="vb-af1-hero-subheadline af1-hero-subheadline hero-subheadline vb-ai-subheadline">
+            {processingSteps[processingStep] || '32 Point AI Home Scan Complete!'}
           </div>
           
           {/* Value display above scanning image */}
-          <div style={{ marginTop: '0px', marginBottom: '20px' }}>
-            <div style={{
-              fontSize: '24px',
-              fontWeight: 'bold',
-              background: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              margin: '10px 0',
-              letterSpacing: '0.5px'
-            }}>
+          <div className="vb-ai-value-container">
+            <div className="vb-ai-value-display">
+              ValueBoost Estimate:
+              <br />
               {new Intl.NumberFormat('en-US', {
                 style: 'currency',
                 currency: 'USD',
@@ -333,14 +330,14 @@ function AIProcessing() {
               }).format(animatedValue)}
             </div>
             
-            <div style={{ fontSize: '14px', color: '#00b8e6', fontWeight: 'bold' }}>
-              {animatedValue > (formData.apiEstimatedValue ? formData.apiEstimatedValue : 554000) ? (
+            <div className="vb-ai-value-boost">
+              {animatedValue > (formData.apiEstimatedValue ? Number(formData.apiEstimatedValue) : 554000) ? (
                 `↗ Value boost: +${new Intl.NumberFormat('en-US', {
                   style: 'currency',
                   currency: 'USD',
                   minimumFractionDigits: 0,
                   maximumFractionDigits: 0
-                }).format(animatedValue - (formData.apiEstimatedValue ? formData.apiEstimatedValue : 554000))}`
+                }).format(animatedValue - (formData.apiEstimatedValue ? Number(formData.apiEstimatedValue) : 554000))}`
               ) : (
                 'ValueBoost: Calculating'
               )}
@@ -349,10 +346,20 @@ function AIProcessing() {
           
           {/* Processing visualization container */}
           <div className="vb-map-container">
-            {/* Satellite Map container */}
-            {formData.location && formData.location.lat && !mapError ? (
+            {/* Always show AI scanning animation background */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              background: 'radial-gradient(circle at center, #f8faff 0%, #e6f3ff 100%)',
+              borderRadius: '7px'
+            }} />
+
+            {/* Map container (if available) - show as subtle background */}
+            {formData.location && formData.location.lat && !mapError && (
               <>
-                {/* Map container */}
                 <div
                   ref={mapContainerRef}
                   style={{
@@ -362,7 +369,8 @@ function AIProcessing() {
                     width: '100%',
                     height: '100%',
                     zIndex: 1,
-                    borderRadius: '7px' // Slightly smaller to avoid edge bleed
+                    borderRadius: '7px',
+                    opacity: mapLoaded ? 0.3 : 0 // Make map semi-transparent when loaded
                   }}
                 />
 
@@ -400,104 +408,64 @@ function AIProcessing() {
                     </div>
                   </div>
                 )}
-
-                {/* Property analysis overlay effect - more subtle to match street view */}
-                <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  background: 'radial-gradient(circle at center, transparent 60%, rgba(0,0,0,0.1) 100%)',
-                  zIndex: 2,
-                  pointerEvents: 'none',
-                  borderRadius: '7px'
-                }} />
-              </>
-            ) : (
-              <>
-                {/* AI thinking background */}
-                <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  background: 'radial-gradient(circle at center, #f8faff 0%, #e6f3ff 100%)',
-                  borderRadius: '7px'
-                }} />
-
-                {/* Central AI core */}
-                <div style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  width: '40px',
-                  height: '40px',
-                  background: 'radial-gradient(circle, #00b8e6 0%, #236b6d 100%)',
-                  borderRadius: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  animation: 'aiCorePulse 3s ease-in-out infinite',
-                  boxShadow: '0 0 20px rgba(0, 184, 230, 0.6)',
-                  zIndex: 3
-                }} />
-
-                {/* Swirling orbs - different sizes and speeds */}
-                {[
-                  { size: 8, distance: 60, speed: 4, delay: 0 },
-                  { size: 6, distance: 80, speed: 6, delay: 1 },
-                  { size: 10, distance: 45, speed: 5, delay: 2 },
-                  { size: 4, distance: 100, speed: 7, delay: 0.5 },
-                  { size: 12, distance: 35, speed: 3, delay: 1.5 },
-                  { size: 5, distance: 90, speed: 8, delay: 2.5 }
-                ].map((orb, i) => (
-                  <div key={i} style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    width: `${orb.size}px`,
-                    height: `${orb.size}px`,
-                    background: `radial-gradient(circle, rgba(0, 184, 230, 0.8) 0%, rgba(35, 107, 109, 0.4) 100%)`,
-                    borderRadius: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    animation: `aiOrbSwirl${i} ${orb.speed}s linear infinite ${orb.delay}s`,
-                    boxShadow: `0 0 ${orb.size}px rgba(0, 184, 230, 0.5)`,
-                    zIndex: 2
-                  }} />
-                ))}
-
-                {/* Thinking particles */}
-                {Array.from({ length: 12 }).map((_, i) => (
-                  <div key={`particle-${i}`} style={{
-                    position: 'absolute',
-                    top: `${45 + Math.sin(i * 0.5) * 15}%`,
-                    left: `${45 + Math.cos(i * 0.5) * 15}%`,
-                    width: '2px',
-                    height: '2px',
-                    backgroundColor: '#00b8e6',
-                    borderRadius: '50%',
-                    animation: `aiParticleFloat 2s ease-in-out infinite ${i * 0.2}s`,
-                    opacity: 0.7
-                  }} />
-                ))}
-
-                {/* Ripple effects */}
-                {[1, 2, 3].map((ring, i) => (
-                  <div key={`ripple-${i}`} style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    width: `${ring * 60}px`,
-                    height: `${ring * 60}px`,
-                    border: '1px solid rgba(0, 184, 230, 0.2)',
-                    borderRadius: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    animation: `aiRipple 4s ease-out infinite ${i * 0.8}s`,
-                    pointerEvents: 'none'
-                  }} />
-                ))}
               </>
             )}
+
+
+            {/* Swirling orbs - different sizes and speeds */}
+            {[
+              { size: 8, distance: 60, speed: 4, delay: 0 },
+              { size: 6, distance: 80, speed: 6, delay: 1 },
+              { size: 10, distance: 45, speed: 5, delay: 2 },
+              { size: 4, distance: 100, speed: 7, delay: 0.5 },
+              { size: 12, distance: 35, speed: 3, delay: 1.5 },
+              { size: 5, distance: 90, speed: 8, delay: 2.5 }
+            ].map((orb, i) => (
+              <div key={i} style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                width: `${orb.size}px`,
+                height: `${orb.size}px`,
+                background: `radial-gradient(circle, rgba(0, 184, 230, 0.8) 0%, rgba(35, 107, 109, 0.4) 100%)`,
+                borderRadius: '50%',
+                transform: 'translate(-50%, -50%)',
+                animation: `aiOrbSwirl${i} ${orb.speed}s linear infinite ${orb.delay}s`,
+                boxShadow: `0 0 ${orb.size}px rgba(0, 184, 230, 0.5)`,
+                zIndex: 2
+              }} />
+            ))}
+
+            {/* Thinking particles */}
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div key={`particle-${i}`} style={{
+                position: 'absolute',
+                top: `${45 + Math.sin(i * 0.5) * 15}%`,
+                left: `${45 + Math.cos(i * 0.5) * 15}%`,
+                width: '2px',
+                height: '2px',
+                backgroundColor: '#00b8e6',
+                borderRadius: '50%',
+                animation: `aiParticleFloat 2s ease-in-out infinite ${i * 0.2}s`,
+                opacity: 0.7
+              }} />
+            ))}
+
+            {/* Ripple effects */}
+            {[1, 2, 3].map((ring, i) => (
+              <div key={`ripple-${i}`} style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                width: `${ring * 60}px`,
+                height: `${ring * 60}px`,
+                border: '1px solid rgba(0, 184, 230, 0.2)',
+                borderRadius: '50%',
+                transform: 'translate(-50%, -50%)',
+                animation: `aiRipple 4s ease-out infinite ${i * 0.8}s`,
+                pointerEvents: 'none'
+              }} />
+            ))}
             
             {/* Animated scan line */}
             <div style={scanLineStyle}></div>
@@ -507,88 +475,47 @@ function AIProcessing() {
               const isActive = processingStep > i/2;
               const animationDelay = (i % 3) * 1; // Stagger the animations
               return isActive ? (
-                <div key={i} style={{
-                  position: 'absolute',
-                  left: `${Math.random() * 85 + 7.5}%`,
-                  top: `${Math.random() * 85 + 7.5}%`,
-                  width: '6px',
-                  height: '6px',
-                  borderRadius: '50%',
-                  backgroundColor: '#00b8e6',
-                  opacity: 0,
-                  zIndex: 5,
-                  animation: `dotFadeInOut 4s ease-in-out infinite ${animationDelay}s`
-                }} />
+                <div 
+                  key={i} 
+                  className="vb-ai-data-point"
+                  style={{
+                    left: `${Math.random() * 85 + 7.5}%`,
+                    top: `${Math.random() * 85 + 7.5}%`,
+                    animationDelay: `${animationDelay}s`
+                  }} 
+                />
               ) : null;
             })}
           </div>
           
           {/* Modern progress bar */}
-          <div style={{
-            width: '88%',
-            maxWidth: '450px',
-            margin: '0 auto 25px',
-            height: '6px',
-            backgroundColor: 'rgba(46, 123, 125, 0.1)',
-            borderRadius: '3px',
-            overflow: 'hidden',
-            boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.1)'
-          }}>
-            <div style={{
-              height: '100%',
-              background: 'linear-gradient(90deg, #00b8e6 0%, #236b6d 50%, #00b8e6 100%)',
-              borderRadius: '3px',
-              transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-              width: `${progressPercent}%`,
-              boxShadow: '0 0 15px 2px rgba(0, 184, 230, 0.3)',
-              position: 'relative',
-              overflow: 'hidden'
-            }}>
-              <div style={{
-                position: 'absolute',
-                top: 0,
-                left: '-100%',
-                width: '100%',
-                height: '100%',
-                background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)',
-                animation: 'progressShimmer 2s infinite'
-              }} />
+          <div className="vb-ai-progress-container">
+            <div className="vb-ai-progress-bar" style={{ width: `${progressPercent}%` }}>
+              <div className="vb-ai-progress-shimmer" />
             </div>
           </div>
           
           {/* Modern step indicators */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            marginBottom: '20px',
-            gap: '8px',
-            flexWrap: 'wrap'
-          }}>
+          <div className="vb-ai-step-indicators">
             {processingSteps.map((_, index) => {
               const isCompleted = processingStep > index;
               const isCurrent = processingStep === index;
               const isPending = processingStep < index;
               
+              const dotClass = isCompleted ? 'vb-ai-step-dot-completed' :
+                              isCurrent ? 'vb-ai-step-dot-current' :
+                              'vb-ai-step-dot-pending';
+              
               return (
                 <div
                   key={index}
-                  style={{
-                    width: isCurrent ? '16px' : '8px',
-                    height: '8px',
-                    borderRadius: isCurrent ? '8px' : '50%',
-                    backgroundColor: isCompleted ? '#00b8e6' : isCurrent ? '#236b6d' : '#e0e0e0',
-                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                    opacity: isPending ? 0.5 : 1,
-                    boxShadow: isCurrent ? '0 0 12px 2px rgba(46, 123, 125, 0.4)' : 
-                              isCompleted ? '0 0 8px 1px rgba(0, 184, 230, 0.3)' : 'none',
-                    transform: isCurrent ? 'scale(1.2)' : 'scale(1)'
-                  }}
+                  className={`vb-ai-step-dot ${dotClass}`}
                 />
               );
             })}
           </div>
           
-          <div style={{ fontSize: '16px', color: '#555', maxWidth: '500px', margin: '0 auto' }}>
+          <div className="vb-ai-property-details">
             {formData.street && 
               <p>Analyzing property data for: <br /><strong>{formData.street}</strong></p>
             }

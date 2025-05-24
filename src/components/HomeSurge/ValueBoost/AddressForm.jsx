@@ -67,7 +67,7 @@ function AddressForm() {
     updateFormData({
       funnel: 'homesurge_valueboost'
     });
-  }, [updateFormData]);
+  }, []); // Empty dependency array since this should only run once on mount
   
   // Generate a session token for Google Places API
   const generateSessionToken = () => {
@@ -1595,10 +1595,10 @@ function AddressForm() {
       <div className="vb-af1-hero-middle-container af1-hero-middle-container hero-middle-container">
         <div className="vb-af1-hero-content af1-hero-content hero-content fade-in">
           <div className="vb-af1-hero-headline af1-hero-headline hero-headline">
-            {formatText("AI-Powered Home Value Boost\u00A0Plan")}
+            {formatText("Maximize Your Home With\u00A0ValueBoost AI")}    
           </div>
           <div className="vb-af1-hero-subheadline af1-hero-subheadline hero-subheadline">
-            {formatSubheadline("Find out how to increase your home's value by up to 32% with personalized AI recommendations")}
+            {formatSubheadline("Find out how your home value could increase by up to 36% with FREE AI personalized home enhancement report! Don't miss out on your maximum equity!  ")}
           </div>
 
           {/* Example ValueBoost Potential Box - Preview */}
@@ -1663,7 +1663,7 @@ function AddressForm() {
               <strong>11 ValueBoost opportunities found!</strong>
             </p>
             <p className="vb-percentage-text">
-              Potential Home Value Increase: 22%!
+              Potential Home Value Increase: 22%
             </p>
 
           </div>
@@ -1747,7 +1747,7 @@ function AddressForm() {
               id="valueboost-address-submit-button" 
               disabled={isLoading}
             >
-              {isLoading ? 'ANALYZING...' : 'GET YOUR REPORT'}
+              {isLoading ? 'ANALYZING...' : 'VIEW MAXIMUM VALUE'}
             </button>
           </form>
           

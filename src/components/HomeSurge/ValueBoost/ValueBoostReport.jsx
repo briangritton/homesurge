@@ -762,7 +762,7 @@ function ValueBoostReport() {
     }
 
     if (!contactInfo.phone || contactInfo.phone.trim() === '') {
-      errors.phone = 'Phone number is required';
+      errors.phone = 'Please tell us where to text your ValueBoost report details. We respect your privacy - No spam ever';
     } else if (!/^\d{10}$|^\(\d{3}\)\s?\d{3}-\d{4}$|^\d{3}-\d{3}-\d{4}$/.test(contactInfo.phone.replace(/\D/g, ''))) {
       errors.phone = 'Please enter a valid phone number';
     }
@@ -879,75 +879,35 @@ function ValueBoostReport() {
             {/* Responsive container for values */}
             <div className="vb-value-container">
               {/* Current Value */}
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                minWidth: '140px'
-              }}>
-                <div style={{
-                  fontSize: '22px',
-                  fontWeight: 'bold',
-                  color: '#236b6d',
-                  marginBottom: '5px'
-                }}>
+              <div className="vb-value-item">
+                <div className="vb-value-amount vb-current-value">
                   {testFormData.formattedApiEstimatedValue || '$554,000'}
                 </div>
-                <div style={{ fontSize: '14px', color: '#555' }}>
+                <div className="vb-value-label">
                   Current Value
                 </div>
               </div>
 
               {/* Arrow - responsive */}
-              <div className="value-boost-arrow" style={{
-                padding: '0 4px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
+              <div className="vb-value-arrow">
                 <img 
                   src={gradientArrow}
                   alt="Value boost arrow"
-                  className="horizontal-arrow"
-                  style={{
-                    width: '50px',
-                    height: 'auto',
-                    display: 'block'
-                  }}
+                  className="vb-arrow-horizontal"
                 />
                 <img 
                   src={gradientArrow}
                   alt="Value boost arrow"
-                  className="vertical-arrow"
-                  style={{
-                    width: '40px',
-                    height: 'auto',
-                    display: 'none',
-                    transform: 'rotate(90deg)'
-                  }}
+                  className="vb-arrow-vertical"
                 />
               </div>
 
               {/* Value Boost Potential - separate from new total */}
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                minWidth: '140px'
-              }}>
-                <div style={{
-                  fontSize: '22px',
-                  fontWeight: 'bold',
-                  background: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                  marginBottom: '5px'
-                }}>
+              <div className="vb-value-item">
+                <div className="vb-value-amount vb-boost-value">
                   {testFormData.formattedPotentialIncrease || '$121,880'}
                 </div>
-                <div style={{ fontSize: '14px', color: '#555' }}>
+                <div className="vb-value-label">
                   Value Boost Potential
                 </div>
               </div>
@@ -1005,7 +965,7 @@ function ValueBoostReport() {
               <strong>{recommendations.length || '11'} ValueBoost opportunities found!</strong>
             </p>
             <p className="vb-percentage-text">
-              Potential Home Value Increase: {testFormData.valueIncreasePercentage || '22'}%!
+              Potential Home Value Increase: {testFormData.valueIncreasePercentage || '22'}%
             </p>
 
             {/* Responsive styles for different screen sizes */}
@@ -1071,96 +1031,39 @@ function ValueBoostReport() {
           )}
 
           {/* Display recommendations */}
-          <div id="recommendations-section" style={{
-            marginBottom: '30px', 
-            position: 'relative',
-            padding: '25px',
-            backgroundColor: 'white',
-            border: '1px solid',
-            borderImage: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%) 1',
-            borderRadius: '12px',
-            boxShadow: '0 0 20px 4px rgba(0, 184, 230, 0.15), 0 4px 15px rgba(0, 0, 0, 0.05)',
-            maxWidth: '800px',
-            margin: '0 auto 30px'
-          }}>
-            <h2 style={{ 
-              textAlign: 'center', 
-              marginBottom: '5px', 
-              fontSize: '24px',
-              background: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}>
-              Top 10 Value-Boosting Recommendations
+          <div id="recommendations-section" className="vb-recommendations-section">
+            <h2 className="vb-recommendations-title">
+              Your Top 10 ValueBoost Recommendations
             </h2>
-            <p style={{ 
-              textAlign: 'center', 
-              marginBottom: '20px', 
-              fontSize: '16px', 
-              background: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              fontWeight: '500'
-            }}>
-              Highest-impact improvements ranked by ROI for your property
-            </p>
+            <p className="vb-recommendations-subtitle">
+Highest impact AI generated opportunities for your home  </p>
 
             {/* Container for recommendations with relative positioning */}
-            <div style={{ position: 'relative' }}>
+            <div className="vb-recommendations-container">
               {/* Primary recommendations */}
               {primaryRecs.map((rec, index) => (
-                <div key={index} style={{
-                  marginBottom: '20px',
-                  border: '1px solid rgba(0, 184, 230, 0.2)',
-                  borderRadius: '12px',
-                  padding: '20px',
-                  boxShadow: '0 4px 12px rgba(0, 184, 230, 0.1)',
-                  transition: 'transform 0.2s ease',
-                  cursor: 'pointer',
-                  backgroundColor: 'white',
-                  display: 'flex',
-                  flexDirection: 'column',
+                <div key={index} className="vb-recommendation-item" style={{
                   filter: unlocked ? 'none' : 'blur(5px)'
                 }}
                 onMouseOver={(e) => unlocked && (e.currentTarget.style.transform = 'translateY(-3px)')}
                 onMouseOut={(e) => unlocked && (e.currentTarget.style.transform = 'translateY(0)')}
                 >
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginBottom: '10px' }}>
-                    <h3 style={{ 
-                      margin: '0 0 10px 0', 
-                      fontSize: '20px', 
-                      background: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      backgroundClip: 'text',
-                      fontWeight: 'bold',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      <span style={{
-                        fontSize: '24px',
-                        fontWeight: '900',
-                        fontStyle: 'italic',
-                        color: '#00a3d1',
-                        marginRight: '12px',
-                        lineHeight: '1'
-                      }}>
+                  <div className="vb-recommendation-content">
+                    <h3 className="vb-recommendation-title">
+                      <span className="vb-recommendation-number">
                         {index + 1}.
                       </span>
                       {rec.strategy}
                     </h3>
-                    <p style={{ margin: '0 0 10px 0', fontSize: '15px', color: '#555', textAlign: 'center' }}>{rec.description}</p>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '20px' }}>
-                      <div style={{ marginBottom: '5px' }}>
-                        <span style={{ fontSize: '14px', color: '#666', fontWeight: 'bold' }}>Est. Cost:</span>
-                        <span style={{ fontSize: '14px', marginLeft: '5px' }}>{rec.costEstimate}</span>
+                    <p className="vb-recommendation-description">{rec.description}</p>
+                    <div className="vb-recommendation-details">
+                      <div className="vb-recommendation-cost">
+                        <span className="vb-detail-label">Est. Cost:</span>
+                        <span className="vb-detail-value">{rec.costEstimate}</span>
                       </div>
-                      <div>
-                        <span style={{ fontSize: '14px', color: '#666', fontWeight: 'bold' }}>Est. ROI:</span>
-                        <span style={{ fontSize: '14px', marginLeft: '5px' }}>{rec.roiEstimate}</span>
+                      <div className="vb-recommendation-roi">
+                        <span className="vb-detail-label">Est. ROI:</span>
+                        <span className="vb-detail-value">{rec.roiEstimate}</span>
                       </div>
                     </div>
                   </div>
@@ -1239,155 +1142,60 @@ function ValueBoostReport() {
 
               {/* Locked overlay - only shown when not unlocked */}
               {!unlocked && (
-                <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.60) 0%, rgba(248, 253, 255, 0.60) 100%)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'flex-start',
-                  alignItems: 'center',
-                  paddingTop: '40px',
-                  border: '2px solid rgba(0, 184, 230, 0.3)',
-                  borderRadius: '12px',
-                  boxShadow: '0 8px 32px rgba(0, 184, 230, 0.15), inset 0 0 0 1px rgba(255, 255, 255, 0.8), inset 0 0 30px rgba(0, 184, 230, 0.1)',
-                  backdropFilter: 'blur(5px)',
-                  zIndex: 10,
-                  padding: '30px'
-                }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '60px',
-                    height: '60px',
-                    borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #e8f4ff 0%, #f0f9ff 100%)',
-                    marginBottom: '15px',
-                    boxShadow: '0 8px 25px rgba(0, 184, 230, 0.2)',
-                    border: '2px solid rgba(0, 184, 230, 0.1)'
-                  }}>
-                    <div style={{
-                      fontSize: '25px',
-                      background: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      backgroundClip: 'text',
-                      animation: 'pulseLock 2s infinite alternate'
-                    }}>
-                      🔒
+                <div className="vb-locked-overlay">
+                  <div className="vb-unlock-header">
+                    <div className="vb-lock-icon-container">
+                      <div className="vb-lock-icon">
+                        🔒
+                      </div>
                     </div>
+                    <h3 className="vb-unlock-headline">
+                      Unlock Your FREE ValueBoost Report
+                    </h3>
                   </div>
-                  <h3 style={{
-                    fontSize: '22px',
-                    fontWeight: 'bold',
-                    textAlign: 'center',
-                    marginBottom: '15px',
-                    background: 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                  }}>
-                    Unlock Your Free ValueBoost Report
-                  </h3>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    marginBottom: '12px',
-                    background: 'rgba(255, 255, 255, 0.95)',
-                    borderRadius: '10px',
-                    padding: '12px 18px',
-                    maxWidth: '450px',
-                    width: '100%',
-                    border: '1px solid rgba(0, 184, 230, 0.1)'
-                  }}>
-                    <div style={{ fontSize: '24px', marginRight: '15px' }}>✓</div>
-                    <p style={{ margin: 0, fontSize: '16px', textAlign: 'left', fontWeight: '500' }}>
-                      <strong>All ValueBoost recommendations</strong> for your property
-                    </p>
-                  </div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    marginBottom: '12px',
-                    background: 'rgba(255, 255, 255, 0.95)',
-                    borderRadius: '10px',
-                    padding: '12px 18px',
-                    maxWidth: '450px',
-                    width: '100%',
-                    border: '1px solid rgba(0, 184, 230, 0.1)'
-                  }}>
-                    <div style={{ fontSize: '24px', marginRight: '15px' }}>✓</div>
-                    <p style={{ margin: 0, fontSize: '16px', textAlign: 'left', fontWeight: '500' }}>
-                      <strong>Detailed ROI calculations</strong> for each improvement
-                    </p>
-                  </div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    marginBottom: '30px',
-                    background: 'rgba(255, 255, 255, 0.95)',
-                    borderRadius: '10px',
-                    padding: '12px 18px',
-                    maxWidth: '450px',
-                    width: '100%',
-                    border: '1px solid rgba(0, 184, 230, 0.1)'
-                  }}>
-                    <div style={{ fontSize: '24px', marginRight: '15px' }}>✓</div>
-                    <p style={{ margin: 0, fontSize: '16px', textAlign: 'left', fontWeight: '500' }}>
-                      <strong>Customized for your property</strong> at {formData.street}
-                    </p>
+                  <div className="vb-features-bubble">
+                    <div className="vb-feature-item">
+                      <div className="vb-feature-icon">✓</div>
+                      <p className="vb-feature-text">
+                        <strong>All ValueBoost recommendations</strong> for your property
+                      </p>
+                    </div>
+                    <div className="vb-feature-item">
+                      <div className="vb-feature-icon">✓</div>
+                      <p className="vb-feature-text">
+                        <strong>Detailed maximim ValueBoost calculations</strong> for each improvement
+                      </p>
+                    </div>
+                    <div className="vb-feature-item">
+                      <div className="vb-feature-icon">✓</div>
+                      <p className="vb-feature-text">
+                        <strong>Customized for your property</strong> at {formData.street}
+                      </p>
+                    </div>
                   </div>
 
                   {/* Inline form fields */}
-                  <div style={{ width: '100%', maxWidth: '500px', marginBottom: '20px' }}>
-                    <div className="vb-optin-form-fields" style={{ display: 'flex', gap: '12px', marginBottom: '15px' }}>
+                  <div className="vb-unlock-form-container">
+                    <div className="vb-optin-form-fields">
                       <input
                         type="text"
                         name="name"
                         value={contactInfo.name}
                         onChange={handleInputChange}
                         placeholder="Your name"
-                        style={{
-                          flex: 1,
-                          padding: '14px 16px',
-                          fontSize: '16px',
-                          borderRadius: '10px',
-                          border: formErrors.name ? '2px solid #ff4d4f' : '2px solid rgba(0, 184, 230, 0.2)',
-                          background: 'rgba(255, 255, 255, 0.9)',
-                          boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.05)',
-                          transition: 'all 0.2s ease',
-                          outline: 'none'
-                        }}
-                        onFocus={(e) => e.target.style.borderColor = '#00b8e6'}
-                        onBlur={(e) => e.target.style.borderColor = 'rgba(0, 184, 230, 0.2)'}
+                        className={`vb-unlock-input ${formErrors.name ? 'vb-unlock-input-error' : ''}`}
                       />
                       <input
                         type="tel"
                         name="phone"
                         value={contactInfo.phone}
                         onChange={handleInputChange}
-                        placeholder="(555) 123-4567"
-                        style={{
-                          flex: 1,
-                          padding: '14px 16px',
-                          fontSize: '16px',
-                          borderRadius: '10px',
-                          border: formErrors.phone ? '2px solid #ff4d4f' : '2px solid rgba(0, 184, 230, 0.2)',
-                          background: 'rgba(255, 255, 255, 0.9)',
-                          boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.05)',
-                          transition: 'all 0.2s ease',
-                          outline: 'none'
-                        }}
-                        onFocus={(e) => e.target.style.borderColor = '#00b8e6'}
-                        onBlur={(e) => e.target.style.borderColor = 'rgba(0, 184, 230, 0.2)'}
+                        placeholder="Phone (Get a text copy)"
+                        className={`vb-unlock-input ${formErrors.phone ? 'vb-unlock-input-error' : ''}`}
                       />
                     </div>
                     {(formErrors.name || formErrors.phone) && (
-                      <div style={{ fontSize: '14px', color: '#ff4d4f', marginBottom: '10px' }}>
+                      <div className="vb-unlock-form-error">
                         {formErrors.name || formErrors.phone}
                       </div>
                     )}
@@ -1427,30 +1235,12 @@ function ValueBoostReport() {
                       }
                     }}
                     disabled={isSubmitting}
-                    className="vb-button-flare"
-                    style={{
-                      background: isSubmitting ? 'linear-gradient(135deg, #87ceeb 0%, #4682b4 100%)' : 'linear-gradient(135deg, #00b8e6 0%, #236b6d 100%)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '12px',
-                      padding: '16px 32px',
-                      fontSize: '18px',
-                      fontWeight: 'bold',
-                      cursor: isSubmitting ? 'default' : 'pointer',
-                      boxShadow: '0 8px 20px rgba(0, 184, 230, 0.3)',
-                      transition: 'all 0.3s ease',
-                      maxWidth: '500px',
-                      width: '100%',
-                      marginBottom: '15px',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      zIndex: 2
-                    }}
+                    className="vb-unlock-button vb-button-flare"
                   >
-                    {isSubmitting ? 'Creating Account...' : 'Create Free Account to Unlock'}
+                    {isSubmitting ? 'Unlocking...' : 'CHECK REPORT NOW'}
                   </button>
 
-                  <div style={{ fontSize: '14px', color: '#666', textAlign: 'center', maxWidth: '400px' }}>
+                  <div className="vb-unlock-security-text">
                     Your information is secure and we'll never share it with third parties.
                   </div>
 
@@ -1596,7 +1386,7 @@ function ValueBoostReport() {
                     value={contactInfo.phone}
                     onChange={handleInputChange}
                     required
-                    placeholder="(555) 123-4567"
+                    placeholder="Phone (We'll text you a copy, no spam ever)"
                     style={{
                       width: '100%',
                       padding: '12px 15px',
