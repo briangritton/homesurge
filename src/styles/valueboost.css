@@ -10,6 +10,16 @@
   justify-content: space-between;
   background-image: none !important;
 }
+.vb1-af1-.hero-section {
+    display: flex
+;
+    flex-direction: column;
+    width: 100%;
+    min-height: calc(100vh - 80px);
+    align-items: center;
+    justify-content: space-between;
+    background-image: none !important;
+}
 
 .vb-container {
   display: flex;
@@ -18,6 +28,25 @@
   padding-top: 2rem;
   width: 100%;
 }
+
+.vb-af1-form-container {
+
+    align-items: center;
+    display: flex
+;
+    flex-direction: row;
+    gap: 5px;
+    justify-content: center;
+    margin: 20px auto;
+    max-width: 1200px;
+    width: 100%;
+ 
+
+
+}
+
+
+
 
 .vb-content {
   display: flex;
@@ -127,6 +156,34 @@
 .vb-button:hover {
   background-color: #2a8084;
 }
+
+
+
+ .vb-af1-submit-button {
+    background: linear-gradient(135deg, #00b8e6 0%, #236b6d 100%) !important;
+    background: linear-gradient(135deg, #00b8e6 0%, #236b6d 100%) !important;
+    border: none !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 20px rgba(0, 184, 230, 0.3) !important;
+    color: white !important;
+    font-size: 18px !important;
+    font-weight: bold !important;
+    padding: 18px 30px !important;
+    transition: all 0.3s ease !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    position: relative !important;
+    overflow: hidden !important;
+    flex-shrink: 0 !important;
+    height: 64px;
+    min-width: 100px;
+}
+
+
+
+
+
+
 
 .vb-error-message {
   color: #2a8084;
@@ -396,7 +453,7 @@
 .vb-unlock-form-container {
   width: 100%;
   max-width: 500px;
-  margin-bottom: 20px;
+  margin-bottom: 0px;
 }
 
 .vb-optin-form-fields {
@@ -430,6 +487,22 @@
     color: #47b5d6;
     margin-bottom: 10px;
     font-weight: bold;
+}
+.vb-af1-address-input {
+    max-height: 28px;
+    border: 2px solid rgba(0, 184, 230, 0.5) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 12px rgba(0, 184, 230, 0.1) !important;
+    background: white !important;
+    font-size: 1.2rem !important;
+    height: 72px !important;
+    padding: 18px 20px !important;
+    transition: all 0.3s ease !important;
+    width: 100%;
+    max-width: 1000px;
+    min-width: 300px;
+    color: #333;
+    flex: 1 1;
 }
 
 .vb-unlock-button {
@@ -771,8 +844,19 @@
   }
   
   .vb-form-container,
-  .vb-af1-form-container,
-  .af1-form-container {
+  .vb-af1-form-container
+  {
+
+ 
+
+
+
+
+
+
+
+
+
     flex-direction: column !important;
     gap: 15px !important;
     padding: 0 20px !important;
@@ -780,9 +864,8 @@
     max-width: calc(100vw - 40px) !important;
   }
   
-  .vb-af1-address-input,
-  .af1-address-input.vb-af1-address-input,
-  .address-input.vb-af1-address-input {
+  .vb-af1-address-input
+ {
     font-size: 1rem !important;
     margin: 0 !important;
     width: 100% !important;
@@ -790,9 +873,7 @@
     box-sizing: border-box !important;
   }
   
-  .vb-af1-submit-button,
-  .af1-submit-button.vb-af1-submit-button,
-  .submit-button.vb-af1-submit-button {
+  .vb-af1-submit-button{
     margin: 0 !important;
     width: 100% !important;
     font-size: 16px !important;
@@ -807,30 +888,16 @@
 }
 
 /* ValueBoost AddressForm Modern Overrides */
-.vb-af1-address-input,
-.af1-address-input.vb-af1-address-input,
-.address-input.vb-af1-address-input {
-  border: 2px solid rgba(0, 184, 230, 0.5) !important;
-  border-radius: 12px !important;
-  box-shadow: 0 4px 12px rgba(0, 184, 230, 0.1) !important;
-  background: white !important;
-  font-size: 1.2rem !important;
-  height: 72px !important;
-  padding: 18px 20px !important;
-  transition: all 0.3s ease !important;
-}
 
-.vb-af1-address-input:focus,
-.af1-address-input.vb-af1-address-input:focus,
-.address-input.vb-af1-address-input:focus {
+
+.vb-af1-address-input:focus
+ {
   border-color: #00b8e6 !important;
   box-shadow: 0 0 0 3px rgba(0, 184, 230, 0.2), 0 4px 15px rgba(0, 184, 230, 0.15) !important;
   outline: none !important;
 }
 
-.vb-af1-address-input-invalid,
-.af1-address-input-invalid.vb-af1-address-input-invalid,
-.address-input-invalid.vb-af1-address-input-invalid {
+.vb-af1-address-input-invalid {
   border: 2px solid #ff4d4f !important;
   border-radius: 12px !important;
   box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2) !important;
@@ -838,28 +905,10 @@
 }
 
 
-.vb-af1-submit-button,
-.af1-submit-button.vb-af1-submit-button,
-.submit-button.vb-af1-submit-button {
-  background: linear-gradient(135deg, #00b8e6 0%, #236b6d 100%) !important;
-  border: none !important;
-  border-radius: 12px !important;
-  box-shadow: 0 8px 20px rgba(0, 184, 230, 0.3) !important;
-  color: white !important;
-  font-size: 18px !important;
-  font-weight: bold !important;
-  padding: 18px 30px !important;
-  transition: all 0.3s ease !important;
-  text-transform: uppercase !important;
-  letter-spacing: 1px !important;
-  position: relative !important;
-  overflow: hidden !important;
-  flex-shrink: 0 !important;
-}
 
-.vb-af1-submit-button::before,
-.af1-submit-button.vb-af1-submit-button::before,
-.submit-button.vb-af1-submit-button::before {
+
+.vb-af1-submit-button::before
+{
   content: '' !important;
   position: absolute !important;
   top: 0 !important;
@@ -871,30 +920,23 @@
   z-index: 1 !important;
 }
 
-.vb-af1-submit-button:hover::before,
-.af1-submit-button.vb-af1-submit-button:hover::before,
-.submit-button.vb-af1-submit-button:hover::before {
+.vb-af1-submit-button:hover::before {
   left: 100% !important;
 }
 
-.vb-af1-submit-button:hover,
-.af1-submit-button.vb-af1-submit-button:hover,
-.submit-button.vb-af1-submit-button:hover {
+.vb-af1-submit-button:hover
+{
   background: linear-gradient(135deg, #0099cc 0%, #1a5b5d 100%) !important;
   box-shadow: 0 12px 25px rgba(0, 184, 230, 0.4) !important;
 }
 
-.vb-af1-submit-button:disabled,
-.af1-submit-button.vb-af1-submit-button:disabled,
-.submit-button.vb-af1-submit-button:disabled {
+.vb-af1-submit-button:disabled {
   background: linear-gradient(135deg, #87ceeb 0%, #4682b4 100%) !important;
   transform: none !important;
   cursor: default !important;
 }
 
-.vb-af1-error-message,
-.af1-error-message.vb-af1-error-message,
-.error-message.vb-af1-error-message {
+.vb-af1-error-message {
   color: #ff4d4f !important;
   font-size: 16px !important;
   margin-top: 10px !important;
@@ -1039,8 +1081,39 @@
     color: #236b6d !important;
     padding-left: 20px;
     padding-right: 20px;
+    padding-top: 0px;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.2;
 }
-
+.vb-af1-hero-middle-container {
+    padding-top: 0px;
+    display: flex
+;
+    flex-direction: column;
+    align-items: center;
+     
+    width: 100%;
+}
+.vb-af1-hero-content {
+    max-width: 650px;
+    display: flex
+;
+    flex-direction: column;
+    flex: 0 0 60%;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+.vb-af1-hero-subheadline {
+    font-size: 1.5rem;
+    margin-top: 10px;
+    margin-bottom: 30px;
+    line-height: 1.2;
+    margin: 20px 0px;
+    color: #444;
+}
 /* AI Processing page specific styles */
 .vb-ai-section {
   min-height: 70vh;
@@ -1357,7 +1430,10 @@ margin-bottom: 0px;
 
 /* Unified Mobile Styling */
 @media (max-width: 768px) {
-
+.vb-report-section {
+    min-height: 100vh;
+    padding: 0;
+}
 
 
 .vb-locked-overlay {
@@ -1376,7 +1452,14 @@ margin-bottom: 0px;
     min-height: 1000px;
 }
 
-
+.vb-af1-hero-headline {
+    color: #236b6d !important;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 0px;
+    font-size: 1.7rem !important;
+    line-height: 1;
+}
 
   .vb-value-boost-box {
     margin: 0 20px 40px !important;
@@ -1385,19 +1468,18 @@ margin-bottom: 0px;
   }
   
   /* Consistent mobile spacing for all form elements */
-  .vb-af1-hero-subheadline,
-  .af1-hero-subheadline.vb-af1-hero-subheadline,
-  .hero-subheadline.vb-af1-hero-subheadline  {
+  .vb-af1-hero-subheadline  {
+       
         padding: 0 20px !important;
         margin-bottom: 20px !important;
         font-size: 1.1rem;
         line-height: 1.1;
+        margin-top: 15px;
+    
     }
   
   /* Form container mobile spacing */
-  .vb-af1-form-container,
-  .af1-form-container.vb-af1-form-container,
-  .form-container.vb-af1-form-container {
+  .vb-af1-form-container {
     padding: 0 20px !important;
     margin: 10px auto !important;
     max-width: calc(100vw - 40px) !important;
@@ -1405,25 +1487,22 @@ margin-bottom: 0px;
   }
   
   /* Input and button mobile spacing */
-  .vb-af1-address-input,
-  .af1-address-input.vb-af1-address-input,
-  .address-input.vb-af1-address-input {
+  .vb-af1-address-input {
     width: 100% !important;
     max-width: none !important;
     box-sizing: border-box !important;
+    
+    max-height: 72px;
+
   }
   
-  .vb-af1-submit-button,
-  .af1-submit-button.vb-af1-submit-button,
-  .submit-button.vb-af1-submit-button {
+  .vb-af1-submit-button {
     width: 100% !important;
     box-sizing: border-box !important;
   }
   
   /* Error message mobile spacing */
-  .vb-af1-error-message,
-  .af1-error-message.vb-af1-error-message,
-  .error-message.vb-af1-error-message {
+  .vb-af1-error-message {
     margin: 0 20px !important;
     max-width: calc(100vw - 40px) !important;
     box-sizing: border-box !important;
@@ -1470,7 +1549,7 @@ padding-top:0%;
     }
 
     .vb-ai-value-container {
-    margin-top: -20px;
+  
     margin-bottom: 20px;
 }
 
@@ -1630,9 +1709,10 @@ padding-top:0%;
 }
 
 @media (max-width: 768px) {
-    .vb-unlock-headline {
-        font-size: 20px;
+       .vb-unlock-headline {
+        font-size: 22px;
         padding: 0 20px 0 0;
+        text-align: center;
     }
   .vb-recommendations-title {
     text-align: center;

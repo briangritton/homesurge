@@ -130,9 +130,9 @@ function AIProcessing() {
     const getStepDuration = (step) => {
       // Middle steps take longer for more realistic analysis appearance
       if (step >= 2 && step <= 5) {
-        return 2000 + Math.random() * 1000; // 2-3 seconds for middle steps
+        return 1000 + Math.random() * 500; // 1-1.5 seconds for middle steps
       } else {
-        return 1500 + Math.random() * 500; // 1.5-2 seconds for other steps
+        return 750 + Math.random() * 250; // 0.75-1 seconds for other steps
       }
     };
 
@@ -187,39 +187,39 @@ function AIProcessing() {
       if (processingStep === 0) {
         // Step 0: Start with small increase immediately
         targetValue = startValue + Math.round(valueIncrease * 0.05);
-        duration = 800;
+        duration = 400;
       } else if (processingStep === 1) {
         // Step 1: More increase
         targetValue = startValue + Math.round(valueIncrease * 0.15);
-        duration = 1000;
+        duration = 500;
       } else if (processingStep === 2) {
         // Step 2: Continued growth
         targetValue = startValue + Math.round(valueIncrease * 0.30);
-        duration = 1200;
+        duration = 600;
       } else if (processingStep === 3) {
         // Step 3: Accelerating
         targetValue = startValue + Math.round(valueIncrease * 0.50);
-        duration = 1300;
+        duration = 650;
       } else if (processingStep === 4) {
         // Step 4: Strong growth
         targetValue = startValue + Math.round(valueIncrease * 0.65);
-        duration = 1200;
+        duration = 600;
       } else if (processingStep === 5) {
         // Step 5: Major progress
         targetValue = startValue + Math.round(valueIncrease * 0.80);
-        duration = 1100;
+        duration = 550;
       } else if (processingStep === 6) {
         // Step 6: Nearly complete
         targetValue = startValue + Math.round(valueIncrease * 0.95);
-        duration = 1000;
+        duration = 500;
       } else if (processingStep === 7) {
         // Step 7: Final approach
         targetValue = startValue + Math.round(valueIncrease * 0.98);
-        duration = 800;
+        duration = 400;
       } else {
         // Complete - full value
         targetValue = endValue;
-        duration = 600;
+        duration = 300;
       }
       
       const startTime = Date.now();

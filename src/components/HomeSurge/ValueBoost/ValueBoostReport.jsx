@@ -838,6 +838,16 @@ function ValueBoostReport() {
     position: 'relative'
   };
 
+  // Function to clean address by removing USA/United States
+  const cleanAddress = (address) => {
+    if (!address) return '';
+    
+    return address
+      .replace(/,?\s*(USA|United States|US)$/i, '') // Remove USA, United States, or US at the end
+      .replace(/,\s*$/, '') // Remove trailing comma if any
+      .trim();
+  };
+
   // Add a ::before override with empty content
   useEffect(() => {
     // Create a style element
@@ -861,11 +871,11 @@ function ValueBoostReport() {
         <div className="vb-content vb-fade-in" style={contentStyle}>
           
           {/* Header */}
-          <div className="vb-af1-hero-headline af1-hero-headline hero-headline">
+          <div className="vb-af1-hero-headline">
             Value Scan Complete For:
           </div>
-          <div className="vb-af1-hero-subheadline af1-hero-subheadline hero-subheadline" style={{ marginBottom: '10px' }}>
-            {testFormData.street || '123 Main St'}
+          <div className="vb-af1-hero-subheadline " style={{ marginBottom: '10px' }}>
+            {cleanAddress(testFormData.street) || '123 Main St'}
           </div>
 
 

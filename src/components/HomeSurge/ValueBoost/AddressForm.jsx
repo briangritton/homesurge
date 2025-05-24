@@ -1591,13 +1591,13 @@ function AddressForm() {
   }, []);
 
   return (
-    <div className="vb-af1-hero-section af1-hero-section hero-section">
-      <div className="vb-af1-hero-middle-container af1-hero-middle-container hero-middle-container">
-        <div className="vb-af1-hero-content af1-hero-content hero-content fade-in">
-          <div className="vb-af1-hero-headline af1-hero-headline hero-headline">
+    <div className="vb-af1-hero-section">
+      <div className="vb-af1-hero-middle-container">
+        <div className="vb-af1-hero-content">
+          <div className="vb-af1-hero-headline">
             {formatText("Maximize Your Home With\u00A0ValueBoost AI")}    
           </div>
-          <div className="vb-af1-hero-subheadline af1-hero-subheadline hero-subheadline">
+          <div className="vb-af1-hero-subheadline">
             {formatSubheadline("Find out how your home value could increase by up to 36% with FREE AI personalized home enhancement report! Don't miss out on your maximum equity!  ")}
           </div>
 
@@ -1690,7 +1690,7 @@ function AddressForm() {
           </div>
           
           {/* Using a form structure for browser autofill to work properly */}
-          <form className="vb-af1-form-container af1-form-container form-container" id="valueboostAddressForm" autoComplete="on" onSubmit={(e) => {
+          <form className="vb-af1-form-container" id="valueboostAddressForm" autoComplete="on" onSubmit={(e) => {
             e.preventDefault();
             handleButtonClick(e);
           }} ref={formRef}>
@@ -1700,7 +1700,7 @@ function AddressForm() {
               name="address-line1"
               autoComplete="address-line1"
               placeholder="Street address..."
-              className={errorMessage ? 'vb-af1-address-input-invalid af1-address-input-invalid address-input-invalid' : 'vb-af1-address-input af1-address-input address-input'}
+              className={errorMessage ? 'vb-af1-address-input-invalid' : 'vb-af1-address-input'}
               value={formData.street || ''}
               onChange={handleChange}
               onFocus={(e) => e.target.placeholder = ''}
@@ -1716,7 +1716,7 @@ function AddressForm() {
                 name="name"
                 autoComplete="name"
                 placeholder="Your name (optional)"
-                className="vb-af1-address-input af1-address-input address-input"
+                className="vb-af1-address-input"
                 value={formData.name || ''}
                 onChange={(e) => updateFormData({ name: e.target.value, autoFilledName: e.target.value })}
                 onFocus={(e) => e.target.placeholder = ''}
@@ -1732,7 +1732,7 @@ function AddressForm() {
                 name="tel"
                 autoComplete="tel"
                 placeholder="Your phone (optional)"
-                className="vb-af1-address-input af1-address-input address-input"
+                className="vb-af1-address-input"
                 value={formData.phone || ''}
                 onChange={(e) => updateFormData({ phone: e.target.value, autoFilledPhone: e.target.value })}
                 onFocus={(e) => e.target.placeholder = ''}
@@ -1743,7 +1743,7 @@ function AddressForm() {
             
             <button 
               type="submit"
-              className="vb-af1-submit-button af1-submit-button submit-button"
+              className="vb-af1-submit-button"
               id="valueboost-address-submit-button" 
               disabled={isLoading}
             >
@@ -1753,7 +1753,7 @@ function AddressForm() {
           
           
           {errorMessage && (
-            <div className="vb-af1-error-message af1-error-message error-message">{errorMessage}</div>
+            <div className="vb-af1-error-message">{errorMessage}</div>
           )}
         </div>
       </div>
