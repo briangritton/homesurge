@@ -7,7 +7,11 @@ function AIProcessing() {
   const [progressPercent, setProgressPercent] = useState(0);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(false);
-  const [animatedValue, setAnimatedValue] = useState(formData.apiEstimatedValue ? Number(formData.apiEstimatedValue) : 554000);
+  // TESTING TOGGLE: Set to true to enable dummy fallback values for step 2
+  const ENABLE_DUMMY_FALLBACK = false; // Set to true for testing
+  const fallbackValue = ENABLE_DUMMY_FALLBACK ? 554000 : 0;
+  
+  const [animatedValue, setAnimatedValue] = useState(formData.apiEstimatedValue ? Number(formData.apiEstimatedValue) : fallbackValue);
   const mapContainerRef = useRef(null);
   const animationRef = useRef(null);
   
@@ -164,9 +168,9 @@ function AIProcessing() {
   useEffect(() => {
     // Start animation from step 0 (immediately when component loads)
     if (processingStep >= 0) {
-      // Use real API values if available, otherwise use dummy values - convert to numbers
-      const startValue = formData.apiEstimatedValue ? Number(formData.apiEstimatedValue) : 554000;
-      const valueIncrease = formData.potentialValueIncrease ? Number(formData.potentialValueIncrease) : 121880;
+      // Use real API values if available, otherwise use fallback values - convert to numbers
+      const startValue = formData.apiEstimatedValue ? Number(formData.apiEstimatedValue) : fallbackValue;
+      const valueIncrease = formData.potentialValueIncrease ? Number(formData.potentialValueIncrease) : (ENABLE_DUMMY_FALLBACK ? 121880 : 0);
       const endValue = startValue + valueIncrease;
       
       // Debug logging
@@ -341,13 +345,13 @@ function AIProcessing() {
             </div>
             
             <div className="vb-ai-value-boost">
-              {animatedValue > (formData.apiEstimatedValue ? Number(formData.apiEstimatedValue) : 554000) ? (
+              {animatedValue > (formData.apiEstimatedValue ? Number(formData.apiEstimatedValue) : fallbackValue) ? (
                 `↗ Value boost: +${new Intl.NumberFormat('en-US', {
                   style: 'currency',
                   currency: 'USD',
                   minimumFractionDigits: 0,
                   maximumFractionDigits: 0
-                }).format(animatedValue - (formData.apiEstimatedValue ? Number(formData.apiEstimatedValue) : 554000))}`
+                }).format(animatedValue - (formData.apiEstimatedValue ? Number(formData.apiEstimatedValue) : fallbackValue))}`
               ) : (
                 'ValueBoost: Calculating'
               )}

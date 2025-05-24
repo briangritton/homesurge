@@ -32,8 +32,8 @@ export function formatText(text, phrasesToProtect = []) {
     'Get a great cash offer today',
     'Close in 7 days.',
     'Close in 7 days',
-    'No agents, no repairs, no stress.',
-    'No agents, no repairs, no stress',
+    'No showings, no repairs, no stress.',
+    'No showings, no repairs, no stress',
     'For Cash Fast?',
     'For Cash Fast',
     'and home value:',
@@ -140,12 +140,12 @@ export function formatSubheadline(text) {
   }
   
   // If we have the specific cash template subheadline
-  if (text && text === 'Get a great cash offer today. Close in 7 days. No agents, no repairs, no stress.') {
+  if (text && text === 'Get a great cash offer today. Close in 7 days. No showings, no repairs, no stress.') {
     return (
       <>
         <span className="nowrap-phrase">Get a great cash offer today.</span>{' '}
         <span className="nowrap-phrase">Close in 7 days.</span>{' '}
-        <span className="nowrap-phrase">No agents, no repairs, no stress.</span>
+        <span className="nowrap-phrase">No showings, no repairs, no stress.</span>
       </>
     );
   }

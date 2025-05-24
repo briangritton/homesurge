@@ -33,10 +33,10 @@ function Footer() {
       <div className="footer-nav-container">
         <ul className="nav-links">
           <div onClick={() => handlePrivacyClick('privacy')}>
-            <li className="footer-link">Privacy Policy</li>
+            <li className="footer-link">Privacy</li>
           </div>
           <li className="footer-link" onClick={() => setShowAboutUs(true)}>
-            About Us
+            About
           </li>
           <li className="footer-link" onClick={() => setShowHowItWorks(true)}>
             How it Works

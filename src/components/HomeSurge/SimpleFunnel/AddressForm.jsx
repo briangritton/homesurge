@@ -4,6 +4,7 @@ import { validateAddress } from '../../../utils/validation.js';
 import { trackAddressSelected, trackFormStepComplete, trackFormError } from '../../../services/analytics';
 import { lookupPropertyInfo } from '../../../services/maps.js';
 import { createSuggestionLead } from '../../../services/firebase.js';
+import { BelowFold } from '../../BelowFold';
 import axios from 'axios';
 
 function AddressForm() {
@@ -793,6 +794,9 @@ function AddressForm() {
           )}
         </div>
       </div>
+      
+      {/* BelowFold Content */}
+      <BelowFold />
     </div>
   );
 }

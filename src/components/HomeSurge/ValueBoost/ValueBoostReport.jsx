@@ -7,11 +7,12 @@ import gradientArrow from '../../../assets/images/gradient-arrow.png';
 function ValueBoostReport() {
   const { formData, updateFormData, updateLead } = useFormContext();
   
-  // Add dummy data for localhost testing
+  // TESTING TOGGLE: Comment/uncomment the lines below to enable/disable dummy data for step 3
+  const ENABLE_DUMMY_DATA = false; // Set to true for testing
   const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
   
-  // Use dummy data if on localhost and no API data available
-  const testFormData = isLocalhost && (!formData.apiEstimatedValue || formData.apiEstimatedValue === 0) ? {
+  // Use dummy data if enabled and on localhost and no API data available
+  const testFormData = (ENABLE_DUMMY_DATA && isLocalhost && (!formData.apiEstimatedValue || formData.apiEstimatedValue === 0)) ? {
     ...formData,
     apiEstimatedValue: 485000,
     formattedApiEstimatedValue: '$485,000',
@@ -1153,114 +1154,110 @@ Highest impact AI generated opportunities for your home  </p>
               {/* Locked overlay - only shown when not unlocked */}
               {!unlocked && (
                 <div className="vb-locked-overlay">
-                  <div className="vb-unlock-header">
-                    <div className="vb-lock-icon-container">
-                      <div className="vb-lock-icon">
-                        🔒
+                  {/* Opaque background wrapper for the unlock section */}
+                  <div className="vb-unlock-section-wrapper">
+                    <div className="vb-unlock-header">
+                      <div className="vb-lock-icon-container">
+                        <div className="vb-lock-icon">
+                          🔒
+                        </div>
+                      </div>
+                      <h3 className="vb-unlock-headline">
+                        Unlock Your FREE ValueBoost Report
+                      </h3>
+                    </div>
+                    <div className="vb-features-bubble">
+                      <div className="vb-feature-item">
+                        <div className="vb-feature-icon">✓</div>
+                        <p className="vb-feature-text">
+                          <strong>All ValueBoost recommendations</strong> for your property
+                        </p>
+                      </div>
+                      <div className="vb-feature-item">
+                        <div className="vb-feature-icon">✓</div>
+                        <p className="vb-feature-text">
+                          <strong>Detailed maximim ValueBoost calculations</strong> for each improvement
+                        </p>
+                      </div>
+                      <div className="vb-feature-item">
+                        <div className="vb-feature-icon">✓</div>
+                        <p className="vb-feature-text">
+                          <strong>Customized for your property</strong> at {formData.street}
+                        </p>
                       </div>
                     </div>
-                    <h3 className="vb-unlock-headline">
-                      Unlock Your FREE ValueBoost Report
-                    </h3>
-                  </div>
-                  <div className="vb-features-bubble">
-                    <div className="vb-feature-item">
-                      <div className="vb-feature-icon">✓</div>
-                      <p className="vb-feature-text">
-                        <strong>All ValueBoost recommendations</strong> for your property
-                      </p>
-                    </div>
-                    <div className="vb-feature-item">
-                      <div className="vb-feature-icon">✓</div>
-                      <p className="vb-feature-text">
-                        <strong>Detailed maximim ValueBoost calculations</strong> for each improvement
-                      </p>
-                    </div>
-                    <div className="vb-feature-item">
-                      <div className="vb-feature-icon">✓</div>
-                      <p className="vb-feature-text">
-                        <strong>Customized for your property</strong> at {formData.street}
-                      </p>
-                    </div>
-                  </div>
 
-                  {/* Inline form fields */}
-                  <div className="vb-unlock-form-container">
-                    <div className="vb-optin-form-fields">
-                      <input
-                        type="text"
-                        name="name"
-                        value={contactInfo.name}
-                        onChange={handleInputChange}
-                        placeholder="Your name"
-                        className={`vb-unlock-input ${formErrors.name ? 'vb-unlock-input-error' : ''}`}
-                      />
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={contactInfo.phone}
-                        onChange={handleInputChange}
-                        placeholder="Phone (Get a text copy)"
-                        className={`vb-unlock-input ${formErrors.phone ? 'vb-unlock-input-error' : ''}`}
-                      />
-                    </div>
-                    {(formErrors.name || formErrors.phone) && (
-                      <div className="vb-unlock-form-error">
-                        {formErrors.name || formErrors.phone}
+                    {/* Inline form fields */}
+                    <div className="vb-unlock-form-container">
+                      <div className="vb-optin-form-fields">
+                        <input
+                          type="text"
+                          name="name"
+                          value={contactInfo.name}
+                          onChange={handleInputChange}
+                          placeholder="Your name"
+                          className={`vb-unlock-input ${formErrors.name ? 'vb-unlock-input-error' : ''}`}
+                        />
+                        <input
+                          type="tel"
+                          name="phone"
+                          value={contactInfo.phone}
+                          onChange={handleInputChange}
+                          placeholder="Phone (Get a text copy)"
+                          className={`vb-unlock-input ${formErrors.phone ? 'vb-unlock-input-error' : ''}`}
+                        />
                       </div>
-                    )}
-                  </div>
+                      {(formErrors.name || formErrors.phone) && (
+                        <div className="vb-unlock-form-error">
+                          {formErrors.name || formErrors.phone}
+                        </div>
+                      )}
+                    </div>
 
-                  <button
-                    onClick={async (e) => {
-                      e.preventDefault();
-                      if (!validateForm()) {
-                        return;
-                      }
-                      setIsSubmitting(true);
-                      updateFormData({
-                        name: contactInfo.name,
-                        phone: contactInfo.phone,
-                        email: contactInfo.email || '',
-                        leadStage: 'ValueBoost Report Qualified'
-                      });
-                      try {
-                        await updateLead();
-                        setIsSubmitting(false);
-                        setSubmitted(true);
-                        setUnlocked(true);
-                        if (window.gtag) {
-                          window.gtag('event', 'conversion', {
-                            'send_to': 'AW-123456789/AbC-D_efG-h12345',
-                            'event_category': 'lead',
-                            'event_label': 'ValueBoost Report Unlocked',
-                            'value': formData.apiEstimatedValue ? formData.apiEstimatedValue / 100 : 1,
-                            'currency': 'USD'
-                          });
+                    <button
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        if (!validateForm()) {
+                          return;
                         }
-                      } catch (error) {
-                        console.error('Error submitting lead:', error);
-                        setIsSubmitting(false);
-                        setFormErrors({ submit: 'Failed to submit your information. Please try again.' });
-                      }
-                    }}
-                    disabled={isSubmitting}
-                    className="vb-unlock-button vb-button-flare"
-                  >
-                    {isSubmitting ? 'Unlocking...' : 'CHECK REPORT NOW'}
-                  </button>
+                        setIsSubmitting(true);
+                        updateFormData({
+                          name: contactInfo.name,
+                          phone: contactInfo.phone,
+                          email: contactInfo.email || '',
+                          leadStage: 'ValueBoost Report Qualified'
+                        });
+                        try {
+                          await updateLead();
+                          setIsSubmitting(false);
+                          setSubmitted(true);
+                          setUnlocked(true);
+                          if (window.gtag) {
+                            window.gtag('event', 'conversion', {
+                              'send_to': 'AW-123456789/AbC-D_efG-h12345',
+                              'event_category': 'lead',
+                              'event_label': 'ValueBoost Report Unlocked',
+                              'value': formData.apiEstimatedValue ? formData.apiEstimatedValue / 100 : 1,
+                              'currency': 'USD'
+                            });
+                          }
+                        } catch (error) {
+                          console.error('Error submitting lead:', error);
+                          setIsSubmitting(false);
+                          setFormErrors({ submit: 'Failed to submit your information. Please try again.' });
+                        }
+                      }}
+                      disabled={isSubmitting}
+                      className="vb-unlock-button vb-button-flare"
+                    >
+                      {isSubmitting ? 'Unlocking...' : 'CHECK REPORT NOW'}
+                    </button>
 
-                  <div className="vb-unlock-security-text">
-                    Your information is secure and we'll never share it with third parties.
+                    <div className="vb-unlock-security-text">
+                      Your information is secure and we'll never share it with third parties.
+                    </div>
                   </div>
 
-                  {/* Add animation style */}
-                  <style jsx="true">{`
-                    @keyframes pulseLock {
-                      0% { transform: scale(1); }
-                      100% { transform: scale(1.1); }
-                    }
-                  `}</style>
                 </div>
               )}
             </div>

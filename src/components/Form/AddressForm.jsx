@@ -7,6 +7,7 @@ import { lookupPropertyInfo } from '../../services/maps.js';
 import { lookupPhoneNumbers } from '../../services/batchdata.js';
 import { createSuggestionLead, updateLeadInFirebase } from '../../services/firebase.js';
 import { formatSubheadline, formatText } from '../../utils/textFormatting';
+import OldBelowFold from '../BelowFold/OldBelowFold';
 import axios from 'axios';
 
 // CSS for visually hidden fields
@@ -1493,7 +1494,7 @@ function AddressForm() {
             {formatText(formData.dynamicHeadline || "Need to Sell Your House For Cash Fast?")}
           </div>
           <div className="af1-hero-subheadline hero-subheadline">
-            {formatSubheadline(formData.dynamicSubHeadline || "Get a great cash offer today. Close in 7 days. No agents, no repairs, no stress")}
+            {formatSubheadline(formData.dynamicSubHeadline || "Get a great cash offer today. Close in 7 days. No showings, no repairs, no stress")}
           </div>
           
        
@@ -1574,6 +1575,9 @@ function AddressForm() {
           )}
         </div>
       </div>
+      
+      {/* Old below-fold content */}
+      <OldBelowFold />
     </div>
   );
 }

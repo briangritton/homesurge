@@ -1,0 +1,417 @@
+/* Self-contained CSS for old below-fold content - all classes prefixed with "old-" */
+
+.old-hero-section1-below-fold {
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.old-hero-1-full-width-border {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
+  justify-content: flex-start;
+  border: 1px solid #d7d7d7;
+  padding: 150px 0px;
+  border-left: none;
+  border-right: none;
+}
+
+.old-hero-1-full-width-border-alt {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  justify-content: center;
+  border: none;
+  /* padding: 150px 0px; */
+  /* background-image: url("../../assets/images/roofline.png"); */
+  background-size: contain;
+  background-repeat: repeat-x;
+  background-position: bottom 0px right 0px;
+}
+
+.old-hero-1-below-fold-about-us-parent-container {
+  display: flex;
+  flex-direction: row;
+  max-width: 60%;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+}
+
+.old-hero-1-below-fold-about-us-headline {
+  font-size: 2.8rem;
+  line-height: 2.8rem;
+  padding-bottom: 50px;
+}
+
+.old-hero-1-below-fold-about-us-left-image {
+  width: 40%;
+  object-fit: contain;
+  display: flex;
+  margin-top: 10px;
+}
+
+.old-hero-1-below-fold-about-us-left-image-mobile {
+  width: 100%;
+  object-fit: contain;
+  display: none;
+}
+
+.old-hero-1-below-fold-about-us-right {
+  width: 60%;
+  text-align: left;
+  padding-left: 6%;
+}
+
+.old-hero-1-below-fold-about-us-left-right-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.old-hero-1-below-fold-about-us-right-headline {
+  font-size: 2.8rem;
+  line-height: 2.8rem;
+  padding-bottom: 10px;
+}
+
+.old-hero-1-below-fold-about-us-right-text {
+  font-size: 1.5rem;
+}
+
+.old-hero-1-below-fold-how-it-works-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 60%;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+}
+
+.old-hero-1-below-fold-how-it-works-headline {
+  font-size: 2.8rem;
+  line-height: 2.8rem;
+  padding-bottom: 50px;
+}
+
+.old-hero-1-below-fold-how-it-works-points-grid {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  text-align: left;
+}
+
+.old-hero-1-below-fold-how-it-works-individual-point {
+  width: 31%;
+}
+
+.old-hero-1-below-fold-how-it-works-individual-point-headline {
+  font-size: 2rem;
+  font-weight: bold;
+  padding-bottom: 10px;
+}
+
+.old-hero-1-below-fold-how-it-works-individual-point-text {
+  font-size: 1.5rem;
+}
+
+.old-hero-1-below-fold-summary-text {
+  font-size: 2.5rem;
+  padding-top: 50px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.old-hero-1-below-fold-benefits-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 60%;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  text-align: left;
+}
+
+.old-hero-1-below-fold-benefits-headline {
+  font-size: 2.8rem;
+  line-height: 2.8rem;
+  text-align: center;
+}
+
+.old-hero-1-below-fold-benefits-points-grid {
+  text-align: left;
+}
+
+.old-hero-1-below-fold-benefits-individual-point {
+  padding-top: 50px;
+}
+
+.old-hero-1-below-fold-benefits-individual-point-headline {
+     font-size: 1.7rem;
+    line-height: 1.7rem;
+  font-weight: bold;
+  padding-bottom: 10px;
+}
+
+.old-hero-1-below-fold-benefits-individual-point-text {
+  font-size: 1.5rem;
+}
+
+.old-hero-1-below-fold-contact-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 60%;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  padding-top: 150px;
+  padding-bottom: 50px;
+}
+
+.old-hero-1-below-fold-contact-headline-text {
+  font-size: 2.8rem;
+  padding-bottom: 10px;
+}
+
+.old-hero-1-below-fold-contact-headline-subtext {
+  font-size: 2rem;
+  line-height: 1.2;
+}
+
+.old-hero-1-how-it-works-bullet-number-and-text {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: flex-start;
+}
+
+.old-hero-1-how-it-works-bullet-number {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #2e7b7d;
+  line-height: 1;
+  padding-right: 25px;
+  font-style: italic;
+}
+
+.old-hero-1-how-it-works-bullet-text {
+  font-size: 2rem;
+  line-height: 1;
+  font-style: italic;
+}
+
+.old-hero-1-benefits-bullet-number-and-text {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: flex-start;
+}
+
+.old-hero-1-benefits-bullet-number {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #2e7b7d;
+  line-height: 1;
+  padding-right: 25px;
+  font-style: italic;
+}
+
+.old-hero-1-benefits-bullet-text {
+  font-size: 2rem;
+  line-height: 1;
+  font-style: italic;
+}
+
+/* Responsive styles */
+@media only screen and (max-width: 1024px) {
+  .old-hero-1-below-fold-about-us-parent-container {
+    max-width: 80%;
+  }
+  
+  .old-hero-1-below-fold-about-us-right-headline {
+    font-size: 2rem;
+    line-height: 2rem;
+  }
+
+  .old-hero-1-below-fold-how-it-works-container {
+    max-width: 100%;
+  }
+  
+  .old-hero-1-below-fold-how-it-works-headline {
+    font-size: 2.8rem;
+    line-height: 2.8rem;
+    padding-bottom: 0px;
+  }
+  
+  .old-hero-1-below-fold-how-it-works-points-grid {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    text-align: left;
+    flex-direction: column;
+  }
+  
+  .old-hero-1-below-fold-how-it-works-individual-point {
+    width: 100%;
+  }
+  
+  .old-hero-1-below-fold-how-it-works-individual-point-headline {
+    font-size: 2rem;
+    font-weight: bold;
+    padding-bottom: 10px;
+    padding-top: 50px;
+  }
+
+    .old-hero-1-below-fold-benefits-container {
+        max-width: 100%;
+    }
+  
+    .old-hero-1-below-fold-benefits-container {
+        max-width: 100%;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+  .old-hero-1-how-it-works-bullet-number-and-text {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  
+  .old-hero-1-benefits-bullet-number-and-text {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  
+  .old-hero-1-below-fold-about-us-left-right-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  
+  .old-hero-1-below-fold-about-us-right {
+    width: 100%;
+    text-align: left;
+    padding-left: 0;
+    padding-top: 50px;
+  }
+  
+  .old-hero-1-below-fold-about-us-left-image {
+    width: 40%;
+    object-fit: contain;
+    display: none;
+  }
+  
+  .old-hero-1-below-fold-about-us-left-image-mobile {
+    display: flex;
+  }
+  
+  .old-hero-1-below-fold-summary-text {
+    font-size: 2rem;
+  }
+}
+
+@media only screen and (max-width: 560px) {
+  .old-hero-1-below-fold-about-us-headline {
+    font-size: 1.7rem;
+    font-weight:bold;
+    line-height: 1.7rem;
+  }
+
+.old-hero-1-below-fold-about-us-parent-container {
+        max-width: 100%;
+    }
+
+  .old-hero-1-below-fold-contact-container {
+    max-width: 90%;
+  }
+  .old-hero-1-below-fold-about-us-right-text {
+    font-size: 1.3rem;
+  }
+
+  .old-hero-1-below-fold-how-it-works-headline {
+    font-size: 1.7rem;
+    font-weight:bold;
+    line-height: 1.7rem;
+  }
+  
+  .old-hero-1-below-fold-how-it-works-individual-point-text {
+    font-size: 1.3rem;
+  }
+  
+  .old-hero-1-how-it-works-bullet-text {
+          font-size: 1.7rem;
+        font-weight: normal;
+  }
+  
+  .old-hero-1-how-it-works-bullet-number {
+    font-size: 2rem;
+  }
+  
+  .old-hero-1-below-fold-summary-text {
+    font-size: 1.8rem;
+  }
+
+  .old-hero-1-below-fold-benefits-headline {
+      font-size: 1.7rem;
+    font-weight:bold;
+    line-height: 1.7rem;
+  }
+  
+  .old-hero-1-benefits-bullet-text {
+    font-size: 1.7rem;
+    line-height: 1;
+    font-style: italic;
+    font-weight:normal;
+  }
+
+  .old-hero-1-benefits-bullet-number {
+    font-size: 2rem;
+  }
+  
+  .old-hero-1-below-fold-benefits-individual-point-text {
+    font-size: 1.3rem;
+  }
+
+  .old-hero-1-below-fold-how-it-works-individual-point-headline {
+    padding-top: 0px;
+  }
+
+  .old-hero-1-below-fold-contact-headline-text {
+        font-size: 1.7rem;
+    font-weight:bold;
+    line-height: 1.7rem;
+  }
+
+  .old-hero-1-below-fold-contact-headline-subtext {
+    font-size: 1.8rem;
+    line-height: 1.2;
+  }
+
+  .old-hero-1-below-fold-how-it-works-individual-point {
+    width: 100%;
+    padding-top: 50px;
+  }
+
+.old-hero-section1-below-fold {
+ 
+  width:100%;
+ 
+
+
+}
+
+}
