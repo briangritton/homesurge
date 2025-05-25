@@ -36,7 +36,7 @@ const styles = {
   backButton: {
     background: 'none',
     border: 'none',
-    color: '#2e7b7d',
+    color: '#09a5c8',
     fontSize: '14px',
     cursor: 'pointer',
     display: 'flex',
@@ -118,13 +118,15 @@ const styles = {
   },
   button: {
     padding: '8px 16px',
-    background: '#2e7b7d',
+    background: 'linear-gradient(135deg, #09a5c8 0%, #236b6d 100%)',
     color: 'white',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '8px',
     cursor: 'pointer',
     fontSize: '14px',
     marginRight: '10px',
+    boxShadow: '0 4px 12px rgba(0, 184, 230, 0.3)',
+    transition: 'all 0.3s ease',
   },
   dangerButton: {
     padding: '8px 16px',
@@ -138,13 +140,14 @@ const styles = {
   conversionButton: {
     padding: '8px 16px',
     background: 'white',
-    color: '#2e7b7d',
-    border: '1px solid #2e7b7d',
-    borderRadius: '4px',
+    color: '#09a5c8',
+    border: '1px solid #09a5c8',
+    borderRadius: '8px',
     cursor: 'pointer',
     fontSize: '14px',
     marginRight: '10px',
     marginBottom: '10px',
+    transition: 'all 0.3s ease',
   },
   activityLog: {
     maxHeight: '300px',
@@ -216,15 +219,16 @@ const styles = {
     borderBottom: '2px solid transparent',
   },
   activeTab: {
-    borderBottom: '2px solid #2e7b7d',
+    borderBottom: '2px solid #09a5c8',
     fontWeight: 'bold',
-    color: '#2e7b7d',
+    color: '#09a5c8',
   },
 };
 
 // Status color mapping
 const statusColors = {
-  'New': { background: '#BBDEFB', color: '#0D47A1' },
+  'Unassigned': { background: '#09a5c8', color: 'white' },
+  'New': { background: '#09a5c8', color: 'white' }, // Legacy support - treat as Unassigned
   'Contacted': { background: '#C8E6C9', color: '#1B5E20' },
   'Qualified': { background: '#FFF9C4', color: '#F57F17' },
   'Appointment': { background: '#FFE0B2', color: '#E65100' },
@@ -466,6 +470,7 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
   
   const renderStatusBadge = (status) => {
     const statusStyle = statusColors[status] || { background: '#e0e0e0', color: '#333' };
+    const displayStatus = status === 'New' ? 'Unassigned' : status;
     
     return (
       <span 
@@ -475,7 +480,7 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
           color: statusStyle.color 
         }}
       >
-        {status}
+        {displayStatus}
       </span>
     );
   };
@@ -526,7 +531,7 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
             ← Back to Leads
           </button>
           <h1 style={styles.title}>
-            {lead.name || 'Unnamed Lead'} {renderStatusBadge(lead.status || 'New')}
+            {lead.name || 'Unnamed Lead'} {renderStatusBadge(lead.status || 'Unassigned')}
           </h1>
         </div>
         
@@ -542,7 +547,7 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
           ) : (
             <>
               <button 
-                style={{...styles.button, background: '#4CAF50'}} 
+                style={{...styles.button, background: 'linear-gradient(135deg, #09a5c8 0%, #236b6d 100%)'}} 
                 onClick={handleSubmit}
                 disabled={saving}
               >
@@ -678,11 +683,11 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
                     <label style={styles.label}>Status</label>
                     <select
                       name="status"
-                      value={formData.status || 'New'}
+                      value={formData.status || 'Unassigned'}
                       onChange={handleInputChange}
                       style={styles.select}
                     >
-                      <option value="New">New</option>
+                      <option value="Unassigned">Unassigned</option>
                       <option value="Contacted">Contacted</option>
                       <option value="Qualified">Qualified</option>
                       <option value="Appointment">Appointment</option>
@@ -752,7 +757,7 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
                   
                   <div style={styles.fieldGroup}>
                     <div style={styles.label}>Status</div>
-                    <div>{renderStatusBadge(lead.status || 'New')}</div>
+                    <div>{renderStatusBadge(lead.status || 'Unassigned')}</div>
                   </div>
                   
                   <div style={styles.fieldGroup}>

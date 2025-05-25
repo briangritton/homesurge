@@ -124,12 +124,12 @@ export async function submitLeadToFirebase(formData) {
       // Metadata and selection type
       addressSelectionType: formData.addressSelectionType || 'Manual',
       leadSource: formData.leadSource || 'Website',
-      leadStage: formData.leadStage || 'New',
+      leadStage: formData.leadStage || 'Unassigned',
       
       // System fields
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-      status: 'New',
+      status: 'Unassigned',
       assignedTo: null,
       // Default value for conversion tracking
       conversions: []
@@ -755,7 +755,7 @@ export async function createSuggestionLead(partialAddress, suggestions, contactI
       // Create new lead
       console.log(`Creating new suggestion lead with partial address: "${partialAddress}"`);
       preparedData.createdAt = serverTimestamp();
-      preparedData.status = 'New';
+      preparedData.status = 'Unassigned';
       preparedData.assignedTo = null;
       preparedData.conversions = [];
       

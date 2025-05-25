@@ -8,6 +8,9 @@ function QualifyingForm() {
   const [qualifyingStep, setQualifyingStep] = useState(formData.qualifyingQuestionStep || 1);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedOptionLR, setSelectedOptionLR] = useState('left');
+  const [propertyOwnerSelection, setPropertyOwnerSelection] = useState('left');
+  const [repairsSelection, setRepairsSelection] = useState('left');
+  const [timelineSelection, setTimelineSelection] = useState('left');
   const [saveAttempted, setSaveAttempted] = useState(false);
   
   // Refs for toggle buttonss
@@ -49,16 +52,50 @@ function QualifyingForm() {
   
   // Initialize button states based on existing data
   useEffect(() => {
-    // Set the selected option for property repairs
+    // Set the selected options based on form data
+    if (formData.isPropertyOwner === 'true') {
+      setPropertyOwnerSelection('left');
+    } else if (formData.isPropertyOwner === 'false') {
+      setPropertyOwnerSelection('right');
+    }
+    
     if (formData.needsRepairs === 'true') {
+      setRepairsSelection('right');
       setSelectedOptionLR('right');
     } else if (formData.needsRepairs === 'false') {
+      setRepairsSelection('left');
       setSelectedOptionLR('left');
     }
     
-    // Update toggle button styles based on selection
+    if (formData.timelineMotivation === 'immediately') {
+      setTimelineSelection('left');
+    } else if (formData.timelineMotivation === 'flexible') {
+      setTimelineSelection('right');
+    }
+  }, [formData.isPropertyOwner, formData.needsRepairs, formData.timelineMotivation]);
+
+  // Update toggle button styles based on current step and selection
+  useEffect(() => {
     if (toggleLeftRef.current && toggleRightRef.current) {
-      if (selectedOptionLR === 'left') {
+      let currentSelection = 'left';
+      
+      // Determine current selection based on qualifying step
+      switch(qualifyingStep) {
+        case 1:
+          currentSelection = propertyOwnerSelection;
+          break;
+        case 2:
+          currentSelection = repairsSelection;
+          break;
+        case 9:
+          currentSelection = timelineSelection;
+          break;
+        default:
+          currentSelection = selectedOptionLR;
+      }
+      
+      // Apply the appropriate classes
+      if (currentSelection === 'left') {
         toggleLeftRef.current.className = 'qualifying-toggle-selected-left';
         toggleRightRef.current.className = 'qualifying-toggle-deselected-right';
       } else {
@@ -66,7 +103,7 @@ function QualifyingForm() {
         toggleRightRef.current.className = 'qualifying-toggle-selected-right';
       }
     }
-  }, [selectedOptionLR, formData.needsRepairs]);
+  }, [qualifyingStep, propertyOwnerSelection, repairsSelection, timelineSelection, selectedOptionLR]);
   
   // Send qualifying answers to Zoho when step changes
   useEffect(() => {
@@ -273,17 +310,20 @@ function QualifyingForm() {
   const handleToggleSelect = (field, value) => {
     handleValueUpdate(field, value);
     
-    // When clicking the toggle, update its appearance
-    if (toggleLeftRef.current && toggleRightRef.current) {
-      if (value === 'true') {
-        toggleLeftRef.current.className = 'qualifying-toggle-selected-left';
-        toggleRightRef.current.className = 'qualifying-toggle-deselected-right';
-        setSelectedOptionLR('left');
-      } else {
-        toggleLeftRef.current.className = 'qualifying-toggle-deselected-left';
-        toggleRightRef.current.className = 'qualifying-toggle-selected-right';
-        setSelectedOptionLR('right');
-      }
+    // Update the appropriate state based on the field
+    switch(field) {
+      case 'isPropertyOwner':
+        setPropertyOwnerSelection(value === 'true' ? 'left' : 'right');
+        break;
+      case 'needsRepairs':
+        setRepairsSelection(value === 'true' ? 'right' : 'left');
+        setSelectedOptionLR(value === 'true' ? 'right' : 'left');
+        break;
+      case 'timelineMotivation':
+        setTimelineSelection(value === 'immediately' ? 'left' : 'right');
+        break;
+      default:
+        setSelectedOptionLR(value === 'true' ? 'left' : 'right');
     }
   };
   

@@ -98,12 +98,14 @@ const styles = {
   },
   button: {
     padding: '8px 16px',
-    background: '#2e7b7d',
+    background: 'linear-gradient(135deg, #09a5c8 0%, #236b6d 100%)',
     color: 'white',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '8px',
     cursor: 'pointer',
     fontSize: '14px',
+    boxShadow: '0 4px 12px rgba(0, 184, 230, 0.3)',
+    transition: 'all 0.3s ease',
   },
   statusBadge: {
     display: 'inline-block',
@@ -116,7 +118,8 @@ const styles = {
 
 // Status color mapping
 const statusColors = {
-  'New': { background: '#BBDEFB', color: '#0D47A1' },
+  'Unassigned': { background: '#09a5c8', color: 'white' },
+  'New': { background: '#09a5c8', color: 'white' }, // Legacy support - treat as Unassigned
   'Contacted': { background: '#C8E6C9', color: '#1B5E20' },
   'Qualified': { background: '#FFF9C4', color: '#F57F17' },
   'Appointment': { background: '#FFE0B2', color: '#E65100' },
@@ -169,7 +172,7 @@ const AdminDashboard = () => {
         
         const newLeadsQuery = query(
           collection(db, 'leads'),
-          where('status', '==', 'New')
+          where('status', '==', 'Unassigned')
         );
         const newLeadsSnapshot = await getDocs(newLeadsQuery);
         
@@ -208,12 +211,15 @@ const AdminDashboard = () => {
     return new Date(date).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
-      year: 'numeric'
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   };
 
   const renderStatusBadge = (status) => {
     const statusStyle = statusColors[status] || { background: '#e0e0e0', color: '#333' };
+    const displayStatus = status === 'New' ? 'Unassigned' : status;
     
     return (
       <span 
@@ -223,7 +229,7 @@ const AdminDashboard = () => {
           color: statusStyle.color 
         }}
       >
-        {status}
+        {displayStatus}
       </span>
     );
   };
@@ -259,7 +265,7 @@ const AdminDashboard = () => {
         
         const newLeadsQuery = query(
           collection(db, 'leads'),
-          where('status', '==', 'New')
+          where('status', '==', 'Unassigned')
         );
         const newLeadsSnapshot = await getDocs(newLeadsQuery);
         
@@ -318,7 +324,7 @@ const AdminDashboard = () => {
           <div style={styles.statValue} className="crm-dashboard-stat-value">{stats.totalLeads}</div>
         </div>
         <div style={styles.statBox} className="crm-dashboard-stat-box">
-          <div style={styles.statTitle} className="crm-dashboard-stat-title">New Leads</div>
+          <div style={styles.statTitle} className="crm-dashboard-stat-title">Unassigned Leads</div>
           <div style={styles.statValue} className="crm-dashboard-stat-value">{stats.newLeads}</div>
         </div>
         <div style={styles.statBox} className="crm-dashboard-stat-box">
@@ -401,7 +407,7 @@ const AdminDashboard = () => {
                   </td>
                   <td style={styles.tableCell} className="crm-dashboard-table-cell">{lead.phone || 'N/A'}</td>
                   <td style={styles.tableCell} className="crm-dashboard-table-cell">
-                    {renderStatusBadge(lead.status || 'New')}
+                    {renderStatusBadge(lead.status || 'Unassigned')}
                   </td>
                   <td style={styles.tableCell} className="crm-dashboard-table-cell">{formatDate(lead.createdAt)}</td>
                   <td style={styles.tableCell} className="crm-dashboard-table-cell">

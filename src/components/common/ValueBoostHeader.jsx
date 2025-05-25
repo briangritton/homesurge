@@ -1,15 +1,12 @@
 import React from 'react';
 import { BsTelephoneFill } from 'react-icons/bs';
+import logo from '../../../src/assets/images/logo.png';
 
 function ValueBoostHeader() {
   return (
     <header className="header">
       <div className="header-left">
-        <div className="valueboost-logo">
-          <div className="valueboost-text">
-            <span className="valueboost-brand">ValueBoost</span>
-          </div>
-        </div>
+        <img src={logo} className="header-logo" alt="HomeSurge.AI" />
       </div>
 
       <a href="tel:+17707657969">

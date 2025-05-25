@@ -1491,7 +1491,7 @@ function AddressForm() {
       <div className="af1-hero-middle-container hero-middle-container">
         <div className="af1-hero-content hero-content fade-in">
           <div className="af1-hero-headline hero-headline">
-            {formatText(formData.dynamicHeadline || "Need to Sell Your House For Cash Fast?")}
+            {formatText(formData.dynamicHeadline || "Need to Sell Your Home Extremely Fast?")}
           </div>
           <div className="af1-hero-subheadline hero-subheadline">
             {formatSubheadline(formData.dynamicSubHeadline || "Get a great cash offer today. Close in 7 days. No showings, no repairs, no stress")}

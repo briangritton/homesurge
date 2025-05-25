@@ -39,6 +39,7 @@ body {
   text-align: center;
   margin-bottom: 15px;
   display: block;
+  color: #236b6d;
 }
 
 
@@ -97,6 +98,7 @@ body {
 .header-logo {
   height: 40px;
   width: auto;
+  margin-left: -20px;
 }
 
 .header-phone-icon {
@@ -281,9 +283,10 @@ body {
 .hero-headline {
   font-size: 3rem;
   text-align: center;
-  /* line-height: 4rem; */
   font-weight: bold;
   padding-top: 50px;
+  color: #236b6d;
+  line-height: 1.2;
 }
  
 
@@ -291,9 +294,10 @@ body {
 
 
 .hero-subheadline {
-  font-size: 2rem;
-  line-height: 2.5rem;
+  font-size: 1.8rem;
+  line-height: 2.2rem;
   margin: 20px 0px;
+  color: #555;
 }
 
 /* Fix form field and button layout */
@@ -352,23 +356,45 @@ body {
 }
 
 .submit-button {
-  background-color: #2e7b7d;
-  border: 1px solid #236869;
-  border-radius: 5px;
-  box-shadow: 0 1px 4px #0000004d;
-  color: #fff;
+  background: linear-gradient(135deg, #09a5c8 0%, #236b6d 100%);
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 184, 230, 0.3);
+  color: white;
   flex-shrink: 0;
   font-size: 1.3rem;
   font-weight: 700;
   height: 64px;
   min-width: 100px;
   padding: 0 40px;
-  transition: background-color .3s;
+  transition: all 0.3s ease;
   white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
   }
 
 .submit-button:hover {
-  background-color: #35908f;
+  background: linear-gradient(135deg, #0099cc 0%, #1a5b5d 100%);
+  box-shadow: 0 12px 25px rgba(0, 184, 230, 0.4);
+}
+
+/* Flare effect for submit-button */
+.submit-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
+  transition: left 0.6s ease;
+  z-index: 1;
+}
+
+.submit-button:hover::before {
+  left: 100%;
 }
 
 .error-message {
@@ -411,7 +437,7 @@ body {
   text-align: center;
   margin-bottom: 25px;
   font-size: 2.2rem;
-  color: #333;
+  color: #236b6d;
   font-weight: bold;
 }
 
@@ -456,16 +482,22 @@ body {
 }
 
 .registration-button {
-  background-color: #2e7b7d;
-  border-color: #236869;
+  background: linear-gradient(135deg, #09a5c8 0%, #236b6d 100%);
+  border: none;
   color: white;
   font-weight: bold;
   width: 100%;
   text-align: center;
   font-size: 1.3rem;
   height: 60px;
-  border-radius: 5px;
+  border-radius: 12px;
   cursor: pointer !important;
+  box-shadow: 0 8px 20px rgba(0, 184, 230, 0.3);
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
   white-space: nowrap;
   padding: 0 50px;
   margin-top: 10px;
@@ -475,7 +507,25 @@ body {
 }
 
 .registration-button:hover {
-  background-color: #35908f;
+  background: linear-gradient(135deg, #0099cc 0%, #1a5b5d 100%);
+  box-shadow: 0 12px 25px rgba(0, 184, 230, 0.4);
+}
+
+/* Flare effect for registration-button */
+.registration-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
+  transition: left 0.6s ease;
+  z-index: 1;
+}
+
+.registration-button:hover::before {
+  left: 100%;
 }
 
 .phone-error-message {
@@ -494,6 +544,7 @@ body {
   text-align: center;
   margin-bottom: 15px;
   display: none; /* Hide the original headline */
+  color: #236b6d;
 }
 
 .simple-address-display {
@@ -520,17 +571,36 @@ body {
   flex-wrap: wrap;
 }
 
-.hero-middle-map-submit-button,
-.hero-middle-map-edit-button {
-  background-color: #2e7b7d;
+.hero-middle-map-submit-button {
+  background: linear-gradient(135deg, #09a5c8 0%, #236b6d 100%);
   color: white;
   font-weight: bold;
   text-align: center;
   font-size: 1.4rem;
   height: 60px;
-  border-radius: 5px;
+  border-radius: 12px;
   cursor: pointer;
-  border: 1px solid #236869;
+  border: none;
+  white-space: nowrap;
+  padding: 0 30px;
+  margin: 10px;
+  min-width: 200px;
+  box-shadow: 0 8px 20px rgba(0, 184, 230, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-middle-map-edit-button {
+  background-color: white;
+  color: #333;
+  font-weight: bold;
+  text-align: center;
+  font-size: 1.4rem;
+  height: 60px;
+  border-radius: 12px;
+  cursor: pointer;
+  border: 1px solid #ccc;
   white-space: nowrap;
   padding: 0 30px;
   margin: 10px;
@@ -546,7 +616,24 @@ body {
 }
 
 .hero-middle-map-submit-button:hover {
-  background-color: #35908f;
+  background: linear-gradient(135deg, #0bb5da 0%, #2a7a7d 100%);
+  box-shadow: 0 12px 30px rgba(0, 184, 230, 0.4);
+  transform: translateY(-2px);
+}
+
+.hero-middle-map-submit-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.hero-middle-map-submit-button:hover::before {
+  left: 100%;
 }
 
 .hero-middle-map-edit-button:hover {
@@ -591,6 +678,8 @@ body {
 .qualifying-headline {
   font-size: 2.5rem;
   font-weight: bold;
+  color: #236b6d;
+  text-align: center;
 }
 
 .qualifying-form-container {
@@ -624,50 +713,58 @@ body {
 }
 
 .qualifying-toggle-selected-left {
-  border-style: solid;
-  border-width: 1px;
-  border-color: #4e4e4e;
   font-size: 1.2rem;
-  color: #6d6d6d;
   height: 52px;
   display: flex;
   align-items: center;
   width: 150px;
   text-align: center;
-  align-items: center;
   justify-content: center;
-  background-color: #2e7b7d;
+  background: linear-gradient(135deg, #09a5c8 0%, #236b6d 100%);
   color: white;
-  border-style: solid;
-  border-color: #236869;
-  border-width: 1px;
-  border-radius: 5px 0px 0px 5px;
+  border: none;
+  border-radius: 12px 0px 0px 12px;
   cursor: pointer !important;
-  box-shadow: 0px 1px 4px 0px #0000004d;
+  box-shadow: 0 8px 20px rgba(0, 184, 230, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .qualifying-toggle-selected-right {
-  border-style: solid;
-  border-width: 1px;
-  border-color: #4e4e4e;
   font-size: 1.2rem;
-  color: #6d6d6d;
   height: 52px;
   display: flex;
   align-items: center;
   width: 150px;
   text-align: center;
-  align-items: center;
   justify-content: center;
-  background-color: #2e7b7d;
+  background: linear-gradient(135deg, #09a5c8 0%, #236b6d 100%);
   color: white;
-  border-style: solid;
-  border-color: #236869;
-  border-width: 1px;
-  border-radius: 0px 5px 5px 0px;
-  border-right: none;
+  border: none;
+  border-radius: 0px 12px 12px 0px;
   cursor: pointer !important;
-  box-shadow: 0px 1px 4px 0px #0000004d;
+  box-shadow: 0 8px 20px rgba(0, 184, 230, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.qualifying-toggle-selected-left::before,
+.qualifying-toggle-selected-right::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.qualifying-toggle-selected-left:hover::before,
+.qualifying-toggle-selected-right:hover::before {
+  left: 100%;
 }
 
 .qualifying-toggle-deselected-left {
@@ -678,15 +775,15 @@ body {
   align-items: center;
   width: 150px;
   text-align: center;
-  align-items: center;
   justify-content: center;
-  border-style: solid;
-  border-color: #a3a3a3;
-  border-width: 1px;
+  border: 1px solid #a3a3a3;
   background-color: white;
-  border-radius: 5px 0px 0px 5px;
+  border-radius: 12px 0px 0px 12px;
   border-right: none;
   cursor: pointer !important;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .qualifying-toggle-deselected-right {
@@ -697,15 +794,41 @@ body {
   align-items: center;
   width: 150px;
   text-align: center;
-  align-items: center;
   justify-content: center;
-  border-style: solid;
-  border-color: #a3a3a3;
-  border-width: 1px;
+  border: 1px solid #a3a3a3;
   background-color: white;
-  border-radius: 0px 5px 5px 0px;
+  border-radius: 0px 12px 12px 0px;
   border-left: none;
   cursor: pointer !important;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hover effects for deselected buttons - fade towards selected state */
+.qualifying-toggle-deselected-left:hover {
+  background: linear-gradient(135deg, rgba(9, 165, 200, 0.1) 0%, rgba(35, 107, 109, 0.1) 100%);
+  border-color: #09a5c8;
+  color: #09a5c8;
+  box-shadow: 0 4px 12px rgba(0, 184, 230, 0.2);
+}
+
+.qualifying-toggle-deselected-right:hover {
+  background: linear-gradient(135deg, rgba(9, 165, 200, 0.1) 0%, rgba(35, 107, 109, 0.1) 100%);
+  border-color: #09a5c8;
+  color: #09a5c8;
+  box-shadow: 0 4px 12px rgba(0, 184, 230, 0.2);
+}
+
+/* Hover effects for selected buttons - fade towards deselected state */
+.qualifying-toggle-selected-left:hover {
+  background: linear-gradient(135deg, rgba(9, 165, 200, 0.8) 0%, rgba(35, 107, 109, 0.8) 100%);
+  box-shadow: 0 4px 12px rgba(0, 184, 230, 0.2);
+}
+
+.qualifying-toggle-selected-right:hover {
+  background: linear-gradient(135deg, rgba(9, 165, 200, 0.8) 0%, rgba(35, 107, 109, 0.8) 100%);
+  box-shadow: 0 4px 12px rgba(0, 184, 230, 0.2);
 }
 
 .qualifying-slider-container {
@@ -741,10 +864,10 @@ body {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: #2e7b7d;
+  background: linear-gradient(135deg, #09a5c8 0%, #236b6d 100%);
   cursor: pointer;
   border-style: solid;
-  border-color: #236869;
+  border-color: #09a5c8;
   border-width: 1px;
   box-shadow: 0px 1px 4px 0px #0000004d;
 }
@@ -753,7 +876,7 @@ body {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: #2e7b7d;
+  background: linear-gradient(135deg, #09a5c8 0%, #236b6d 100%);
   cursor: pointer;
   border-style: solid;
   border-color: #236869;
@@ -782,27 +905,43 @@ body {
 .qualifying-button {
   color: white;
   font-weight: bold;
-  width: auto;
+  width: 300px;
   text-align: center;
   font-size: 1.2rem;
   height: 52px;
-  border-radius: 5px 5px 5px 5px;
+  border-radius: 12px;
   cursor: pointer !important;
-  border-style: solid;
-  border-width: 1px;
+  border: none;
   white-space: nowrap;
   padding: 0px 50px;
   margin-left: -3px;
-  background-color: #2e7b7d;
-  border-color: #236869;
-  box-shadow: 0px 1px 4px 0px #0000004d;
-  transition: all 0.2s ease-in-out;
-  width: 300px;
+  background: linear-gradient(135deg, #09a5c8 0%, #236b6d 100%);
+  box-shadow: 0 8px 20px rgba(0, 184, 230, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .qualifying-button:hover {
-  box-shadow: 0px 1px 4px 0px #00000088;
-  transition: all 0.2s ease-in-out;
+  background: linear-gradient(135deg, #0bb5da 0%, #2a7a7d 100%);
+  box-shadow: 0 12px 30px rgba(0, 184, 230, 0.4);
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}
+
+.qualifying-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.qualifying-button:hover::before {
+  left: 100%;
 }
 
 .dropdown {
@@ -892,6 +1031,7 @@ body {
   font-size: 2.8rem;
   line-height: 2.8rem;
   font-weight: bold;
+  color: #236b6d;
 }
 
 .thank-you-text {
@@ -1048,6 +1188,13 @@ body {
   font-size: 1.5rem;
   box-sizing: border-box;
   height: 50px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.v1-input-field:focus {
+  border-color: #09a5c8;
+  box-shadow: 0 0 0 2px rgba(9, 165, 200, 0.25);
+  outline: none;
 }
 
 .v1-input-container {
@@ -1070,16 +1217,41 @@ body {
 .v1-submit-button {
   width: 100%;
   padding: 14px;
-  background-color: #2e7d32;
-  background-color: #2e7b7d;
+  background: linear-gradient(135deg, #09a5c8 0%, #236b6d 100%);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 12px;
   font-size: 1.5rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s;
-  /* height: 50px; */
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(0, 184, 230, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+}
+
+.v1-submit-button:hover {
+  background: linear-gradient(135deg, #0099cc 0%, #1a5b5d 100%);
+  box-shadow: 0 12px 25px rgba(0, 184, 230, 0.4);
+}
+
+/* Flare effect for v1-submit-button */
+.v1-submit-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
+  transition: left 0.6s ease;
+  z-index: 1;
+}
+
+.v1-submit-button:hover::before {
+  left: 100%;
 }
 
 .v1-hero-middle-container {
@@ -1246,11 +1418,9 @@ body {
 
 
 .af1-hero-section .af1-hero-subheadline {
-    color: #444;
-    font-size: 1.4rem
-22.4px
-;
-    line-height: 1;
+    color: #555;
+    font-size: 1.4rem;
+    line-height: 1.2;
     margin-bottom: 15px;
     margin-top: 15px;
 }
@@ -1534,7 +1704,7 @@ font-size:1.8rem;
 
 
 .af1-hero-section .af1-hero-subheadline {
-    color: #444;
+    color: #555;
     font-size: 1.2rem;
     line-height: 1.2;
     margin-bottom: 15px;
@@ -1542,7 +1712,9 @@ font-size:1.8rem;
 }
 .af1-hero-section .af1-hero-headline {
         font-size: 1.7rem;
-        line-height:1;
+        line-height: 1.2;
+        color: #236b6d;
+        font-weight: bold;
     }
 
   .confirmation-header {
@@ -1873,8 +2045,7 @@ min-width:100%;
 button:focus, 
 input:focus, 
 select:focus {
-  outline: 2px solid #2e7b7d;
-  outline-offset: 2px;
+  outline: none;
 }
 
 /* Disable hover effects on mobile devices */
@@ -2036,9 +2207,127 @@ button:disabled,
 .form-title {
   text-align: center;
   margin-bottom: 30px;
-  color: #333;
+  color: #236b6d;
   font-size: 2rem;
+  font-weight: bold;
 } 
 
+/* Auto-flare animation for form and ValueBoost buttons */
+@keyframes autoFlare {
+  0%, 94% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Make sure buttons that need flare effect have position relative */
+.af1-submit-button,
+.submit-button,
+.v1-registration-button,
+.v1-submit-button,
+.qualifying-button,
+.vb-af1-submit-button,
+.vb-retry-submit-button,
+.vb-unlock-button,
+.vb-button-flare {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Auto-flare for AddressForm submit buttons */
+.af1-submit-button::after,
+.submit-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: autoFlare 10s infinite;
+  animation-delay: 2.5s;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.af1-submit-button:hover::after,
+.submit-button:hover::after {
+  animation: none;
+  left: 100%;
+  transition: left 0.5s;
+}
+
+/* Auto-flare for PersonalInfoForm buttons */
+.v1-registration-button::after,
+.v1-submit-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: autoFlare 10s infinite;
+  animation-delay: 2.5s;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.v1-registration-button:hover::after,
+.v1-submit-button:hover::after {
+  animation: none;
+  left: 100%;
+  transition: left 0.5s;
+}
+
+/* Auto-flare for QualifyingForm buttons */
+.qualifying-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: autoFlare 10s infinite;
+  animation-delay: 2.5s;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.qualifying-button:hover::after {
+  animation: none;
+  left: 100%;
+  transition: left 0.5s;
+}
+
+/* Auto-flare for ValueBoost buttons */
+.vb-af1-submit-button::after,
+.vb-retry-submit-button::after,
+.vb-unlock-button::after,
+.vb-button-flare::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: autoFlare 10s infinite;
+  animation-delay: 2.5s;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.vb-af1-submit-button:hover::after,
+.vb-retry-submit-button:hover::after,
+.vb-unlock-button:hover::after,
+.vb-button-flare:hover::after {
+  animation: none;
+  left: 100%;
+  transition: left 0.5s;
+}
 
  

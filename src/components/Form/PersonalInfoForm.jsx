@@ -859,7 +859,7 @@ function PersonalInfoForm() {
               className="v1-submit-button"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'PROCESSING...' : 'CONFIRM'}
+              {isSubmitting ? 'PROCESSING...' : 'GET OFFER'}
             </button>
             
             <p className="v1-privacy-text">

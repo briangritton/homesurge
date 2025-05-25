@@ -16,12 +16,61 @@ import Privacy from './components/common/Privacy';
 import ZohoTest from './components/ZohoTest';
 import SalesPage from './components/SalesPage';
 import ValueBoostContainer from './components/HomeSurge/ValueBoost/ValueBoostContainer';
-import DebugDisplay from './components/common/DebugDisplay';
+// import DebugDisplay from './components/common/DebugDisplay';
 import { CRMApp } from './components/CRM';
 
 // Styles
 import './styles/main.css';
 import './styles/crm.css';
+
+// Error boundary to catch and handle JavaScript errors
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('Form Error:', error, errorInfo);
+    // Track error in analytics
+    if (window.gtag) {
+      window.gtag('event', 'exception', {
+        description: error.toString(),
+        fatal: false
+      });
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="hero-section">
+          <div className="hero-middle-container">
+            <div className="hero-content">
+              <div className="hero-headline">
+                Get Your Cash Offer Today
+              </div>
+              <div className="hero-subheadline">
+                We're experiencing a temporary issue. Please call us directly at (770) 765-7969 for immediate assistance.
+              </div>
+              <div style={{ marginTop: '20px' }}>
+                <a href="tel:+17707657969" className="submit-button" style={{ textDecoration: 'none', display: 'inline-block' }}>
+                  Call Now: (770) 765-7969
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 // Simple container for viewing components in isolation during development
 const SimpleComponentViewer = ({ children }) => (
@@ -68,17 +117,22 @@ function FormContainer() {
   
   // Initialize analytics and dynamic content from URL params (only once)
   useEffect(() => {
-    // Initialize analytics
-    initializeAnalytics();
-    
-    // Initialize EmailJS for lead notifications
-    // This replaces the previous Firebase Extension email system
-    initEmailJS('afTroSYel0GQS1oMc'); // Public Key
-    
-    // Analytics already initialized above, no additional consent needed
-    
-    // Initialize dynamic content from URL parameters
-    initFromUrlParams();
+    try {
+      // Initialize analytics
+      initializeAnalytics();
+      
+      // Initialize EmailJS for lead notifications
+      // This replaces the previous Firebase Extension email system
+      initEmailJS('afTroSYel0GQS1oMc'); // Public Key
+      
+      // Analytics already initialized above, no additional consent needed
+      
+      // Initialize dynamic content from URL parameters
+      initFromUrlParams();
+    } catch (error) {
+      console.error('Failed to initialize services:', error);
+      // Continue loading the form even if analytics fails
+    }
     
     // Log that dynamic content has been initialized
     console.log('Dynamic content and campaign tracking initialized from URL parameters');
@@ -119,11 +173,13 @@ function FormContainer() {
   };
   
   return (
-    <div className="form-main">
-      <div className="form-inner-content">
-        {renderFormStep()}
+    <ErrorBoundary>
+      <div className="form-main">
+        <div className="form-inner-content">
+          {renderFormStep()}
+        </div>
       </div>
-    </div>
+    </ErrorBoundary>
   );
 }
 
@@ -149,6 +205,7 @@ function App() {
                 <AnalyticsTracker /> {/* Track all page views */}
                 <Routes>
                   <Route path="/" element={<FormContainer />} />
+                  <Route path="/sellfast" element={<FormContainer />} />
                   <Route path="/test-zoho" element={<ZohoTest />} />
                   <Route path="/privacy" element={<Privacy handleTermsClick={() => {}} />} />
                   <Route path="/thank-you" element={<ThankYou />} />

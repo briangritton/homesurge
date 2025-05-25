@@ -34,22 +34,32 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: '20px',
+    flexWrap: 'wrap',
+    gap: '15px',
   },
   searchContainer: {
     display: 'flex',
     gap: '10px',
+    flex: '0 1 auto',
+    minWidth: '0',
   },
   searchInput: {
     padding: '8px 12px',
     border: '1px solid #e0e0e0',
     borderRadius: '4px',
     fontSize: '14px',
-    width: '300px',
+    flex: '1',
+    minWidth: '0',
+    maxWidth: '100%',
+    height: '36px',
+    boxSizing: 'border-box',
   },
   filterContainer: {
     display: 'flex',
     gap: '10px',
     alignItems: 'center',
+    flexWrap: 'wrap',
+    flex: '0 1 auto',
   },
   select: {
     padding: '8px 12px',
@@ -86,22 +96,33 @@ const styles = {
   },
   button: {
     padding: '8px 16px',
-    background: '#2e7b7d',
+    background: 'linear-gradient(135deg, #09a5c8 0%, #236b6d 100%)',
     color: 'white',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '8px',
     cursor: 'pointer',
     fontSize: '14px',
+    boxShadow: '0 4px 12px rgba(0, 184, 230, 0.3)',
+    transition: 'all 0.3s ease',
+    height: '36px',
+    boxSizing: 'border-box',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   secondaryButton: {
     padding: '8px 16px',
-    background: 'white',
-    color: '#2e7b7d',
-    border: '1px solid #2e7b7d',
-    borderRadius: '4px',
+    background: 'linear-gradient(135deg, #09a5c8 0%, #236b6d 100%)',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
     cursor: 'pointer',
     fontSize: '14px',
     marginLeft: '10px',
+    transition: 'all 0.3s ease',
+    position: 'relative',
+    overflow: 'hidden',
+    boxShadow: '0 4px 12px rgba(0, 184, 230, 0.3)',
   },
   statusBadge: {
     display: 'inline-block',
@@ -133,9 +154,10 @@ const styles = {
     fontSize: '14px',
   },
   activePageButton: {
-    background: '#2e7b7d',
+    background: 'linear-gradient(135deg, #09a5c8 0%, #236b6d 100%)',
     color: 'white',
-    border: '1px solid #2e7b7d',
+    border: 'none',
+    boxShadow: '0 4px 12px rgba(0, 184, 230, 0.3)',
   },
   noResults: {
     textAlign: 'center',
@@ -146,7 +168,8 @@ const styles = {
 
 // Status color mapping
 const statusColors = {
-  'New': { background: '#B2DFDB', color: '#2e7b7d' },
+  'Unassigned': { background: '#09a5c8', color: 'white' },
+  'New': { background: '#09a5c8', color: 'white' }, // Legacy support - treat as Unassigned
   'Contacted': { background: '#C8E6C9', color: '#1B5E20' },
   'Qualified': { background: '#E0F2F1', color: '#00695C' },
   'Appointment': { background: '#E0F7FA', color: '#006064' },
@@ -263,12 +286,15 @@ const LeadList = ({ onSelectLead }) => {
     return new Date(date).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
-      year: 'numeric'
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   };
 
   const renderStatusBadge = (status) => {
     const statusStyle = statusColors[status] || { background: '#e0e0e0', color: '#333' };
+    const displayStatus = status === 'New' ? 'Unassigned' : status;
     
     return (
       <span 
@@ -278,7 +304,7 @@ const LeadList = ({ onSelectLead }) => {
           color: statusStyle.color 
         }}
       >
-        {status}
+        {displayStatus}
       </span>
     );
   };
@@ -328,7 +354,8 @@ const LeadList = ({ onSelectLead }) => {
             className="crm-lead-list-status-filter"
           >
             <option value="All">All Statuses</option>
-            <option value="New">New</option>
+            <option value="Unassigned">Unassigned</option>
+            <option value="New">New (Legacy)</option>
             <option value="Contacted">Contacted</option>
             <option value="Qualified">Qualified</option>
             <option value="Appointment">Appointment</option>
@@ -402,7 +429,7 @@ const LeadList = ({ onSelectLead }) => {
                   <td style={styles.tableCell} className="crm-lead-list-table-cell" data-label="Phone">{lead.phone || 'N/A'}</td>
                   <td style={styles.tableCell} className="crm-lead-list-table-cell" data-label="Email">{lead.email || 'N/A'}</td>
                   <td style={styles.tableCell} className="crm-lead-list-table-cell crm-lead-list-status-cell" data-label="Status">
-                    <div className="crm-lead-list-status-wrapper">{renderStatusBadge(lead.status || 'New')}</div>
+                    <div className="crm-lead-list-status-wrapper">{renderStatusBadge(lead.status || 'Unassigned')}</div>
                   </td>
                   <td style={styles.tableCell} className="crm-lead-list-table-cell" data-label="Created">{formatDate(lead.createdAt)}</td>
                   <td style={styles.tableCell} className="crm-lead-list-table-cell" data-label="Updated">{formatDate(lead.updatedAt)}</td>

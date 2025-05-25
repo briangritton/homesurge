@@ -204,7 +204,7 @@ export async function submitLeadToZoho(formData) {
       // Metadata and selection type
       addressSelectionType: formData.addressSelectionType || 'Manual',
       leadSource: formData.leadSource || 'Website',
-      leadStage: formData.leadStage || 'New'
+      leadStage: formData.leadStage || 'Unassigned'
     };
     
     // Only add qualifying fields if they have values set or have been interacted with

@@ -40,7 +40,7 @@ const initialFormState = {
   submissionError: null,
   
   // Traffic source information
-  dynamicHeadline: 'Need to Sell Your House For Cash Fast?',
+  dynamicHeadline: 'Need to Sell Your Home Extremely Fast?',
   dynamicSubHeadline: 'Get a great cash offer today. Close in 7 days. No showings, no repairs, no stress',
   thankYouHeadline: 'Request Completed!',
   thankYouSubHeadline: 'You\'ll be receiving your requested details at your contact number shortly, thank you!',
@@ -512,7 +512,7 @@ export function FormProvider({ children }) {
       // Template types
       "cash": {
         type: 'CASH',
-        headline: 'Need to Sell Your House For Cash Fast?',
+        headline: 'Need to Sell Your Home For Cash Fast?',
         subHeadline: 'Get a great cash offer today. Close in 7 days. No showings, no repairs, no stress',
         thankYouHeadline: 'Cash Offer Request Completed!',
         thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!',
@@ -539,7 +539,7 @@ export function FormProvider({ children }) {
     // Default content if no campaign matches
     const defaultContent = {
       type: 'DEFAULT',
-      headline: 'Need to Sell Your House For Cash Fast?',
+      headline: 'Need to Sell Your House Extremely Fast?',
       subHeadline: 'Get a great cash offer today. Close in 7 days. No showings, no repairs, no stress',
       buttonText: 'CHECK OFFER',
       thankYouHeadline: 'Request Completed!',

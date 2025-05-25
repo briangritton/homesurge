@@ -6,6 +6,7 @@ import LeadList from '../Admin/LeadList';
 import LeadDetail from '../Admin/LeadDetail';
 import SalesRepDashboard from '../SalesRep/Dashboard';
 import Login from './Login';
+import logo from '../../assets/images/logo.png';
 
 // CSS for the CRM app
 const styles = {
@@ -249,15 +250,15 @@ const CRMApp = () => {
   return (
     <div className="crm-container">
       <header className="crm-header">
-        <h1 className="crm-title">
-          HomeSurge.AI CRM {userRole === 'admin' ? '(Admin)' : '(Sales Rep)'}
-        </h1>
+        <img src={logo} alt="HomeSurge.AI" className="crm-logo" />
+        <span className="crm-title-text">
+          {userRole === 'admin' ? 'Admin' : 'Sales Rep'}
+        </span>
         <div className="crm-user-info">
           <div className="crm-avatar">
             {user.email ? user.email[0].toUpperCase() : 'U'}
           </div>
-          <span>{user.email}</span>
-          <button className="crm-header-button" onClick={handleLogout}>
+          <button className="crm-logout-button" onClick={handleLogout}>
             Logout
           </button>
         </div>
@@ -282,28 +283,24 @@ const CRMApp = () => {
             <button 
               onClick={handlePauseGoogleAds}
               disabled={googleAdsPaused || adsPauseLoading}
-              className="crm-nav-link crm-nav-item crm-pause-btn"
+              className={`crm-ads-pause-btn ${googleAdsPaused ? 'paused' : 'active'}`}
               style={{ 
-                backgroundColor: googleAdsPaused ? '#f8d7da' : '#e2f0d9',
-                color: googleAdsPaused ? '#721c24' : '#155724',
                 opacity: adsPauseLoading ? 0.7 : 1,
                 cursor: googleAdsPaused || adsPauseLoading ? 'not-allowed' : 'pointer'
               }}
             >
-              {googleAdsPaused ? 'Google Ads Paused' : 'Pause Google Ads'}
+              {googleAdsPaused ? 'Google Paused' : 'Pause Google'}
             </button>
             <button 
               onClick={handlePauseFacebookAds}
               disabled={facebookAdsPaused || adsPauseLoading}
-              className="crm-nav-link crm-nav-item crm-pause-btn"
+              className={`crm-ads-pause-btn ${facebookAdsPaused ? 'paused' : 'active'}`}
               style={{ 
-                backgroundColor: facebookAdsPaused ? '#f8d7da' : '#e2f0d9',
-                color: facebookAdsPaused ? '#721c24' : '#155724',
                 opacity: adsPauseLoading ? 0.7 : 1,
                 cursor: facebookAdsPaused || adsPauseLoading ? 'not-allowed' : 'pointer'
               }}
             >
-              {facebookAdsPaused ? 'Facebook Ads Paused' : 'Pause Facebook Ads'}
+              {facebookAdsPaused ? 'Facebook Paused' : 'Pause Facebook'}
             </button>
           </nav>
         )}

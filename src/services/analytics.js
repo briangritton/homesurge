@@ -14,36 +14,56 @@ const isDebug = process.env.NODE_ENV === 'development';
 
 // Initialize analytics services
 export function initializeAnalytics() {
-  if (isDebug) console.log('Analytics - Initializing with:', { GA_TRACKING_ID, GTM_ID });
+  try {
+    if (isDebug) console.log('Analytics - Initializing with:', { GA_TRACKING_ID, GTM_ID });
 
-  // Only initialize if IDs are provided
-  if (GA_TRACKING_ID) {
-    // Initialize Google Analytics 4
-    ReactGA.initialize(GA_TRACKING_ID);
-  } else if (isDebug) {
-    console.log('Analytics - GA4 initialization skipped: No tracking ID provided');
+    // Only initialize if IDs are provided
+    if (GA_TRACKING_ID) {
+      try {
+        // Initialize Google Analytics 4
+        ReactGA.initialize(GA_TRACKING_ID);
+      } catch (error) {
+        console.error('Analytics - Failed to initialize GA4:', error);
+      }
+    } else if (isDebug) {
+      console.log('Analytics - GA4 initialization skipped: No tracking ID provided');
+    }
+
+    if (GTM_ID) {
+      try {
+        // Initialize Google Tag Manager
+        const tagManagerArgs = {
+          gtmId: GTM_ID,
+          dataLayerName: 'dataLayer',
+          auth: '',
+          preview: ''
+        };
+        TagManager.initialize(tagManagerArgs);
+      } catch (error) {
+        console.error('Analytics - Failed to initialize GTM:', error);
+      }
+    } else if (isDebug) {
+      console.log('Analytics - GTM initialization skipped: No container ID provided');
+    }
+
+    // Initialize Facebook Pixel
+    try {
+      FacebookPixel.initializeFacebookPixel();
+    } catch (error) {
+      console.error('Analytics - Failed to initialize Facebook Pixel:', error);
+    }
+    
+    // No consent management needed
+
+    // Track initial page view
+    try {
+      trackPageView(window.location.pathname + window.location.search);
+    } catch (error) {
+      console.error('Analytics - Failed to track initial page view:', error);
+    }
+  } catch (error) {
+    console.error('Analytics - Critical initialization error:', error);
   }
-
-  if (GTM_ID) {
-    // Initialize Google Tag Manager
-    const tagManagerArgs = {
-      gtmId: GTM_ID,
-      dataLayerName: 'dataLayer',
-      auth: '',
-      preview: ''
-    };
-    TagManager.initialize(tagManagerArgs);
-  } else if (isDebug) {
-    console.log('Analytics - GTM initialization skipped: No container ID provided');
-  }
-
-  // Initialize Facebook Pixel
-  FacebookPixel.initializeFacebookPixel();
-  
-  // No consent management needed
-
-  // Track initial page view
-  trackPageView(window.location.pathname + window.location.search);
 
   if (isDebug) {
     console.log('Analytics - Initialization complete');

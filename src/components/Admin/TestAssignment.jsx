@@ -114,8 +114,8 @@ const TestAssignment = () => {
         state: 'GA',
         zip: '30301',
         leadSource: 'Assignment Test',
-        leadStage: 'New',
-        status: 'New',
+        leadStage: 'Unassigned',
+        status: 'Unassigned',
         assignedTo: null,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()

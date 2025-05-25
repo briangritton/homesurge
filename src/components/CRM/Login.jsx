@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import logo from '../../assets/images/logo.png';
 
 // CSS for the login page
 const styles = {
@@ -140,7 +141,8 @@ const Login = () => {
   return (
     <div className="crm-login-container">
       <div className="crm-form-container">
-        <h1 className="crm-login-title">HomeSurge.AI CRM</h1>
+        <img src={logo} alt="HomeSurge.AI" className="crm-logo" />
+        <h1 className="crm-login-title">CRM Login</h1>
         
         {error && <div className="crm-error-message">{error}</div>}
         

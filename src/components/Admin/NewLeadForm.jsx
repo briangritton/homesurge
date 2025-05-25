@@ -113,9 +113,9 @@ const NewLeadForm = ({ onClose, onLeadCreated }) => {
     city: '',
     state: '',
     zip: '',
-    status: 'New',
+    status: 'Unassigned',
     leadSource: 'Manual Entry',
-    leadStage: 'New'
+    leadStage: 'Unassigned'
   });
   
   const [error, setError] = useState('');
@@ -279,7 +279,7 @@ const NewLeadForm = ({ onClose, onLeadCreated }) => {
               onChange={handleChange}
               style={styles.select}
             >
-              <option value="New">New</option>
+              <option value="Unassigned">Unassigned</option>
               <option value="Contacted">Contacted</option>
               <option value="Qualified">Qualified</option>
               <option value="Appointment">Appointment</option>
