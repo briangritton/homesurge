@@ -22,7 +22,7 @@ export const sendLeadNotificationEmail = async (leadData, serviceId, templateId,
     // Prepare the template parameters
     // Create the CRM URL for the lead
     const leadId = leadData.id || leadData.leadId || ''; 
-    const baseUrl = window.location.origin || 'https://sellforcash.online';
+    const baseUrl = window.location.origin || 'https://homesurge.ai';
     const crmLink = leadId ? `${baseUrl}/crm?leadId=${leadId}` : `${baseUrl}/crm`;
     
     const templateParams = {

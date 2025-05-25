@@ -5,7 +5,7 @@ import { calculatePropertySpecificCost, calculatePropertySpecificROI } from './c
 import gradientArrow from '../../../assets/images/gradient-arrow.png';
 
 function ValueBoostReport() {
-  const { formData, updateFormData, updateLead } = useFormContext();
+  const { formData, updateFormData, updateLead, nextStep } = useFormContext();
   
   // TESTING TOGGLE: Comment/uncomment the lines below to enable/disable dummy data for step 3
   const ENABLE_DUMMY_DATA = false; // Set to true for testing
@@ -754,6 +754,34 @@ function ValueBoostReport() {
     });
   };
   
+  // Helper function to validate and clean phone numbers
+  const validateAndCleanPhone = (phone) => {
+    if (!phone || phone.trim() === '') {
+      return { isValid: false, cleaned: '', error: 'Please tell us where to text your ValueBoost report details. We respect your privacy - No spam ever' };
+    }
+
+    // Remove all non-digit characters
+    let cleanedPhone = phone.replace(/\D/g, '');
+    
+    // Handle common cases:
+    // 1. Leading +1 (e.g., +14804858488)
+    // 2. Leading 1 (e.g., 14804858488) 
+    // 3. Just 10 digits (e.g., 4804858488)
+    if (cleanedPhone.startsWith('1') && cleanedPhone.length === 11) {
+      // Remove leading 1 for US numbers
+      cleanedPhone = cleanedPhone.substring(1);
+    }
+    
+    // Check if we have exactly 10 digits after cleaning
+    if (cleanedPhone.length === 10) {
+      // Format as (XXX) XXX-XXXX for display
+      const formatted = `(${cleanedPhone.substring(0, 3)}) ${cleanedPhone.substring(3, 6)}-${cleanedPhone.substring(6)}`;
+      return { isValid: true, cleaned: cleanedPhone, formatted: formatted, error: null };
+    } else {
+      return { isValid: false, cleaned: cleanedPhone, error: 'Please enter a valid 10-digit phone number' };
+    }
+  };
+
   // Validate contact form fields
   const validateForm = () => {
     const errors = {};
@@ -762,10 +790,10 @@ function ValueBoostReport() {
       errors.name = 'Name is required';
     }
 
-    if (!contactInfo.phone || contactInfo.phone.trim() === '') {
-      errors.phone = 'Please tell us where to text your ValueBoost report details. We respect your privacy - No spam ever';
-    } else if (!/^\d{10}$|^\(\d{3}\)\s?\d{3}-\d{4}$|^\d{3}-\d{3}-\d{4}$/.test(contactInfo.phone.replace(/\D/g, ''))) {
-      errors.phone = 'Please enter a valid phone number';
+    // Validate phone number
+    const phoneValidation = validateAndCleanPhone(contactInfo.phone);
+    if (!phoneValidation.isValid) {
+      errors.phone = phoneValidation.error;
     }
 
     // Email is optional now
@@ -785,10 +813,14 @@ function ValueBoostReport() {
 
     setIsSubmitting(true);
 
+    // Clean the phone number before saving
+    const phoneValidation = validateAndCleanPhone(contactInfo.phone);
+    const cleanedPhone = phoneValidation.isValid ? phoneValidation.cleaned : contactInfo.phone;
+
     // Update form data with contact info
     updateFormData({
       name: contactInfo.name,
-      phone: contactInfo.phone,
+      phone: cleanedPhone,
       email: contactInfo.email,
       leadStage: 'ValueBoost Report Qualified'
     });
@@ -879,9 +911,8 @@ function ValueBoostReport() {
             {cleanAddress(testFormData.street) || '123 Main St'}
           </div>
 
-
           {/* Combined Value Boost Summary Box - only show if API provided a valid value */}
-          {testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0 ? (
+          {!!(testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) && (
           <div className="vb-value-boost-box">
             <h2 className="vb-box-headline">
               Your ValueBoost Potential:
@@ -1016,10 +1047,10 @@ function ValueBoostReport() {
               }
             `}</style>
           </div>
-          ) : null}
+          )}
 
           {/* Down arrow to guide user to recommendations */}
-          {testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0 && (
+          {!!(testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) && (
             <div style={{
               display: 'flex',
               justifyContent: 'center',
@@ -1221,9 +1252,14 @@ Highest impact AI generated opportunities for your home  </p>
                           return;
                         }
                         setIsSubmitting(true);
+                        
+                        // Clean the phone number before saving
+                        const phoneValidation = validateAndCleanPhone(contactInfo.phone);
+                        const cleanedPhone = phoneValidation.isValid ? phoneValidation.cleaned : contactInfo.phone;
+                        
                         updateFormData({
                           name: contactInfo.name,
-                          phone: contactInfo.phone,
+                          phone: cleanedPhone,
                           email: contactInfo.email || '',
                           leadStage: 'ValueBoost Report Qualified'
                         });
@@ -1232,6 +1268,15 @@ Highest impact AI generated opportunities for your home  </p>
                           setIsSubmitting(false);
                           setSubmitted(true);
                           setUnlocked(true);
+                          
+                          // Check if we have valid API data after unlocking
+                          if (!(testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0)) {
+                            // No valid API data - navigate to AddressRetry (step 4)
+                            console.log('No valid API data found - navigating to AddressRetry');
+                            updateFormData({ formStep: 4 }); // Go to step 4
+                            return;
+                          }
+                          
                           if (window.gtag) {
                             window.gtag('event', 'conversion', {
                               'send_to': 'AW-123456789/AbC-D_efG-h12345',

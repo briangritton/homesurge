@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useFormContext } from '../../../contexts/FormContext';
+import houseIcon from '../../../assets/images/house-icon.png';
 
 function AIProcessing() {
   const { formData, nextStep } = useFormContext();
@@ -336,12 +337,12 @@ function AIProcessing() {
             <div className="vb-ai-value-display">
               ValueBoost Estimate:
               <br />
-              {new Intl.NumberFormat('en-US', {
+              {animatedValue > 0 ? new Intl.NumberFormat('en-US', {
                 style: 'currency',
                 currency: 'USD',
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0
-              }).format(animatedValue)}
+              }).format(animatedValue) : 'Pending'}
             </div>
             
             <div className="vb-ai-value-boost">
@@ -425,6 +426,15 @@ function AIProcessing() {
               </>
             )}
 
+
+            {/* Central pulsing house icon */}
+            <div className="vb-ai-house-icon-container">
+              <img 
+                src={houseIcon} 
+                alt="AI analyzing house" 
+                className="vb-ai-house-icon"
+              />
+            </div>
 
             {/* Swirling orbs - different sizes and speeds */}
             {[

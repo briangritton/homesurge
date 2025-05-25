@@ -483,7 +483,7 @@ function PersonalInfoForm() {
                 
                 // Add your recipients here
                 const additionalRecipients = [
-                  "uh5nkfdqcz161r35e6uy55j295to5y" // Spencer user keys here
+                  // "uh5nkfdqcz161r35e6uy55j295to5y" // Spencer user keys here - COMMENTED OUT
                   // Add more recipients here - each on a new line
                   // "ufrb12nxavarvmx4vuct15ibz2augo",  // Allison user keys here
                   // "uh5nkfdqcz161r35e6uy55j295teee"   // DUMMY USER KEYS
@@ -544,10 +544,10 @@ function PersonalInfoForm() {
                 // Uncomment and customize these templates as needed
                  
                 additionalTemplates = [
-                  {
-                    serviceId: 'service_zeuf0n8', // Same or different service ID
-                    templateId: 'template_85tw59u' // Secondary template ID
-                  }
+                  // {
+                  //   serviceId: 'service_zeuf0n8', // Same or different service ID
+                  //   templateId: 'template_85tw59u' // Secondary template ID - COMMENTED OUT
+                  // }
                   // Add more templates here - each as a new object in the array
                   // {
                   //   serviceId: 'service_zeuf0n8',

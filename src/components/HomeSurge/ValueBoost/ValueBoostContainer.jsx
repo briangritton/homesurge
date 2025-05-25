@@ -3,6 +3,7 @@ import { FormProvider, useFormContext } from '../../../contexts/FormContext';
 import AddressForm from './AddressForm';
 import AIProcessing from './AIProcessing';
 import ValueBoostReport from './ValueBoostReport';
+import AddressRetry from './AddressRetry';
 
 // Import custom styles for ValueBoost funnel
 import '../../../styles/valueboost.css';
@@ -31,6 +32,8 @@ function ValueBoostFunnel() {
         return <AIProcessing />;
       case 3:
         return <ValueBoostReport />;
+      case 4:
+        return <AddressRetry />;
       default:
         return <AddressForm />;
     }
