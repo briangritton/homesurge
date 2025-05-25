@@ -6,7 +6,7 @@ import { initEmailJS } from './services/emailjs.js';
 
 // Components
 import Header from './components/common/Header';
-import ValueBoostHeader from './components/common/ValueBoostHeader';
+import ValueBoostHeader from './components/common/ValueBoostHeader.jsx';
 import Footer from './components/common/Footer';
 import AddressForm from './components/Form/AddressForm.jsx';
 import PersonalInfoForm from './components/Form/PersonalInfoForm.jsx';

@@ -689,9 +689,10 @@ export async function createSuggestionLead(partialAddress, suggestions, contactI
       leadStage: 'Address Typing',
       addressSelectionType: 'Partial',
       
-      // Use provided name/phone from contactInfo if available, otherwise defaults
+      // Use provided name/phone/email from contactInfo if available, otherwise defaults
       name: contactInfo?.name || 'Property Lead',
       phone: contactInfo?.phone || '',
+      email: contactInfo?.email || '',
       autoFilledName: contactInfo?.autoFilledName || contactInfo?.name || '',
       autoFilledPhone: contactInfo?.autoFilledPhone || contactInfo?.phone || '',
       
@@ -755,7 +756,7 @@ export async function createSuggestionLead(partialAddress, suggestions, contactI
       // Create new lead
       console.log(`Creating new suggestion lead with partial address: "${partialAddress}"`);
       preparedData.createdAt = serverTimestamp();
-      preparedData.status = 'Unassigned';
+      preparedData.status = 'New';
       preparedData.assignedTo = null;
       preparedData.conversions = [];
       

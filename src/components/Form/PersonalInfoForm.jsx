@@ -378,31 +378,74 @@ function PersonalInfoForm() {
       
       const existingLeadId = localStorage.getItem('suggestionLeadId') || localStorage.getItem('leadId');
       
-      let contactUpdateSuccess = true;
-      if (existingLeadId) {
-        console.log("DIRECT CONTACT UPDATE FOR LEADID:", existingLeadId);
-        contactUpdateSuccess = await updateContactInfo(existingLeadId, cleanName, cleanPhone, formData.email || '')
-          .catch(err => {
-            console.warn('Contact update failed, but continuing:', err.message);
-            return false;
-          });
-      }
+      // Debug logging to identify Firebase issue
+      console.log('🔍 LEAD DEBUG:', {
+        existingLeadId: localStorage.getItem('suggestionLeadId'),
+        leadId: localStorage.getItem('leadId'),
+        formDataKeys: Object.keys(formData),
+        undefinedFields: Object.entries(formData).filter(([k,v]) => v === undefined)
+      });
       
+      // Critical contact info submission with timeout approach
+      let contactUpdateSuccess = true;
       let submitSuccess = false;
+      
       try {
-        submitSuccess = await submitLead();
-      } catch (submitError) {
-        console.warn('Lead submission error, but continuing:', submitError.message);
-        if (!submitSuccess) {
-          console.log('Using fallback storage for lead data');
+        // Create timeout promise for Firebase operations (3 seconds max)
+        const timeoutPromise = new Promise(resolve => 
+          setTimeout(() => {
+            console.log('⏰ Firebase timeout reached - proceeding anyway to prevent user blocking');
+            resolve({ timedOut: true });
+          }, 3000)
+        );
+        
+        // Attempt Firebase operations with timeout
+        if (existingLeadId) {
+          console.log("DIRECT CONTACT UPDATE FOR LEADID:", existingLeadId);
+          
+          const contactUpdatePromise = updateContactInfo(existingLeadId, cleanName, cleanPhone, formData.email || '')
+            .then(result => ({ contactUpdateSuccess: result }))
+            .catch(err => {
+              console.warn('Contact update failed:', err.message);
+              return { contactUpdateSuccess: false };
+            });
+          
+          const contactResult = await Promise.race([contactUpdatePromise, timeoutPromise]);
+          contactUpdateSuccess = contactResult.contactUpdateSuccess !== false;
+        }
+        
+        // Submit lead with timeout
+        const submitPromise = submitLead()
+          .then(result => ({ submitSuccess: result }))
+          .catch(err => {
+            console.warn('Lead submission error:', err.message);
+            return { submitSuccess: false };
+          });
+        
+        const submitResult = await Promise.race([submitPromise, timeoutPromise]);
+        submitSuccess = submitResult.submitSuccess !== false;
+        
+        // Fallback storage if both operations failed or timed out
+        if (!contactUpdateSuccess && !submitSuccess) {
+          console.log('Using fallback storage for lead data due to Firebase issues');
           localStorage.setItem('offlineLeadData', JSON.stringify({
             name: cleanName,
             phone: cleanPhone,
             address: formData.street,
             timestamp: new Date().toISOString()
           }));
-          submitSuccess = true;
+          submitSuccess = true; // Allow progression
         }
+      } catch (error) {
+        console.error('Critical error in contact submission:', error);
+        // Store in fallback and allow progression
+        localStorage.setItem('offlineLeadData', JSON.stringify({
+          name: cleanName,
+          phone: cleanPhone,
+          address: formData.street,
+          timestamp: new Date().toISOString()
+        }));
+        submitSuccess = true;
       }
       
       if (submitSuccess || contactUpdateSuccess) {

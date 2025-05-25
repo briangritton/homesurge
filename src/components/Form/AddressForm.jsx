@@ -684,11 +684,19 @@ function AddressForm() {
         leadId = existingLeadId;
         console.log('Updated lead with final selection in Firebase:', leadId);
       } else {
-        // Create a new lead with address, name and phone
+        // Create a new lead with address, name and phone (including autofilled values)
         const contactInfo = {
-          name: formData.name || '',
-          phone: formData.phone || ''
+          name: formData.name || formData.autoFilledName || 'Property Lead',
+          phone: formData.phone || formData.autoFilledPhone || ''
         };
+        
+        console.log('🔍 ContactInfo being sent to Firebase:', contactInfo);
+        console.log('🔍 FormData values:', {
+          name: formData.name,
+          autoFilledName: formData.autoFilledName,
+          phone: formData.phone,
+          autoFilledPhone: formData.autoFilledPhone
+        });
         
         // Pass the full formData object to ensure campaign data is captured in the initial lead creation
         leadId = await createSuggestionLead(place.formatted_address, [], contactInfo, addressComponents, formData);
@@ -718,6 +726,75 @@ function AddressForm() {
     return true; // Return success immediately without waiting for API
   };
   
+  // Non-blocking version of address selection processing  
+  const processAddressSelectionNonBlocking = (place) => {
+    // This runs all the same logic as processAddressSelection but without blocking awaits
+    console.log('🔄 Processing address selection in background (non-blocking)');
+    
+    // Run the original processAddressSelection without awaiting
+    processAddressSelection(place)
+      .then(() => {
+        console.log('✅ Background address selection processing completed');
+      })
+      .catch(error => {
+        console.error('❌ Background address selection failed:', error);
+        // Don't block user flow on Firebase errors
+      });
+  };
+
+  // Process address selection in background - prioritize for property valuation
+  const processAddressInBackground = async (suggestion) => {
+    try {
+      console.log('🔄 Starting background address processing for:', suggestion.description);
+      
+      // Step 1: Get Google Places details (with existing 3-second timeout)
+      const placeDetails = await getPlaceDetails(suggestion.place_id);
+      
+      if (placeDetails && placeDetails.formatted_address) {
+        console.log('✅ Got enhanced address details:', placeDetails.formatted_address);
+        
+        // Update form data with enhanced address for better property API results
+        updateFormData({
+          street: placeDetails.formatted_address,
+          selectedSuggestionAddress: placeDetails.formatted_address,
+          userTypedAddress: lastTypedAddress,
+          addressSelectionType: 'ButtonClick'
+        });
+        
+        // Update the input field with enhanced address
+        if (inputRef.current) {
+          inputRef.current.value = placeDetails.formatted_address;
+        }
+        
+        // Step 2: Process address selection (Firebase + Property APIs) - non-blocking
+        processAddressSelectionNonBlocking(placeDetails);
+      } else {
+        console.log('⚠️ Google Places failed, proceeding with basic address');
+        
+        // Fallback: Process with basic suggestion data
+        const fallbackPlace = {
+          formatted_address: suggestion.description,
+          address_components: []
+        };
+        
+        processAddressSelectionNonBlocking(fallbackPlace);
+      }
+    } catch (error) {
+      console.error('❌ Background address processing failed:', error);
+      
+      // Fallback: Still try to process with basic data
+      try {
+        const fallbackPlace = {
+          formatted_address: suggestion.description,
+          address_components: []
+        };
+        processAddressSelectionNonBlocking(fallbackPlace);
+      } catch (fallbackError) {
+        console.error('❌ Fallback address processing also failed:', fallbackError);
+      }
+    }
+  };
+
   // Lookup phone numbers in background without blocking the UI
   const lookupPhoneNumbersInBackground = (address, leadId, addressComponents) => {
     // Start the phone number lookup in background
@@ -940,41 +1017,23 @@ function AddressForm() {
       if (firstSuggestion && firstSuggestion.place_id) {
         console.log('Using first suggestion:', firstSuggestion.description);
         
-        try {
-          // Get the place details
-          const placeDetails = await getPlaceDetails(firstSuggestion.place_id);
-          
-          // Now we have full place details
-          if (placeDetails && placeDetails.formatted_address) {
-            console.log('Got full place details:', placeDetails.formatted_address);
-            
-            // Update the value in the input field
-            if (inputRef.current) {
-              inputRef.current.value = placeDetails.formatted_address;
-            }
-            
-            // Update form data with full address
-            updateFormData({
-              street: placeDetails.formatted_address,
-              selectedSuggestionAddress: placeDetails.formatted_address,
-              userTypedAddress: lastTypedAddress,
-              addressSelectionType: 'EnterKey'
-            });
-            
-            // Process the selected address - no await
-            processAddressSelection(placeDetails);
-            
-            // Proceed to next step immediately
-            nextStep();
-            
-            // Reset loading state after navigation
-            setIsLoading(false);
-            
-            return;
-          }
-        } catch (error) {
-          console.error('Error getting place details:', error);
-        }
+        // Update form data immediately with suggestion description
+        updateFormData({
+          street: firstSuggestion.description,
+          selectedSuggestionAddress: firstSuggestion.description,
+          userTypedAddress: lastTypedAddress,
+          addressSelectionType: 'EnterKey'
+        });
+        
+        // Proceed to next step immediately - don't wait for APIs
+        trackFormStepComplete(1, 'Address Form Completed (Enter Key)', formData);
+        nextStep();
+        setIsLoading(false);
+        
+        // Start background API processing - prioritize for property valuation
+        processAddressInBackground(firstSuggestion);
+        
+        return;
       }
       
       // If address text is reasonable length, allow form to proceed anyway
@@ -1033,62 +1092,69 @@ function AddressForm() {
       if (firstSuggestion && firstSuggestion.place_id) {
         console.log('Using first suggestion:', firstSuggestion.description);
         
-        try {
-          // Get the place details
-          const placeDetails = await getPlaceDetails(firstSuggestion.place_id);
-          
-          // Now we have full place details
-          if (placeDetails && placeDetails.formatted_address) {
-            console.log('Got full place details:', placeDetails.formatted_address);
-            
-            // Update the value in the input field
-            if (inputRef.current) {
-              inputRef.current.value = placeDetails.formatted_address;
-            }
-            
-            // Update form data with full address
-            updateFormData({
-              street: placeDetails.formatted_address,
-              selectedSuggestionAddress: placeDetails.formatted_address,
-              userTypedAddress: lastTypedAddress,
-              addressSelectionType: 'ButtonClick'
-            });
-            
-            // Process the selected address - no await
-            processAddressSelection(placeDetails);
-            
-            // Proceed to next step immediately
-            nextStep();
-            
-            // Reset loading state after navigation
-            setIsLoading(false);
-            
-            return;
-          }
-        } catch (error) {
-          console.error('Error getting place details:', error);
-        }
+        // Update form data immediately with suggestion description
+        updateFormData({
+          street: firstSuggestion.description,
+          selectedSuggestionAddress: firstSuggestion.description,
+          userTypedAddress: lastTypedAddress,
+          addressSelectionType: 'ButtonClick'
+        });
+        
+        // Proceed to next step immediately - don't wait for APIs
+        trackFormStepComplete(1, 'Address Form Completed (Google Suggestion)', formData);
+        nextStep();
+        setIsLoading(false);
+        
+        // Start background API processing - prioritize for property valuation
+        processAddressInBackground(firstSuggestion);
+        
+        return;
       }
       
       // If no suggestion and address validation passes, proceed with what we have
       if (validateAddress(formData.street)) {
         console.log('No suggestion available, but address validates');
         
-        // Start API call in background
-        const addressComponents = {
-          city: '',
-          state: 'GA',
-          zip: ''
-        };
-        const leadId = localStorage.getItem('leadId') || suggestionLeadId;
-        if (leadId) {
-          fetchPropertyDataInBackground(formData.street, leadId, addressComponents);
-        }
-        
-        // Track and proceed
+        // Track and proceed immediately (Option B behavior)
         trackFormStepComplete(1, 'Address Form Completed (Manual)', formData);
         nextStep();
         setIsLoading(false);
+        
+        // Create lead in background for manual address - this should ALWAYS happen
+        (async () => {
+          try {
+            const addressComponents = {
+              city: '',
+              state: 'GA',
+              zip: ''
+            };
+            
+            let leadId = localStorage.getItem('leadId') || suggestionLeadId;
+            
+            if (!leadId) {
+              console.log('Creating lead for manual address with autofilled contact info:', {
+                address: formData.street,
+                name: formData.name || formData.autoFilledName || '',
+                phone: formData.phone || formData.autoFilledPhone || '',
+                nameWasAutofilled: formData.nameWasAutofilled
+              });
+              
+              // Create a fallback place object for manual addresses (same structure as processAddressSelection)
+              const manualPlace = {
+                formatted_address: formData.street,
+                address_components: []
+              };
+              
+              // Use the same processAddressSelection logic but non-blocking
+              processAddressSelectionNonBlocking(manualPlace);
+            } else {
+              // If lead exists, just start property data fetch
+              fetchPropertyDataInBackground(formData.street, leadId, addressComponents);
+            }
+          } catch (error) {
+            console.error('Background lead creation for manual address failed:', error);
+          }
+        })();
       } else {
         // Address doesn't validate
         setErrorMessage('Please enter a valid address to check your cash offer');
