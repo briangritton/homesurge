@@ -36,7 +36,7 @@ function Benefits({ isOpen, onClose }) {
         </div>
         
         <p className="summary-text">
-          Choosing Sell For Cash Online means selling your house fast and
+          Choosing HomeSurge.AI means getting accurate AI-powered valuations and selling your house fast
           for a great price, without the hassle.
         </p>
       </div>

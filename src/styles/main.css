@@ -95,7 +95,8 @@ body {
   }
 
 .header-logo {
-  height: 20px;
+  height: 40px;
+  width: auto;
 }
 
 .header-phone-icon {

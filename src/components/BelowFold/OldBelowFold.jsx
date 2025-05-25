@@ -59,7 +59,7 @@ function OldBelowFold() {
             </div>
           </div>
           <div className="old-hero-1-below-fold-summary-text">
-            At Sell For Cash Online we want to take the stress out of selling.
+            At HomeSurge.AI we want to take the stress out of selling with AI-powered accuracy.
           </div>
         </div>
       </div>
@@ -72,29 +72,29 @@ function OldBelowFold() {
             <img
               className="old-hero-1-below-fold-about-us-left-image"
               src={homecollage}
-              alt="Sell For Cash Online About Us"
+              alt="HomeSurge.AI About Us"
               loading="lazy"
             />
             <img
               className="old-hero-1-below-fold-about-us-left-image-mobile"
               src={homecollagewide}
-              alt="Sell For Cash Online About Us"
+              alt="HomeSurge.AI About Us"
               loading="lazy"
             />
 
             <div className="old-hero-1-below-fold-about-us-right">
               <div className="old-hero-1-below-fold-about-us-right-text">
-                At Sell For Cash Online, we've simplified and streamlined the
-                home selling process. No more realtor meetings, repairs,
+                At HomeSurge.AI, we've revolutionized the home selling process with
+                AI-powered property valuations and instant cash offers. No more realtor meetings, repairs,
                 endless costs, or complicated closings. We pride ourselves in
-                providing great cash offers to anyone looking to get out of
+                providing accurate market valuations and competitive cash offers to anyone looking to get out of
                 their house as quickly or as easily as possible. No matter
                 what condition your house is in or what your timeline is, we
                 can help! Give us a call or fill out the form below to receive
-                your cash offer now.<br></br>
-                <br></br>Sell For Cash Online is a family run business that
+                your AI-powered cash offer now.<br></br>
+                <br></br>HomeSurge.AI is a technology-driven real estate company that
                 started in Atlanta, GA, and has expanded nationwide. Our
-                absolute priority is giving our clients an excellent home
+                absolute priority is giving our clients accurate AI-powered valuations and an excellent home
                 selling experience, no matter the timeline or condition of the
                 home. Reach out to us, we'd love to help in any way we can!{" "}
               </div>
@@ -106,7 +106,7 @@ function OldBelowFold() {
       <div className="old-hero-1-full-width-border" id="benefits">
         <div className="old-hero-1-below-fold-benefits-container">
           <div className="old-hero-1-below-fold-benefits-headline">
-            Benefits of Working With Sell For Cash Online
+            Benefits of Working With HomeSurge.AI
           </div>
           <div className="old-hero-1-below-fold-benefits-points-grid">
             <div className="old-hero-1-below-fold-benefits-individual-point">
@@ -156,8 +156,8 @@ function OldBelowFold() {
             </div>
           </div>
           <div className="old-hero-1-below-fold-summary-text">
-            Choosing Sell For Cash Online means selling your house fast and
-            and for a great price, without the hassle.
+            Choosing HomeSurge.AI means getting accurate AI-powered valuations and selling your house fast
+            for a great price, without the hassle.
           </div>
         </div>
       </div>

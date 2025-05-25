@@ -250,7 +250,7 @@ const CRMApp = () => {
     <div className="crm-container">
       <header className="crm-header">
         <h1 className="crm-title">
-          SellForCash CRM {userRole === 'admin' ? '(Admin)' : '(Sales Rep)'}
+          HomeSurge.AI CRM {userRole === 'admin' ? '(Admin)' : '(Sales Rep)'}
         </h1>
         <div className="crm-user-info">
           <div className="crm-avatar">
@@ -331,7 +331,7 @@ const CRMApp = () => {
       </div>
       
       <footer className="crm-footer">
-        © {new Date().getFullYear()} SellForCash CRM | Firebase Edition
+        © {new Date().getFullYear()} HomeSurge.AI CRM | Firebase Edition
       </footer>
     </div>
   );

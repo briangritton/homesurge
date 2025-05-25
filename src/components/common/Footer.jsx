@@ -27,7 +27,7 @@ function Footer() {
   return (
     <div className="footer">
       {/* <div className="footer-copyright">
-        All Rights Reserved © {new Date().getFullYear()} SellForCash.Online
+        All Rights Reserved © {new Date().getFullYear()} HomeSurge.AI
       </div> */}
 
       <div className="footer-nav-container">

@@ -140,7 +140,7 @@ const Login = () => {
   return (
     <div className="crm-login-container">
       <div className="crm-form-container">
-        <h1 className="crm-login-title">SellForCash CRM</h1>
+        <h1 className="crm-login-title">HomeSurge.AI CRM</h1>
         
         {error && <div className="crm-error-message">{error}</div>}
         

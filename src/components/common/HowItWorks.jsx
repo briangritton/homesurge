@@ -9,19 +9,18 @@ function HowItWorks({ isOpen, onClose }) {
           <span className="step-number">1.</span>
           <span className="step-title">Enter Your Address</span>
           <p>
-            Enter your address in the form to get started. We'll ask you a
-            few questions about your house. If you're ready to move
-            forward, we'll schedule an appointment to see your home in
-            person.
+            Enter your address in the form to get started. Our AI instantly analyzes
+            your property and provides an accurate market valuation. We'll ask you a
+            few questions about your house to refine your offer.
           </p>
         </div>
         
         <div className="how-it-works-step">
           <span className="step-number">2.</span>
-          <span className="step-title">Get Your Offer</span>
+          <span className="step-title">Get Your AI-Powered Offer</span>
           <p>
-            We'll make you a cash offer for your house "as is" within 24
-            hours. If you accept the offer, we'll set up a closing to
+            Receive your AI-generated cash offer instantly, refined by our
+            expert team within 24 hours. If you accept the offer, we'll set up a closing to
             complete the transaction. It's that easy!
           </p>
         </div>
@@ -37,7 +36,7 @@ function HowItWorks({ isOpen, onClose }) {
         </div>
         
         <p className="summary-text">
-          At Sell For Cash Online we want to take the stress out of selling.
+          At HomeSurge.AI we want to take the stress out of selling with AI-powered accuracy.
         </p>
       </div>
     </Popup>
