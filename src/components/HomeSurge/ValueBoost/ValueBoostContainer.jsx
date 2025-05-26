@@ -1,5 +1,7 @@
-import React from 'react';
+import { useEffect } from 'react';
 import { FormProvider, useFormContext } from '../../../contexts/FormContext';
+import { initializeAnalytics } from '../../../services/analytics';
+import { initEmailJS } from '../../../services/emailjs.js';
 import AddressForm from './AddressForm';
 import AIProcessing from './AIProcessing';
 import ValueBoostReport from './ValueBoostReport';
@@ -18,7 +20,28 @@ function ValueBoostContainer() {
 }
 
 function ValueBoostFunnel() {
-  const { formData } = useFormContext();
+  const { formData, initFromUrlParams } = useFormContext();
+
+  // Initialize analytics and dynamic content from URL params (only once) - COPIED FROM MAIN FORM
+  useEffect(() => {
+    try {
+      // Initialize analytics
+      initializeAnalytics();
+      
+      // Initialize EmailJS for lead notifications
+      initEmailJS('afTroSYel0GQS1oMc'); // Public Key
+      
+      // Initialize dynamic content from URL parameters
+      initFromUrlParams();
+    } catch (error) {
+      console.error('Failed to initialize services:', error);
+      // Continue loading the form even if analytics fails
+    }
+    
+    console.log('ValueBoost: Dynamic content and campaign tracking initialized from URL parameters');
+    
+    // No dependencies - only run once on mount
+  }, []);
 
   // Get the current step from form context
   const renderStep = () => {

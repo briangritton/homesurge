@@ -691,6 +691,9 @@ function AddressForm() {
           phone: formData.phone,
           autoFilledPhone: formData.autoFilledPhone
         });
+        console.log('🔍 AddressComponents being sent to Firebase:', addressComponents);
+        console.log('🔍 Place.formatted_address being sent to Firebase:', place.formatted_address);
+        console.log('🔍 FormData being sent to Firebase:', formData);
         
         // Pass the full formData object to ensure campaign data is captured in the initial lead creation - COPIED FROM MAIN FORM
         leadId = await createSuggestionLead(place.formatted_address, [], contactInfo, addressComponents, formData);
@@ -1715,4 +1718,4 @@ function AddressForm() {
   );
 }
 
-export default AddressForm;
+export default AddressForm; 
