@@ -734,12 +734,12 @@ export async function createSuggestionLead(partialAddress, suggestions, contactI
       keyword: preparedData.keyword
     });
     
-    // Only add address components if explicitly provided and this is a final selection
-    if (addressComponents && addressComponents.city) {
-      preparedData.city = addressComponents.city;
+    // Add address components if explicitly provided - always set street if partialAddress is available
+    if (addressComponents) {
+      preparedData.city = addressComponents.city || '';
       preparedData.state = addressComponents.state || 'GA';
       preparedData.zip = addressComponents.zip || '';
-      preparedData.street = partialAddress; // Only set street if we have other components
+      preparedData.street = partialAddress; // Always set street when addressComponents is provided
       preparedData.leadStage = 'Address Selected'; // Update the stage
     }
     
@@ -775,8 +775,8 @@ export async function createSuggestionLead(partialAddress, suggestions, contactI
     }
   } catch (error) {
     console.error("Error in suggestion lead operation:", error.message);
-    // Return the existing leadId if there was an error, to maintain continuity
-    return contactInfo?.leadId || null;
+    // Return null if there was an error - the calling code should handle gracefully
+    return null;
   }
 }
 

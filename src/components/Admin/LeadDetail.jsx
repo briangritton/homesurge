@@ -1196,6 +1196,47 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
                 ))}
               </div>
               
+              {/* AI Home Report Section */}
+              {lead.aiHomeReport && (
+                <>
+                  <h3 style={styles.sectionTitle}>AI Home Enhancement Report</h3>
+                  <div style={{
+                    ...styles.section,
+                    background: '#f8faff',
+                    border: '1px solid #e0e8f0',
+                    borderRadius: '8px',
+                    padding: '15px',
+                    marginBottom: '20px'
+                  }}>
+                    <div style={{
+                      fontSize: '12px',
+                      color: '#666',
+                      marginBottom: '10px',
+                      fontStyle: 'italic'
+                    }}>
+                      Generated on: {lead.aiReportGeneratedAt 
+                        ? formatDate(new Date(lead.aiReportGeneratedAt))
+                        : 'Unknown date'}
+                    </div>
+                    <div style={{
+                      whiteSpace: 'pre-wrap',
+                      fontFamily: 'Consolas, Monaco, "Courier New", monospace',
+                      fontSize: '13px',
+                      lineHeight: '1.6',
+                      color: '#333',
+                      background: 'white',
+                      padding: '15px',
+                      borderRadius: '4px',
+                      border: '1px solid #ddd',
+                      maxHeight: '400px',
+                      overflowY: 'auto'
+                    }}>
+                      {lead.aiHomeReport}
+                    </div>
+                  </div>
+                </>
+              )}
+              
               <h3 style={styles.sectionTitle}>Notes</h3>
               <div className="crm-lead-notes-container">
               

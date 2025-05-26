@@ -717,11 +717,10 @@ function AddressForm() {
     }
     
     // Fetch property data and phone numbers in the background - don't await this
+    // These APIs run unconditionally to ensure best user experience
     const leadId = localStorage.getItem('leadId') || suggestionLeadId;
-    if (leadId) {
-      fetchPropertyDataInBackground(place.formatted_address, leadId, addressComponents);
-      lookupPhoneNumbersInBackground(place.formatted_address, leadId, addressComponents);
-    }
+    fetchPropertyDataInBackground(place.formatted_address, leadId, addressComponents);
+    lookupPhoneNumbersInBackground(place.formatted_address, leadId, addressComponents);
     
     return true; // Return success immediately without waiting for API
   };

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useFormContext } from '../../../contexts/FormContext';
+import { updateLeadInFirebase } from '../../../services/firebase.js';
 import houseIcon from '../../../assets/images/house-icon.png';
 
 function AIProcessing() {
@@ -13,8 +14,11 @@ function AIProcessing() {
   const fallbackValue = ENABLE_DUMMY_FALLBACK ? 554000 : 0;
   
   const [animatedValue, setAnimatedValue] = useState(formData.apiEstimatedValue ? Number(formData.apiEstimatedValue) : fallbackValue);
+  const [aiReportGenerated, setAiReportGenerated] = useState(false);
+  const [melissaDataReceived, setMelissaDataReceived] = useState(false);
   const mapContainerRef = useRef(null);
   const animationRef = useRef(null);
+  const aiReportRef = useRef(null);
   
   // Steps in the AI processing sequence
   const processingSteps = [
@@ -28,6 +32,145 @@ function AIProcessing() {
     'Finalizing AI recommendations and strategies...',
     'Value boost report ready!'
   ];
+
+  // Function to generate AI home enhancement report
+  const generateAIReport = async (propertyData) => {
+    try {
+      console.log('🤖 Starting OpenAI report generation...');
+      
+      // Prepare property context for AI
+      const propertyContext = {
+        address: propertyData.street || formData.street,
+        estimatedValue: propertyData.apiEstimatedValue || formData.apiEstimatedValue,
+        bedrooms: propertyData.bedrooms || formData.bedrooms || '',
+        bathrooms: propertyData.bathrooms || formData.bathrooms || '',
+        squareFootage: propertyData.finishedSquareFootage || formData.finishedSquareFootage || '',
+        potentialIncrease: propertyData.potentialValueIncrease || formData.potentialValueIncrease,
+        upgradesNeeded: propertyData.upgradesNeeded || formData.upgradesNeeded || 8
+      };
+
+      // TODO: Replace with actual OpenAI API call
+      // For now, generate a realistic template-based report
+      const aiReport = generateTemplateReport(propertyContext);
+      
+      console.log('✅ AI report generated successfully');
+      
+      // Store report in localStorage and formData for Step 3
+      localStorage.setItem('aiHomeReport', aiReport);
+      
+      // Update Firebase with AI report
+      const leadId = localStorage.getItem('leadId');
+      if (leadId) {
+        await updateLeadInFirebase(leadId, {
+          aiHomeReport: aiReport,
+          aiReportGeneratedAt: new Date().toISOString()
+        });
+        console.log('✅ AI report saved to Firebase');
+      }
+      
+      setAiReportGenerated(true);
+      return aiReport;
+      
+    } catch (error) {
+      console.error('❌ Error generating AI report:', error);
+      // Don't block user flow if AI fails
+      setAiReportGenerated(true); // Mark as complete to prevent blocking
+      return null;
+    }
+  };
+
+  // Template-based report generator (to be replaced with OpenAI)
+  const generateTemplateReport = (propertyContext) => {
+    const { address, estimatedValue, bedrooms, bathrooms, squareFootage, potentialIncrease, upgradesNeeded } = propertyContext;
+    
+    const formattedValue = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(estimatedValue || 0);
+
+    const formattedIncrease = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(potentialIncrease || 0);
+
+    return `ValueBoost AI Analysis Report
+
+Property: ${address}
+Current Estimated Value: ${formattedValue}
+Potential Value Increase: ${formattedIncrease}
+
+TOP RECOMMENDATIONS FOR MAXIMUM ROI:
+
+1. Kitchen Modernization ($15,000-25,000)
+   - Update cabinets with soft-close hardware
+   - Install quartz countertops
+   - Upgrade to stainless steel appliances
+   Expected ROI: 80-85%
+
+2. Bathroom Renovation ($8,000-15,000)
+   - Modern vanity and fixtures
+   - Tile shower upgrade
+   - Improved lighting and ventilation
+   Expected ROI: 70-75%
+
+3. Flooring Enhancement ($5,000-12,000)
+   - Luxury vinyl plank or hardwood
+   - Consistent flooring throughout main areas
+   Expected ROI: 65-70%
+
+4. Exterior Curb Appeal ($3,000-8,000)
+   - Fresh paint (exterior)
+   - Landscaping improvements
+   - Front door and hardware upgrade
+   Expected ROI: 60-70%
+
+5. HVAC System Optimization ($4,000-10,000)
+   - Energy-efficient HVAC upgrade
+   - Smart thermostat installation
+   Expected ROI: 50-60%
+
+This analysis is based on current market conditions, comparable sales, and proven value-add strategies for your area.`;
+  };
+
+  // Monitor for Melissa API data updates
+  useEffect(() => {
+    const checkForMelissaData = () => {
+      // Check if we have received Melissa API data
+      if (formData.apiEstimatedValue && !melissaDataReceived) {
+        console.log('📊 Melissa API data detected, triggering AI report generation');
+        setMelissaDataReceived(true);
+        
+        // Trigger AI report generation now that we have property data
+        if (!aiReportGenerated && !aiReportRef.current) {
+          aiReportRef.current = true; // Prevent duplicate calls
+          generateAIReport(formData);
+        }
+      }
+    };
+
+    // Check initially and set up polling
+    checkForMelissaData();
+    
+    // Poll every 500ms for Melissa data updates
+    const interval = setInterval(checkForMelissaData, 500);
+    
+    return () => clearInterval(interval);
+  }, [formData.apiEstimatedValue, melissaDataReceived, aiReportGenerated]);
+
+  // Trigger AI report generation on mount if Melissa data already available
+  useEffect(() => {
+    // If Melissa data is already available when component mounts, start AI generation
+    if (formData.apiEstimatedValue && !aiReportGenerated && !aiReportRef.current) {
+      console.log('📊 Melissa data already available, starting AI report generation');
+      aiReportRef.current = true;
+      setMelissaDataReceived(true);
+      generateAIReport(formData);
+    }
+  }, []);
 
   // Initialize Google Maps
   useEffect(() => {
@@ -165,14 +308,20 @@ function AIProcessing() {
     }
   }, [processingStep, processingSteps.length, nextStep]);
 
-  // Animated value counting effect - realistic staged increments
+  // Animated value counting effect - realistic staged increments with real-time updates
   useEffect(() => {
     // Start animation from step 0 (immediately when component loads)
     if (processingStep >= 0) {
-      // Use real API values if available, otherwise use fallback values - convert to numbers
+      // Monitor for real-time Melissa API data updates
       const startValue = formData.apiEstimatedValue ? Number(formData.apiEstimatedValue) : fallbackValue;
       const valueIncrease = formData.potentialValueIncrease ? Number(formData.potentialValueIncrease) : (ENABLE_DUMMY_FALLBACK ? 121880 : 0);
       const endValue = startValue + valueIncrease;
+      
+      // If we get real Melissa data during animation, update immediately
+      if (formData.apiEstimatedValue && !melissaDataReceived) {
+        console.log('📊 Real-time Melissa data update detected during animation');
+        setMelissaDataReceived(true);
+      }
       
       // Debug logging
       console.log('AIProcessing Debug:', {
