@@ -482,6 +482,24 @@ export function FormProvider({ children }) {
     }
   };
 
+  // ================================================================================
+  // DYNAMIC CONTENT SYSTEM - CAMPAIGN-BASED TEMPLATE SELECTION
+  // ================================================================================
+  // 
+  // EDITING INSTRUCTIONS:
+  // 1. To add new campaign templates, update the 'campaignTemplates' object below
+  // 2. To modify matching logic, update the keyword checks (lines 567-597)
+  // 3. To change priority order, modify the if/else chain (lines 578-597)
+  // 4. All fallback defaults are in the 'defaultContent' object
+  //
+  // HOW IT WORKS:
+  // - Reads campaign_name from URL parameters (multiple formats supported)
+  // - Simplifies campaign name for keyword matching (removes spaces, lowercase)
+  // - Matches keywords: "cash" > "value" > "fast" > default
+  // - Updates formData with selected template content
+  //
+  // ================================================================================
+  
   // Simplified dynamic content handler based only on campaign name
   const setDynamicContent = (keyword, campaign_id, adgroup_id) => {
     // Always get campaign name directly from URL
@@ -507,9 +525,19 @@ export function FormProvider({ children }) {
     // Log information about the current campaign name we'll use for matching
     console.log('Using campaign name for template selection:', campaignName);
     
-    // Simplified campaign templates by type 
+    // ================================================================================
+    // CAMPAIGN TEMPLATES - ADD NEW TEMPLATES HERE
+    // ================================================================================
+    // 
+    // EDITING INSTRUCTIONS:
+    // - To add a new template, copy an existing template and modify the content
+    // - Template key should match the keyword you want to detect in campaign names
+    // - All templates should include: headline, subHeadline, buttonText, thankYou messages
+    //
+    // ================================================================================
+    
     const campaignTemplates = {
-      // Template types
+      // CASH TEMPLATE - Triggered by "cash" in campaign name
       "cash": {
         type: 'CASH',
         headline: 'Need to Sell Your Home For Cash Fast?',
@@ -518,6 +546,8 @@ export function FormProvider({ children }) {
         thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!',
         buttonText: 'CHECK OFFER'
       },
+      
+      // FAST TEMPLATE - Triggered by "fast" in campaign name  
       "fast": {
         type: 'FAST',
         headline: 'Sell Your Home In 10 Days or Less',
@@ -526,6 +556,8 @@ export function FormProvider({ children }) {
         thankYouSubHeadline: 'You\'ll be receiving your fast sale details at your contact number shortly, thank you!',
         buttonText: 'CHECK OFFER'
       },
+      
+      // VALUE TEMPLATE - Triggered by "value" in campaign name
       "value": {
         type: 'VALUE',
         headline: 'Need to Check Your Home Value Fast?',

@@ -5,6 +5,66 @@ import { trackZohoConversion } from '../../services/zoho';
 
 function QualifyingForm() {
   const { formData, updateFormData, nextStep, updateLead, leadId } = useFormContext();
+  
+  // ================================================================================
+  // DYNAMIC CONTENT SYSTEM - QUALIFYING FORM TEMPLATES
+  // ================================================================================
+  // 
+  // EDITING INSTRUCTIONS:
+  // - All content templates are defined here in this component
+  // - To add new templates, add them to the templates object below
+  // - To modify existing content, edit the template objects
+  // - Campaign tracking still handled by FormContext
+  //
+  // ================================================================================
+  
+  const getDynamicContent = () => {
+    // Read campaign name directly from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const possibleParamNames = ['campaign_name', 'campaignname', 'campaign-name', 'utm_campaign'];
+    
+    let campaignName = '';
+    for (const paramName of possibleParamNames) {
+      const value = urlParams.get(paramName);
+      if (value) {
+        campaignName = value;
+        break;
+      }
+    }
+    
+    // Qualifying Form Templates - Different approach to qualification
+    const templates = {
+      cash: {
+        headline: 'Help us prepare your best cash offer',
+        purpose: 'cash offer preparation'
+      },
+      fast: {
+        headline: 'Help us prepare your fast sale offer', 
+        purpose: 'quick sale process'
+      },
+      value: {
+        headline: 'Help us prepare your detailed home value report',
+        purpose: 'value assessment'
+      },
+      default: {
+        headline: 'Help us prepare your best cash offer',
+        purpose: 'offer preparation'
+      }
+    };
+    
+    // Simple keyword matching with priority: cash > value > fast
+    if (campaignName) {
+      const simplified = campaignName.toLowerCase().replace(/[\s\-_\.]/g, '');
+      
+      if (simplified.includes('cash')) return templates.cash;
+      if (simplified.includes('value')) return templates.value;
+      if (simplified.includes('fast')) return templates.fast;
+    }
+    
+    return templates.default;
+  };
+  
+  const dynamicContent = getDynamicContent();
   const [qualifyingStep, setQualifyingStep] = useState(formData.qualifyingQuestionStep || 1);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedOptionLR, setSelectedOptionLR] = useState('left');
@@ -797,11 +857,7 @@ function QualifyingForm() {
   return (
     <div className="qualifying-section">
       <div className="qualifying-headline">
-        {formData.templateType === 'VALUE' 
-          ? 'Help us prepare your detailed home value report' 
-          : formData.templateType === 'FAST' 
-            ? 'Help us prepare your fast sale offer'
-            : 'Help us prepare your best cash offer'}
+        {dynamicContent.headline}
       </div>
       <div className="qualifying-form-container">
         {renderCurrentQuestion()}

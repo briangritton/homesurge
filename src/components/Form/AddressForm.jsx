@@ -25,6 +25,65 @@ const visuallyHiddenStyle = {
 
 function AddressForm() {
   const { formData, updateFormData, nextStep } = useFormContext();
+  
+  // ================================================================================
+  // DYNAMIC CONTENT SYSTEM - MAIN FORM TEMPLATES
+  // ================================================================================
+  // 
+  // EDITING INSTRUCTIONS:
+  // - All content templates are defined here in this component
+  // - To add new templates, add them to the templates object below
+  // - To modify existing content, edit the template objects
+  // - Campaign tracking still handled by FormContext
+  //
+  // ================================================================================
+  
+  const getDynamicContent = () => {
+    // Read campaign name directly from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const possibleParamNames = ['campaign_name', 'campaignname', 'campaign-name', 'utm_campaign'];
+    
+    let campaignName = '';
+    for (const paramName of possibleParamNames) {
+      const value = urlParams.get(paramName);
+      if (value) {
+        campaignName = value;
+        break;
+      }
+    }
+    
+    // Main Form Templates - Based on existing content
+    const templates = {
+      cash: {
+        headline: 'Need to Sell Your Home For Extremely Fast?',
+        subheadline: 'Get a great cash offer today. Close in 7 days. No showings, no repairs, no stress',
+        buttonText: 'CHECK OFFER'
+      },
+      fast: {
+        headline: 'Sell Your Home In 10 Days or Less',
+        subheadline: 'Get a great cash offer today. Close in 7 days. No showings, no repairs, no stress',
+        buttonText: 'CHECK OFFER'
+      },
+      default: {
+        headline: 'Need to Sell Your Home Extremely Fast?',
+        subheadline: 'Get a great cash offer today. Close in 7 days. No showings, no repairs, no stress',
+        buttonText: 'CHECK OFFER'
+      }
+    };
+    
+    // Simple keyword matching with priority: cash > value > fast
+    if (campaignName) {
+      const simplified = campaignName.toLowerCase().replace(/[\s\-_\.]/g, '');
+      
+      if (simplified.includes('cash')) return templates.cash;
+      if (simplified.includes('value')) return templates.value;
+      if (simplified.includes('fast')) return templates.fast;
+    }
+    
+    return templates.default;
+  };
+  
+  const dynamicContent = getDynamicContent();
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [googleApiLoaded, setGoogleApiLoaded] = useState(false);
@@ -1555,12 +1614,31 @@ function AddressForm() {
     <div className="af1-hero-section hero-section">
       <div className="af1-hero-middle-container hero-middle-container">
         <div className="af1-hero-content hero-content fade-in">
+          {/* ========================================= */}
+          {/* DYNAMIC CONTENT SECTION - HEADLINES     */}
+          {/* ========================================= */}
+          {/* 
+            EDITING INSTRUCTIONS:
+            - Headlines change based on URL campaign_name parameter
+            - Main logic is in FormContext.setDynamicContent()
+            - Fallback defaults are defined below
+            - Priority: Dynamic Content > Fallback Defaults
+            
+            CAMPAIGN MATCHING LOGIC:
+            - "cash" in campaign name → Cash template
+            - "value" in campaign name → Value template  
+            - "fast" in campaign name → Fast template
+            - No match → Default template
+          */}
           <div className="af1-hero-headline hero-headline">
-            {formatText(formData.dynamicHeadline || "Need to Sell Your Home Extremely Fast?")}
+            {formatText(dynamicContent.headline)}
           </div>
           <div className="af1-hero-subheadline hero-subheadline">
-            {formatSubheadline(formData.dynamicSubHeadline || "Get a great cash offer today. Close in 7 days. No showings, no repairs, no stress")}
+            {formatSubheadline(dynamicContent.subheadline)}
           </div>
+          {/* ========================================= */}
+          {/* END DYNAMIC CONTENT SECTION              */}
+          {/* ========================================= */}
           
        
           
@@ -1618,14 +1696,27 @@ function AddressForm() {
               />
             </div>
             
+            {/* ========================================= */}
+            {/* DYNAMIC CONTENT SECTION - BUTTON TEXT   */}
+            {/* ========================================= */}
+            {/* 
+              EDITING INSTRUCTIONS:
+              - Button text changes based on URL campaign_name parameter
+              - Main logic is in FormContext.setDynamicContent()
+              - Fallback default is defined below
+              - Priority: Dynamic Content > Fallback Default
+            */}
             <button 
               type="submit"
               className="af1-submit-button submit-button"
               id="address-submit-button" 
               disabled={isLoading}
             >
-              {isLoading ? 'CHECKING...' : formData.buttonText || 'CHECK OFFER'}
+              {isLoading ? 'CHECKING...' : dynamicContent.buttonText}
             </button>
+            {/* ========================================= */}
+            {/* END DYNAMIC CONTENT SECTION              */}
+            {/* ========================================= */}
 
 
    {/* Notice about autofill

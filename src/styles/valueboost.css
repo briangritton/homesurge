@@ -1603,13 +1603,15 @@ padding-top:0%;
   border-image: linear-gradient(135deg, #09a5c8 0%, #236b6d 100%) 1;
   border-radius: 12px;
   /* box-shadow: 0 0 20px 4px rgba(0, 184, 230, 0.15), 0 4px 15px rgba(0, 0, 0, 0.05); */
-  max-width: 800px;
+  max-width: 500px;
   margin: 0 auto 30px;
+  border: none;
 }
 
 .vb-recommendations-section.no-border {
   border: none;
   border-image: none;
+  margin-top: -30px;
 }
 
 .vb-recommendations-title {

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useFormContext } from '../../../contexts/FormContext';
 import { updateLeadInFirebase } from '../../../services/firebase.js';
+import { trackFormStepComplete } from '../../../services/analytics';
+import { generateAIValueBoostReport } from '../../../services/openai';
 import houseIcon from '../../../assets/images/house-icon.png';
 
 function AIProcessing() {
@@ -32,8 +34,8 @@ function AIProcessing() {
     'Loading property data and market information...',
     'Evaluating current market conditions...',
     'Analyzing nearby comparable properties...',
-    'Identifying highest ROI improvement opportunities...',
-    'Calculating potential value increase from improvements...',
+    'Identifying highest ROI hidden opportunities...',
+    'Calculating potential value increase value fast...',
     'Building customized value boost plan...',
     'Finalizing AI recommendations and strategies...',
     'Value boost report ready!'
@@ -55,9 +57,8 @@ function AIProcessing() {
         upgradesNeeded: propertyData.upgradesNeeded || formData.upgradesNeeded || 8
       };
 
-      // TODO: Replace with actual OpenAI API call
-      // For now, generate a realistic template-based report
-      const aiReport = generateTemplateReport(propertyContext);
+      // Use actual OpenAI API to generate personalized report
+      const aiReport = await generateAIValueBoostReport(propertyContext);
       
       console.log('✅ AI report generated successfully');
       
@@ -85,62 +86,6 @@ function AIProcessing() {
     }
   };
 
-  // Template-based report generator (to be replaced with OpenAI)
-  const generateTemplateReport = (propertyContext) => {
-    const { address, estimatedValue, bedrooms, bathrooms, squareFootage, potentialIncrease, upgradesNeeded } = propertyContext;
-    
-    const formattedValue = new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(estimatedValue || 0);
-
-    const formattedIncrease = new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(potentialIncrease || 0);
-
-    return `ValueBoost AI Analysis Report
-
-Property: ${address}
-Current Estimated Value: ${formattedValue}
-Potential Value Increase: ${formattedIncrease}
-
-TOP RECOMMENDATIONS FOR MAXIMUM ROI:
-
-1. Kitchen Modernization ($15,000-25,000)
-   - Update cabinets with soft-close hardware
-   - Install quartz countertops
-   - Upgrade to stainless steel appliances
-   Expected ROI: 80-85%
-
-2. Bathroom Renovation ($8,000-15,000)
-   - Modern vanity and fixtures
-   - Tile shower upgrade
-   - Improved lighting and ventilation
-   Expected ROI: 70-75%
-
-3. Flooring Enhancement ($5,000-12,000)
-   - Luxury vinyl plank or hardwood
-   - Consistent flooring throughout main areas
-   Expected ROI: 65-70%
-
-4. Exterior Curb Appeal ($3,000-8,000)
-   - Fresh paint (exterior)
-   - Landscaping improvements
-   - Front door and hardware upgrade
-   Expected ROI: 60-70%
-
-5. HVAC System Optimization ($4,000-10,000)
-   - Energy-efficient HVAC upgrade
-   - Smart thermostat installation
-   Expected ROI: 50-60%
-
-This analysis is based on current market conditions, comparable sales, and proven value-add strategies for your area.`;
-  };
 
   // Monitor for Melissa API data updates
   useEffect(() => {
@@ -303,6 +248,8 @@ This analysis is based on current market conditions, comparable sales, and prove
         // When reaching the last step, wait a moment and then proceed to next form step
         if (processingStep === processingSteps.length - 1) {
           setTimeout(() => {
+            // Track completion of AI processing step
+            trackFormStepComplete(2, 'ValueBoost AI Processing Completed', formData);
             nextStep();
           }, 1000);
           
@@ -498,32 +445,6 @@ This analysis is based on current market conditions, comparable sales, and prove
     borderRadius: '2px'
   };
 
-  // Map container styles - matching PersonalInfoForm style
-  const mapStyles = {
-    height: '300px',
-    width: '90%',
-    maxWidth: '500px',
-    borderRadius: '8px',
-    border: '1px solid #ccc',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-    overflow: 'hidden',
-    margin: '0 auto 30px',
-    position: 'relative' // Important for absolute positioning inside
-  };
-
-  // Circle indicators for steps
-  const getCircleStyle = (index) => {
-    return {
-      height: '12px',
-      width: '12px',
-      borderRadius: '50%',
-      backgroundColor: processingStep > index ? '#4caf50' : 
-                       processingStep === index ? '#3fccff' : '#e0e0e0',
-      margin: '2px',
-      transition: 'background-color 0.3s ease',
-      boxShadow: processingStep === index ? '0 0 10px 2px rgba(63, 204, 255, 0.7)' : 'none'
-    };
-  };
 
   // Add a ::before override with empty content
   useEffect(() => {
@@ -744,7 +665,6 @@ This analysis is based on current market conditions, comparable sales, and prove
             {processingSteps.map((_, index) => {
               const isCompleted = processingStep > index;
               const isCurrent = processingStep === index;
-              const isPending = processingStep < index;
               
               const dotClass = isCompleted ? 'vb-ai-step-dot-completed' :
                               isCurrent ? 'vb-ai-step-dot-current' :

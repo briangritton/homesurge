@@ -3,10 +3,92 @@ import { useFormContext } from '../../../contexts/FormContext';
 import additionalStrategies from './additionalStrategies';
 import { calculatePropertySpecificCost, calculatePropertySpecificROI } from './costCalculator';
 import { sendValueBoostNotifications } from '../../../services/notifications';
+import { trackPropertyValue } from '../../../services/facebook';
+import { trackPhoneNumberLead, trackFormStepComplete, trackFormSubmission } from '../../../services/analytics';
 import gradientArrow from '../../../assets/images/gradient-arrow.png';
 
 function ValueBoostReport() {
   const { formData, updateFormData, updateLead, nextStep } = useFormContext();
+  
+  // ================================================================================
+  // DYNAMIC CONTENT SYSTEM - VALUEBOOST REPORT TEMPLATES
+  // ================================================================================
+  // 
+  // EDITING INSTRUCTIONS:
+  // - All content templates are defined here in this component
+  // - To add new templates, add them to the templates object below
+  // - To modify existing content, edit the template objects
+  // - Campaign tracking still handled by FormContext
+  //
+  // ================================================================================
+  
+  const getDynamicContent = () => {
+    // Read campaign name directly from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const possibleParamNames = ['campaign_name', 'campaignname', 'campaign-name', 'utm_campaign'];
+    
+    let campaignName = '';
+    for (const paramName of possibleParamNames) {
+      const value = urlParams.get(paramName);
+      if (value) {
+        campaignName = value;
+        break;
+      }
+    }
+    
+    // ValueBoost Report Templates - Different approaches to presenting value
+    const templates = {
+      value: {
+        reportHeadline: 'ValueBoost Report Ready:',
+        potentialHeadline: 'Your ValueBoost Potential:',
+        recommendationsTitle: 'Your Top 10 ValueBoost Recommendations',
+        recommendationsSubtitle: 'Here are the Highest impact AI generated opportunities for your home',
+        unlockHeadline: 'Unlock Your FREE ValueBoost Report',
+        unlockSubtext: 'Unlock your full property value report with all personalized recommendations',
+        conciergeHeadline: 'Want Expert Help Implementing These Improvements?'
+      },
+      equity: {
+        reportHeadline: 'Home Equity Analysis Complete:',
+        potentialHeadline: 'Your Hidden Equity Potential:',
+        recommendationsTitle: 'Top 10 Equity-Building Opportunities',
+        recommendationsSubtitle: 'Strategic improvements to unlock maximum equity',
+        unlockHeadline: 'Unlock Your Complete Equity Report',
+        unlockSubtext: 'See exactly how to transform equity potential into real value',
+        conciergeHeadline: 'Ready to Turn Equity Into Cash?'
+      },
+      boost: {
+        reportHeadline: 'Value Boost Analysis Ready:',
+        potentialHeadline: 'Your Value Boost Opportunity:',
+        recommendationsTitle: 'Your Top 10 Value Boost Strategies',
+        recommendationsSubtitle: 'Proven tactics to boost your home value quickly',
+        unlockHeadline: 'Unlock Your Complete Boost Plan',
+        unlockSubtext: 'Get your step-by-step value boosting roadmap',
+        conciergeHeadline: 'Need Help Executing Your Value Boost Plan?'
+      },
+      default: {
+        reportHeadline: 'ValueBoost Report Ready:',
+        potentialHeadline: 'Your ValueBoost Potential:',
+        recommendationsTitle: 'Your Top 10 ValueBoost Recommendations',
+        recommendationsSubtitle: 'Here are the Highest impact AI generated opportunities for your home',
+        unlockHeadline: 'Unlock Your FREE ValueBoost Report',
+        unlockSubtext: 'Unlock your full property value report with all personalized recommendations',
+        conciergeHeadline: 'Want Expert Help Implementing These Improvements?'
+      }
+    };
+    
+    // Keyword matching for report presentation style
+    if (campaignName) {
+      const simplified = campaignName.toLowerCase().replace(/[\s\-_\.]/g, '');
+      
+      if (simplified.includes('value')) return templates.value;
+      if (simplified.includes('equity')) return templates.equity;
+      if (simplified.includes('boost')) return templates.boost;
+    }
+    
+    return templates.default;
+  };
+  
+  const dynamicContent = getDynamicContent();
   
   // Scroll to top when component loads
   useEffect(() => {
@@ -887,13 +969,72 @@ function ValueBoostReport() {
       setSubmitted(true);
       setUnlocked(true); // Unlock the recommendations
 
-      // Track conversion if gtag is available
+      // ================================================================================
+      // COMPREHENSIVE TRACKING - MATCHING MAIN FORM FUNNEL
+      // ================================================================================
+      
+      // 1. PHONE LEAD TRACKING
+      trackPhoneNumberLead();
+      
+      // 2. FORM STEP COMPLETION TRACKING
+      trackFormStepComplete(3, 'ValueBoost Report Unlocked', formData);
+      
+      // 3. FORM SUBMISSION TRACKING
+      trackFormSubmission({
+        ...formData,
+        funnelType: 'valueboost',
+        conversionType: 'report_unlocked'
+      });
+      
+      // 4. FACEBOOK PIXEL TRACKING
+      trackPropertyValue({
+        address: testFormData.street,
+        currentValue: testFormData.apiEstimatedValue,
+        potentialIncrease: testFormData.potentialValueIncrease || 0,
+        name: cleanName,
+        phone: cleanedPhone,
+        email: contactInfo.email || '',
+        funnel: 'valueboost',
+        campaign_name: formData.campaign_name || '',
+        utm_source: formData.utm_source || '',
+        utm_medium: formData.utm_medium || '',
+        utm_campaign: formData.utm_campaign || ''
+      });
+      
+      // 5. COMPREHENSIVE DATALAYER EVENTS
+      if (window.dataLayer) {
+        // ValueBoost completion event
+        window.dataLayer.push({
+          event: 'ValueBoostReportCompleted',
+          leadData: {
+            address: testFormData.street,
+            currentValue: testFormData.apiEstimatedValue,
+            potentialIncrease: testFormData.potentialValueIncrease,
+            upgradesRecommended: testFormData.upgradesNeeded || recommendations.length,
+            funnelType: 'valueboost'
+          },
+          campaignData: {
+            campaignId: formData.campaign_id || '',
+            campaignName: formData.campaign_name || '',
+            utmSource: formData.utm_source || '',
+            utmMedium: formData.utm_medium || '',
+            utmCampaign: formData.utm_campaign || '',
+            keyword: formData.keyword || '',
+            device: formData.device || '',
+            gclid: formData.gclid || ''
+          },
+          conversionValue: testFormData.potentialValueIncrease ? Math.round(testFormData.potentialValueIncrease / 1000) : 0,
+          timestamp: new Date().toISOString()
+        });
+      }
+      
+      // 6. GOOGLE ANALYTICS CONVERSION TRACKING
       if (window.gtag) {
         window.gtag('event', 'conversion', {
           'send_to': 'AW-123456789/AbC-D_efG-h12345', // Replace with actual conversion ID
-          'event_category': 'lead',
+          'event_category': 'valueboost_lead',
           'event_label': 'ValueBoost Report Unlocked',
-          'value': formData.apiEstimatedValue ? formData.apiEstimatedValue / 100 : 1,
+          'value': testFormData.potentialValueIncrease ? testFormData.potentialValueIncrease / 1000 : 1,
           'currency': 'USD'
         });
       }
@@ -960,7 +1101,7 @@ function ValueBoostReport() {
           {!!(testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) && (
           <>
             <div className="vb-af1-hero-headline">
-              ValueBoost Report Ready:
+              {dynamicContent.reportHeadline}
             </div>
             <div className="vb-af1-hero-subheadline " style={{ marginBottom: '10px' }}>
               {cleanAddress(testFormData.street) || '123 Main St'}
@@ -972,7 +1113,7 @@ function ValueBoostReport() {
           {!!(testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) && (
           <div className="vb-value-boost-box">
             <h2 className="vb-box-headline">
-              Your ValueBoost Potential:
+              {dynamicContent.potentialHeadline}
             </h2>
 
             {/* Responsive container for values */}
@@ -1132,10 +1273,11 @@ function ValueBoostReport() {
           {/* Display recommendations */}
           <div id="recommendations-section" className={`vb-recommendations-section ${!(testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) ? 'no-border' : ''}`}>
             <h2 className="vb-recommendations-title">
-              Your Top 10 ValueBoost Recommendations
+              {dynamicContent.recommendationsTitle}
             </h2>
             <p className="vb-recommendations-subtitle">
-Highest impact AI generated opportunities for your home  </p>
+              {dynamicContent.recommendationsSubtitle}
+            </p>
 
             {/* Container for recommendations with relative positioning */}
             <div className="vb-recommendations-container">
@@ -1251,7 +1393,7 @@ Highest impact AI generated opportunities for your home  </p>
                         </div>
                       </div>
                       <h3 className="vb-unlock-headline">
-                        Unlock Your FREE ValueBoost Report
+                        {dynamicContent.unlockHeadline}
                       </h3>
                     </div>
                     <div className="vb-features-bubble">
@@ -1264,7 +1406,7 @@ Highest impact AI generated opportunities for your home  </p>
                       <div className="vb-feature-item">
                         <div className="vb-feature-icon">✓</div>
                         <p className="vb-feature-text">
-                          <strong>Detailed maximim ValueBoost calculations</strong> for each improvement
+                          <strong>Detailed maximim ValueBoost calculations</strong> for each report item
                         </p>
                       </div>
                       <div className="vb-feature-item">
@@ -1465,7 +1607,7 @@ Highest impact AI generated opportunities for your home  </p>
                 Create Your Free Account
               </h3>
               <p style={{ margin: '0 0 25px 0', fontSize: '16px', textAlign: 'center', color: '#555' }}>
-                Unlock your full property value report with all {recommendations.length} personalized recommendations
+                {dynamicContent.unlockSubtext}
               </p>
               <form onSubmit={handleSubmit}>
                 <div style={{ marginBottom: '20px' }}>

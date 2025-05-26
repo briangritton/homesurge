@@ -26,6 +26,70 @@ const visuallyHiddenStyle = {
 function AddressForm() {
   const { formData, updateFormData, nextStep } = useFormContext();
   
+  // ================================================================================
+  // DYNAMIC CONTENT SYSTEM - VALUEBOOST TEMPLATES
+  // ================================================================================
+  // 
+  // EDITING INSTRUCTIONS:
+  // - All content templates are defined here in this component
+  // - To add new templates, add them to the templates object below
+  // - To modify existing content, edit the template objects
+  // - Campaign tracking still handled by FormContext
+  //
+  // ================================================================================
+  
+  const getDynamicContent = () => {
+    // Read campaign name directly from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const possibleParamNames = ['campaign_name', 'campaignname', 'campaign-name', 'utm_campaign'];
+    
+    let campaignName = '';
+    for (const paramName of possibleParamNames) {
+      const value = urlParams.get(paramName);
+      if (value) {
+        campaignName = value;
+        break;
+      }
+    }
+    
+    // ValueBoost Templates - Focused on value and home enhancement
+    const templates = {
+      value: {
+        headline: 'Maximize Your Home Value With AI',
+        subheadline: 'Discover how your home value could increase by up to 36% with FREE AI personalized enhancement recommendations!',
+        buttonText: 'GET VALUE REPORT'
+      },
+      boost: {
+        headline: 'Boost Your Home Value Instantly',
+        subheadline: 'AI-powered analysis reveals hidden value in your home. Get your personalized enhancement plan now!',
+        buttonText: 'BOOST MY VALUE'
+      },
+      equity: {
+        headline: 'Unlock Hidden Home Equity',
+        subheadline: 'Find out how much equity you could gain with strategic home improvements guided by AI.',
+        buttonText: 'UNLOCK EQUITY'
+      },
+      default: {
+        headline: 'Maximize Your Home With ValueBoost AI',
+        subheadline: 'Find out how your home value could increase by up to 36% with FREE AI personalized home enhancement report! Don\'t miss out on your maximum equity!',
+        buttonText: 'VIEW MAXIMUM VALUE'
+      }
+    };
+    
+    // Keyword matching focused on value-oriented terms
+    if (campaignName) {
+      const simplified = campaignName.toLowerCase().replace(/[\s\-_\.]/g, '');
+      
+      if (simplified.includes('value')) return templates.value;
+      if (simplified.includes('boost')) return templates.boost;
+      if (simplified.includes('equity')) return templates.equity;
+    }
+    
+    return templates.default;
+  };
+  
+  const dynamicContent = getDynamicContent();
+  
   // Scroll to top when component loads
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1643,12 +1707,25 @@ function AddressForm() {
     <div className="vb-af1-hero-section">
       <div className="vb-af1-hero-middle-container">
         <div className="vb-af1-hero-content">
+          {/* ========================================= */}
+          {/* DYNAMIC CONTENT SECTION - HEADLINES     */}
+          {/* ========================================= */}
+          {/* 
+            EDITING INSTRUCTIONS:
+            - Headlines change based on URL campaign_name parameter
+            - Main logic is in FormContext.setDynamicContent()
+            - Fallback defaults are defined below
+            - Priority: Dynamic Content > Fallback Defaults
+          */}
           <div className="vb-af1-hero-headline">
-            {formatText("Maximize Your Home With\u00A0ValueBoost AI")}    
+            {formatText(dynamicContent.headline)}    
           </div>
           <div className="vb-af1-hero-subheadline">
-            {formatSubheadline("Find out how your home value could increase by up to 36% with FREE AI personalized home enhancement report! Don't miss out on your maximum equity!  ")}
+            {formatSubheadline(dynamicContent.subheadline)}
           </div>
+          {/* ========================================= */}
+          {/* END DYNAMIC CONTENT SECTION              */}
+          {/* ========================================= */}
 
           {/* Example ValueBoost Potential Box - Preview */}
           <div className="vb-value-boost-box">
@@ -1791,14 +1868,27 @@ function AddressForm() {
             </div>
             
             
+            {/* ========================================= */}
+            {/* DYNAMIC CONTENT SECTION - BUTTON TEXT   */}
+            {/* ========================================= */}
+            {/* 
+              EDITING INSTRUCTIONS:
+              - Button text changes based on URL campaign_name parameter
+              - Main logic is in FormContext.setDynamicContent()
+              - Fallback default is defined below
+              - Priority: Dynamic Content > Fallback Default
+            */}
             <button 
               type="submit"
               className="vb-af1-submit-button"
               id="valueboost-address-submit-button" 
               disabled={isLoading}
             >
-              {isLoading ? 'ANALYZING...' : 'VIEW MAXIMUM VALUE'}
+              {isLoading ? 'ANALYZING...' : dynamicContent.buttonText}
             </button>
+            {/* ========================================= */}
+            {/* END DYNAMIC CONTENT SECTION              */}
+            {/* ========================================= */}
           </form>
           
           
