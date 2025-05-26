@@ -62,12 +62,7 @@ function AddressForm() {
     if (existingLeadId) {
       setSuggestionLeadId(existingLeadId);
     }
-    
-    // Set ValueBoost funnel type
-    updateFormData({
-      funnel: 'homesurge_valueboost'
-    });
-  }, []); // Empty dependency array since this should only run once on mount
+  }, []);
   
   // Generate a session token for Google Places API
   const generateSessionToken = () => {
@@ -161,10 +156,6 @@ function AddressForm() {
         updateField.phone = value;
         updateField.autoFilledPhone = value; // Store original phone separately
       }
-      if (fieldName === 'email') {
-        updateField.email = value;
-        updateField.autoFilledEmail = value; // Store original email separately
-      }
       
       updateFormData(updateField);
     }
@@ -184,8 +175,8 @@ function AddressForm() {
         // Add this field to our tracking set
         autofilledFields.add(e.target.name);
         
-        // Check if the field that was auto-filled is name, phone, or email
-        if (e.target.name === 'name' || e.target.name === 'tel' || e.target.name === 'email') {
+        // Check if the field that was auto-filled is name or phone
+        if (e.target.name === 'name' || e.target.name === 'tel') {
           // Get the value filled in by browser
           setTimeout(() => {
             if (e.target.value) {
@@ -201,10 +192,6 @@ function AddressForm() {
               if (e.target.name === 'tel') {
                 fieldUpdate.phone = e.target.value;
                 fieldUpdate.autoFilledPhone = e.target.value; // Store original phone separately
-              }
-              if (e.target.name === 'email') {
-                fieldUpdate.email = e.target.value;
-                fieldUpdate.autoFilledEmail = e.target.value; // Store original email separately
               }
               
               updateFormData(fieldUpdate);
@@ -345,7 +332,7 @@ function AddressForm() {
     
     if (formInputs) {
       formInputs.forEach(input => {
-        if (input.name === 'name' || input.name === 'tel' || input.name === 'email' || input.name === 'address-line1') {
+        if (input.name === 'name' || input.name === 'tel' || input.name === 'address-line1') {
           input.addEventListener('animationstart', handleAnimationStart);
         }
       });
@@ -359,7 +346,7 @@ function AddressForm() {
       
       if (formInputs) {
         formInputs.forEach(input => {
-          if (input.name === 'name' || input.name === 'tel' || input.name === 'email' || input.name === 'address-line1') {
+          if (input.name === 'name' || input.name === 'tel' || input.name === 'address-line1') {
             input.removeEventListener('animationstart', handleAnimationStart);
           }
         });
@@ -403,7 +390,7 @@ function AddressForm() {
     });
   };
   
-  // Fetch property data from Melissa API
+  // Fetch property data from Melissa API - COPIED FROM MAIN FORM  
   const fetchPropertyData = async (address) => {
     try {
       console.log('Fetching property data for address:', address);
@@ -431,36 +418,7 @@ function AddressForm() {
             maximumFractionDigits: 0
           }).format(estimatedValue);
         }
-
-        // Calculate base increase percentage based on property age
-        const yearBuilt = propertyData.propertyRecord?.YearBuilt || 1980;
-        const propertyAge = new Date().getFullYear() - yearBuilt;
-
-        let baseIncreasePercentage = 0.15; // Default 15% increase
-
-        // Older homes have higher improvement potential
-        if (propertyAge > 30) {
-          baseIncreasePercentage = 0.22; // 22% increase potential
-        } else if (propertyAge > 15) {
-          baseIncreasePercentage = 0.18; // 18% increase potential
-        } else if (propertyAge < 5) {
-          baseIncreasePercentage = 0.12; // 12% increase potential (newer homes)
-        }
-
-        // Adjust based on home size (larger homes: smaller %, smaller homes: larger %)
-        if (propertyData.finishedSquareFootage > 3000) {
-          baseIncreasePercentage -= 0.02;
-        } else if (propertyData.finishedSquareFootage < 1200) {
-          baseIncreasePercentage += 0.03;
-        }
-
-        // Cap the maximum increase at 40%
-        const MAX_INCREASE_PERCENTAGE = 0.40;
-        if (baseIncreasePercentage > MAX_INCREASE_PERCENTAGE) {
-          baseIncreasePercentage = MAX_INCREASE_PERCENTAGE;
-          console.log('Value increase capped at maximum 40%');
-        }
-
+        
         // Track property value obtained for Facebook audience creation
         if (propertyData.apiEstimatedValue && propertyData.apiEstimatedValue > 0) {
           // Get all campaign data from formContext
@@ -475,6 +433,13 @@ function AddressForm() {
             traffic_source, 
             template_type 
           } = formData;
+          
+          console.log('Sending campaign data to Facebook PropertyValueObtained event:', {
+            campaign_name,
+            campaign_id,
+            adgroup_name,
+            keyword
+          });
           
           // Send the property data to Facebook for value-based audiences with campaign data
           trackPropertyValue({
@@ -526,32 +491,19 @@ function AddressForm() {
             // Push event IMMEDIATELY with no delay
             console.log('Pushing api_value event to dataLayer:', dataLayerEvent);
             window.dataLayer.push(dataLayerEvent);
+            
+            // Log campaign data for debugging
+            console.log('CAMPAIGN DATA IN API_VALUE EVENT:', {
+              campaign_name: formData.campaign_name || '',
+              campaign_id: formData.campaign_id || '',
+              keyword: formData.keyword || '',
+              matchtype: formData.matchtype || '',
+              adgroup_name: formData.adgroup_name || '',
+              adgroup_id: formData.adgroup_id || ''
+            });
           }
         }
 
-        // Calculate potential value increase based on property
-        const potentialValueIncrease = Math.round(propertyData.apiEstimatedValue * baseIncreasePercentage);
-        const formattedPotentialIncrease = new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'USD',
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 0
-        }).format(potentialValueIncrease);
-
-        // Calculate number of recommended upgrades based on property attributes
-        // Start with a higher default number for more recommendations
-        let upgradesNeeded = 8; // Default to higher number
-
-        // Adjust based on property age and features
-        if (propertyAge > 30) {
-          upgradesNeeded = 10; // Older homes need more improvements
-        } else if (propertyAge < 10) {
-          upgradesNeeded = 7; // Newer homes need fewer improvements
-        }
-
-        // Cap max recommendations at 12
-        upgradesNeeded = Math.min(upgradesNeeded, 12);
-        
         // Update form data with property information including equity fields
         updateFormData({
           apiOwnerName: propertyData.apiOwnerName || '',
@@ -570,17 +522,10 @@ function AddressForm() {
           zip: formData.zip || propertyData.zip || '',
           // Store the full property record for access to all fields
           propertyRecord: propertyData.propertyRecord,
-          // For ValueBoost, add potential value increase and upgrades needed
-          potentialValueIncrease: potentialValueIncrease,
-          formattedPotentialIncrease: formattedPotentialIncrease,
-          upgradesNeeded: upgradesNeeded,
-          valueIncreasePercentage: Math.round(baseIncreasePercentage * 100)
         });
         
-        console.log('Form data updated with property info and ValueBoost data:', {
+        console.log('Form data updated with property info:', {
           estimatedValue: formattedValue,
-          potentialIncrease: formattedPotentialIncrease,
-          upgradesNeeded: upgradesNeeded,
           apiEquity: propertyData.apiEquity,
           apiPercentage: propertyData.apiPercentage
         });
@@ -596,7 +541,7 @@ function AddressForm() {
     return null;
   };
   
-  // Process address selection (whether from autocomplete or suggestion)
+  // Process address selection (whether from autocomplete or suggestion) - COPIED FROM MAIN FORM
   const processAddressSelection = async (place) => {
     if (!place || !place.formatted_address) {
       console.warn('No place data available');
@@ -640,10 +585,9 @@ function AddressForm() {
       addressSelectionType: autofillDetected ? 'BrowserAutofill' : 'Google',
       selectedSuggestionAddress: place.formatted_address,
       leadStage: 'Address Selected',
-      // Preserve name, phone, and email
+      // Preserve name and phone
       name: formData.name || '',
-      phone: formData.phone || '',
-      email: formData.email || ''
+      phone: formData.phone || ''
     });
     
     // Ensure inputRef has the correct value
@@ -690,21 +634,18 @@ function AddressForm() {
         state: addressComponents.state,
         zip: addressComponents.zip,
         
-        // Include name, phone, and email if available
+        // Include name and phone if available
         name: formData.name || '',
         phone: formData.phone || '',
-        email: formData.email || '',
         
         // Include autofilled values if they exist
         autoFilledName: formData.autoFilledName || formData.name || '',
         autoFilledPhone: formData.autoFilledPhone || formData.phone || '',
-        autoFilledEmail: formData.autoFilledEmail || formData.email || '',
         
         userTypedAddress: lastTypedAddress,
         selectedSuggestionAddress: place.formatted_address,
         addressSelectionType: autofillDetected ? 'BrowserAutofill' : 'Google',
         leadStage: 'Address Selected',
-        funnel: 'homesurge_valueboost',
         
         // Explicitly add campaign data to ensure it's passed to Firebase
         campaign_name: campaign_name || '',
@@ -740,8 +681,7 @@ function AddressForm() {
         // Create a new lead with address, name and phone (including autofilled values) - COPIED FROM MAIN FORM
         const contactInfo = {
           name: formData.name || formData.autoFilledName || 'Property Lead',
-          phone: formData.phone || formData.autoFilledPhone || '',
-          email: formData.email || formData.autoFilledEmail || ''
+          phone: formData.phone || formData.autoFilledPhone || ''
         };
         
         console.log('🔍 ContactInfo being sent to Firebase:', contactInfo);
@@ -749,9 +689,7 @@ function AddressForm() {
           name: formData.name,
           autoFilledName: formData.autoFilledName,
           phone: formData.phone,
-          autoFilledPhone: formData.autoFilledPhone,
-          email: formData.email,
-          autoFilledEmail: formData.autoFilledEmail
+          autoFilledPhone: formData.autoFilledPhone
         });
         
         // Pass the full formData object to ensure campaign data is captured in the initial lead creation - COPIED FROM MAIN FORM
@@ -773,16 +711,15 @@ function AddressForm() {
     }
     
     // Fetch property data and phone numbers in the background - don't await this
+    // These APIs run unconditionally to ensure best user experience
     const leadId = localStorage.getItem('leadId') || suggestionLeadId;
-    if (leadId) {
-      fetchPropertyDataInBackground(place.formatted_address, leadId, addressComponents);
-      lookupPhoneNumbersInBackground(place.formatted_address, leadId, addressComponents);
-    }
+    fetchPropertyDataInBackground(place.formatted_address, leadId, addressComponents);
+    lookupPhoneNumbersInBackground(place.formatted_address, leadId, addressComponents);
     
     return true; // Return success immediately without waiting for API
   };
   
-  // Non-blocking version of address selection processing  
+  // Non-blocking version of address selection processing - COPIED FROM MAIN FORM
   const processAddressSelectionNonBlocking = (place) => {
     // This runs all the same logic as processAddressSelection but without blocking awaits
     console.log('🔄 Processing address selection in background (non-blocking)');
@@ -798,7 +735,7 @@ function AddressForm() {
       });
   };
 
-  // Process address selection in background - prioritize for property valuation
+  // Process address selection in background - prioritize for property valuation - COPIED FROM MAIN FORM
   const processAddressInBackground = async (suggestion) => {
     try {
       console.log('🔄 Starting background address processing for:', suggestion.description);
@@ -851,7 +788,7 @@ function AddressForm() {
     }
   };
 
-  // Lookup phone numbers in background without blocking the UI
+  // Lookup phone numbers in background without blocking the UI - COPIED FROM MAIN FORM
   const lookupPhoneNumbersInBackground = (address, leadId, addressComponents) => {
     // Start the phone number lookup in background
     lookupPhoneNumbers({
@@ -911,7 +848,7 @@ function AddressForm() {
       });
   };
   
-  // Process property data in background without blocking the UI
+  // Process property data in background without blocking the UI - COPIED FROM MAIN FORM
   const fetchPropertyDataInBackground = (address, leadId, addressComponents) => {
     // Start the property data fetch in background
     fetchPropertyData(address)
@@ -971,87 +908,11 @@ function AddressForm() {
               dynamicSubHeadline: formData.dynamicSubHeadline || '',
               buttonText: formData.buttonText || '',
               
-              // ValueBoost-specific data
-              funnel: 'homesurge_valueboost',
-              potentialValueIncrease: formData.potentialValueIncrease || 0,
-              formattedPotentialIncrease: formData.formattedPotentialIncrease || '',
-              upgradesNeeded: formData.upgradesNeeded || 0,
-              valueIncreasePercentage: formData.valueIncreasePercentage || 0,
-              
               // Set a special flag for debugging
               dataSourceComplete: true
             };
             
-            // Store this data in sessionStorage and localStorage for retrieval in subsequent steps
-            try {
-              const propertyDataForStorage = {
-                leadData: {
-                  contact: {
-                    name: formData.name || '',
-                    phone: formData.phone || '',
-                    email: formData.email || ''
-                  },
-                  address: {
-                    street: propertyUpdateData.street,
-                    city: propertyUpdateData.city,
-                    state: propertyUpdateData.state,
-                    zip: propertyUpdateData.zip
-                  },
-                  property: {
-                    apiOwnerName: propertyUpdateData.apiOwnerName,
-                    apiEstimatedValue: propertyUpdateData.apiEstimatedValue,
-                    apiMaxHomeValue: propertyUpdateData.apiMaxHomeValue,
-                    apiEquity: propertyUpdateData.apiEquity,
-                    apiPercentage: propertyUpdateData.apiPercentage,
-                    propertyEquity: propertyUpdateData.propertyEquity,
-                    equityPercentage: propertyUpdateData.equityPercentage,
-                    potentialValueIncrease: propertyUpdateData.potentialValueIncrease,
-                    formattedPotentialIncrease: propertyUpdateData.formattedPotentialIncrease,
-                    upgradesNeeded: propertyUpdateData.upgradesNeeded,
-                    valueIncreasePercentage: propertyUpdateData.valueIncreasePercentage
-                  },
-                  campaign: {
-                    campaign_name: propertyUpdateData.campaign_name,
-                    campaign_id: propertyUpdateData.campaign_id,
-                    adgroup_name: propertyUpdateData.adgroup_name,
-                    adgroup_id: propertyUpdateData.adgroup_id,
-                    keyword: propertyUpdateData.keyword,
-                    traffic_source: propertyUpdateData.traffic_source,
-                    template_type: propertyUpdateData.template_type || propertyUpdateData.templateType,
-                    templateType: propertyUpdateData.templateType || propertyUpdateData.template_type,
-                    matchtype: propertyUpdateData.matchtype,
-                    gclid: propertyUpdateData.gclid,
-                    device: propertyUpdateData.device,
-                    url: propertyUpdateData.url || window.location.href
-                  }
-                },
-                timestamp: new Date().toISOString()
-              };
-              
-              // Store in sessionStorage for debugging
-              sessionStorage.setItem('firebaseDataSent', JSON.stringify(propertyDataForStorage));
-              
-              // Also store property data in localStorage so it can be used in the next step
-              localStorage.setItem('apiPropertyData', JSON.stringify({
-                apiOwnerName: propertyData.apiOwnerName,
-                apiEstimatedValue: propertyData.apiEstimatedValue,
-                apiMaxHomeValue: propertyData.apiMaxValue,
-                apiEquity: propertyData.apiEquity,
-                apiPercentage: propertyData.apiPercentage,
-                mortgageAmount: propertyData.mortgageAmount,
-                bedrooms: propertyData.bedrooms,
-                bathrooms: propertyData.bathrooms,
-                finishedSquareFootage: propertyData.finishedSquareFootage,
-                potentialValueIncrease: formData.potentialValueIncrease,
-                formattedPotentialIncrease: formData.formattedPotentialIncrease,
-                upgradesNeeded: formData.upgradesNeeded,
-                valueIncreasePercentage: formData.valueIncreasePercentage
-              }));
-            } catch (e) {
-              // Error storing data in storage
-            }
-            
-            // Send the update to Firebase directly
+            // Update the lead with property data
             updateLeadInFirebase(leadId, propertyUpdateData)
               .then(() => console.log('Background: Successfully updated lead with API property data'))
               .catch(err => console.error('Background: Error updating lead with property data:', err));
@@ -1390,26 +1251,16 @@ function AddressForm() {
             console.log('Phone value from input field:', phoneValue);
           }
           
-          // Check for email value that might have been auto-filled
-          const emailInput = document.querySelector('input[name="email"]');
-          let emailValue = '';
           
-          if (emailInput && emailInput.value) {
-            emailValue = emailInput.value;
-            console.log('Email value from input field:', emailValue);
-          }
-          
-          // Save that this was a user-selected suggestion along with name, phone, and email
+          // Save that this was a user-selected suggestion along with name and phone
           updateFormData({
             selectedSuggestionAddress: place.formatted_address,
             userTypedAddress: lastTypedAddress, // What the user typed before selecting
             addressSelectionType: 'UserClicked',
             name: nameValue || formData.name || '',  // Use value from input if available, fallback to formData
             phone: phoneValue || formData.phone || '', // Use value from input if available, fallback to formData
-            email: emailValue || formData.email || '', // Use value from input if available, fallback to formData
             autoFilledName: nameValue || formData.autoFilledName || formData.name || '',
-            autoFilledPhone: phoneValue || formData.autoFilledPhone || formData.phone || '',
-            autoFilledEmail: emailValue || formData.autoFilledEmail || formData.email || ''
+            autoFilledPhone: phoneValue || formData.autoFilledPhone || formData.phone || ''
           });
           
           // Start form submission process immediately
@@ -1419,10 +1270,8 @@ function AddressForm() {
             address: place.formatted_address,
             name: nameValue || formData.name || '',
             phone: phoneValue || formData.phone || '',
-            email: emailValue || formData.email || '',
             autoFilledName: nameValue || formData.autoFilledName || formData.name || '',
-            autoFilledPhone: phoneValue || formData.autoFilledPhone || formData.phone || '',
-            autoFilledEmail: emailValue || formData.autoFilledEmail || formData.email || ''
+            autoFilledPhone: phoneValue || formData.autoFilledPhone || formData.phone || ''
           });
           
           // Process the selected address - no await
@@ -1844,21 +1693,6 @@ function AddressForm() {
               />
             </div>
             
-            {/* Visually hidden email field - still accessible to screen readers and browser autofill */}
-            <div style={visuallyHiddenStyle}>
-              <input
-                type="email"
-                name="email"
-                autoComplete="email"
-                placeholder="Your email (optional)"
-                className="vb-af1-address-input"
-                value={formData.email || ''}
-                onChange={(e) => updateFormData({ email: e.target.value, autoFilledEmail: e.target.value })}
-                onFocus={(e) => e.target.placeholder = ''}
-                onBlur={(e) => e.target.placeholder = 'Your email (optional)'}
-                disabled={isLoading}
-              />
-            </div>
             
             <button 
               type="submit"
