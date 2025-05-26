@@ -278,21 +278,37 @@ export function trackFormError(errorMessage, fieldName) {
 
 // Track phone number conversion (successful phone number submission)
 export function trackPhoneNumberLead() {
+  console.log('🚀 trackPhoneNumberLead() CALLED - Starting phone lead tracking');
+  console.log('🚀 Debug mode:', isDebug);
+  console.log('🚀 GA_TRACKING_ID:', GA_TRACKING_ID ? 'Present' : 'Missing');
+  
   if (isDebug) console.log('Analytics - Phone Number Lead Submitted');
   
+  // GA4 standard event name
   window.dataLayer = window.dataLayer || [];
+  console.log('🚀 DataLayer before push:', window.dataLayer.length, 'events');
+  
   window.dataLayer.push({
     event: 'GaPhoneNumberLeadSubmitted'
   });
   
+  console.log('🚀 DataLayer after push:', window.dataLayer.length, 'events');
+  console.log('🚀 Last dataLayer event:', window.dataLayer[window.dataLayer.length - 1]);
+  
   // Also track as regular GA event
   if (GA_TRACKING_ID) {
+    console.log('🚀 Sending GA4 event...');
     ReactGA.event({
       category: 'Lead',
       action: 'PhoneNumberSubmitted',
       label: 'Phone Number Lead'
     });
+    console.log('🚀 GA4 event sent');
+  } else {
+    console.log('🚀 GA4 event skipped - no tracking ID');
   }
+  
+  console.log('🚀 trackPhoneNumberLead() COMPLETED');
 }
 
 // Track address autocomplete selection

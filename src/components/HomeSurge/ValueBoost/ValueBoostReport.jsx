@@ -902,13 +902,16 @@ function ValueBoostReport() {
 
   // Handle contact form submission
   const handleSubmit = async (e) => {
+    console.log('🔥 VALUEBOOST FORM SUBMIT STARTED');
     e.preventDefault();
 
     // Validate form
     if (!validateForm()) {
+      console.log('🔥 Form validation failed, stopping submission');
       return;
     }
 
+    console.log('🔥 Form validation passed, proceeding with submission');
     setIsSubmitting(true);
 
     // Clean the input values - COPIED FROM MAIN FORM
@@ -934,34 +937,46 @@ function ValueBoostReport() {
       // Send lead data to Zoho
       await updateLead();
 
-      // Send notifications (non-blocking background execution)
-      setTimeout(async () => {
-        try {
-          const leadData = {
-            name: cleanName,
-            phone: cleanedPhone,
-            address: testFormData.street,
-            email: contactInfo.email || '',
-            leadSource: 'ValueBoost Funnel',
-            campaign_name: formData.campaign_name || 'ValueBoost',
-            utm_source: formData.utm_source || '',
-            utm_medium: formData.utm_medium || '',
-            utm_campaign: formData.utm_campaign || '',
-            id: formData.leadId || localStorage.getItem('leadId') || ''
-          };
+      // Send notifications (non-blocking background execution) - MATCHING MAIN FORM PATTERN
+      setTimeout(() => {
+        console.log('🔍🔍🔍 VALUEBOOST NOTIFICATION TRACKING: Starting background notification section');
+        
+        const leadData = {
+          name: cleanName,
+          phone: cleanedPhone,
+          address: testFormData.street,
+          email: contactInfo.email || '',
+          leadSource: 'ValueBoost Funnel',
+          campaign_name: formData.campaign_name || 'ValueBoost',
+          utm_source: formData.utm_source || '',
+          utm_medium: formData.utm_medium || '',
+          utm_campaign: formData.utm_campaign || '',
+          id: formData.leadId || localStorage.getItem('leadId') || ''
+        };
 
-          console.log('🔔 Sending ValueBoost lead notifications...');
-          const notificationResults = await sendValueBoostNotifications(leadData);
-          
-          if (notificationResults.summary.totalNotificationsSent > 0) {
-            console.log('✅ ValueBoost notifications sent successfully');
-          } else {
-            console.warn('⚠️ Some ValueBoost notifications may have failed');
+        console.log('🔍🔍🔍 VALUEBOOST NOTIFICATION TRACKING: Lead data ready for notifications', {
+          name: leadData.name,
+          phone: leadData.phone,
+          address: leadData.address,
+          leadId: leadData.id
+        });
+        
+        // Send notifications using centralized service (non-blocking background execution)
+        (async () => {
+          try {
+            console.log('🔔 Sending ValueBoost lead notifications...');
+            const notificationResults = await sendValueBoostNotifications(leadData);
+            
+            if (notificationResults.summary.totalNotificationsSent > 0) {
+              console.log('✅ ValueBoost notifications sent successfully');
+            } else {
+              console.warn('⚠️ Some ValueBoost notifications may have failed');
+            }
+          } catch (error) {
+            console.error('❌ Error sending ValueBoost notifications:', error);
+            // Don't block the form submission if notifications fail
           }
-        } catch (error) {
-          console.error('❌ Error sending ValueBoost notifications:', error);
-          // Don't block the form submission if notifications fail
-        }
+        })();
       }, 0);
 
       // After successful submission
@@ -973,8 +988,10 @@ function ValueBoostReport() {
       // COMPREHENSIVE TRACKING - MATCHING MAIN FORM FUNNEL
       // ================================================================================
       
-      // 1. PHONE LEAD TRACKING
+      // 1. PHONE LEAD TRACKING - EXACT MATCH TO MAIN FORM
+      console.log('🔥 About to call trackPhoneNumberLead() from ValueBoost');
       trackPhoneNumberLead();
+      console.log('🔥 trackPhoneNumberLead() call completed from ValueBoost');
       
       // 2. FORM STEP COMPLETION TRACKING
       trackFormStepComplete(3, 'ValueBoost Report Unlocked', formData);
