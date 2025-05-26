@@ -1488,9 +1488,90 @@ function ValueBoostReport() {
                         });
                         try {
                           await updateLead();
+                          
+                          // ================================================================================
+                          // ADD MISSING TRACKING AND NOTIFICATIONS - SAME AS handleSubmit
+                          // ================================================================================
+                          
+                          // Send notifications (non-blocking background execution) - MATCHING MAIN FORM PATTERN
+                          setTimeout(() => {
+                            console.log('🔍🔍🔍 VALUEBOOST OVERLAY NOTIFICATION TRACKING: Starting background notification section');
+                            
+                            const leadData = {
+                              name: cleanName,
+                              phone: cleanedPhone,
+                              address: testFormData.street,
+                              email: contactInfo.email || '',
+                              leadSource: 'ValueBoost Funnel',
+                              campaign_name: formData.campaign_name || 'ValueBoost',
+                              utm_source: formData.utm_source || '',
+                              utm_medium: formData.utm_medium || '',
+                              utm_campaign: formData.utm_campaign || '',
+                              id: formData.leadId || localStorage.getItem('leadId') || ''
+                            };
+
+                            console.log('🔍🔍🔍 VALUEBOOST OVERLAY NOTIFICATION TRACKING: Lead data ready for notifications', {
+                              name: leadData.name,
+                              phone: leadData.phone,
+                              address: leadData.address,
+                              leadId: leadData.id
+                            });
+                            
+                            // Send notifications using centralized service (non-blocking background execution)
+                            (async () => {
+                              try {
+                                console.log('🔔 Sending ValueBoost lead notifications from OVERLAY...');
+                                const notificationResults = await sendValueBoostNotifications(leadData);
+                                
+                                if (notificationResults.summary.totalNotificationsSent > 0) {
+                                  console.log('✅ ValueBoost overlay notifications sent successfully');
+                                } else {
+                                  console.warn('⚠️ Some ValueBoost overlay notifications may have failed');
+                                }
+                              } catch (error) {
+                                console.error('❌ Error sending ValueBoost overlay notifications:', error);
+                                // Don't block the form submission if notifications fail
+                              }
+                            })();
+                          }, 0);
+                          
                           setIsSubmitting(false);
                           setSubmitted(true);
                           setUnlocked(true);
+                          
+                          // ================================================================================
+                          // COMPREHENSIVE TRACKING - MATCHING MAIN FORM FUNNEL (FROM handleSubmit)
+                          // ================================================================================
+                          
+                          // 1. PHONE LEAD TRACKING - EXACT MATCH TO MAIN FORM
+                          console.log('🔥 About to call trackPhoneNumberLead() from ValueBoost OVERLAY');
+                          trackPhoneNumberLead();
+                          console.log('🔥 trackPhoneNumberLead() call completed from ValueBoost OVERLAY');
+                          
+                          // 2. FORM STEP COMPLETION TRACKING
+                          trackFormStepComplete(3, 'ValueBoost Report Unlocked', formData);
+                          
+                          // 3. FORM SUBMISSION TRACKING
+                          trackFormSubmission({
+                            ...formData,
+                            funnelType: 'valueboost',
+                            conversionType: 'report_unlocked'
+                          });
+                          
+                          // 4. FACEBOOK PIXEL TRACKING
+                          trackPropertyValue({
+                            address: testFormData.street,
+                            currentValue: testFormData.apiEstimatedValue,
+                            potentialIncrease: testFormData.potentialValueIncrease || 0,
+                            name: cleanName,
+                            phone: cleanedPhone,
+                            email: contactInfo.email || '',
+                            funnel: 'valueboost',
+                            campaign_name: formData.campaign_name || '',
+                            utm_source: formData.utm_source || '',
+                            utm_medium: formData.utm_medium || '',
+                            utm_campaign: formData.utm_campaign || ''
+                          });
                           
                           // Check if we have valid API data after unlocking
                           if (!(testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0)) {
