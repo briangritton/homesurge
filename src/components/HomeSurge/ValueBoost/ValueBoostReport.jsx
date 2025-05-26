@@ -23,14 +23,24 @@ function ValueBoostReport() {
   } : formData;
   const [showContactForm, setShowContactForm] = useState(false);
   const [contactInfo, setContactInfo] = useState({
-    name: '',
-    phone: '',
-    email: ''
+    name: formData.autoFilledName || formData.name || '',
+    phone: formData.autoFilledPhone || formData.phone || '',
+    email: formData.email || ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [unlocked, setUnlocked] = useState(false); // Track if recommendations are unlocked
   const [formErrors, setFormErrors] = useState({});
+
+  // Update contact info when autofill data becomes available - COPIED FROM MAIN FORM PATTERN
+  useEffect(() => {
+    setContactInfo(prevState => ({
+      ...prevState,
+      name: formData.autoFilledName || formData.name || prevState.name,
+      phone: formData.autoFilledPhone || formData.phone || prevState.phone,
+      email: formData.email || prevState.email
+    }));
+  }, [formData.autoFilledName, formData.autoFilledPhone, formData.name, formData.phone, formData.email]);
   
   // Generate property-specific recommendations based on Melissa data
   const generateRecommendations = () => {
@@ -813,15 +823,22 @@ function ValueBoostReport() {
 
     setIsSubmitting(true);
 
-    // Clean the phone number before saving
+    // Clean the input values - COPIED FROM MAIN FORM
+    let cleanName = contactInfo.name.trim();
     const phoneValidation = validateAndCleanPhone(contactInfo.phone);
     const cleanedPhone = phoneValidation.isValid ? phoneValidation.cleaned : contactInfo.phone;
 
+    // If the name had the autofill tag, remove it when user confirms - COPIED FROM MAIN FORM
+    if (cleanName.includes('(Autofilled by browser)')) {
+      cleanName = cleanName.replace(' (Autofilled by browser)', '');
+    }
+
     // Update form data with contact info
     updateFormData({
-      name: contactInfo.name,
+      name: cleanName,
       phone: cleanedPhone,
       email: contactInfo.email,
+      nameWasAutofilled: false, // Clear the autofill flag - COPIED FROM MAIN FORM
       leadStage: 'ValueBoost Report Qualified'
     });
 
@@ -1253,14 +1270,21 @@ Highest impact AI generated opportunities for your home  </p>
                         }
                         setIsSubmitting(true);
                         
-                        // Clean the phone number before saving
+                        // Clean the input values - COPIED FROM MAIN FORM
+                        let cleanName = contactInfo.name.trim();
                         const phoneValidation = validateAndCleanPhone(contactInfo.phone);
                         const cleanedPhone = phoneValidation.isValid ? phoneValidation.cleaned : contactInfo.phone;
                         
+                        // If the name had the autofill tag, remove it when user confirms - COPIED FROM MAIN FORM
+                        if (cleanName.includes('(Autofilled by browser)')) {
+                          cleanName = cleanName.replace(' (Autofilled by browser)', '');
+                        }
+                        
                         updateFormData({
-                          name: contactInfo.name,
+                          name: cleanName,
                           phone: cleanedPhone,
                           email: contactInfo.email || '',
+                          nameWasAutofilled: false, // Clear the autofill flag - COPIED FROM MAIN FORM
                           leadStage: 'ValueBoost Report Qualified'
                         });
                         try {
