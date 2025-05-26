@@ -202,8 +202,5 @@ export async function sendMainFormNotifications(leadData) {
   });
 }
 
-export default {
-  sendLeadNotifications,
-  sendValueBoostNotifications,
-  sendMainFormNotifications
-};
+// Named exports for easier import
+export { sendLeadNotifications, sendValueBoostNotifications, sendMainFormNotifications };
