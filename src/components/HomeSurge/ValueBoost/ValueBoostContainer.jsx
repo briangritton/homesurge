@@ -21,6 +21,11 @@ function ValueBoostContainer() {
 
 function ValueBoostFunnel() {
   const { formData, initFromUrlParams } = useFormContext();
+  
+  // Scroll to top whenever the form step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [formData.formStep]);
 
   // Initialize analytics and dynamic content from URL params (only once) - COPIED FROM MAIN FORM
   useEffect(() => {

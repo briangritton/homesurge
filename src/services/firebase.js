@@ -418,65 +418,93 @@ export async function updateLeadInFirebase(leadId, formData) {
       phone: formData.phone || ''
     });
     
-    // Include basic fields in updateData
+    // Start with required fields that must always be included (even if empty)
     const updateData = {
-      // IMPORTANT: Basic user info
+      // REQUIRED: Firebase expects these fields even if empty
       name: formData.name || '',
       phone: formData.phone || '',
       email: formData.email || '',
       firstName: firstName,
       lastName: lastName || "Contact",
       
-      // Include autofilled values if available
-      autoFilledName: formData.autoFilledName || '',
-      autoFilledPhone: formData.autoFilledPhone || '',
-      
-      // Address tracking
-      userTypedAddress: formData.userTypedAddress || '',
-      selectedSuggestionAddress: formData.selectedSuggestionAddress || '',
-      
-      // Basic address info if updated - using internal field names
-      street: formData.street || '',
-      city: formData.city || '',
-      state: formData.state || '',
-      zip: formData.zip || '',
-      
-      // Property data from Melissa API (in case they weren't in initial creation)
-      apiOwnerName: formData.apiOwnerName || '',
-      apiEstimatedValue: formData.apiEstimatedValue?.toString() || '',
-      apiMaxHomeValue: formData.apiMaxHomeValue?.toString() || '',
-      apiHomeValue: formData.apiEstimatedValue?.toString() || '',
-      apiEquity: formData.apiEquity?.toString() || '',
-      apiPercentage: formData.apiPercentage?.toString() || '',
-      
-      // CRITICAL: Include all campaign data in every update
-      campaign_name: formData.campaign_name || '',
-      campaign_id: formData.campaign_id || '',
-      adgroup_id: formData.adgroup_id || '',
-      adgroup_name: formData.adgroup_name || '',
-      keyword: formData.keyword || '',
-      matchtype: formData.matchtype || '',
-      gclid: formData.gclid || '',
-      device: formData.device || '',
-      traffic_source: formData.traffic_source || '',
-      templateType: formData.templateType || '',
-      url: formData.url || '',
-      
-      // Dynamic content data
-      dynamicHeadline: formData.dynamicHeadline || '',
-      dynamicSubHeadline: formData.dynamicSubHeadline || '',
-      
-      // Lead tracking info
-      leadSource: formData.leadSource || '',
-      leadStage: formData.leadStage || '',
-      addressSelectionType: formData.addressSelectionType || '',
-      
-      // Progress tracking
-      qualifyingQuestionStep: formData.qualifyingQuestionStep?.toString() || '',
-      
-      // System fields
+      // System fields always included
       updatedAt: serverTimestamp()
     };
+    
+    // Helper function to add field only if it has a meaningful value
+    const addFieldIfNotEmpty = (field, value) => {
+      if (value !== undefined && value !== null && value !== '') {
+        updateData[field] = value;
+      }
+    };
+    
+    // Helper function to add string field (converts to string if not empty)
+    const addStringFieldIfNotEmpty = (field, value) => {
+      if (value !== undefined && value !== null && value !== '') {
+        updateData[field] = value.toString();
+      }
+    };
+    
+    // Add fields only if they have meaningful values
+    addFieldIfNotEmpty('autoFilledName', formData.autoFilledName);
+    addFieldIfNotEmpty('autoFilledPhone', formData.autoFilledPhone);
+    addFieldIfNotEmpty('userTypedAddress', formData.userTypedAddress);
+    addFieldIfNotEmpty('selectedSuggestionAddress', formData.selectedSuggestionAddress);
+    
+    // Basic address info (only if provided)
+    addFieldIfNotEmpty('street', formData.street);
+    addFieldIfNotEmpty('city', formData.city);
+    addFieldIfNotEmpty('state', formData.state);
+    addFieldIfNotEmpty('zip', formData.zip);
+    
+    // Property data from APIs (only if provided)
+    addFieldIfNotEmpty('apiOwnerName', formData.apiOwnerName);
+    addStringFieldIfNotEmpty('apiEstimatedValue', formData.apiEstimatedValue);
+    addStringFieldIfNotEmpty('apiMaxHomeValue', formData.apiMaxHomeValue);
+    addStringFieldIfNotEmpty('apiHomeValue', formData.apiEstimatedValue);
+    addStringFieldIfNotEmpty('apiEquity', formData.apiEquity);
+    addStringFieldIfNotEmpty('apiPercentage', formData.apiPercentage);
+    
+    // Campaign data (only include if not "NOT PROVIDED" or empty)
+    if (formData.campaign_name && formData.campaign_name !== 'NOT PROVIDED') {
+      updateData.campaign_name = formData.campaign_name;
+    }
+    if (formData.campaign_id && formData.campaign_id !== 'NOT PROVIDED') {
+      updateData.campaign_id = formData.campaign_id;
+    }
+    if (formData.adgroup_id && formData.adgroup_id !== 'NOT PROVIDED') {
+      updateData.adgroup_id = formData.adgroup_id;
+    }
+    if (formData.adgroup_name && formData.adgroup_name !== 'NOT PROVIDED') {
+      updateData.adgroup_name = formData.adgroup_name;
+    }
+    if (formData.keyword && formData.keyword !== 'NOT PROVIDED') {
+      updateData.keyword = formData.keyword;
+    }
+    if (formData.matchtype && formData.matchtype !== 'NOT PROVIDED') {
+      updateData.matchtype = formData.matchtype;
+    }
+    if (formData.gclid && formData.gclid !== 'NOT PROVIDED') {
+      updateData.gclid = formData.gclid;
+    }
+    if (formData.device && formData.device !== 'NOT PROVIDED') {
+      updateData.device = formData.device;
+    }
+    
+    // Other tracking fields (only if provided)
+    addFieldIfNotEmpty('traffic_source', formData.traffic_source);
+    addFieldIfNotEmpty('templateType', formData.templateType);
+    addFieldIfNotEmpty('url', formData.url);
+    addFieldIfNotEmpty('dynamicHeadline', formData.dynamicHeadline);
+    addFieldIfNotEmpty('dynamicSubHeadline', formData.dynamicSubHeadline);
+    addFieldIfNotEmpty('leadSource', formData.leadSource);
+    addFieldIfNotEmpty('leadStage', formData.leadStage);
+    addFieldIfNotEmpty('addressSelectionType', formData.addressSelectionType);
+    addStringFieldIfNotEmpty('qualifyingQuestionStep', formData.qualifyingQuestionStep);
+    
+    // AI report fields (only if provided)
+    addFieldIfNotEmpty('aiHomeReport', formData.aiHomeReport);
+    addFieldIfNotEmpty('aiReportGeneratedAt', formData.aiReportGeneratedAt);
     
     // Only include qualifying fields if they have values or have been interacted with
     qualifyingFields.forEach(field => {

@@ -1170,6 +1170,7 @@
     margin: 0 auto;
     height: auto;
     min-height: auto;
+        padding: 0 20px;
 }
 
 .vb-ai-progress-container {
@@ -1604,6 +1605,11 @@ padding-top:0%;
   /* box-shadow: 0 0 20px 4px rgba(0, 184, 230, 0.15), 0 4px 15px rgba(0, 0, 0, 0.05); */
   max-width: 800px;
   margin: 0 auto 30px;
+}
+
+.vb-recommendations-section.no-border {
+  border: none;
+  border-image: none;
 }
 
 .vb-recommendations-title {

@@ -25,6 +25,11 @@ const visuallyHiddenStyle = {
 
 function AddressForm() {
   const { formData, updateFormData, nextStep } = useFormContext();
+  
+  // Scroll to top when component loads
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [googleApiLoaded, setGoogleApiLoaded] = useState(false);
@@ -390,6 +395,85 @@ function AddressForm() {
     });
   };
   
+  // Calculate ValueBoost potential based on property data - RESTORED FROM COMMIT 7335844
+  const calculateValueBoostPotential = (propertyData, formData) => {
+    try {
+      const currentValue = propertyData.apiEstimatedValue || 0;
+      if (currentValue === 0) {
+        return {
+          potentialValueIncrease: 0,
+          formattedPotentialIncrease: '$0',
+          valueIncreasePercentage: 0,
+          upgradesNeeded: 5
+        };
+      }
+
+      // Extract property attributes for calculation
+      const propertyRecord = propertyData.propertyRecord || {};
+      const yearBuilt = propertyRecord.PropertyUseInfo?.YearBuilt || propertyRecord.YearBuilt || 1980;
+      const propertyAge = new Date().getFullYear() - yearBuilt;
+      const squareFootage = propertyData.finishedSquareFootage || 
+                           (propertyRecord.PropertySize?.AreaBuilding) || 1500;
+
+      // Calculate base increase percentage based on property characteristics
+      let baseIncreasePercentage = 0.18; // Default 18% increase
+
+      // Older homes have higher improvement potential
+      if (propertyAge > 30) {
+        baseIncreasePercentage = 0.25; // 25% increase potential
+      } else if (propertyAge > 15) {
+        baseIncreasePercentage = 0.22; // 22% increase potential
+      } else if (propertyAge < 5) {
+        baseIncreasePercentage = 0.12; // 12% increase potential (newer homes)
+      }
+
+      // Adjust based on home size
+      if (squareFootage > 3000) {
+        baseIncreasePercentage -= 0.02;
+      } else if (squareFootage < 1200) {
+        baseIncreasePercentage += 0.03;
+      }
+
+      // Adjust based on neighborhood value/price point
+      if (currentValue > 750000) {
+        baseIncreasePercentage -= 0.03;
+      } else if (currentValue < 200000) {
+        baseIncreasePercentage += 0.04;
+      }
+
+      // Calculate the final increase amount
+      const increaseAmount = Math.round(currentValue * baseIncreasePercentage);
+      
+      // Format the increase amount
+      const formattedIncrease = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(increaseAmount);
+
+      // Calculate estimated upgrades needed (5-12 upgrades typical)
+      const upgradesNeeded = Math.max(5, Math.min(12, 
+        Math.round(5 + (baseIncreasePercentage - 0.12) * 20)
+      ));
+
+      return {
+        potentialValueIncrease: increaseAmount,
+        formattedPotentialIncrease: formattedIncrease,
+        valueIncreasePercentage: Math.round(baseIncreasePercentage * 100),
+        upgradesNeeded: upgradesNeeded
+      };
+    } catch (error) {
+      console.error('Error calculating ValueBoost potential:', error);
+      return {
+        potentialValueIncrease: 0,
+        formattedPotentialIncrease: '$0',
+        valueIncreasePercentage: 0,
+        upgradesNeeded: 5
+      };
+    }
+  };
+  
   // Fetch property data from Melissa API - COPIED FROM MAIN FORM  
   const fetchPropertyData = async (address) => {
     try {
@@ -504,7 +588,10 @@ function AddressForm() {
           }
         }
 
-        // Update form data with property information including equity fields
+        // VALUEBOOST CALCULATION - Add back the ValueBoost calculation logic
+        const valueBoostData = calculateValueBoostPotential(propertyData, formData);
+        
+        // Add ValueBoost calculations to form data update
         updateFormData({
           apiOwnerName: propertyData.apiOwnerName || '',
           apiEstimatedValue: propertyData.apiEstimatedValue || 0,
@@ -522,12 +609,19 @@ function AddressForm() {
           zip: formData.zip || propertyData.zip || '',
           // Store the full property record for access to all fields
           propertyRecord: propertyData.propertyRecord,
+          // ADD VALUEBOOST CALCULATIONS
+          potentialValueIncrease: valueBoostData.potentialValueIncrease,
+          formattedPotentialIncrease: valueBoostData.formattedPotentialIncrease,
+          valueIncreasePercentage: valueBoostData.valueIncreasePercentage,
+          upgradesNeeded: valueBoostData.upgradesNeeded
         });
         
-        console.log('Form data updated with property info:', {
+        console.log('Form data updated with property info and ValueBoost calculations:', {
           estimatedValue: formattedValue,
           apiEquity: propertyData.apiEquity,
-          apiPercentage: propertyData.apiPercentage
+          apiPercentage: propertyData.apiPercentage,
+          potentialValueIncrease: valueBoostData.potentialValueIncrease,
+          valueIncreasePercentage: valueBoostData.valueIncreasePercentage
         });
         
         return propertyData;

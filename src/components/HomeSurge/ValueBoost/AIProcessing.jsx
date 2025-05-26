@@ -5,6 +5,11 @@ import houseIcon from '../../../assets/images/house-icon.png';
 
 function AIProcessing() {
   const { formData, nextStep } = useFormContext();
+  
+  // Scroll to top when component loads
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
   const [processingStep, setProcessingStep] = useState(0);
   const [progressPercent, setProgressPercent] = useState(0);
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -16,6 +21,7 @@ function AIProcessing() {
   const [animatedValue, setAnimatedValue] = useState(formData.apiEstimatedValue ? Number(formData.apiEstimatedValue) : fallbackValue);
   const [aiReportGenerated, setAiReportGenerated] = useState(false);
   const [melissaDataReceived, setMelissaDataReceived] = useState(false);
+  const [animatedPercentage, setAnimatedPercentage] = useState(0);
   const mapContainerRef = useRef(null);
   const animationRef = useRef(null);
   const aiReportRef = useRef(null);
@@ -259,11 +265,12 @@ This analysis is based on current market conditions, comparable sales, and prove
       map.setOptions({ styles: hideLabelsStyle });
 
       // Add marker at property location - matching PersonalInfoForm
-      new window.google.maps.Marker({
-        position: location,
-        map: map,
-        animation: window.google.maps.Animation.DROP
-      });
+      // Hidden for cleaner appearance during AI processing
+      // new window.google.maps.Marker({
+      //   position: location,
+      //   map: map,
+      //   animation: window.google.maps.Animation.DROP
+      // });
 
       setMapLoaded(true);
     } catch (error) {
@@ -412,6 +419,70 @@ This analysis is based on current market conditions, comparable sales, and prove
     }
   }, [processingStep, formData.apiEstimatedValue, formData.potentialValueIncrease]);
 
+  // Animated percentage counting effect (when no API data available)
+  useEffect(() => {
+    // Only animate percentage if we don't have API data
+    if (!formData.apiEstimatedValue && processingStep >= 0) {
+      let targetPercentage;
+      let duration;
+      
+      // Define percentage progression based on processing steps
+      if (processingStep === 0) {
+        targetPercentage = 4;
+        duration = 400;
+      } else if (processingStep === 1) {
+        targetPercentage = 8;
+        duration = 500;
+      } else if (processingStep === 2) {
+        targetPercentage = 12;
+        duration = 600;
+      } else if (processingStep === 3) {
+        targetPercentage = 18;
+        duration = 650;
+      } else if (processingStep === 4) {
+        targetPercentage = 20;
+        duration = 700;
+      } else if (processingStep === 5) {
+        targetPercentage = 24;
+        duration = 750;
+      } else if (processingStep === 6) {
+        targetPercentage = 26;
+        duration = 800;
+      } else {
+        targetPercentage = 28;
+        duration = 600;
+      }
+      
+      // Animate to target percentage
+      const startPercentage = animatedPercentage;
+      const percentageDifference = targetPercentage - startPercentage;
+      const startTime = Date.now();
+      
+      const animatePercentage = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Use easing function for smooth animation
+        const easeProgress = 1 - Math.pow(1 - progress, 3);
+        const currentPercentage = Math.round(startPercentage + (percentageDifference * easeProgress));
+        
+        setAnimatedPercentage(currentPercentage);
+        
+        if (progress < 1) {
+          animationRef.current = requestAnimationFrame(animatePercentage);
+        }
+      };
+      
+      animationRef.current = requestAnimationFrame(animatePercentage);
+      
+      return () => {
+        if (animationRef.current) {
+          cancelAnimationFrame(animationRef.current);
+        }
+      };
+    }
+  }, [processingStep, animatedPercentage, formData.apiEstimatedValue]);
+
   // Modern animated scan line effect
   const scanLineStyle = {
     position: 'absolute',
@@ -491,7 +562,7 @@ This analysis is based on current market conditions, comparable sales, and prove
                 currency: 'USD',
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0
-              }).format(animatedValue) : 'Pending'}
+              }).format(animatedValue) : `+${animatedPercentage}%`}
             </div>
             
             <div className="vb-ai-value-boost">
@@ -503,7 +574,7 @@ This analysis is based on current market conditions, comparable sales, and prove
                   maximumFractionDigits: 0
                 }).format(animatedValue - (formData.apiEstimatedValue ? Number(formData.apiEstimatedValue) : fallbackValue))}`
               ) : (
-                'ValueBoost: Calculating'
+                'Calculating...'
               )}
             </div>
           </div>

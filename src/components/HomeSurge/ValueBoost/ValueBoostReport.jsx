@@ -7,6 +7,11 @@ import gradientArrow from '../../../assets/images/gradient-arrow.png';
 function ValueBoostReport() {
   const { formData, updateFormData, updateLead, nextStep } = useFormContext();
   
+  // Scroll to top when component loads
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+  
   // TESTING TOGGLE: Comment/uncomment the lines below to enable/disable dummy data for step 3
   const ENABLE_DUMMY_DATA = false; // Set to true for testing
   const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -920,13 +925,17 @@ function ValueBoostReport() {
       <div className="vb-report-container">
         <div className="vb-content vb-fade-in" style={contentStyle}>
           
-          {/* Header */}
-          <div className="vb-af1-hero-headline">
-            Value Scan Complete For:
-          </div>
-          <div className="vb-af1-hero-subheadline " style={{ marginBottom: '10px' }}>
-            {cleanAddress(testFormData.street) || '123 Main St'}
-          </div>
+          {/* Header - only show if API provided a valid value */}
+          {!!(testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) && (
+          <>
+            <div className="vb-af1-hero-headline">
+              Value Scan Complete For:
+            </div>
+            <div className="vb-af1-hero-subheadline " style={{ marginBottom: '10px' }}>
+              {cleanAddress(testFormData.street) || '123 Main St'}
+            </div>
+          </>
+          )}
 
           {/* Combined Value Boost Summary Box - only show if API provided a valid value */}
           {!!(testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) && (
@@ -1090,7 +1099,7 @@ function ValueBoostReport() {
           )}
 
           {/* Display recommendations */}
-          <div id="recommendations-section" className="vb-recommendations-section">
+          <div id="recommendations-section" className={`vb-recommendations-section ${!(testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) ? 'no-border' : ''}`}>
             <h2 className="vb-recommendations-title">
               Your Top 10 ValueBoost Recommendations
             </h2>
