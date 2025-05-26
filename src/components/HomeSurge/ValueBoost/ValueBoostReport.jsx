@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useFormContext } from '../../../contexts/FormContext';
 import additionalStrategies from './additionalStrategies';
 import { calculatePropertySpecificCost, calculatePropertySpecificROI } from './costCalculator';
+import { sendValueBoostNotifications } from '../../../services/notifications';
 import gradientArrow from '../../../assets/images/gradient-arrow.png';
 
 function ValueBoostReport() {
@@ -851,6 +852,36 @@ function ValueBoostReport() {
       // Send lead data to Zoho
       await updateLead();
 
+      // Send notifications (non-blocking background execution)
+      setTimeout(async () => {
+        try {
+          const leadData = {
+            name: cleanName,
+            phone: cleanedPhone,
+            address: testFormData.street,
+            email: contactInfo.email || '',
+            leadSource: 'ValueBoost Funnel',
+            campaign_name: formData.campaign_name || 'ValueBoost',
+            utm_source: formData.utm_source || '',
+            utm_medium: formData.utm_medium || '',
+            utm_campaign: formData.utm_campaign || '',
+            id: formData.leadId || localStorage.getItem('leadId') || ''
+          };
+
+          console.log('🔔 Sending ValueBoost lead notifications...');
+          const notificationResults = await sendValueBoostNotifications(leadData);
+          
+          if (notificationResults.summary.totalNotificationsSent > 0) {
+            console.log('✅ ValueBoost notifications sent successfully');
+          } else {
+            console.warn('⚠️ Some ValueBoost notifications may have failed');
+          }
+        } catch (error) {
+          console.error('❌ Error sending ValueBoost notifications:', error);
+          // Don't block the form submission if notifications fail
+        }
+      }, 0);
+
       // After successful submission
       setIsSubmitting(false);
       setSubmitted(true);
@@ -929,7 +960,7 @@ function ValueBoostReport() {
           {!!(testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) && (
           <>
             <div className="vb-af1-hero-headline">
-              Value Scan Complete For:
+              ValueBoost Report Ready:
             </div>
             <div className="vb-af1-hero-subheadline " style={{ marginBottom: '10px' }}>
               {cleanAddress(testFormData.street) || '123 Main St'}
