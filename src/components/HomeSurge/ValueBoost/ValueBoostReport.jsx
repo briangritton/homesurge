@@ -173,7 +173,7 @@ function ValueBoostReport() {
   const [showContactForm, setShowContactForm] = useState(false);
   const [contactInfo, setContactInfo] = useState({
     name: '', // Always empty - name field is commented out
-    phone: formData.autoFilledPhone || formData.phone || '',
+    phone: '', // Always start empty - no autofill
     email: formData.email || ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -185,15 +185,15 @@ function ValueBoostReport() {
   const [showAddressRetry, setShowAddressRetry] = useState(false);
   const [contactFormCompleted, setContactFormCompleted] = useState(false);
 
-  // Update contact info when autofill data becomes available - COPIED FROM MAIN FORM PATTERN
+  // Update contact info when data becomes available - NO PHONE AUTOFILL
   useEffect(() => {
     setContactInfo(prevState => ({
       ...prevState,
       name: '', // Always keep empty - name field is commented out
-      phone: formData.autoFilledPhone || formData.phone || prevState.phone,
+      phone: prevState.phone, // Keep user-entered value, no autofill
       email: formData.email || prevState.email
     }));
-  }, [formData.autoFilledName, formData.autoFilledPhone, formData.name, formData.phone, formData.email]);
+  }, [formData.email]);
 
   // Report loading timeout logic - reduced to 2.5 seconds for faster UX
   useEffect(() => {

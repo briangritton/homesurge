@@ -470,7 +470,7 @@
   padding: 14px 16px;
   font-size: 16px;
   border-radius: 10px;
-  border: 2px solid rgba(0, 184, 230, 0.2);
+  border: 2px solid rgba(9, 165, 200, 0.6);
   background: rgba(255, 255, 255, 0.9);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
   transition: all 0.2s ease;
@@ -493,7 +493,7 @@
 }
 .vb-af1-address-input {
     max-height: 28px;
-    border: 2px solid rgba(0, 184, 230, 0.5) !important;
+    border: 2px solid rgba(9, 165, 200, 0.7) !important;
     border-radius: 12px !important;
     box-shadow: 0 4px 12px rgba(0, 184, 230, 0.1) !important;
     background: white !important;
@@ -1945,6 +1945,41 @@ padding-top:0%;
   font-size: 16px;
   color: #666;
   padding:0 20px;
+}
+
+/* Subtle pulsing animation for address input field - using pseudo-element to avoid interfering with autofill */
+@keyframes addressInputGlow {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.vb-af1-address-input {
+  position: relative;
+}
+
+.vb-af1-address-input::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, rgba(0, 184, 230, 0.4), rgba(9, 165, 200, 0.4));
+  border-radius: 14px;
+  z-index: -1;
+  animation: addressInputGlow 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Remove animation when input is focused or has content */
+.vb-af1-address-input:focus::before,
+.vb-af1-address-input:not(:placeholder-shown)::before {
+  animation: none;
+  opacity: 0;
 }
 
 .vb-retry-chat-link {
