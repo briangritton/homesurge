@@ -76,46 +76,74 @@ function AddressForm() {
       // ========== CASH/SELLING CAMPAIGNS (From Form Funnel) ==========
       cash: {
         headline: 'Need to Sell Your Home Extremely Fast?',
-        subheadline: 'OfferBoost AI home scan will look for your maximum offer! Close in 7 days. No showings, no repairs, no stress',
-        buttonText: 'CHECK CASH OFFER'
+        subheadline: 'OfferBoost AI home scan will look for your <strong><em>maximum cash offer</em></strong>. Close in 7 days. No showings, no repairs, no stress',
+        buttonText: 'CHECK CASH OFFER',
+        exampleTag: 'Example OfferBoost Increase*',
+        potentialHeadline: 'Your OfferBoost Potential:',
+        opportunitiesText: '11 OfferBoost opportunities found!',
+        percentageText: 'Potential Cash Offer Increase'
       },
       
       fast: {
-        headline: 'Sell Your Home In 10 Days or Less',
-        subheadline: 'OfferBoost AI home scan will look for your maximum offer! Close in 7 days. No showings, no repairs, no stress',
-        buttonText: 'CHECK FAST OFFER'
+        headline: 'Need to Sell Your Home Extremely Fast?',
+        subheadline: 'OfferBoost AI home scan will look for your <strong><em>fastest maximum offer</em></strong>. Close in 7 days. No showings, no repairs, no stress',
+        buttonText: 'CHECK FAST OFFER',
+        exampleTag: 'Example OfferBoost Increase*',
+        potentialHeadline: 'Your OfferBoost Potential:',
+        opportunitiesText: '11 OfferBoost opportunities found!',
+        percentageText: 'Potential Cash Offer Increase'
       },
       
       // ========== VALUE/IMPROVEMENT CAMPAIGNS (Enhanced ValueBoost) ==========
       value: {
-        headline: 'Maximize Your Home Value With AI',
-        subheadline: 'Discover how your home value could increase by up to 36% with FREE AI personalized enhancement recommendations!',
-        buttonText: 'GET VALUE REPORT'
+        headline: 'Maximize Your Home Value With ValueBoost AI',
+        subheadline: 'ValueBoost AI home scan will look for your <strong><em>maximum home value</em></strong> with FREE AI personalized opportunity recommendations!',
+        buttonText: 'GET VALUE REPORT',
+        exampleTag: 'Example ValueBoost Increase*',
+        potentialHeadline: 'Your ValueBoost Potential:',
+        opportunitiesText: '11 ValueBoost opportunities found!',
+        percentageText: 'Potential Home Value Increase'
       },
       
       valueboost: {
         headline: 'Unlock Your Property\'s Maximum Value',
         subheadline: 'AI analysis reveals exactly which improvements will boost your home value the most',
-        buttonText: 'START VALUE ANALYSIS'
+        buttonText: 'START VALUE ANALYSIS',
+        exampleTag: 'Example ValueBoost Increase*',
+        potentialHeadline: 'Your ValueBoost Potential:',
+        opportunitiesText: '11 ValueBoost opportunities found!',
+        percentageText: 'Potential Home Value Increase'
       },
       
       boost: {
         headline: 'Boost Your Home Value Instantly',
         subheadline: 'AI-powered analysis reveals hidden value in your home. Get your personalized enhancement plan now!',
-        buttonText: 'BOOST MY VALUE'
+        buttonText: 'BOOST MY VALUE',
+        exampleTag: 'Example ValueBoost Increase*',
+        potentialHeadline: 'Your ValueBoost Potential:',
+        opportunitiesText: '11 ValueBoost opportunities found!',
+        percentageText: 'Potential Home Value Increase'
       },
       
       equity: {
         headline: 'Unlock Hidden Home Equity',
         subheadline: 'Find out how much equity you could gain with strategic home improvements guided by AI.',
-        buttonText: 'UNLOCK EQUITY'
+        buttonText: 'UNLOCK EQUITY',
+        exampleTag: 'Example ValueBoost Increase*',
+        potentialHeadline: 'Your ValueBoost Potential:',
+        opportunitiesText: '11 ValueBoost opportunities found!',
+        percentageText: 'Potential Home Value Increase'
       },
       
       // ========== DEFAULT FALLBACK ==========
       default: {
         headline: 'Maximize Your Home With ValueBoost AI',
         subheadline: 'Find out how your home value could increase by up to 36% with FREE AI personalized home enhancement report! Don\'t miss out on your maximum equity!',
-        buttonText: 'VIEW MAXIMUM VALUE'
+        buttonText: 'VIEW MAXIMUM VALUE',
+        exampleTag: 'Example ValueBoost Increase*',
+        potentialHeadline: 'Your ValueBoost Potential:',
+        opportunitiesText: '11 ValueBoost opportunities found!',
+        percentageText: 'Potential Home Value Increase'
       }
     };
     
@@ -1964,8 +1992,7 @@ function AddressForm() {
           <div className="vb-af1-hero-headline">
             {dynamicContent.headline}    
           </div>
-          <div className="vb-af1-hero-subheadline">
-            {dynamicContent.subheadline}
+          <div className="vb-af1-hero-subheadline" dangerouslySetInnerHTML={{ __html: dynamicContent.subheadline }}>
           </div>
           {/* ========================================= */}
           {/* END DYNAMIC CONTENT SECTION              */}
@@ -1986,11 +2013,11 @@ function AddressForm() {
           <div className="vb-value-boost-box">
             {/* Example indicator */}
             <div className="vb-box-tag">
-              Example OfferBoost Increase*
+              {dynamicContent.exampleTag}
             </div>
 
             <h2 className="vb-box-headline">
-              Your OfferBoost Potential:
+              {dynamicContent.potentialHeadline}
             </h2>
 
             {/* Responsive container for values */}
@@ -2041,10 +2068,10 @@ function AddressForm() {
             </div>
 
             <p className="vb-opportunities-text">
-              <strong>11 OfferBoost opportunities found!</strong>
+              <strong>{dynamicContent.opportunitiesText}</strong>
             </p>
             <p className="vb-percentage-text">
-              Potential Cash Offer Increase: 22%
+              {dynamicContent.percentageText}: 22%
             </p>
 
           </div>

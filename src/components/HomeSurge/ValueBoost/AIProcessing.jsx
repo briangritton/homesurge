@@ -125,16 +125,12 @@ function AIProcessing() {
   const animationRef = useRef(null);
   const aiReportRef = useRef(null);
   
-  // Steps in the AI processing sequence
+  // Steps in the AI processing sequence (reduced for better pacing)
   const processingSteps = [
     'Initializing AI analysis and property scan...',
-    'Loading property data and market information...',
     'Evaluating current market conditions...',
-    'Analyzing nearby comparable properties...',
     'Identifying highest ROI hidden opportunities...',
-    'Calculating potential value increase value fast...',
     'Building customized value boost plan...',
-    'Finalizing AI recommendations and strategies...',
     'Value boost report ready!'
   ];
 
@@ -340,10 +336,10 @@ function AIProcessing() {
     // Calculate timing - faster at start, slower in the middle for realism
     const getStepDuration = (step) => {
       // Middle steps take longer for more realistic analysis appearance
-      if (step >= 2 && step <= 5) {
-        return 1000 + Math.random() * 500; // 1-1.5 seconds for middle steps
+      if (step >= 1 && step <= 3) {
+        return 800 + Math.random() * 400; // 0.8-1.2 seconds for middle steps
       } else {
-        return 750 + Math.random() * 250; // 0.75-1 seconds for other steps
+        return 600 + Math.random() * 300; // 0.6-0.9 seconds for other steps
       }
     };
 
@@ -362,7 +358,7 @@ function AIProcessing() {
             // Track completion of AI processing step
             trackFormStepComplete(2, 'ValueBoost AI Processing Completed', formData);
             nextStep();
-          }, 1000);
+          }, 800);
           
           // 🎨 STYLING DELAY: chagne line to 1000000 for development delay. 
           // setTimeout(() => { nextStep(); }, 600000); // 10 minutes = 600000ms

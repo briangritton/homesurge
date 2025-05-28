@@ -421,13 +421,13 @@
 }
 
 .vb-features-bubble {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 10px;
-  padding: 18px;
-  max-width: 450px;
- width: auto;
-  border: 1px solid rgba(0, 184, 230, 0.1);
-  margin-bottom: 30px;
+    background: #fffffff2;
+    /* border: 1px solid #00b8e61a; */
+    border-radius: 10px;
+    margin-bottom: 30px;
+    max-width: 450px;
+    /* padding: 18px; */
+    width: auto;
 }
 
 .vb-feature-item {
@@ -1622,7 +1622,7 @@ padding-top:0%;
 .vb-recommendations-section.no-border {
   border: none;
   border-image: none;
-  margin-top: -30px;
+  /* margin-top: -30px; */
 }
 
 .vb-recommendations-title {
@@ -1767,7 +1767,7 @@ padding-top:0%;
 
 
      .vb-recommendations-section {
-        margin: 30px 20px 0;
+        margin: 0px 20px 0;
         padding: 0px;
     }
   
@@ -1780,14 +1780,13 @@ padding-top:0%;
 
 /* Unlock section wrapper styles */
 .vb-unlock-section-wrapper {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 15px;
-    padding: 30px;
-    /* margin: 20px auto; */
-    max-width: 600px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
-    /* border: 1px solid rgba(255, 255, 255, 0.2); */
+    background: #fffffff2;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px #0000001a;
+    max-width: 600px;
+    padding: 20px;
 }
 
 @keyframes pulseLock {
@@ -2161,7 +2160,7 @@ padding-top:0%;
 /* Mobile responsive loading states */
 @media (max-width: 768px) {
   .vb-loading-container, .vb-ready-container, .vb-retry-container {
-        min-height: 250px;
+        /* min-height: 250px; */
         padding: 0px 15px;
     }
   

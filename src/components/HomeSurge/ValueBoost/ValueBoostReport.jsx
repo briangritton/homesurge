@@ -44,9 +44,10 @@ function ValueBoostReport() {
         potentialHeadline: 'Your OfferBoost Potential:',
         recommendationsTitle: 'Your Top 10 OfferBoost Strategies',
         recommendationsSubtitle: 'Maximize your cash offer with these proven strategies',
-        unlockHeadline: 'Unlock Your FREE OfferBoost Report',
+        unlockHeadline: 'Get Your FREE OfferBoost Cash Offer Report',
         unlockSubtext: 'Get your complete cash offer analysis with all selling strategies',
-        conciergeHeadline: 'Want Expert Help Maximizing Your Cash Offer?'
+        conciergeHeadline: 'Want Expert Help Maximizing Your Cash Offer?',
+        buttonText: 'GET CASH OFFER'
       },
       
       fast: {
@@ -54,19 +55,21 @@ function ValueBoostReport() {
         potentialHeadline: 'Your OfferBoost Potential:',
         recommendationsTitle: 'Your Top 10 OfferBoost Accelerators',
         recommendationsSubtitle: 'Speed up your sale with these time-tested strategies',
-        unlockHeadline: 'Unlock Your FREE OfferBoost Report',
+        unlockHeadline: 'Get Your FREE OfferBoost Cash Offer Report',
         unlockSubtext: 'Get your complete fast sale strategy with timeline optimization',
-        conciergeHeadline: 'Want Expert Help Selling Lightning Fast?'
+        conciergeHeadline: 'Want Expert Help Selling Lightning Fast?',
+        buttonText: 'CHECK FAST OFFER'
       },
       
       sellfast: {
-        reportHeadline: 'Your OfferBoost Analysis Ready:',
+        reportHeadline: 'Your OfferBoost Fast Offer Analysis is Ready!',
         potentialHeadline: 'Your OfferBoost Potential:',
         recommendationsTitle: 'Your Top 10 OfferBoost Tactics',
         recommendationsSubtitle: 'Get cash fast with these immediate action strategies',
-        unlockHeadline: 'Unlock Your FREE OfferBoost Report',
+        unlockHeadline: 'Get Your FREE OfferBoost Cash Offer Report',
         unlockSubtext: 'Get your complete instant sale guide with cash offer optimization',
-        conciergeHeadline: 'Want Expert Help Getting Cash Now?'
+        conciergeHeadline: 'Want Expert Help Getting Cash Now?',
+        buttonText: 'GET CASH OFFER'
       },
       
       // ========== VALUE/IMPROVEMENT CAMPAIGNS ==========
@@ -75,9 +78,10 @@ function ValueBoostReport() {
         potentialHeadline: 'Your ValueBoost Potential:',
         recommendationsTitle: 'Your Top 10 ValueBoost Recommendations',
         recommendationsSubtitle: 'Here are the Highest impact AI generated opportunities for your home',
-        unlockHeadline: 'Unlock Your FREE ValueBoost Report',
+        unlockHeadline: 'Get Your FREE ValueBoost Report',
         unlockSubtext: 'Unlock your full property value report with all personalized recommendations',
-        conciergeHeadline: 'Want Expert Help Implementing These Improvements?'
+        conciergeHeadline: 'Want Expert Help Implementing These Improvements?',
+        buttonText: 'GET VALUE REPORT'
       },
       
       valueboost: {
@@ -85,9 +89,10 @@ function ValueBoostReport() {
         potentialHeadline: 'Your Maximum Value Potential:',
         recommendationsTitle: 'Your Top 10 Value Maximizers',
         recommendationsSubtitle: 'AI-powered strategies to unlock your property\'s hidden value',
-        unlockHeadline: 'Unlock Your FREE Value Maximization Report',
+        unlockHeadline: 'Get Your FREE Value Maximization Report',
         unlockSubtext: 'Get your complete value enhancement plan with ROI projections',
-        conciergeHeadline: 'Want Expert Help Maximizing Your Property Value?'
+        conciergeHeadline: 'Want Expert Help Maximizing Your Property Value?',
+        buttonText: 'GET VALUE REPORT'
       },
       
       boost: {
@@ -95,9 +100,10 @@ function ValueBoostReport() {
         potentialHeadline: 'Your Property Boost Potential:',
         recommendationsTitle: 'Your Top 10 Value Boosters',
         recommendationsSubtitle: 'Proven improvements that deliver maximum value increase',
-        unlockHeadline: 'Unlock Your FREE Value Boost Report',
+        unlockHeadline: 'Get Your FREE Value Boost Report',
         unlockSubtext: 'Get your complete value boost strategy with investment priorities',
-        conciergeHeadline: 'Want Expert Help Boosting Your Home Value?'
+        conciergeHeadline: 'Want Expert Help Boosting Your Home Value?',
+        buttonText: 'GET VALUE REPORT'
       },
       
       equity: {
@@ -105,9 +111,10 @@ function ValueBoostReport() {
         potentialHeadline: 'Your Hidden Equity Potential:',
         recommendationsTitle: 'Your Top 10 Equity Unlocking Strategies',
         recommendationsSubtitle: 'Strategic improvements to maximize your home equity',
-        unlockHeadline: 'Unlock Your FREE Equity Analysis Report',
+        unlockHeadline: 'Get Your FREE Equity Maximizer Report',
         unlockSubtext: 'Get your complete equity enhancement plan with growth projections',
-        conciergeHeadline: 'Want Expert Help Unlocking Your Home Equity?'
+        conciergeHeadline: 'Want Expert Help Unlocking Your Home Equity?',
+        buttonText: 'GET VALUE REPORT'
       },
       
       // ========== DEFAULT FALLBACK ==========
@@ -116,9 +123,10 @@ function ValueBoostReport() {
         potentialHeadline: 'Your ValueBoost Potential:',
         recommendationsTitle: 'Your Top 10 ValueBoost Recommendations',
         recommendationsSubtitle: 'Here are the Highest impact AI generated opportunities for your home',
-        unlockHeadline: 'Unlock Your FREE ValueBoost Report',
+        unlockHeadline: 'Get Your FREE ValueBoost Report',
         unlockSubtext: 'Unlock your full property value report with all personalized recommendations',
-        conciergeHeadline: 'Want Expert Help Implementing These Improvements?'
+        conciergeHeadline: 'Want Expert Help Implementing These Improvements?',
+        buttonText: 'GET VALUE REPORT'
       }
     };
     
@@ -164,7 +172,7 @@ function ValueBoostReport() {
   } : formData;
   const [showContactForm, setShowContactForm] = useState(false);
   const [contactInfo, setContactInfo] = useState({
-    name: formData.autoFilledName || formData.name || '',
+    name: '', // Always empty - name field is commented out
     phone: formData.autoFilledPhone || formData.phone || '',
     email: formData.email || ''
   });
@@ -181,13 +189,13 @@ function ValueBoostReport() {
   useEffect(() => {
     setContactInfo(prevState => ({
       ...prevState,
-      name: formData.autoFilledName || formData.name || prevState.name,
+      name: '', // Always keep empty - name field is commented out
       phone: formData.autoFilledPhone || formData.phone || prevState.phone,
       email: formData.email || prevState.email
     }));
   }, [formData.autoFilledName, formData.autoFilledPhone, formData.name, formData.phone, formData.email]);
 
-  // Report loading timeout logic - same as Form funnel (5 seconds)
+  // Report loading timeout logic - reduced to 2.5 seconds for faster UX
   useEffect(() => {
     let loadingTimeoutId = null;
     
@@ -216,9 +224,9 @@ function ValueBoostReport() {
     setShowReportReady(false);
     setShowAddressRetry(false);
     
-    // Set timeout to show "report ready" message + contact form after 5 seconds
+    // Set timeout to show "report ready" message + contact form after 2.5 seconds
     loadingTimeoutId = setTimeout(() => {
-      // After 5 seconds, always show "report ready" + contact form
+      // After 2.5 seconds, always show "report ready" + contact form
       // API status doesn't matter - contact form is always required
       setReportLoading(false);
       setShowReportReady(true);
@@ -235,15 +243,17 @@ function ValueBoostReport() {
       
       // Clean up the interval after 30 seconds
       setTimeout(() => clearInterval(dataCheckInterval), 30000);
-    }, 5000); // 5 seconds minimum loading time
+    }, 2500); // 2.5 seconds minimum loading time
     
-    // Handle data arriving during the loading phase  
+    // Handle data arriving during the loading phase - show immediately when ready
     if (!isReturnFromRetry) {
       const earlyDataCheck = setInterval(() => {
         if (formData.apiEstimatedValue && formData.apiEstimatedValue > 0) {
-          // Even if data arrives early, still show contact form after 5 seconds
-          // Just log that data is ready, but don't change the UI flow
-          console.log('✅ API data received during loading, but will still show contact form');
+          // API data is ready - show report immediately, skip loading delay
+          console.log('✅ API data received early - showing report immediately');
+          clearTimeout(loadingTimeoutId); // Cancel the 2.5 second delay
+          setReportLoading(false);
+          setShowReportReady(true);
           clearInterval(earlyDataCheck);
         }
       }, 500); // Check every 500ms
@@ -1011,17 +1021,18 @@ function ValueBoostReport() {
   const validateForm = () => {
     const errors = {};
 
-    if (!contactInfo.name || contactInfo.name.trim() === '') {
-      errors.name = 'Name is required';
-    }
+    // Name is no longer required - commented out
+    // if (!contactInfo.name || contactInfo.name.trim() === '') {
+    //   errors.name = 'Name is required';
+    // }
 
-    // Validate phone number
+    // Validate phone number - this is the only required field
     const phoneValidation = validateAndCleanPhone(contactInfo.phone);
     if (!phoneValidation.isValid) {
       errors.phone = phoneValidation.error;
     }
 
-    // Email is optional now
+    // Email is optional
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -1041,15 +1052,15 @@ function ValueBoostReport() {
     console.log('🔥 Form validation passed, proceeding with submission');
     setIsSubmitting(true);
 
-    // Clean the input values - COPIED FROM MAIN FORM
-    let cleanName = contactInfo.name.trim();
+    // Clean the input values - MODIFIED: name always empty for Firebase rules compliance
+    let cleanName = ''; // Always send empty string for name to satisfy Firebase rules
     const phoneValidation = validateAndCleanPhone(contactInfo.phone);
     const cleanedPhone = phoneValidation.isValid ? phoneValidation.cleaned : contactInfo.phone;
 
-    // If the name had the autofill tag, remove it when user confirms - COPIED FROM MAIN FORM
-    if (cleanName.includes('(Autofilled by browser)')) {
-      cleanName = cleanName.replace(' (Autofilled by browser)', '');
-    }
+    // Name field is no longer used - commented out autofill logic
+    // if (cleanName.includes('(Autofilled by browser)')) {
+    //   cleanName = cleanName.replace(' (Autofilled by browser)', '');
+    // }
 
     // Update form data with contact info
     updateFormData({
@@ -1273,16 +1284,13 @@ function ValueBoostReport() {
                     
                     // CASH/SELLING CAMPAIGN LOADING MESSAGES
                     if (simplified.includes('cash') || simplified.includes('sellfast') || simplified.includes('sell_fast') || simplified.includes('fast')) {
-                      return 'Processing Your OfferBoost Analysis...';
+                      return 'Processing Your OfferBoost Cash Offer Analysis...';
                     }
                   }
                   
                   // Default to ValueBoost for value/improvement campaigns
                   return 'Generating Your ValueBoost Report...';
                 })()}
-              </div>
-              <div className="vb-af1-hero-subheadline">
-                AI is analyzing your property data and market conditions
               </div>
               
               {/* Animated dots */}
@@ -1317,7 +1325,7 @@ function ValueBoostReport() {
                     
                     // CASH/SELLING CAMPAIGN READY MESSAGES
                     if (simplified.includes('cash') || simplified.includes('sellfast') || simplified.includes('sell_fast') || simplified.includes('fast')) {
-                      return 'Your OfferBoost Analysis is Ready!';
+                      return 'Your OfferBoost Cash Offer Analysis is Ready!';
                     }
                   }
                   
@@ -1326,7 +1334,7 @@ function ValueBoostReport() {
                 })()}
               </div>
               <div className="vb-af1-hero-subheadline">
-                Check your OfferBoost cash offer below, and unlock your FREE AI powered custom home value report. No obligation, no strings attached.                                             
+               Check your OfferBoost cash offer below, and unlock your FREE AI powered custom home value and offer optimization report. No obligation, no strings attached..
               </div>
             </div>
           )}
@@ -1554,7 +1562,8 @@ function ValueBoostReport() {
           )}
           */}
 
-          {/* Display recommendations */}
+          {/* Display recommendations - only show when API data is ready OR timeout expired */}
+          {((testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) || showReportReady) && (
           <div id="recommendations-section" className={`vb-recommendations-section ${!(testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) ? 'no-border' : ''}`}>
             <h2 className="vb-recommendations-title">
               {dynamicContent.recommendationsTitle}
@@ -1665,8 +1674,8 @@ function ValueBoostReport() {
                 </>
               )}
 
-              {/* Locked overlay - only shown when not unlocked */}
-              {!unlocked && (
+              {/* Locked overlay - only shown when not unlocked AND (API data ready OR timeout expired) */}
+              {!unlocked && ((testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) || showReportReady) && (
                 <div className="vb-locked-overlay">
                   {/* Opaque background wrapper for the unlock section */}
                   <div className="vb-unlock-section-wrapper">
@@ -1684,13 +1693,13 @@ function ValueBoostReport() {
                       <div className="vb-feature-item">
                         <div className="vb-feature-icon">✓</div>
                         <p className="vb-feature-text">
-                          <strong>All {dynamicContent.reportHeadline.includes('OfferBoost') ? 'OfferBoost' : 'ValueBoost'} recommendations</strong> for your property
+                          <strong>All {dynamicContent.reportHeadline.includes('OfferBoost') ? 'OfferBoost cash offer' : 'ValueBoost'} opportunities</strong> for your property
                         </p>
                       </div>
                       <div className="vb-feature-item">
                         <div className="vb-feature-icon">✓</div>
                         <p className="vb-feature-text">
-                          <strong>Detailed maximum {dynamicContent.reportHeadline.includes('OfferBoost') ? 'OfferBoost' : 'ValueBoost'} calculations</strong> for each report item
+                          <strong>Detailed maximum {dynamicContent.reportHeadline.includes('OfferBoost') ? 'OfferBoost' : 'ValueBoost'} calculations</strong> for maximizing home value
                         </p>
                       </div>
                       <div className="vb-feature-item">
@@ -1704,14 +1713,15 @@ function ValueBoostReport() {
                     {/* Inline form fields */}
                     <div className="vb-unlock-form-container">
                       <div className="vb-optin-form-fields">
-                        <input
+                        {/* Name field commented out - only phone required */}
+                        {/* <input
                           type="text"
                           name="name"
                           value={contactInfo.name}
                           onChange={handleInputChange}
                           placeholder="Your name"
                           className={`vb-unlock-input ${formErrors.name ? 'vb-unlock-input-error' : ''}`}
-                        />
+                        /> */}
                         <input
                           type="tel"
                           name="phone"
@@ -1721,9 +1731,9 @@ function ValueBoostReport() {
                           className={`vb-unlock-input ${formErrors.phone ? 'vb-unlock-input-error' : ''}`}
                         />
                       </div>
-                      {(formErrors.name || formErrors.phone) && (
+                      {formErrors.phone && (
                         <div className="vb-unlock-form-error">
-                          {formErrors.name || formErrors.phone}
+                          {formErrors.phone}
                         </div>
                       )}
                     </div>
@@ -1736,15 +1746,15 @@ function ValueBoostReport() {
                         }
                         setIsSubmitting(true);
                         
-                        // Clean the input values - COPIED FROM MAIN FORM
-                        let cleanName = contactInfo.name.trim();
+                        // Clean the input values - MODIFIED: name always empty for Firebase rules compliance
+                        let cleanName = ''; // Always send empty string for name to satisfy Firebase rules
                         const phoneValidation = validateAndCleanPhone(contactInfo.phone);
                         const cleanedPhone = phoneValidation.isValid ? phoneValidation.cleaned : contactInfo.phone;
                         
-                        // If the name had the autofill tag, remove it when user confirms - COPIED FROM MAIN FORM
-                        if (cleanName.includes('(Autofilled by browser)')) {
-                          cleanName = cleanName.replace(' (Autofilled by browser)', '');
-                        }
+                        // Name field is no longer used - commented out autofill logic
+                        // if (cleanName.includes('(Autofilled by browser)')) {
+                        //   cleanName = cleanName.replace(' (Autofilled by browser)', '');
+                        // }
                         
                         updateFormData({
                           name: cleanName,
@@ -1866,7 +1876,7 @@ function ValueBoostReport() {
                       disabled={isSubmitting}
                       className="vb-unlock-button vb-button-flare"
                     >
-                      {isSubmitting ? 'Unlocking...' : 'CHECK REPORT NOW'}
+                      {isSubmitting ? 'Unlocking...' : dynamicContent.buttonText}
                     </button>
 
                     <div className="vb-unlock-security-text">
@@ -1878,6 +1888,7 @@ function ValueBoostReport() {
               )}
             </div>
           </div>
+          )}
           
           {/* CTA section - only shown when not already showing contact form and not already submitted */}
           {!showContactForm && !submitted ? (
@@ -2086,13 +2097,15 @@ function ValueBoostReport() {
             </div>
           ) : null}
           
-          {/* Additional information */}
+          {/* Additional information - only show when API data is ready OR timeout expired */}
+          {((testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) || showReportReady) && (
           <div style={{ fontSize: '14px', color: '#666', textAlign: 'center', marginBottom: '20px' }}>
             <p>
               This report is based on current market conditions and property data, but actual results may vary.
               Recommendations are personalized based on your specific property attributes and location.
             </p>
           </div>
+          )}
         </div>
       </div>
     </div>
