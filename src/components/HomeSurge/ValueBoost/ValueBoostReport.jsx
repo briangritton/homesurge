@@ -40,7 +40,7 @@ function ValueBoostReport() {
     const templates = {
       // ========== CASH/SELLING CAMPAIGNS ==========
       cash: {
-        reportHeadline: 'Your OfferBoost Analysis Ready:',
+        reportHeadline: 'Your OfferBoost Cash Offer Analysis is Ready!:',
         potentialHeadline: 'Your OfferBoost Potential:',
         recommendationsTitle: 'Your Top 10 OfferBoost Strategies',
         recommendationsSubtitle: 'Maximize your cash offer with these proven strategies',
@@ -1326,7 +1326,8 @@ function ValueBoostReport() {
                 })()}
               </div>
               <div className="vb-af1-hero-subheadline">
-                Complete the form below to access your personalized recommendations
+                Check your OfferBoost cash offer below, and unlock your FREE AI powered custom home value report. No obligation, no strings    │
+│   attached.                                             
               </div>
             </div>
           )}
@@ -1529,7 +1530,8 @@ function ValueBoostReport() {
           {/* END SPLIT TEST AREA - STEP 3 BOX         */}
           {/* ========================================= */}
 
-          {/* Down arrow to guide user to recommendations */}
+          {/* Down arrow to guide user to recommendations - COMMENTED OUT */}
+          {/* 
           {!!(testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) && (
             <div style={{
               display: 'flex',
@@ -1551,6 +1553,7 @@ function ValueBoostReport() {
               />
             </div>
           )}
+          */}
 
           {/* Display recommendations */}
           <div id="recommendations-section" className={`vb-recommendations-section ${!(testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) ? 'no-border' : ''}`}>

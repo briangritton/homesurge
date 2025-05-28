@@ -1088,6 +1088,9 @@
     font-size: 2rem;
     font-weight: 700;
     line-height: 1.2;
+    text-wrap: pretty;
+    orphans: 2;
+    widows: 2;
 }
 .vb-af1-hero-middle-container {
     padding-top: 0px;
@@ -1116,6 +1119,9 @@
     line-height: 1.2;
     margin: 20px 0px;
     color: #444;
+    text-wrap: pretty;
+    orphans: 2;
+    widows: 2;
 }
 /* AI Processing page specific styles */
 .vb-ai-section {
@@ -1463,32 +1469,37 @@ margin-bottom: 0px;
     padding-top: 0px;
     font-size: 1.7rem !important;
     line-height: 1;
+    text-wrap: pretty;
+    orphans: 2;
+    widows: 2;
 }
 
-  .vb-value-boost-box {
-    margin: 0 20px 40px !important;
-    padding: 20px 15px !important;
-    max-width: calc(100vw - 40px) !important;
-  }
+    .vb-value-boost-box {
+        /* margin: 0 20px 40px !important; */
+        /* padding: 20px 15px !important; */
+        max-width: calc(100vw - 40px) !important;
+        margin-bottom: 10px !important;
+    }
   
   /* Consistent mobile spacing for all form elements */
-  .vb-af1-hero-subheadline  {
-       
+  .vb-af1-hero-subheadline {
         padding: 0 20px !important;
-        margin-bottom: 20px !important;
+        margin-bottom: 25px !important;
         font-size: 1.1rem;
         line-height: 1.1;
         margin-top: 15px;
-    
+        text-wrap: pretty;
+        orphans: 2;
+        widows: 2;
     }
   
   /* Form container mobile spacing */
-  .vb-af1-form-container {
-    padding: 0 20px !important;
-    margin: 10px auto !important;
-    max-width: calc(100vw - 40px) !important;
-    box-sizing: border-box !important;
-  }
+      .vb-af1-form-container {
+        padding: 0 0px !important;
+        margin: 10px auto !important;
+        max-width: calc(100vw - 40px) !important;
+        box-sizing: border-box !important;
+    }
   
   /* Input and button mobile spacing */
   .vb-af1-address-input {
@@ -1622,6 +1633,7 @@ padding-top:0%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  display:none;
 }
 
 .vb-recommendations-subtitle {
@@ -1634,6 +1646,7 @@ padding-top:0%;
     /* -webkit-text-fill-color: transparent; */
     background-clip: text;
     font-weight: bold;
+    display:none;
     margin-top: 10px;
 }
 
@@ -2013,16 +2026,15 @@ padding-top:0%;
 }
 
 /* Loading States for ValueBoost Report */
-.vb-loading-container,
-.vb-ready-container,
-.vb-retry-container {
-  text-align: center;
-  padding: 40px 20px;
-  min-height: 300px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+.vb-loading-container, .vb-ready-container, .vb-retry-container {
+    align-items: center;
+    display: flex
+;
+    flex-direction: column;
+    /* justify-content: center; */
+    /* min-height: 300px; */
+    padding: 40px 20px;
+    text-align: center;
 }
 
 .vb-retry-button {
@@ -2084,15 +2096,28 @@ padding-top:0%;
   }
 }
 
+/* AI Wave Animation Container */
+.ai-wave-container {
+    display: flex
+;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 80px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    margin-top: -20px;
+}
+
 /* CSS Complex Rotating Wave Animation - Replaces GIF */
 .css-wave-container {
   position: relative;
   width: 200px;
-  height: 62.5px;
+  height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: visible;
+  overflow: hidden;
   border-radius: 8px;
   transform: translate3d(0, 0, 0);
 }
@@ -2100,71 +2125,45 @@ padding-top:0%;
 .rotating-wave {
   opacity: 0.4;
   position: absolute;
-  top: 50%;
+  top: 120%;
   left: 50%;
-  width: 80px;
-  height: 80px;
-  margin-left: -40px;
-  margin-top: -40px;
+  background: #09a5c8;
+  width: 300px;
+  height: 300px;
+  margin-left: -150px;
+  margin-top: -150px;
   transform-origin: 50% 48%;
   border-radius: 43%;
-  animation: waveDrift 3000ms infinite linear;
+  animation: drift 8000ms infinite linear;
 }
 
 .wave-one {
-  background: linear-gradient(45deg, #09a5c8, #236b6d);
-  opacity: 0.5;
-  animation: waveDrift 3000ms infinite linear;
+  animation: drift 8000ms infinite linear;
 }
 
 .wave-two {
-  background: linear-gradient(135deg, #236b6d, #09a5c8);
-  opacity: 0.3;
-  animation: waveDrift 5000ms infinite linear reverse;
+  animation: drift 12000ms infinite linear;
+  opacity: 0.2;
+  background: #0891b2;
 }
 
 .wave-three {
-  background: linear-gradient(225deg, #09a5c8, #0099bb);
-  opacity: 0.6;
-  animation: waveDrift 7000ms infinite linear;
+  animation: drift 15000ms infinite linear;
+  opacity: 0.1;
+  background: #0e7490;
 }
 
-@keyframes waveDrift {
-  from { 
-    transform: rotate(0deg); 
-  }
-  to { 
-    transform: rotate(360deg); 
-  }
-}
-
-/* Add subtle overlay for depth */
-.css-wave-container::after {
-  content: '';
-  display: block;
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(to bottom, 
-    rgba(9, 165, 200, 0.1) 0%, 
-    rgba(35, 107, 109, 0.05) 40%,
-    transparent 70%, 
-    rgba(255, 255, 255, 0.1) 100%);
-  z-index: 1;
-  transform: translate3d(0, 0, 0);
-  pointer-events: none;
+@keyframes drift {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* Mobile responsive loading states */
 @media (max-width: 768px) {
-  .vb-loading-container,
-  .vb-ready-container,
-  .vb-retry-container {
-    padding: 30px 15px;
-    min-height: 250px;
-  }
+  .vb-loading-container, .vb-ready-container, .vb-retry-container {
+        min-height: 250px;
+        padding: 0px 15px;
+    }
   
   .vb-loading-dots {
     margin-top: 25px;

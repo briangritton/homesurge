@@ -7,10 +7,9 @@ import { lookupPropertyInfo } from '../../../services/maps.js';
 import { lookupPhoneNumbers } from '../../../services/batchdata.js';
 import { createSuggestionLead, updateLeadInFirebase } from '../../../services/firebase.js';
 import { generateAIValueBoostReport } from '../../../services/openai';
-import { formatSubheadline, formatText } from '../../../utils/textFormatting';
+// Removed formatSubheadline, formatText - using CSS text-wrap: pretty instead
 import gradientArrow from '../../../assets/images/gradient-arrow.png';
-import waveAnimation from '../../../assets/images/wave.gif';
-import axios from 'axios';
+import waveImage from '../../../assets/images/wave.png';
 
 // CSS for visually hidden fields
 const visuallyHiddenStyle = {
@@ -77,20 +76,14 @@ function AddressForm() {
       // ========== CASH/SELLING CAMPAIGNS (From Form Funnel) ==========
       cash: {
         headline: 'Need to Sell Your Home Extremely Fast?',
-        subheadline: 'Get a great cash offer today. Close in 7 days. No showings, no repairs, no stress',
+        subheadline: 'OfferBoost AI home scan will look for your maximum offer! Close in 7 days. No showings, no repairs, no stress',
         buttonText: 'CHECK CASH OFFER'
       },
       
       fast: {
         headline: 'Sell Your Home In 10 Days or Less',
-        subheadline: 'Get a great cash offer today. Close in 7 days. No showings, no repairs, no stress',
+        subheadline: 'OfferBoost AI home scan will look for your maximum offer! Close in 7 days. No showings, no repairs, no stress',
         buttonText: 'CHECK FAST OFFER'
-      },
-      
-      sellfast: {
-        headline: 'Sell Your Home Lightning Fast',
-        subheadline: 'Skip the hassle - get a cash offer and close in days, not months',
-        buttonText: 'GET INSTANT OFFER'
       },
       
       // ========== VALUE/IMPROVEMENT CAMPAIGNS (Enhanced ValueBoost) ==========
@@ -1969,10 +1962,10 @@ function AddressForm() {
             - Priority: Dynamic Content > Fallback Defaults
           */}
           <div className="vb-af1-hero-headline">
-            {formatText(dynamicContent.headline)}    
+            {dynamicContent.headline}    
           </div>
           <div className="vb-af1-hero-subheadline">
-            {formatSubheadline(dynamicContent.subheadline)}
+            {dynamicContent.subheadline}
           </div>
           {/* ========================================= */}
           {/* END DYNAMIC CONTENT SECTION              */}
@@ -1993,7 +1986,7 @@ function AddressForm() {
           <div className="vb-value-boost-box">
             {/* Example indicator */}
             <div className="vb-box-tag">
-              Example OfferBoost Increase
+              Example OfferBoost Increase*
             </div>
 
             <h2 className="vb-box-headline">
@@ -2029,7 +2022,7 @@ function AddressForm() {
               {/* Value Boost Potential - separate from new total */}
               <div className="vb-value-item">
                 <div className="vb-value-amount vb-boost-value">
-                  $121,880*
+                  $121,880
                 </div>
                 <div className="vb-value-label">
                   Offer Boost Potential
@@ -2064,6 +2057,7 @@ function AddressForm() {
           {/* SPLIT TEST AREA - DOWN ARROW VISIBILITY  */}
           {/* Position 1: A=Show Arrow, B=Hide Arrow   */}
           {/* ========================================= */}
+          {/* COMMENTED OUT - Down arrow removed
           {(() => {
             // Check split test parameters from URL
             const urlParams = new URLSearchParams(window.location.search);
@@ -2092,6 +2086,7 @@ function AddressForm() {
             />
           </div>
           )}
+          */}
           {/* ========================================= */}
           {/* END SPLIT TEST AREA - DOWN ARROW         */}
           {/* ========================================= */}
@@ -2172,56 +2167,32 @@ function AddressForm() {
             {/* ========================================= */}
           </form>
 
-          {/* AI Animation GIF below submit button - Deferred loading with fade-in */}
+          {/* Tagline below submit button */}
           <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'space-between',
+            textAlign: 'center',
+            fontSize: '14px',
+            color: '#666',
+            fontWeight: '500',
+            letterSpacing: '0.5px',
             marginTop: '20px',
-            marginBottom: '20px',
-            height: '102.5px' // Fixed height to accommodate 62.5px animation + tagline
+            marginBottom: '15px',
+            paddingLeft: '20px',
+            paddingRight: '20px'
           }}>
-            {/* Tagline - always positioned at top */}
-            <div style={{
-              textAlign: 'center',
-              fontSize: '14px',
-              color: '#666',
-              fontWeight: '500',
-              letterSpacing: '0.5px',
-              height: '20px', // Fixed height for tagline
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '100%',
-              paddingLeft: '20px',
-              paddingRight: '20px'
-            }}>
-              Smarter Home Ownership, Powered by HomeSurge.AI
-            </div>
-            
-            {/* Animation container with fixed positioning */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: '62.5px', // Fixed height for animation area
-              width: '100%'
-            }}>
-              {showAiAnimation && (
-                <div 
-                  className="css-wave-container"
-                  style={{
-                    opacity: aiAnimationLoaded ? 1 : 0,
-                    transition: 'opacity 0.5s ease-in-out'
-                  }}
-                >
-                  <div className="rotating-wave wave-one"></div>
-                  <div className="rotating-wave wave-two"></div>
-                  <div className="rotating-wave wave-three"></div>
-                </div>
-              )}
-            </div>
+            Smarter Home Ownership, Powered by HomeSurge.AI
+          </div>
+          
+          {/* Static wave image container */}
+          <div className="ai-wave-container">
+            <img 
+              src={waveImage} 
+              alt="Wave decoration" 
+              style={{
+                width: '200px',
+                height: 'auto',
+                opacity: 0.6
+              }}
+            />
           </div>
           
           
@@ -2232,7 +2203,7 @@ function AddressForm() {
           {/* Disclaimer Section */}
           <div className="vb-disclaimer-section">
             <div className="vb-disclaimer-text">
-              *Example values only. Your offer amount will depend on your specific home details and other factors. By submitting your address, you agree to send address details and other available autofill information not displayed to HomeSurge.AI for the purpose of contacting you with your requested information. <strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong>
+              *Example values only. Your offer amount will depend on your specific home details and other factors. Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase that might be acheived by various home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes. By submitting your address, you agree to send address details and other available autofill information not displayed to HomeSurge.AI for the purpose of contacting you with your requested information. <strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong>
             </div>
           </div>
         </div>
