@@ -1326,8 +1326,7 @@ function ValueBoostReport() {
                 })()}
               </div>
               <div className="vb-af1-hero-subheadline">
-                Check your OfferBoost cash offer below, and unlock your FREE AI powered custom home value report. No obligation, no strings    │
-│   attached.                                             
+                Check your OfferBoost cash offer below, and unlock your FREE AI powered custom home value report. No obligation, no strings attached.                                             
               </div>
             </div>
           )}
@@ -1482,7 +1481,7 @@ function ValueBoostReport() {
             </div>
 
             <p className="vb-opportunities-text">
-              <strong>{recommendations.length || '11'} ValueBoost opportunities found!</strong>
+              <strong>{recommendations.length || '11'} {dynamicContent.reportHeadline.includes('OfferBoost') ? 'OfferBoost' : 'ValueBoost'} opportunities found!</strong>
             </p>
             <p className="vb-percentage-text">
               Potential Home Value Increase: {testFormData.valueIncreasePercentage || '22'}%
@@ -1685,13 +1684,13 @@ function ValueBoostReport() {
                       <div className="vb-feature-item">
                         <div className="vb-feature-icon">✓</div>
                         <p className="vb-feature-text">
-                          <strong>All ValueBoost recommendations</strong> for your property
+                          <strong>All {dynamicContent.reportHeadline.includes('OfferBoost') ? 'OfferBoost' : 'ValueBoost'} recommendations</strong> for your property
                         </p>
                       </div>
                       <div className="vb-feature-item">
                         <div className="vb-feature-icon">✓</div>
                         <p className="vb-feature-text">
-                          <strong>Detailed maximim ValueBoost calculations</strong> for each report item
+                          <strong>Detailed maximum {dynamicContent.reportHeadline.includes('OfferBoost') ? 'OfferBoost' : 'ValueBoost'} calculations</strong> for each report item
                         </p>
                       </div>
                       <div className="vb-feature-item">
