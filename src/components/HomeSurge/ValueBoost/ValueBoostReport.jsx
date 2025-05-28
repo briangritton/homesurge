@@ -5,10 +5,13 @@ import { calculatePropertySpecificCost, calculatePropertySpecificROI } from './c
 import { sendValueBoostNotifications } from '../../../services/notifications';
 import { trackPropertyValue } from '../../../services/facebook';
 import { trackPhoneNumberLead, trackFormStepComplete, trackFormSubmission } from '../../../services/analytics';
+import { updateContactInfo } from '../../../services/firebase.js';
+import { doc, updateDoc, serverTimestamp, getFirestore } from 'firebase/firestore';
 import gradientArrow from '../../../assets/images/gradient-arrow.png';
 
 function ValueBoostReport() {
   const { formData, updateFormData, updateLead, nextStep } = useFormContext();
+  const db = getFirestore();
   
   // ================================================================================
   // ENHANCED DYNAMIC CONTENT SYSTEM - UNIVERSAL CAMPAIGN SUPPORT
@@ -172,8 +175,8 @@ function ValueBoostReport() {
   } : formData;
   const [showContactForm, setShowContactForm] = useState(false);
   const [contactInfo, setContactInfo] = useState({
-    name: '', // Always empty - name field is commented out
-    phone: '', // Always start empty - no autofill
+    name: '', // Always start empty - no autofill from step 1
+    phone: '', // Always start empty - no autofill from step 1
     email: formData.email || ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -185,12 +188,13 @@ function ValueBoostReport() {
   const [showAddressRetry, setShowAddressRetry] = useState(false);
   const [contactFormCompleted, setContactFormCompleted] = useState(false);
 
-  // Update contact info when data becomes available - NO PHONE AUTOFILL
+  // Update contact info when data becomes available - preserve user input
   useEffect(() => {
     setContactInfo(prevState => ({
       ...prevState,
-      name: '', // Always keep empty - name field is commented out
-      phone: prevState.phone, // Keep user-entered value, no autofill
+      // Keep user-entered name and phone values, no autofill
+      name: prevState.name,
+      phone: prevState.phone,
       email: formData.email || prevState.email
     }));
   }, [formData.email]);
@@ -1052,17 +1056,20 @@ function ValueBoostReport() {
     console.log('🔥 Form validation passed, proceeding with submission');
     setIsSubmitting(true);
 
-    // Clean the input values - MODIFIED: name always empty for Firebase rules compliance
-    let cleanName = ''; // Always send empty string for name to satisfy Firebase rules
+    // Clean the input values
+    console.log("Raw contact info before cleaning:", contactInfo);
+    let cleanName = contactInfo.name ? contactInfo.name.trim() : '';
     const phoneValidation = validateAndCleanPhone(contactInfo.phone);
     const cleanedPhone = phoneValidation.isValid ? phoneValidation.cleaned : contactInfo.phone;
+    console.log("Cleaned values:", { cleanName, cleanedPhone, phoneValid: phoneValidation.isValid });
 
-    // Name field is no longer used - commented out autofill logic
-    // if (cleanName.includes('(Autofilled by browser)')) {
-    //   cleanName = cleanName.replace(' (Autofilled by browser)', '');
-    // }
+    // If the name had the autofill tag, remove it when user confirms
+    if (cleanName.includes('(Autofilled by browser)')) {
+      cleanName = cleanName.replace(' (Autofilled by browser)', '');
+    }
 
-    // Update form data with contact info
+    // Update form data with contact info and wait for it to complete
+    console.log("🔥 UPDATING FORM DATA WITH FRESH CONTACT INFO");
     updateFormData({
       name: cleanName,
       phone: cleanedPhone,
@@ -1070,10 +1077,66 @@ function ValueBoostReport() {
       nameWasAutofilled: false, // Clear the autofill flag - COPIED FROM MAIN FORM
       leadStage: 'ValueBoost Report Qualified'
     });
+    
+    // Wait a moment for updateFormData to complete
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     try {
-      // Send lead data to Zoho
-      await updateLead();
+      console.log("🔥🔥🔥 FIREBASE SECTION STARTING - MAIN HANDLESUBMIT PATH");
+      
+      // Update contact info in CRM first
+      const suggestionLeadId = localStorage.getItem('suggestionLeadId');
+      const leadId = localStorage.getItem('leadId');
+      const existingLeadId = suggestionLeadId || leadId;
+      
+      console.log("🔍 LEAD ID CHECK:", { suggestionLeadId, leadId, existingLeadId });
+      
+      if (existingLeadId) {
+        console.log("🔥 DIRECT CONTACT UPDATE FOR LEADID:", existingLeadId);
+        console.log("🔥 Updating contact info with:", { cleanName, cleanedPhone, email: contactInfo.email || '' });
+        
+        try {
+          // Use a custom update that preserves autofilled data
+          const leadRef = doc(db, 'leads', existingLeadId);
+          
+          // Split name into first/last
+          let firstName = '';
+          let lastName = '';
+          if (cleanName) {
+            const nameParts = cleanName.split(' ');
+            if (nameParts.length >= 2) {
+              firstName = nameParts[0];
+              lastName = nameParts.slice(1).join(' ');
+            } else {
+              lastName = cleanName;
+            }
+          }
+          
+          // Update only the manually entered contact fields, preserve autofilled data
+          const contactUpdateData = {
+            name: cleanName || '',
+            phone: cleanedPhone || '',
+            email: contactInfo.email || '',
+            firstName: firstName,
+            lastName: lastName || 'Contact',
+            nameWasAutofilled: false,
+            leadStage: 'Contact Info Provided',
+            updatedAt: serverTimestamp()
+            // Deliberately NOT updating autoFilledName and autoFilledPhone
+          };
+          
+          await updateDoc(leadRef, contactUpdateData);
+          console.log("✅ Manual contact update SUCCESS (preserved autofilled data)");
+        } catch (contactError) {
+          console.error("❌ updateContactInfo FAILED:", contactError);
+        }
+      } else {
+        console.log("❌ No existing lead ID found for contact update");
+      }
+      
+      // Skip updateLead() call to prevent overwriting contact info
+      console.log("🔥 SKIPPING updateLead to prevent overwriting contact info");
+      console.log("✅ Contact update completed - no additional updateLead needed");
 
       // Send notifications (non-blocking background execution) - MATCHING MAIN FORM PATTERN
       setTimeout(() => {
@@ -1713,15 +1776,15 @@ function ValueBoostReport() {
                     {/* Inline form fields */}
                     <div className="vb-unlock-form-container">
                       <div className="vb-optin-form-fields">
-                        {/* Name field commented out - only phone required */}
-                        {/* <input
+                        {/* Name field - starts empty, no autofill */}
+                        <input
                           type="text"
                           name="name"
                           value={contactInfo.name}
                           onChange={handleInputChange}
-                          placeholder="Your name"
+                          placeholder="Your name (optional)"
                           className={`vb-unlock-input ${formErrors.name ? 'vb-unlock-input-error' : ''}`}
-                        /> */}
+                        />
                         <input
                           type="tel"
                           name="phone"
@@ -1746,16 +1809,20 @@ function ValueBoostReport() {
                         }
                         setIsSubmitting(true);
                         
-                        // Clean the input values - MODIFIED: name always empty for Firebase rules compliance
-                        let cleanName = ''; // Always send empty string for name to satisfy Firebase rules
+                        // Clean the input values
+                        console.log("Raw contact info before cleaning (overlay):", contactInfo);
+                        let cleanName = contactInfo.name ? contactInfo.name.trim() : '';
                         const phoneValidation = validateAndCleanPhone(contactInfo.phone);
                         const cleanedPhone = phoneValidation.isValid ? phoneValidation.cleaned : contactInfo.phone;
+                        console.log("Cleaned values (overlay):", { cleanName, cleanedPhone, phoneValid: phoneValidation.isValid });
                         
-                        // Name field is no longer used - commented out autofill logic
-                        // if (cleanName.includes('(Autofilled by browser)')) {
-                        //   cleanName = cleanName.replace(' (Autofilled by browser)', '');
-                        // }
+                        // If the name had the autofill tag, remove it when user confirms
+                        if (cleanName.includes('(Autofilled by browser)')) {
+                          cleanName = cleanName.replace(' (Autofilled by browser)', '');
+                        }
                         
+                        // Update formData first and wait for it to complete
+                        console.log("🔥 UPDATING FORM DATA WITH FRESH CONTACT INFO");
                         updateFormData({
                           name: cleanName,
                           phone: cleanedPhone,
@@ -1763,8 +1830,66 @@ function ValueBoostReport() {
                           nameWasAutofilled: false, // Clear the autofill flag - COPIED FROM MAIN FORM
                           leadStage: 'ValueBoost Report Qualified'
                         });
+                        
+                        // Wait a moment for updateFormData to complete
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        
                         try {
-                          await updateLead();
+                          console.log("🔥🔥🔥 FIREBASE SECTION STARTING - OVERLAY PATH");
+                          
+                          // Update contact info in CRM first
+                          const suggestionLeadId = localStorage.getItem('suggestionLeadId');
+                          const leadId = localStorage.getItem('leadId');
+                          const existingLeadId = suggestionLeadId || leadId;
+                          
+                          console.log("🔍 LEAD ID CHECK:", { suggestionLeadId, leadId, existingLeadId });
+                          
+                          if (existingLeadId) {
+                            console.log("🔥 DIRECT CONTACT UPDATE FOR LEADID:", existingLeadId);
+                            console.log("🔥 Updating contact info with:", { cleanName, cleanedPhone, email: contactInfo.email || '' });
+                            
+                            try {
+                              // Use a custom update that preserves autofilled data
+                              const leadRef = doc(db, 'leads', existingLeadId);
+                              
+                              // Split name into first/last
+                              let firstName = '';
+                              let lastName = '';
+                              if (cleanName) {
+                                const nameParts = cleanName.split(' ');
+                                if (nameParts.length >= 2) {
+                                  firstName = nameParts[0];
+                                  lastName = nameParts.slice(1).join(' ');
+                                } else {
+                                  lastName = cleanName;
+                                }
+                              }
+                              
+                              // Update only the manually entered contact fields, preserve autofilled data
+                              const contactUpdateData = {
+                                name: cleanName || '',
+                                phone: cleanedPhone || '',
+                                email: contactInfo.email || '',
+                                firstName: firstName,
+                                lastName: lastName || 'Contact',
+                                nameWasAutofilled: false,
+                                leadStage: 'Contact Info Provided',
+                                updatedAt: serverTimestamp()
+                                // Deliberately NOT updating autoFilledName and autoFilledPhone
+                              };
+                              
+                              await updateDoc(leadRef, contactUpdateData);
+                              console.log("✅ Manual contact update SUCCESS (preserved autofilled data)");
+                            } catch (contactError) {
+                              console.error("❌ updateContactInfo FAILED:", contactError);
+                            }
+                          } else {
+                            console.log("❌ No existing lead ID found for contact update");
+                          }
+                          
+                          // Skip updateLead() call to prevent overwriting contact info
+                          console.log("🔥 SKIPPING updateLead to prevent overwriting contact info");
+                          console.log("✅ Contact update completed - no additional updateLead needed");
                           
                           // ================================================================================
                           // ADD MISSING TRACKING AND NOTIFICATIONS - SAME AS handleSubmit

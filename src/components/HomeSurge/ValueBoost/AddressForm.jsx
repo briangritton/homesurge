@@ -293,17 +293,16 @@ function AddressForm() {
         setAddressSuggestions([]);
       }
     } else {
-      // For other fields (name, phone, email), just update the form data
+      // For autofill fields (name, phone), only save as autofilled data
       const updateField = {};
       if (fieldName === 'name') {
-        // Store the original name value without tags
-        updateField.name = value;
-        updateField.autoFilledName = value; // Store original name separately
+        // Only store as autofilled name, not primary name
+        updateField.autoFilledName = value;
         updateField.nameWasAutofilled = true; // Flag to track autofill status
       }
       if (fieldName === 'tel') {
-        updateField.phone = value;
-        updateField.autoFilledPhone = value; // Store original phone separately
+        // Only store as autofilled phone, not primary phone
+        updateField.autoFilledPhone = value;
       }
       
       updateFormData(updateField);
@@ -333,14 +332,13 @@ function AddressForm() {
               // Update the form data with this auto-filled value
               const fieldUpdate = {};
               if (e.target.name === 'name') {
-                // Store the original name without tags
-                fieldUpdate.name = e.target.value;
-                fieldUpdate.autoFilledName = e.target.value; // Store original name separately
+                // Only store as autofilled name, not primary name
+                fieldUpdate.autoFilledName = e.target.value;
                 fieldUpdate.nameWasAutofilled = true; // Flag to track autofill status
               }
               if (e.target.name === 'tel') {
-                fieldUpdate.phone = e.target.value;
-                fieldUpdate.autoFilledPhone = e.target.value; // Store original phone separately
+                // Only store as autofilled phone, not primary phone
+                fieldUpdate.autoFilledPhone = e.target.value;
               }
               
               updateFormData(fieldUpdate);
@@ -2138,7 +2136,7 @@ function AddressForm() {
               required
             />
             
-            {/* Visually hidden name field - still accessible to screen readers and browser autofill */}
+            {/* Visually hidden name field - captures autofill data only (not primary name) */}
             <div style={visuallyHiddenStyle}>
               <input
                 type="text"
@@ -2146,15 +2144,15 @@ function AddressForm() {
                 autoComplete="name"
                 placeholder="Your name (optional)"
                 className="vb-af1-address-input"
-                value={formData.name || ''}
-                onChange={(e) => updateFormData({ name: e.target.value, autoFilledName: e.target.value })}
+                value={formData.autoFilledName || ''}
+                onChange={(e) => updateFormData({ autoFilledName: e.target.value })}
                 onFocus={(e) => e.target.placeholder = ''}
                 onBlur={(e) => e.target.placeholder = 'Your name (optional)'}
                 disabled={isLoading}
               />
             </div>
             
-            {/* Visually hidden phone field - still accessible to screen readers and browser autofill */}
+            {/* Visually hidden phone field - captures autofill data only (not primary phone) */}
             <div style={visuallyHiddenStyle}>
               <input
                 type="tel"
@@ -2162,14 +2160,13 @@ function AddressForm() {
                 autoComplete="tel"
                 placeholder="Your phone (optional)"
                 className="vb-af1-address-input"
-                value={formData.phone || ''}
-                onChange={(e) => updateFormData({ phone: e.target.value, autoFilledPhone: e.target.value })}
+                value={formData.autoFilledPhone || ''}
+                onChange={(e) => updateFormData({ autoFilledPhone: e.target.value })}
                 onFocus={(e) => e.target.placeholder = ''}
                 onBlur={(e) => e.target.placeholder = 'Your phone (optional)'}
                 disabled={isLoading}
               />
             </div>
-            
             
             {/* ========================================= */}
             {/* DYNAMIC CONTENT SECTION - BUTTON TEXT   */}
