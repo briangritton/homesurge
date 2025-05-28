@@ -11,14 +11,14 @@ function ValueBoostReport() {
   const { formData, updateFormData, updateLead, nextStep } = useFormContext();
   
   // ================================================================================
-  // DYNAMIC CONTENT SYSTEM - VALUEBOOST REPORT TEMPLATES
+  // ENHANCED DYNAMIC CONTENT SYSTEM - UNIVERSAL CAMPAIGN SUPPORT
   // ================================================================================
   // 
   // EDITING INSTRUCTIONS:
+  // - Supports both ValueBoost and Form funnel campaigns
   // - All content templates are defined here in this component
   // - To add new templates, add them to the templates object below
-  // - To modify existing content, edit the template objects
-  // - Campaign tracking still handled by FormContext
+  // - Campaign matching logic matches AddressForm and AIProcessing
   //
   // ================================================================================
   
@@ -36,8 +36,40 @@ function ValueBoostReport() {
       }
     }
     
-    // ValueBoost Report Templates - Different approaches to presenting value
+    // UNIVERSAL REPORT TEMPLATES - Both Value and Cash campaigns
     const templates = {
+      // ========== CASH/SELLING CAMPAIGNS ==========
+      cash: {
+        reportHeadline: 'Your OfferBoost Analysis Ready:',
+        potentialHeadline: 'Your OfferBoost Potential:',
+        recommendationsTitle: 'Your Top 10 OfferBoost Strategies',
+        recommendationsSubtitle: 'Maximize your cash offer with these proven strategies',
+        unlockHeadline: 'Unlock Your FREE OfferBoost Report',
+        unlockSubtext: 'Get your complete cash offer analysis with all selling strategies',
+        conciergeHeadline: 'Want Expert Help Maximizing Your Cash Offer?'
+      },
+      
+      fast: {
+        reportHeadline: 'Your OfferBoost Strategy Ready:',
+        potentialHeadline: 'Your OfferBoost Potential:',
+        recommendationsTitle: 'Your Top 10 OfferBoost Accelerators',
+        recommendationsSubtitle: 'Speed up your sale with these time-tested strategies',
+        unlockHeadline: 'Unlock Your FREE OfferBoost Report',
+        unlockSubtext: 'Get your complete fast sale strategy with timeline optimization',
+        conciergeHeadline: 'Want Expert Help Selling Lightning Fast?'
+      },
+      
+      sellfast: {
+        reportHeadline: 'Your OfferBoost Analysis Ready:',
+        potentialHeadline: 'Your OfferBoost Potential:',
+        recommendationsTitle: 'Your Top 10 OfferBoost Tactics',
+        recommendationsSubtitle: 'Get cash fast with these immediate action strategies',
+        unlockHeadline: 'Unlock Your FREE OfferBoost Report',
+        unlockSubtext: 'Get your complete instant sale guide with cash offer optimization',
+        conciergeHeadline: 'Want Expert Help Getting Cash Now?'
+      },
+      
+      // ========== VALUE/IMPROVEMENT CAMPAIGNS ==========
       value: {
         reportHeadline: 'ValueBoost Report Ready:',
         potentialHeadline: 'Your ValueBoost Potential:',
@@ -47,24 +79,38 @@ function ValueBoostReport() {
         unlockSubtext: 'Unlock your full property value report with all personalized recommendations',
         conciergeHeadline: 'Want Expert Help Implementing These Improvements?'
       },
-      equity: {
-        reportHeadline: 'Home Equity Analysis Complete:',
-        potentialHeadline: 'Your Hidden Equity Potential:',
-        recommendationsTitle: 'Top 10 Equity-Building Opportunities',
-        recommendationsSubtitle: 'Strategic improvements to unlock maximum equity',
-        unlockHeadline: 'Unlock Your Complete Equity Report',
-        unlockSubtext: 'See exactly how to transform equity potential into real value',
-        conciergeHeadline: 'Ready to Turn Equity Into Cash?'
+      
+      valueboost: {
+        reportHeadline: 'Your Value Maximization Report Ready:',
+        potentialHeadline: 'Your Maximum Value Potential:',
+        recommendationsTitle: 'Your Top 10 Value Maximizers',
+        recommendationsSubtitle: 'AI-powered strategies to unlock your property\'s hidden value',
+        unlockHeadline: 'Unlock Your FREE Value Maximization Report',
+        unlockSubtext: 'Get your complete value enhancement plan with ROI projections',
+        conciergeHeadline: 'Want Expert Help Maximizing Your Property Value?'
       },
+      
       boost: {
-        reportHeadline: 'Value Boost Analysis Ready:',
-        potentialHeadline: 'Your Value Boost Opportunity:',
-        recommendationsTitle: 'Your Top 10 Value Boost Strategies',
-        recommendationsSubtitle: 'Proven tactics to boost your home value quickly',
-        unlockHeadline: 'Unlock Your Complete Boost Plan',
-        unlockSubtext: 'Get your step-by-step value boosting roadmap',
-        conciergeHeadline: 'Need Help Executing Your Value Boost Plan?'
+        reportHeadline: 'Your Value Boost Analysis Ready:',
+        potentialHeadline: 'Your Property Boost Potential:',
+        recommendationsTitle: 'Your Top 10 Value Boosters',
+        recommendationsSubtitle: 'Proven improvements that deliver maximum value increase',
+        unlockHeadline: 'Unlock Your FREE Value Boost Report',
+        unlockSubtext: 'Get your complete value boost strategy with investment priorities',
+        conciergeHeadline: 'Want Expert Help Boosting Your Home Value?'
       },
+      
+      equity: {
+        reportHeadline: 'Your Equity Analysis Ready:',
+        potentialHeadline: 'Your Hidden Equity Potential:',
+        recommendationsTitle: 'Your Top 10 Equity Unlocking Strategies',
+        recommendationsSubtitle: 'Strategic improvements to maximize your home equity',
+        unlockHeadline: 'Unlock Your FREE Equity Analysis Report',
+        unlockSubtext: 'Get your complete equity enhancement plan with growth projections',
+        conciergeHeadline: 'Want Expert Help Unlocking Your Home Equity?'
+      },
+      
+      // ========== DEFAULT FALLBACK ==========
       default: {
         reportHeadline: 'ValueBoost Report Ready:',
         potentialHeadline: 'Your ValueBoost Potential:',
@@ -76,15 +122,22 @@ function ValueBoostReport() {
       }
     };
     
-    // Keyword matching for report presentation style
+    // Campaign matching logic (consistent with AddressForm and AIProcessing)
     if (campaignName) {
       const simplified = campaignName.toLowerCase().replace(/[\s\-_\.]/g, '');
       
+      // CASH/SELLING CAMPAIGN MATCHING (Highest priority)
+      if (simplified.includes('cash')) return templates.cash;
+      if (simplified.includes('sellfast') || simplified.includes('sell_fast')) return templates.sellfast;
+      if (simplified.includes('fast')) return templates.fast;
+      
+      // VALUE/IMPROVEMENT CAMPAIGN MATCHING
+      if (simplified.includes('valueboost') || simplified.includes('value_boost')) return templates.valueboost;
       if (simplified.includes('value')) return templates.value;
-      if (simplified.includes('equity')) return templates.equity;
       if (simplified.includes('boost')) return templates.boost;
+      if (simplified.includes('equity')) return templates.equity;
     }
-    
+
     return templates.default;
   };
   
@@ -119,6 +172,10 @@ function ValueBoostReport() {
   const [submitted, setSubmitted] = useState(false);
   const [unlocked, setUnlocked] = useState(false); // Track if recommendations are unlocked
   const [formErrors, setFormErrors] = useState({});
+  const [reportLoading, setReportLoading] = useState(true);
+  const [showReportReady, setShowReportReady] = useState(false);
+  const [showAddressRetry, setShowAddressRetry] = useState(false);
+  const [contactFormCompleted, setContactFormCompleted] = useState(false);
 
   // Update contact info when autofill data becomes available - COPIED FROM MAIN FORM PATTERN
   useEffect(() => {
@@ -129,6 +186,76 @@ function ValueBoostReport() {
       email: formData.email || prevState.email
     }));
   }, [formData.autoFilledName, formData.autoFilledPhone, formData.name, formData.phone, formData.email]);
+
+  // Report loading timeout logic - same as Form funnel (5 seconds)
+  useEffect(() => {
+    let loadingTimeoutId = null;
+    
+    // Check if we have essential data for the report
+    const hasReportData = formData.apiEstimatedValue && formData.apiEstimatedValue > 0;
+    
+    // Check if user is returning from address retry (preserve unlocked state)
+    const isReturnFromRetry = formData.addressSelectionType === 'AddressRetry-Google' || 
+                             formData.leadStage === 'Address Retry - Selected' ||
+                             localStorage.getItem('valueboost_unlocked') === 'true';
+    
+    if (isReturnFromRetry) {
+      // User is returning from retry - unlock immediately regardless of API data
+      setReportLoading(false);
+      setShowReportReady(false);
+      setShowAddressRetry(false);
+      setContactFormCompleted(true);
+      setUnlocked(true);
+      localStorage.setItem('valueboost_unlocked', 'true');
+      return;
+    }
+    
+    // Always show loading first, then "report ready" with contact form
+    // Contact form is ALWAYS required regardless of API status
+    setReportLoading(true);
+    setShowReportReady(false);
+    setShowAddressRetry(false);
+    
+    // Set timeout to show "report ready" message + contact form after 5 seconds
+    loadingTimeoutId = setTimeout(() => {
+      // After 5 seconds, always show "report ready" + contact form
+      // API status doesn't matter - contact form is always required
+      setReportLoading(false);
+      setShowReportReady(true);
+      
+      // Set up a listener to detect when APIs complete (for retry logic only)
+      const dataCheckInterval = setInterval(() => {
+        // This just monitors API completion for potential retry logic
+        // But doesn't change the UI - contact form still required
+        if (formData.apiEstimatedValue && formData.apiEstimatedValue > 0) {
+          console.log('✅ API data received, but contact form still required');
+          // Don't change UI - keep showing contact form
+        }
+      }, 1000);
+      
+      // Clean up the interval after 30 seconds
+      setTimeout(() => clearInterval(dataCheckInterval), 30000);
+    }, 5000); // 5 seconds minimum loading time
+    
+    // Handle data arriving during the loading phase  
+    if (!isReturnFromRetry) {
+      const earlyDataCheck = setInterval(() => {
+        if (formData.apiEstimatedValue && formData.apiEstimatedValue > 0) {
+          // Even if data arrives early, still show contact form after 5 seconds
+          // Just log that data is ready, but don't change the UI flow
+          console.log('✅ API data received during loading, but will still show contact form');
+          clearInterval(earlyDataCheck);
+        }
+      }, 500); // Check every 500ms
+      
+      // Clean up interval after 5 seconds
+      setTimeout(() => clearInterval(earlyDataCheck), 5000);
+    }
+    
+    return () => {
+      if (loadingTimeoutId) clearTimeout(loadingTimeoutId);
+    };
+  }, [formData.apiEstimatedValue, formData.addressSelectionType, formData.leadStage]);
   
   // Generate property-specific recommendations based on Melissa data
   const generateRecommendations = () => {
@@ -983,6 +1110,15 @@ function ValueBoostReport() {
       setIsSubmitting(false);
       setSubmitted(true);
       setUnlocked(true); // Unlock the recommendations
+      setContactFormCompleted(true); // Mark contact form as completed
+      localStorage.setItem('valueboost_unlocked', 'true'); // Persist unlocked state
+      
+      // Check if we should show address retry option (after form completion, if no API data)
+      setTimeout(() => {
+        if (!formData.apiEstimatedValue || formData.apiEstimatedValue === 0) {
+          setShowAddressRetry(true);
+        }
+      }, 3000); // Show retry option 3 seconds after form submission
 
       // ================================================================================
       // COMPREHENSIVE TRACKING - MATCHING MAIN FORM FUNNEL
@@ -1114,8 +1250,110 @@ function ValueBoostReport() {
       <div className="vb-report-container">
         <div className="vb-content vb-fade-in" style={contentStyle}>
           
+          {/* Loading State - show while waiting for API data */}
+          {reportLoading && (
+            <div className="vb-loading-container">
+              <div className="vb-af1-hero-headline">
+                {(() => {
+                  // Dynamic loading headline based on campaign type
+                  const urlParams = new URLSearchParams(window.location.search);
+                  const possibleParamNames = ['campaign_name', 'campaignname', 'campaign-name', 'utm_campaign'];
+                  
+                  let campaignName = '';
+                  for (const paramName of possibleParamNames) {
+                    const value = urlParams.get(paramName);
+                    if (value) {
+                      campaignName = value;
+                      break;
+                    }
+                  }
+                  
+                  if (campaignName) {
+                    const simplified = campaignName.toLowerCase().replace(/[\s\-_\.]/g, '');
+                    
+                    // CASH/SELLING CAMPAIGN LOADING MESSAGES
+                    if (simplified.includes('cash') || simplified.includes('sellfast') || simplified.includes('sell_fast') || simplified.includes('fast')) {
+                      return 'Processing Your OfferBoost Analysis...';
+                    }
+                  }
+                  
+                  // Default to ValueBoost for value/improvement campaigns
+                  return 'Generating Your ValueBoost Report...';
+                })()}
+              </div>
+              <div className="vb-af1-hero-subheadline">
+                AI is analyzing your property data and market conditions
+              </div>
+              
+              {/* Animated dots */}
+              <div className="vb-loading-dots">
+                <span className="vb-dot"></span>
+                <span className="vb-dot"></span>
+                <span className="vb-dot"></span>
+              </div>
+            </div>
+          )}
+          
+          {/* Report Ready State - show after timeout if still no data */}
+          {showReportReady && !showAddressRetry && (
+            <div className="vb-ready-container">
+              <div className="vb-af1-hero-headline">
+                {(() => {
+                  // Dynamic ready headline based on campaign type
+                  const urlParams = new URLSearchParams(window.location.search);
+                  const possibleParamNames = ['campaign_name', 'campaignname', 'campaign-name', 'utm_campaign'];
+                  
+                  let campaignName = '';
+                  for (const paramName of possibleParamNames) {
+                    const value = urlParams.get(paramName);
+                    if (value) {
+                      campaignName = value;
+                      break;
+                    }
+                  }
+                  
+                  if (campaignName) {
+                    const simplified = campaignName.toLowerCase().replace(/[\s\-_\.]/g, '');
+                    
+                    // CASH/SELLING CAMPAIGN READY MESSAGES
+                    if (simplified.includes('cash') || simplified.includes('sellfast') || simplified.includes('sell_fast') || simplified.includes('fast')) {
+                      return 'Your OfferBoost Analysis is Ready!';
+                    }
+                  }
+                  
+                  // Default to ValueBoost for value/improvement campaigns
+                  return 'Your ValueBoost Report is Ready!';
+                })()}
+              </div>
+              <div className="vb-af1-hero-subheadline">
+                Complete the form below to access your personalized recommendations
+              </div>
+            </div>
+          )}
+          
+          {/* Address Retry Button - show after contact form completion if no API data */}
+          {showAddressRetry && (
+            <div className="vb-retry-container">
+              <div className="vb-af1-hero-headline">
+                Having Trouble Finding Your Property Data?
+              </div>
+              <div className="vb-af1-hero-subheadline" style={{ marginBottom: '20px' }}>
+                Let's try a different address format to get your accurate property information
+              </div>
+              <button 
+                className="vb-retry-button"
+                onClick={() => {
+                  // Navigate to AddressRetry step
+                  updateFormData({ formStep: 4 }); // Assuming AddressRetry is step 4
+                }}
+              >
+                Try Different Address
+              </button>
+            </div>
+          )}
+          
           {/* Header - only show if API provided a valid value */}
-          {!!(testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) && (
+          {!reportLoading && !showReportReady && !!(testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) && (
           <>
             <div className="vb-af1-hero-headline">
               {dynamicContent.reportHeadline}
@@ -1126,8 +1364,32 @@ function ValueBoostReport() {
           </>
           )}
 
-          {/* Combined Value Boost Summary Box - only show if API provided a valid value */}
-          {!!(testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) && (
+          {/* ========================================= */}
+          {/* SPLIT TEST AREA - STEP 3 BOX VISIBILITY  */}
+          {/* Position 3: A=Show Box, B=Hide Box       */}
+          {/* ========================================= */}
+          {(() => {
+            // Check split test parameters from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const splitTest = urlParams.get('split_test') || urlParams.get('variant') || 'AAA'; // Default to show everything
+            const showStep3Box = splitTest[2] === 'A'; // Position 3 controls Step 3 box
+            
+            // Check if returning from retry
+            const isReturnFromRetry = formData.addressSelectionType === 'AddressRetry-Google' || 
+                                     formData.leadStage === 'Address Retry - Selected' ||
+                                     localStorage.getItem('valueboost_unlocked') === 'true';
+            
+            // Case A: Show ValueBoost box if API data available OR if returning from retry
+            // Case B: Never show ValueBoost box
+            const shouldShowBox = showStep3Box && (
+              // Show if we have API data and not in loading state
+              (!reportLoading && !!(testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0)) ||
+              // OR if returning from retry (regardless of API data)
+              isReturnFromRetry
+            );
+            
+            return shouldShowBox;
+          })() && (
           <div className="vb-value-boost-box">
             <h2 className="vb-box-headline">
               {dynamicContent.potentialHeadline}
@@ -1263,6 +1525,9 @@ function ValueBoostReport() {
             `}</style>
           </div>
           )}
+          {/* ========================================= */}
+          {/* END SPLIT TEST AREA - STEP 3 BOX         */}
+          {/* ========================================= */}
 
           {/* Down arrow to guide user to recommendations */}
           {!!(testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) && (
@@ -1804,8 +2069,8 @@ function ValueBoostReport() {
                     {isSubmitting ? 'Creating Account...' : 'Get My Full Report'}
                   </button>
                 </div>
-                <div style={{ marginTop: '15px', fontSize: '13px', color: '#777', textAlign: 'center' }}>
-                  By signing up, you agree to our terms of service and privacy policy.
+                <div className="vb-disclaimer-text" style={{ marginTop: '15px', fontSize: '13px', color: '#999', textAlign: 'center', lineHeight: '1.4', maxWidth: '400px', margin: '15px auto 0', padding: '0 20px' }}>
+                  *Example values only. Your offer amount will depend on your specific home details and other factors. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. <strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong>
                 </div>
               </form>
 

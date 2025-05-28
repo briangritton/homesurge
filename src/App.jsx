@@ -102,13 +102,13 @@ function AnalyticsTracker() {
 function ConditionalHeader() {
   const location = useLocation();
   
-  // Use ValueBoost header for ValueBoost routes
-  if (location.pathname.startsWith('/valueboost')) {
-    return <ValueBoostHeader />;
+  // Use regular header for specific form routes
+  if (location.pathname.startsWith('/form') || location.pathname.startsWith('/sellfast')) {
+    return <Header />;
   }
   
-  // Use regular header for all other routes
-  return <Header />;
+  // Use ValueBoost header for all other routes (now default)
+  return <ValueBoostHeader />;
 }
 
 // Main form container that manages form steps
@@ -204,13 +204,19 @@ function App() {
                 <ConditionalHeader />
                 <AnalyticsTracker /> {/* Track all page views */}
                 <Routes>
-                  <Route path="/" element={<FormContainer />} />
+                  {/* ValueBoost is now the default home page */}
+                  <Route path="/" element={<ValueBoostContainer />} />
+                  
+                  {/* Specific routes for other funnels */}
+                  <Route path="/form" element={<FormContainer />} />
                   <Route path="/sellfast" element={<FormContainer />} />
+                  <Route path="/cash" element={<FormContainer />} />
+                  
+                  {/* Utility routes */}
                   <Route path="/test-zoho" element={<ZohoTest />} />
                   <Route path="/privacy" element={<Privacy handleTermsClick={() => {}} />} />
                   <Route path="/thank-you" element={<ThankYou />} />
                   <Route path="/sales" element={<SalesPage />} />
-                  <Route path="/valueboost" element={<ValueBoostContainer />} />
                   
                   {/* Development route for viewing components */}
                   <Route path="/view/personal-info" element={
@@ -218,6 +224,9 @@ function App() {
                       <PersonalInfoForm />
                     </SimpleComponentViewer>
                   } />
+                  
+                  {/* Catch-all route - redirect all unfound/typo paths to ValueBoost */}
+                  <Route path="*" element={<ValueBoostContainer />} />
                 </Routes>
                 <Footer />
                 {/* Debug display hidden as requested */}

@@ -1,10 +1,24 @@
 import OpenAI from 'openai';
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.REACT_APP_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true // Required for client-side usage
-});
+// Lazy initialization - only create client when needed
+let openai = null;
+
+function getOpenAIClient() {
+  if (!openai) {
+    const apiKey = process.env.REACT_APP_OPENAI_API_KEY;
+    
+    if (!apiKey) {
+      throw new Error('OpenAI API key not configured - using fallback template');
+    }
+    
+    openai = new OpenAI({
+      apiKey: apiKey,
+      dangerouslyAllowBrowser: true // Required for client-side usage
+    });
+  }
+  
+  return openai;
+}
 
 /**
  * Generate an AI-enhanced ValueBoost report based on property data
@@ -97,7 +111,8 @@ INSTRUCTIONS:
 
 Be creative and insightful while maintaining the exact structure above.`;
 
-    const completion = await openai.chat.completions.create({
+    const openaiClient = getOpenAIClient();
+    const completion = await openaiClient.chat.completions.create({
       model: "gpt-4", // Use GPT-4 for better quality recommendations
       messages: [
         {

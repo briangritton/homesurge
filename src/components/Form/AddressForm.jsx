@@ -55,7 +55,7 @@ function AddressForm() {
     // Main Form Templates - Based on existing content
     const templates = {
       cash: {
-        headline: 'Need to Sell Your Home For Extremely Fast?',
+        headline: 'Need to Sell Your Home Extremely Fast?',
         subheadline: 'Get a great cash offer today. Close in 7 days. No showings, no repairs, no stress',
         buttonText: 'CHECK OFFER'
       },

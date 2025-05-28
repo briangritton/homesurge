@@ -6,6 +6,7 @@ import { trackPropertyValue } from '../../../services/facebook';
 import { lookupPropertyInfo } from '../../../services/maps.js';
 import { lookupPhoneNumbers } from '../../../services/batchdata.js';
 import { createSuggestionLead, updateLeadInFirebase } from '../../../services/firebase.js';
+import { generateAIValueBoostReport } from '../../../services/openai';
 import { formatSubheadline, formatText } from '../../../utils/textFormatting';
 import gradientArrow from '../../../assets/images/gradient-arrow.png';
 import axios from 'axios';
@@ -52,23 +53,55 @@ function AddressForm() {
       }
     }
     
-    // ValueBoost Templates - Focused on value and home enhancement
+    // ================= UNIVERSAL DYNAMIC CONTENT TEMPLATES ===================
+    // COMPREHENSIVE TEMPLATES - ValueBoost + Form Funnel campaigns
+    // ================= ADD NEW CAMPAIGNS HERE ===================
     const templates = {
+      // ========== CASH/SELLING CAMPAIGNS (From Form Funnel) ==========
+      cash: {
+        headline: 'Need to Sell Your Home Extremely Fast?',
+        subheadline: 'Get a great cash offer today. Close in 7 days. No showings, no repairs, no stress',
+        buttonText: 'CHECK CASH OFFER'
+      },
+      
+      fast: {
+        headline: 'Sell Your Home In 10 Days or Less',
+        subheadline: 'Get a great cash offer today. Close in 7 days. No showings, no repairs, no stress',
+        buttonText: 'CHECK FAST OFFER'
+      },
+      
+      sellfast: {
+        headline: 'Sell Your Home Lightning Fast',
+        subheadline: 'Skip the hassle - get a cash offer and close in days, not months',
+        buttonText: 'GET INSTANT OFFER'
+      },
+      
+      // ========== VALUE/IMPROVEMENT CAMPAIGNS (Enhanced ValueBoost) ==========
       value: {
         headline: 'Maximize Your Home Value With AI',
         subheadline: 'Discover how your home value could increase by up to 36% with FREE AI personalized enhancement recommendations!',
         buttonText: 'GET VALUE REPORT'
       },
+      
+      valueboost: {
+        headline: 'Unlock Your Property\'s Maximum Value',
+        subheadline: 'AI analysis reveals exactly which improvements will boost your home value the most',
+        buttonText: 'START VALUE ANALYSIS'
+      },
+      
       boost: {
         headline: 'Boost Your Home Value Instantly',
         subheadline: 'AI-powered analysis reveals hidden value in your home. Get your personalized enhancement plan now!',
         buttonText: 'BOOST MY VALUE'
       },
+      
       equity: {
         headline: 'Unlock Hidden Home Equity',
         subheadline: 'Find out how much equity you could gain with strategic home improvements guided by AI.',
         buttonText: 'UNLOCK EQUITY'
       },
+      
+      // ========== DEFAULT FALLBACK ==========
       default: {
         headline: 'Maximize Your Home With ValueBoost AI',
         subheadline: 'Find out how your home value could increase by up to 36% with FREE AI personalized home enhancement report! Don\'t miss out on your maximum equity!',
@@ -76,10 +109,19 @@ function AddressForm() {
       }
     };
     
-    // Keyword matching focused on value-oriented terms
+    // ================= CAMPAIGN MATCHING LOGIC ===================
+    // ENHANCED MATCHING - Supports both Value and Cash campaigns
+    // Priority: cash > sellfast > fast > value > valueboost > boost > equity
     if (campaignName) {
       const simplified = campaignName.toLowerCase().replace(/[\s\-_\.]/g, '');
       
+      // CASH/SELLING CAMPAIGN MATCHING (Highest priority)
+      if (simplified.includes('cash')) return templates.cash;
+      if (simplified.includes('sellfast') || simplified.includes('sell_fast')) return templates.sellfast;
+      if (simplified.includes('fast')) return templates.fast;
+      
+      // VALUE/IMPROVEMENT CAMPAIGN MATCHING
+      if (simplified.includes('valueboost') || simplified.includes('value_boost')) return templates.valueboost;
       if (simplified.includes('value')) return templates.value;
       if (simplified.includes('boost')) return templates.boost;
       if (simplified.includes('equity')) return templates.equity;
@@ -344,8 +386,23 @@ function AddressForm() {
                                 // Process the address selection
                                 processAddressSelection(placeDetails);
                                 
-                                // Move to next step
-                                nextStep();
+                                // ========================================
+                                // SPLIT TEST AREA - STEP NAVIGATION
+                                // Position 2: A=Show Step 2, B=Skip to Step 3
+                                // ========================================
+                                const urlParams = new URLSearchParams(window.location.search);
+                                const splitTest = urlParams.get('split_test') || urlParams.get('variant') || 'AAA';
+                                const showStep2 = splitTest[1] === 'A'; // Position 2 controls Step 2 interstitial
+                                
+                                if (showStep2) {
+                                  nextStep(); // Go to Step 2 (AI Processing)
+                                } else {
+                                  // Skip Step 2, go directly to Step 3
+                                  updateFormData({ formStep: 3 });
+                                }
+                                // ======================================== 
+                                // END SPLIT TEST AREA - STEP NAVIGATION
+                                // ========================================
                               } else {
                                 console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: No valid place details, using button click');
                                 handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
@@ -877,6 +934,9 @@ function AddressForm() {
     fetchPropertyDataInBackground(place.formatted_address, leadId, addressComponents);
     lookupPhoneNumbersInBackground(place.formatted_address, leadId, addressComponents);
     
+    // Start OpenAI report generation in background when property data becomes available
+    startOpenAIGenerationInBackground(leadId);
+    
     return true; // Return success immediately without waiting for API
   };
   
@@ -950,6 +1010,82 @@ function AddressForm() {
   };
 
   // Lookup phone numbers in background without blocking the UI - COPIED FROM MAIN FORM
+  // Generate OpenAI report in background when property data becomes available
+  const startOpenAIGenerationInBackground = (leadId) => {
+    console.log('🤖 Starting OpenAI monitoring from AddressForm...');
+    
+    // Monitor for Melissa API data updates and generate report when ready
+    const checkForMelissaDataAndGenerateAI = () => {
+      // Check if we have received Melissa API data
+      if (formData.apiEstimatedValue && formData.apiEstimatedValue > 0) {
+        console.log('📊 Melissa API data detected in AddressForm, triggering AI report generation');
+        
+        // Generate AI report now that we have property data
+        generateAIReportInBackground(formData, leadId);
+        return true; // Stop monitoring
+      }
+      return false; // Continue monitoring
+    };
+    
+    // Check initially
+    if (checkForMelissaDataAndGenerateAI()) {
+      return; // Data already available
+    }
+    
+    // Poll every 500ms for Melissa data updates (max 30 seconds)
+    let attempts = 0;
+    const maxAttempts = 60; // 30 seconds
+    const interval = setInterval(() => {
+      attempts++;
+      
+      if (checkForMelissaDataAndGenerateAI() || attempts >= maxAttempts) {
+        clearInterval(interval);
+        if (attempts >= maxAttempts) {
+          console.log('⚠️ OpenAI generation timeout - Melissa data not received');
+        }
+      }
+    }, 500);
+  };
+  
+  // Generate AI report in background without blocking UI
+  const generateAIReportInBackground = async (propertyData, leadId) => {
+    try {
+      console.log('🤖 Starting OpenAI report generation in AddressForm...');
+      
+      // Prepare property context for AI
+      const propertyContext = {
+        address: propertyData.street || formData.street,
+        estimatedValue: propertyData.apiEstimatedValue || formData.apiEstimatedValue,
+        bedrooms: propertyData.bedrooms || formData.bedrooms || '',
+        bathrooms: propertyData.bathrooms || formData.bathrooms || '',
+        squareFootage: propertyData.finishedSquareFootage || formData.finishedSquareFootage || '',
+        potentialIncrease: propertyData.potentialValueIncrease || formData.potentialValueIncrease,
+        upgradesNeeded: propertyData.upgradesNeeded || formData.upgradesNeeded || 8
+      };
+
+      // Use actual OpenAI API to generate personalized report
+      const aiReport = await generateAIValueBoostReport(propertyContext);
+      
+      console.log('✅ AI report generated successfully in AddressForm');
+      
+      // Store report in localStorage for Step 3
+      localStorage.setItem('aiHomeReport', aiReport);
+      
+      // Update Firebase with AI report
+      if (leadId) {
+        await updateLeadInFirebase(leadId, {
+          aiHomeReport: aiReport,
+          aiReportGeneratedAt: new Date().toISOString()
+        });
+        console.log('✅ AI report saved to Firebase from AddressForm');
+      }
+      
+    } catch (error) {
+      console.error('❌ Error generating AI report in AddressForm:', error);
+      // Silently fail - user flow continues normally
+    }
+  };
+
   const lookupPhoneNumbersInBackground = (address, leadId, addressComponents) => {
     // Start the phone number lookup in background
     lookupPhoneNumbers({
@@ -1122,7 +1258,24 @@ function AddressForm() {
         
         // Proceed to next step immediately - don't wait for APIs
         trackFormStepComplete(1, 'Address Form Completed (Enter Key)', formData);
-        nextStep();
+        
+        // ========================================
+        // SPLIT TEST AREA - STEP NAVIGATION
+        // Position 2: A=Show Step 2, B=Skip to Step 3
+        // ========================================
+        const urlParams = new URLSearchParams(window.location.search);
+        const splitTest = urlParams.get('split_test') || urlParams.get('variant') || 'AAA';
+        const showStep2 = splitTest[1] === 'A'; // Position 2 controls Step 2 interstitial
+        
+        if (showStep2) {
+          nextStep(); // Go to Step 2 (AI Processing)
+        } else {
+          // Skip Step 2, go directly to Step 3
+          updateFormData({ formStep: 3 });
+        }
+        // ======================================== 
+        // END SPLIT TEST AREA - STEP NAVIGATION
+        // ========================================
         setIsLoading(false);
         
         // Start background API processing - prioritize for property valuation
@@ -1147,7 +1300,24 @@ function AddressForm() {
           fetchPropertyDataInBackground(formData.street, leadId, addressComponents);
         }
         trackFormStepComplete(1, 'Address Form Completed (Fallback)', formData);
-        nextStep();
+        
+        // ========================================
+        // SPLIT TEST AREA - STEP NAVIGATION
+        // Position 2: A=Show Step 2, B=Skip to Step 3
+        // ========================================
+        const urlParams = new URLSearchParams(window.location.search);
+        const splitTest = urlParams.get('split_test') || urlParams.get('variant') || 'AAA';
+        const showStep2 = splitTest[1] === 'A'; // Position 2 controls Step 2 interstitial
+        
+        if (showStep2) {
+          nextStep(); // Go to Step 2 (AI Processing)
+        } else {
+          // Skip Step 2, go directly to Step 3
+          updateFormData({ formStep: 3 });
+        }
+        // ======================================== 
+        // END SPLIT TEST AREA - STEP NAVIGATION
+        // ========================================
         setIsLoading(false);
         
         return;
@@ -1199,7 +1369,24 @@ function AddressForm() {
         
         // Proceed to next step immediately - don't wait for APIs
         trackFormStepComplete(1, 'Address Form Completed (Google Suggestion)', formData);
-        nextStep();
+        
+        // ========================================
+        // SPLIT TEST AREA - STEP NAVIGATION
+        // Position 2: A=Show Step 2, B=Skip to Step 3
+        // ========================================
+        const urlParams = new URLSearchParams(window.location.search);
+        const splitTest = urlParams.get('split_test') || urlParams.get('variant') || 'AAA';
+        const showStep2 = splitTest[1] === 'A'; // Position 2 controls Step 2 interstitial
+        
+        if (showStep2) {
+          nextStep(); // Go to Step 2 (AI Processing)
+        } else {
+          // Skip Step 2, go directly to Step 3
+          updateFormData({ formStep: 3 });
+        }
+        // ======================================== 
+        // END SPLIT TEST AREA - STEP NAVIGATION
+        // ========================================
         setIsLoading(false);
         
         // Start background API processing - prioritize for property valuation
@@ -1214,7 +1401,24 @@ function AddressForm() {
         
         // Track and proceed immediately (Option B behavior)
         trackFormStepComplete(1, 'Address Form Completed (Manual)', formData);
-        nextStep();
+        
+        // ========================================
+        // SPLIT TEST AREA - STEP NAVIGATION
+        // Position 2: A=Show Step 2, B=Skip to Step 3
+        // ========================================
+        const urlParams = new URLSearchParams(window.location.search);
+        const splitTest = urlParams.get('split_test') || urlParams.get('variant') || 'AAA';
+        const showStep2 = splitTest[1] === 'A'; // Position 2 controls Step 2 interstitial
+        
+        if (showStep2) {
+          nextStep(); // Go to Step 2 (AI Processing)
+        } else {
+          // Skip Step 2, go directly to Step 3
+          updateFormData({ formStep: 3 });
+        }
+        // ======================================== 
+        // END SPLIT TEST AREA - STEP NAVIGATION
+        // ========================================
         setIsLoading(false);
         
         // Create lead in background for manual address - this should ALWAYS happen
@@ -1441,8 +1645,23 @@ function AddressForm() {
           // Track the form step completion for address
           trackFormStepComplete(1, 'Address Form Completed (Suggestion)', formData);
           
-          // Automatically proceed to next step immediately
-          nextStep();
+          // ========================================
+          // SPLIT TEST AREA - STEP NAVIGATION
+          // Position 2: A=Show Step 2, B=Skip to Step 3
+          // ========================================
+          const urlParams = new URLSearchParams(window.location.search);
+          const splitTest = urlParams.get('split_test') || urlParams.get('variant') || 'AAA';
+          const showStep2 = splitTest[1] === 'A'; // Position 2 controls Step 2 interstitial
+          
+          if (showStep2) {
+            nextStep(); // Go to Step 2 (AI Processing)
+          } else {
+            // Skip Step 2, go directly to Step 3
+            updateFormData({ formStep: 3 });
+          }
+          // ======================================== 
+          // END SPLIT TEST AREA - STEP NAVIGATION
+          // ========================================
           
           // Reset loading state right away
           setIsLoading(false);
@@ -1608,8 +1827,23 @@ function AddressForm() {
                         // Process the address selection
                         processAddressSelection(placeDetails);
                         
-                        // Move to next step
-                        nextStep();
+                        // ========================================
+                        // SPLIT TEST AREA - STEP NAVIGATION
+                        // Position 2: A=Show Step 2, B=Skip to Step 3
+                        // ========================================
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const splitTest = urlParams.get('split_test') || urlParams.get('variant') || 'AAA';
+                        const showStep2 = splitTest[1] === 'A'; // Position 2 controls Step 2 interstitial
+                        
+                        if (showStep2) {
+                          nextStep(); // Go to Step 2 (AI Processing)
+                        } else {
+                          // Skip Step 2, go directly to Step 3
+                          updateFormData({ formStep: 3 });
+                        }
+                        // ======================================== 
+                        // END SPLIT TEST AREA - STEP NAVIGATION
+                        // ========================================
                       } else {
                         console.log('🔍 AUTOFILL DIAGNOSIS: No valid place details, using button click');
                         handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
@@ -1727,15 +1961,26 @@ function AddressForm() {
           {/* END DYNAMIC CONTENT SECTION              */}
           {/* ========================================= */}
 
-          {/* Example ValueBoost Potential Box - Preview */}
+          {/* ========================================= */}
+          {/* SPLIT TEST AREA - STEP 1 BOX VISIBILITY  */}
+          {/* Position 1: A=Show Box, B=Hide Box       */}
+          {/* ========================================= */}
+          {(() => {
+            // Check split test parameters from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const splitTest = urlParams.get('split_test') || urlParams.get('variant') || 'AAA'; // Default to show everything
+            const showStep1Box = splitTest[0] === 'A'; // Position 1 controls Step 1 box - A=show (default), B=hide
+            
+            return showStep1Box;
+          })() && (
           <div className="vb-value-boost-box">
             {/* Example indicator */}
             <div className="vb-box-tag">
-              Example ValueBoost Increase
+              Example OfferBoost Increase
             </div>
 
             <h2 className="vb-box-headline">
-              Your ValueBoost Potential:
+              Your OfferBoost Potential:
             </h2>
 
             {/* Responsive container for values */}
@@ -1767,10 +2012,10 @@ function AddressForm() {
               {/* Value Boost Potential - separate from new total */}
               <div className="vb-value-item">
                 <div className="vb-value-amount vb-boost-value">
-                  $121,880
+                  $121,880*
                 </div>
                 <div className="vb-value-label">
-                  Value Boost Potential
+                  Offer Boost Potential
                 </div>
               </div>
             </div>
@@ -1786,15 +2031,30 @@ function AddressForm() {
             </div>
 
             <p className="vb-opportunities-text">
-              <strong>11 ValueBoost opportunities found!</strong>
+              <strong>11 OfferBoost opportunities found!</strong>
             </p>
             <p className="vb-percentage-text">
-              Potential Home Value Increase: 22%
+              Potential Cash Offer Increase: 22%
             </p>
 
           </div>
+          )}
+          {/* ========================================= */}
+          {/* END SPLIT TEST AREA - STEP 1 BOX         */}
+          {/* ========================================= */}
 
-          {/* Down arrow to guide user to address form */}
+          {/* ========================================= */}
+          {/* SPLIT TEST AREA - DOWN ARROW VISIBILITY  */}
+          {/* Position 1: A=Show Arrow, B=Hide Arrow   */}
+          {/* ========================================= */}
+          {(() => {
+            // Check split test parameters from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const splitTest = urlParams.get('split_test') || urlParams.get('variant') || 'AAA';
+            const showStep1Box = splitTest[0] === 'A'; // Position 1 controls Step 1 box and arrow
+            
+            return showStep1Box;
+          })() && (
           <div style={{
             display: 'flex',
             justifyContent: 'center',
@@ -1814,6 +2074,10 @@ function AddressForm() {
               }}
             />
           </div>
+          )}
+          {/* ========================================= */}
+          {/* END SPLIT TEST AREA - DOWN ARROW         */}
+          {/* ========================================= */}
           
           {/* Using a form structure for browser autofill to work properly */}
           <form className="vb-af1-form-container" id="valueboostAddressForm" autoComplete="on" onSubmit={(e) => {
@@ -1895,6 +2159,13 @@ function AddressForm() {
           {errorMessage && (
             <div className="vb-af1-error-message">{errorMessage}</div>
           )}
+          
+          {/* Disclaimer Section */}
+          <div className="vb-disclaimer-section">
+            <div className="vb-disclaimer-text">
+              *Example values only. Your offer amount will depend on your specific home details and other factors. By submitting your address, you agree to send address details and other available autofill information not displayed to HomeSurge.AI for the purpose of contacting you with your requested information. <strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong>
+            </div>
+          </div>
         </div>
       </div>
       

@@ -4,26 +4,123 @@ import { updateLeadInFirebase } from '../../../services/firebase.js';
 import { trackFormStepComplete } from '../../../services/analytics';
 import { generateAIValueBoostReport } from '../../../services/openai';
 import houseIcon from '../../../assets/images/house-icon.png';
+import smallArrow from '../../../assets/images/smallarrow.png';
 
 function AIProcessing() {
   const { formData, nextStep } = useFormContext();
+  
+  // =========================================================
+  // SPLIT TEST NOTE: This entire step is controlled by
+  // Position 2 split test logic in AddressForm:
+  // A = Show this step, B = Skip directly to Step 3
+  // No additional split test logic needed in this component
+  // =========================================================
   
   // Scroll to top when component loads
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
+  
+  // ================= DYNAMIC CONTENT SYSTEM ===================
+  // CAMPAIGN-BASED CONTENT - Matches AddressForm campaigns
+  // ================= ADD NEW CAMPAIGNS HERE ===================
+  const getDynamicContent = () => {
+    // Read campaign name directly from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const possibleParamNames = ['campaign_name', 'campaignname', 'campaign-name', 'utm_campaign'];
+    
+    let campaignName = '';
+    for (const paramName of possibleParamNames) {
+      const value = urlParams.get(paramName);
+      if (value) {
+        campaignName = value;
+        break;
+      }
+    }
+    
+    const templates = {
+      // ========== CASH/SELLING CAMPAIGNS ==========
+      cash: {
+        headline: 'Analyzing Your OfferBoost Options...',
+        subheadline: 'Our AI is calculating your optimal cash offer and timeline',
+        completionText: 'OfferBoost Analysis Complete!'
+      },
+      
+      fast: {
+        headline: 'Processing Your OfferBoost Request...',
+        subheadline: 'Determining the fastest path to close your home',
+        completionText: 'OfferBoost Strategy Ready!'
+      },
+      
+      sellfast: {
+        headline: 'Lightning-Fast OfferBoost Analysis...',
+        subheadline: 'Calculating your instant cash offer potential',
+        completionText: 'OfferBoost Ready!'
+      },
+      
+      // ========== VALUE/IMPROVEMENT CAMPAIGNS ==========
+      value: {
+        headline: 'AI Value Analysis In Progress...',
+        subheadline: 'Discovering hidden value opportunities in your home',
+        completionText: 'Value Enhancement Report Ready!'
+      },
+      
+      valueboost: {
+        headline: 'Finding Maximum Value...',
+        subheadline: 'AI is analyzing your property\'s improvement potential',
+        completionText: 'ValueBoost Report Complete!'
+      },
+      
+      boost: {
+        headline: 'Boosting Your Home Value...',
+        subheadline: 'Identifying the highest-impact improvements for your property',
+        completionText: 'Value Boost Strategy Ready!'
+      },
+      
+      equity: {
+        headline: 'Unlocking Your Home Equity...',
+        subheadline: 'Calculating your maximum equity potential',
+        completionText: 'Equity Analysis Complete!'
+      },
+      
+      // ========== DEFAULT FALLBACK ==========
+      default: {
+        headline: 'Finding Maximum Value...',
+        subheadline: 'AI is analyzing your property\'s improvement potential',
+        completionText: 'ValueBoost Report Complete!'
+      }
+    };
+    
+    // Campaign matching logic (same as AddressForm)
+    if (campaignName) {
+      const simplified = campaignName.toLowerCase().replace(/[\s\-_\.]/g, '');
+      
+      // CASH/SELLING CAMPAIGN MATCHING (Highest priority)
+      if (simplified.includes('cash')) return templates.cash;
+      if (simplified.includes('sellfast') || simplified.includes('sell_fast')) return templates.sellfast;
+      if (simplified.includes('fast')) return templates.fast;
+      
+      // VALUE/IMPROVEMENT CAMPAIGN MATCHING
+      if (simplified.includes('valueboost') || simplified.includes('value_boost')) return templates.valueboost;
+      if (simplified.includes('value')) return templates.value;
+      if (simplified.includes('boost')) return templates.boost;
+      if (simplified.includes('equity')) return templates.equity;
+    }
+    
+    return templates.default;
+  };
+  
+  const dynamicContent = getDynamicContent();
   const [processingStep, setProcessingStep] = useState(0);
   const [progressPercent, setProgressPercent] = useState(0);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(false);
-  // TESTING TOGGLE: Set to true to enable dummy fallback values for step 2
-  const ENABLE_DUMMY_FALLBACK = false; // Set to true for testing
-  const fallbackValue = ENABLE_DUMMY_FALLBACK ? 554000 : 0;
   
-  const [animatedValue, setAnimatedValue] = useState(formData.apiEstimatedValue ? Number(formData.apiEstimatedValue) : fallbackValue);
+  // API-independent animation state
   const [aiReportGenerated, setAiReportGenerated] = useState(false);
   const [melissaDataReceived, setMelissaDataReceived] = useState(false);
   const [animatedPercentage, setAnimatedPercentage] = useState(0);
+  const [showArrow, setShowArrow] = useState(false);
   const mapContainerRef = useRef(null);
   const animationRef = useRef(null);
   const aiReportRef = useRef(null);
@@ -95,10 +192,17 @@ function AIProcessing() {
         console.log('📊 Melissa API data detected, triggering AI report generation');
         setMelissaDataReceived(true);
         
-        // Trigger AI report generation now that we have property data
+        // Trigger AI report generation now that we have property data (fully non-blocking)
         if (!aiReportGenerated && !aiReportRef.current) {
           aiReportRef.current = true; // Prevent duplicate calls
-          generateAIReport(formData);
+          
+          // Run in background - never block user flow
+          setTimeout(() => {
+            generateAIReport(formData).catch(error => {
+              console.warn('🤖 AI report generation failed silently:', error);
+              // Silently fail - user flow continues normally
+            });
+          }, 0);
         }
       }
     };
@@ -114,12 +218,19 @@ function AIProcessing() {
 
   // Trigger AI report generation on mount if Melissa data already available
   useEffect(() => {
-    // If Melissa data is already available when component mounts, start AI generation
+    // If Melissa data is already available when component mounts, start AI generation (fully non-blocking)
     if (formData.apiEstimatedValue && !aiReportGenerated && !aiReportRef.current) {
       console.log('📊 Melissa data already available, starting AI report generation');
       aiReportRef.current = true;
       setMelissaDataReceived(true);
-      generateAIReport(formData);
+      
+      // Run in background - never block user flow
+      setTimeout(() => {
+        generateAIReport(formData).catch(error => {
+          console.warn('🤖 AI report generation failed silently:', error);
+          // Silently fail - user flow continues normally
+        });
+      }, 0);
     }
   }, []);
 
@@ -262,114 +373,12 @@ function AIProcessing() {
     }
   }, [processingStep, processingSteps.length, nextStep]);
 
-  // Animated value counting effect - realistic staged increments with real-time updates
+  // Note: Removed animated value logic - now only using percentage animation for API independence
+
+  // Animated percentage counting effect (ALWAYS RUNS - API independent)
   useEffect(() => {
-    // Start animation from step 0 (immediately when component loads)
+    // Always animate percentage regardless of API data
     if (processingStep >= 0) {
-      // Monitor for real-time Melissa API data updates
-      const startValue = formData.apiEstimatedValue ? Number(formData.apiEstimatedValue) : fallbackValue;
-      const valueIncrease = formData.potentialValueIncrease ? Number(formData.potentialValueIncrease) : (ENABLE_DUMMY_FALLBACK ? 121880 : 0);
-      const endValue = startValue + valueIncrease;
-      
-      // If we get real Melissa data during animation, update immediately
-      if (formData.apiEstimatedValue && !melissaDataReceived) {
-        console.log('📊 Real-time Melissa data update detected during animation');
-        setMelissaDataReceived(true);
-      }
-      
-      // Debug logging
-      console.log('AIProcessing Debug:', {
-        rawApiValue: formData.apiEstimatedValue,
-        rawValueIncrease: formData.potentialValueIncrease,
-        startValue,
-        valueIncrease,
-        endValue,
-        processingStep
-      });
-      
-      // Define realistic value progression based on processing steps
-      // Start at current value and increment to new total
-      let targetValue;
-      let duration;
-      
-      if (processingStep === 0) {
-        // Step 0: Start with small increase immediately
-        targetValue = startValue + Math.round(valueIncrease * 0.05);
-        duration = 400;
-      } else if (processingStep === 1) {
-        // Step 1: More increase
-        targetValue = startValue + Math.round(valueIncrease * 0.15);
-        duration = 500;
-      } else if (processingStep === 2) {
-        // Step 2: Continued growth
-        targetValue = startValue + Math.round(valueIncrease * 0.30);
-        duration = 600;
-      } else if (processingStep === 3) {
-        // Step 3: Accelerating
-        targetValue = startValue + Math.round(valueIncrease * 0.50);
-        duration = 650;
-      } else if (processingStep === 4) {
-        // Step 4: Strong growth
-        targetValue = startValue + Math.round(valueIncrease * 0.65);
-        duration = 600;
-      } else if (processingStep === 5) {
-        // Step 5: Major progress
-        targetValue = startValue + Math.round(valueIncrease * 0.80);
-        duration = 550;
-      } else if (processingStep === 6) {
-        // Step 6: Nearly complete
-        targetValue = startValue + Math.round(valueIncrease * 0.95);
-        duration = 500;
-      } else if (processingStep === 7) {
-        // Step 7: Final approach
-        targetValue = startValue + Math.round(valueIncrease * 0.98);
-        duration = 400;
-      } else {
-        // Complete - full value
-        targetValue = endValue;
-        duration = 300;
-      }
-      
-      const startTime = Date.now();
-      const currentStart = animatedValue; // Start from current animated value
-
-      const animateValue = () => {
-        const elapsed = Date.now() - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        
-        // Use easeOutCubic for more natural feel
-        const easeProgress = 1 - Math.pow(1 - progress, 3);
-        
-        // Animate from current value to target value in realistic increments
-        const currentValue = currentStart + (targetValue - currentStart) * easeProgress;
-        // Use a fixed irregular increment for this animation cycle (set once per step)
-        const irregularIncrement = 4900; // Fixed at $4,900 for more realistic feel
-        const roundedValue = Math.round(currentValue / irregularIncrement) * irregularIncrement;
-        setAnimatedValue(roundedValue);
-        
-        if (progress < 1) {
-          animationRef.current = requestAnimationFrame(animateValue);
-        }
-      };
-
-      // Start the animation with a small delay for natural feel
-      const timer = setTimeout(() => {
-        animationRef.current = requestAnimationFrame(animateValue);
-      }, 200);
-      
-      return () => {
-        clearTimeout(timer);
-        if (animationRef.current) {
-          cancelAnimationFrame(animationRef.current);
-        }
-      };
-    }
-  }, [processingStep, formData.apiEstimatedValue, formData.potentialValueIncrease]);
-
-  // Animated percentage counting effect (when no API data available)
-  useEffect(() => {
-    // Only animate percentage if we don't have API data
-    if (!formData.apiEstimatedValue && processingStep >= 0) {
       let targetPercentage;
       let duration;
       
@@ -428,7 +437,18 @@ function AIProcessing() {
         }
       };
     }
-  }, [processingStep, animatedPercentage, formData.apiEstimatedValue]);
+  }, [processingStep, animatedPercentage]);
+
+  // Arrow delay effect - show arrow shortly after percentage starts increasing
+  useEffect(() => {
+    if (animatedPercentage > 0 && !showArrow) {
+      const timer = setTimeout(() => {
+        setShowArrow(true);
+      }, 750);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [animatedPercentage, showArrow]);
 
   // Modern animated scan line effect
   const scanLineStyle = {
@@ -467,37 +487,66 @@ function AIProcessing() {
     <div className="vb-section vb-ai-section">
       <div className="vb-container">
         <div className="vb-content vb-fade-in vb-ai-content">
-          <div className="vb-af1-hero-headline af1-hero-headline hero-headline">Finding Maximum Value...</div>
+          <div className="vb-af1-hero-headline af1-hero-headline hero-headline">{dynamicContent.headline}</div>
           
           <div className="vb-af1-hero-subheadline af1-hero-subheadline hero-subheadline vb-ai-subheadline">
-            {processingSteps[processingStep] || '32 Point AI Home Scan Complete!'}
+            {processingSteps[processingStep] || dynamicContent.completionText}
           </div>
           
           {/* Value display above scanning image */}
           <div className="vb-ai-value-container">
             <div className="vb-ai-value-display">
-              ValueBoost Estimate:
+              {(() => {
+                // Dynamic label based on campaign type
+                const urlParams = new URLSearchParams(window.location.search);
+                const possibleParamNames = ['campaign_name', 'campaignname', 'campaign-name', 'utm_campaign'];
+                
+                let campaignName = '';
+                for (const paramName of possibleParamNames) {
+                  const value = urlParams.get(paramName);
+                  if (value) {
+                    campaignName = value;
+                    break;
+                  }
+                }
+                
+                if (campaignName) {
+                  const simplified = campaignName.toLowerCase().replace(/[\s\-_\.]/g, '');
+                  
+                  // CASH/SELLING CAMPAIGN MATCHING (Show OfferBoost)
+                  if (simplified.includes('cash') || simplified.includes('sellfast') || simplified.includes('sell_fast') || simplified.includes('fast')) {
+                    return 'OfferBoost Estimate:';
+                  }
+                }
+                
+                // Default to ValueBoost for value/improvement campaigns
+                return 'ValueBoost Estimate:';
+              })()}
               <br />
-              {animatedValue > 0 ? new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-              }).format(animatedValue) : `+${animatedPercentage}%`}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                +{animatedPercentage}%
+                {animatedPercentage > 0 && showArrow && (
+                  <img 
+                    src={smallArrow} 
+                    alt="value increase" 
+                    style={{ 
+                      height: '19.2px', 
+                      width: 'auto',
+                      marginLeft: '2px'
+                    }} 
+                  />
+                )}
+              </div>
             </div>
             
-            <div className="vb-ai-value-boost">
-              {animatedValue > (formData.apiEstimatedValue ? Number(formData.apiEstimatedValue) : fallbackValue) ? (
-                `↗ Value boost: +${new Intl.NumberFormat('en-US', {
-                  style: 'currency',
-                  currency: 'USD',
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0
-                }).format(animatedValue - (formData.apiEstimatedValue ? Number(formData.apiEstimatedValue) : fallbackValue))}`
+            {/* Hidden for now - can be re-enabled later */}
+            {/* <div className="vb-ai-value-boost">
+              {animatedPercentage > 0 ? (
+                `↗ Value boost potential increasing...`
               ) : (
                 'Calculating...'
               )}
-            </div>
+            </div> */}
           </div>
           
           {/* Processing visualization container */}

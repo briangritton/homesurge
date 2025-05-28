@@ -185,7 +185,35 @@ export async function sendValueBoostNotifications(leadData) {
   return sendLeadNotifications(leadData, {
     source: "ValueBoost Funnel",
     pushoverTitle: "New ValueBoost Lead",
-    // Use default settings for other options
+    
+    // ================= ADDITIONAL RECIPIENTS SECTION ==================
+    // To disable ALL additional notifications:
+    // 1. Simply comment out the arrays below and leave them empty: []
+    // ================= ADDITIONAL PUSHOVER USERS ===================
+    
+    // Uncomment and customize these recipients as needed
+    additionalPushoverUsers: [
+      // "uh5nkfdqcz161r35e6uy55j295to5y", // Spencer Pushover - COMMENTED OUT
+      // "ufrb12nxavarvmx4vuct15ibz2augo", // Allison user key - COMMENTED OUT
+      // Add more recipient user keys here - each on a new line
+    ],
+    
+    // ================= ADDITIONAL EMAIL TEMPLATES ===================
+    
+    // Uncomment and customize these templates as needed
+    additionalEmailTemplates: [
+      // {
+      //   serviceId: 'service_zeuf0n8', // Same or different service ID
+      //   templateId: 'template_85tw59u' // Spencer EmailJS - COMMENTED OUT
+      // }
+      // Add more templates here - each as a new object in the array
+      // {
+      //   serviceId: 'service_zeuf0n8',
+      //   templateId: 'template_another_id'
+      // }
+    ]
+    
+    // ================= END ADDITIONAL RECIPIENTS =====================
   });
 }
 
@@ -198,7 +226,35 @@ export async function sendMainFormNotifications(leadData) {
   return sendLeadNotifications(leadData, {
     source: "Main Form",
     pushoverTitle: "New Lead Notification",
-    // Use default settings for other options
+    
+    // ================= ADDITIONAL RECIPIENTS SECTION ==================
+    // To disable ALL additional notifications:
+    // 1. Simply comment out the arrays below and leave them empty: []
+    // ================= ADDITIONAL PUSHOVER USERS ===================
+    
+    // Uncomment and customize these recipients as needed
+    additionalPushoverUsers: [
+      // "uh5nkfdqcz161r35e6uy55j295to5y", // Spencer Pushover - COMMENTED OUT
+      // "ufrb12nxavarvmx4vuct15ibz2augo", // Allison user key - COMMENTED OUT
+      // Add more recipient user keys here - each on a new line
+    ],
+    
+    // ================= ADDITIONAL EMAIL TEMPLATES ===================
+    
+    // Uncomment and customize these templates as needed
+    additionalEmailTemplates: [
+      // {
+      //   serviceId: 'service_zeuf0n8', // Same or different service ID
+      //   templateId: 'template_85tw59u' // Spencer EmailJS - COMMENTED OUT
+      // }
+      // Add more templates here - each as a new object in the array
+      // {
+      //   serviceId: 'service_zeuf0n8',
+      //   templateId: 'template_another_id'
+      // }
+    ]
+    
+    // ================= END ADDITIONAL RECIPIENTS =====================
   });
 }
 
