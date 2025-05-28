@@ -9,6 +9,7 @@ import { createSuggestionLead, updateLeadInFirebase } from '../../../services/fi
 import { generateAIValueBoostReport } from '../../../services/openai';
 import { formatSubheadline, formatText } from '../../../utils/textFormatting';
 import gradientArrow from '../../../assets/images/gradient-arrow.png';
+import waveAnimation from '../../../assets/images/wave.gif';
 import axios from 'axios';
 
 // CSS for visually hidden fields
@@ -26,6 +27,22 @@ const visuallyHiddenStyle = {
 
 function AddressForm() {
   const { formData, updateFormData, nextStep } = useFormContext();
+  
+  // State for AI animation loading and fade-in effect
+  const [aiAnimationLoaded, setAiAnimationLoaded] = useState(false);
+  const [showAiAnimation, setShowAiAnimation] = useState(false);
+  
+  // Defer AI animation loading until after page is ready
+  useEffect(() => {
+    // Wait for page to be fully loaded before starting animation load
+    const timer = setTimeout(() => {
+      setShowAiAnimation(true);
+      // For CSS animation, trigger loaded state immediately
+      setTimeout(() => setAiAnimationLoaded(true), 100);
+    }, 1000); // 1 second delay to let page content load first
+    
+    return () => clearTimeout(timer);
+  }, []);
   
   // ================================================================================
   // DYNAMIC CONTENT SYSTEM - VALUEBOOST TEMPLATES
@@ -2154,6 +2171,58 @@ function AddressForm() {
             {/* END DYNAMIC CONTENT SECTION              */}
             {/* ========================================= */}
           </form>
+
+          {/* AI Animation GIF below submit button - Deferred loading with fade-in */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginTop: '20px',
+            marginBottom: '20px',
+            height: '102.5px' // Fixed height to accommodate 62.5px animation + tagline
+          }}>
+            {/* Tagline - always positioned at top */}
+            <div style={{
+              textAlign: 'center',
+              fontSize: '14px',
+              color: '#666',
+              fontWeight: '500',
+              letterSpacing: '0.5px',
+              height: '20px', // Fixed height for tagline
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '100%',
+              paddingLeft: '20px',
+              paddingRight: '20px'
+            }}>
+              Smarter Home Ownership, Powered by HomeSurge.AI
+            </div>
+            
+            {/* Animation container with fixed positioning */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '62.5px', // Fixed height for animation area
+              width: '100%'
+            }}>
+              {showAiAnimation && (
+                <div 
+                  className="css-wave-container"
+                  style={{
+                    opacity: aiAnimationLoaded ? 1 : 0,
+                    transition: 'opacity 0.5s ease-in-out'
+                  }}
+                >
+                  <div className="rotating-wave wave-one"></div>
+                  <div className="rotating-wave wave-two"></div>
+                  <div className="rotating-wave wave-three"></div>
+                </div>
+              )}
+            </div>
+          </div>
           
           
           {errorMessage && (

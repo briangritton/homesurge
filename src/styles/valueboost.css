@@ -1985,9 +1985,9 @@ padding-top:0%;
 
 /* Disclaimer Section */
 .vb-disclaimer-section {
-  margin-top: 100px;
-  padding: 0 20px;
-  text-align: center;
+    /* margin-top: 100px; */
+    padding: 0 20px;
+    text-align: center;
 }
 
 .vb-disclaimer-text {
@@ -2001,10 +2001,10 @@ padding-top:0%;
 
 /* Mobile responsive disclaimer */
 @media (max-width: 768px) {
-  .vb-disclaimer-section {
-    margin-top: 80px;
-    padding: 0 30px;
-  }
+    .vb-disclaimer-section {
+        /* margin-top: 80px; */
+        padding: 0 20px;
+    }
   
   .vb-disclaimer-text {
     font-size: 13px;
@@ -2082,6 +2082,79 @@ padding-top:0%;
     transform: scale(1.2);
     opacity: 1;
   }
+}
+
+/* CSS Complex Rotating Wave Animation - Replaces GIF */
+.css-wave-container {
+  position: relative;
+  width: 200px;
+  height: 62.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  border-radius: 8px;
+  transform: translate3d(0, 0, 0);
+}
+
+.rotating-wave {
+  opacity: 0.4;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 80px;
+  height: 80px;
+  margin-left: -40px;
+  margin-top: -40px;
+  transform-origin: 50% 48%;
+  border-radius: 43%;
+  animation: waveDrift 3000ms infinite linear;
+}
+
+.wave-one {
+  background: linear-gradient(45deg, #09a5c8, #236b6d);
+  opacity: 0.5;
+  animation: waveDrift 3000ms infinite linear;
+}
+
+.wave-two {
+  background: linear-gradient(135deg, #236b6d, #09a5c8);
+  opacity: 0.3;
+  animation: waveDrift 5000ms infinite linear reverse;
+}
+
+.wave-three {
+  background: linear-gradient(225deg, #09a5c8, #0099bb);
+  opacity: 0.6;
+  animation: waveDrift 7000ms infinite linear;
+}
+
+@keyframes waveDrift {
+  from { 
+    transform: rotate(0deg); 
+  }
+  to { 
+    transform: rotate(360deg); 
+  }
+}
+
+/* Add subtle overlay for depth */
+.css-wave-container::after {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, 
+    rgba(9, 165, 200, 0.1) 0%, 
+    rgba(35, 107, 109, 0.05) 40%,
+    transparent 70%, 
+    rgba(255, 255, 255, 0.1) 100%);
+  z-index: 1;
+  transform: translate3d(0, 0, 0);
+  pointer-events: none;
 }
 
 /* Mobile responsive loading states */
