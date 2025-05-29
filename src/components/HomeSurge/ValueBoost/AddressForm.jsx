@@ -885,13 +885,13 @@ function AddressForm() {
         state: addressComponents.state,
         zip: addressComponents.zip,
         
-        // Include name and phone if available
-        name: formData.name || '',
-        phone: formData.phone || '',
+        // Send empty primary fields but include autofilled data
+        name: '',  // Force empty - don't use formData.name during autofill
+        phone: '', // Force empty - don't use formData.phone during autofill
         
-        // Include autofilled values if they exist
-        autoFilledName: formData.autoFilledName || formData.name || '',
-        autoFilledPhone: formData.autoFilledPhone || formData.phone || '',
+        // Include autofilled values for CRM reference
+        autoFilledName: formData.autoFilledName || '',
+        autoFilledPhone: formData.autoFilledPhone || '',
         
         userTypedAddress: lastTypedAddress,
         selectedSuggestionAddress: place.formatted_address,
@@ -929,10 +929,12 @@ function AddressForm() {
         leadId = existingLeadId;
         console.log('Updated lead with final selection in Firebase:', leadId);
       } else {
-        // Create a new lead with address, name and phone (including autofilled values) - COPIED FROM MAIN FORM
+        // Create a new lead with address - separate primary and autofilled data
         const contactInfo = {
-          name: formData.name || formData.autoFilledName || 'Property Lead',
-          phone: formData.phone || formData.autoFilledPhone || ''
+          name: 'Property Lead',  // Don't send autofilled name as primary name
+          phone: '',              // Don't send autofilled phone as primary phone
+          autoFilledName: formData.autoFilledName || '',   // Pass autofilled data
+          autoFilledPhone: formData.autoFilledPhone || ''  // Pass autofilled data
         };
         
         console.log('🔍 ContactInfo being sent to Firebase:', contactInfo);
@@ -942,6 +944,8 @@ function AddressForm() {
           phone: formData.phone,
           autoFilledPhone: formData.autoFilledPhone
         });
+        console.log('🔍 AUTOFILL DEBUG: autoFilledName is:', formData.autoFilledName);
+        console.log('🔍 AUTOFILL DEBUG: autoFilledPhone is:', formData.autoFilledPhone);
         console.log('🔍 AddressComponents being sent to Firebase:', addressComponents);
         console.log('🔍 Place.formatted_address being sent to Firebase:', place.formatted_address);
         console.log('🔍 FormData being sent to Firebase:', formData);
@@ -1202,9 +1206,9 @@ function AddressForm() {
               state: addressComponents.state,
               zip: addressComponents.zip,
               
-              // Include name, phone, and email if available
-              name: formData.name || '',
-              phone: formData.phone || '',
+              // Send empty primary fields but include autofilled data
+              name: '',  // Force empty during autofill
+              phone: '', // Force empty during autofill  
               email: formData.email || '',
               
               // Include property data
