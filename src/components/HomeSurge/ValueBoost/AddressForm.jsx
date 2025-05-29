@@ -961,6 +961,9 @@ function AddressForm() {
         
         // Now we've saved the final selection
         finalSelectionSavedRef.current = true;
+        
+        // Note: Notifications are now handled automatically by the centralized notification system
+        // in FormContext via the useNotifications hook
       }
     } catch (error) {
       console.error('Error sending address data to Firebase:', error);

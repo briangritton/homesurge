@@ -1147,6 +1147,53 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
               </div>
               
               <div style={styles.fieldGroup}>
+                <div style={styles.label}>Split Test Variant</div>
+                <div style={styles.value}>
+                  {(() => {
+                    // Extract variant from URL or stored variant field
+                    const variant = lead.variant || lead.split_test || (() => {
+                      if (lead.url) {
+                        try {
+                          const urlObj = new URL(lead.url);
+                          return urlObj.searchParams.get('variant') || urlObj.searchParams.get('split_test');
+                        } catch {
+                          return null;
+                        }
+                      }
+                      return null;
+                    })();
+                    
+                    if (variant) {
+                      // Display variant with description
+                      const variantDescriptions = {
+                        'AAA': 'Show Box + Show Step2 + Default Step3',
+                        'AAB': 'Show Box + Show Step2 + Alt Step3',
+                        'ABA': 'Show Box + Skip Step2 + Default Step3',
+                        'ABB': 'Show Box + Skip Step2 + Alt Step3',
+                        'BAA': 'Hide Box + Show Step2 + Default Step3',
+                        'BAB': 'Hide Box + Show Step2 + Alt Step3',
+                        'BBA': 'Hide Box + Skip Step2 + Default Step3',
+                        'BBB': 'Hide Box + Skip Step2 + Alt Step3',
+                      };
+                      
+                      const description = variantDescriptions[variant] || 'Custom variant';
+                      
+                      return (
+                        <div>
+                          <strong style={{color: '#09a5c8'}}>{variant}</strong>
+                          <div style={{fontSize: '12px', color: '#666', marginTop: '4px'}}>
+                            {description}
+                          </div>
+                        </div>
+                      );
+                    }
+                    
+                    return 'N/A';
+                  })()}
+                </div>
+              </div>
+              
+              <div style={styles.fieldGroup}>
                 <div style={styles.label}>Template Type</div>
                 <div style={styles.value}>{lead.templateType || 'N/A'}</div>
               </div>

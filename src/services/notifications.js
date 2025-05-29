@@ -197,23 +197,19 @@ function shouldSendNotification(leadData, notificationType) {
   
   switch (notificationType) {
     case 'contact_info':
-      // ALWAYS send when we get name + phone - FOR ALL CAMPAIGNS
-      const hasContactInfo = leadData.name && leadData.phone && 
-                           leadData.name !== 'Property Lead' && 
-                           leadData.phone !== '';
+      // ALWAYS send when we get phone - FOR ALL CAMPAIGNS (name optional)
+      const hasContactInfo = leadData.phone && leadData.phone !== '';
       if (hasContactInfo) {
-        console.log('✅ Sending contact_info notification - ALL CAMPAIGNS: has name and phone');
+        console.log('✅ Sending contact_info notification - ALL CAMPAIGNS: has phone');
         return true;
       }
       break;
       
     case 'autofill':
-      // ALWAYS send when we get autofilled name + phone - FOR ALL CAMPAIGNS  
-      const hasAutofillData = leadData.name && leadData.phone && 
-                            leadData.name !== 'Property Lead' && 
-                            leadData.phone !== '';
+      // ALWAYS send when we get autofilled phone - FOR ALL CAMPAIGNS (name optional)
+      const hasAutofillData = leadData.phone && leadData.phone !== '';
       if (hasAutofillData) {
-        console.log('✅ Sending autofill notification - ALL CAMPAIGNS: has autofilled name and phone');
+        console.log('✅ Sending autofill notification - ALL CAMPAIGNS: has autofilled phone');
         return true;
       }
       break;

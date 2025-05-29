@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useFormContext } from '../../../contexts/FormContext';
 import additionalStrategies from './additionalStrategies';
 import { calculatePropertySpecificCost, calculatePropertySpecificROI } from './costCalculator';
-import { sendValueBoostNotifications } from '../../../services/notifications';
+// Notifications are now handled automatically by the centralized notification system
+// in FormContext via the useNotifications hook
 import { trackPropertyValue } from '../../../services/facebook';
 import { trackPhoneNumberLead, trackFormStepComplete, trackFormSubmission } from '../../../services/analytics';
 import { updateContactInfo } from '../../../services/firebase.js';
@@ -50,7 +51,9 @@ function ValueBoostReport() {
         unlockHeadline: 'Get Your FREE OfferBoost Cash Offer Report',
         unlockSubtext: 'Get your complete cash offer analysis with all selling strategies',
         conciergeHeadline: 'Want Expert Help Maximizing Your Cash Offer?',
-        buttonText: 'GET CASH OFFER'
+        buttonText: 'GET CASH OFFER',
+        readySubheadline: 'Check your OfferBoost cash offer below, and unlock your FREE AI powered ' +
+                      'custom home value and offer optimization report. No obligation, no strings attached.'
       },
       
       fast: {
@@ -61,7 +64,9 @@ function ValueBoostReport() {
         unlockHeadline: 'Get Your FREE OfferBoost Cash Offer Report',
         unlockSubtext: 'Get your complete fast sale strategy with timeline optimization',
         conciergeHeadline: 'Want Expert Help Selling Lightning Fast?',
-        buttonText: 'CHECK FAST OFFER'
+        buttonText: 'CHECK FAST OFFER',
+        readySubheadline: 'Check your OfferBoost cash offer below, and unlock your FREE AI powered ' +
+                      'custom home value and offer optimization report. No obligation, no strings attached.'
       },
       
       sellfast: {
@@ -72,7 +77,9 @@ function ValueBoostReport() {
         unlockHeadline: 'Get Your FREE OfferBoost Cash Offer Report',
         unlockSubtext: 'Get your complete instant sale guide with cash offer optimization',
         conciergeHeadline: 'Want Expert Help Getting Cash Now?',
-        buttonText: 'GET CASH OFFER'
+        buttonText: 'GET CASH OFFER',
+        readySubheadline: 'Check your OfferBoost cash offer below, and unlock your FREE AI powered ' +
+                      'custom home value and offer optimization report. No obligation, no strings attached.'
       },
       
       // ========== VALUE/IMPROVEMENT CAMPAIGNS ==========
@@ -84,7 +91,9 @@ function ValueBoostReport() {
         unlockHeadline: 'Get Your FREE ValueBoost Report',
         unlockSubtext: 'Unlock your full property value report with all personalized recommendations',
         conciergeHeadline: 'Want Expert Help Implementing These Improvements?',
-        buttonText: 'GET VALUE REPORT'
+        buttonText: 'GET VALUE REPORT',
+        readySubheadline: 'Check your ValueBoost potential below, and unlock your FREE AI powered ' +
+                      'custom home value enhancement report. No obligation, no strings attached.'
       },
       
       valueboost: {
@@ -95,7 +104,9 @@ function ValueBoostReport() {
         unlockHeadline: 'Get Your FREE Value Maximization Report',
         unlockSubtext: 'Get your complete value enhancement plan with ROI projections',
         conciergeHeadline: 'Want Expert Help Maximizing Your Property Value?',
-        buttonText: 'GET VALUE REPORT'
+        buttonText: 'GET VALUE REPORT',
+        readySubheadline: 'Check your ValueBoost potential below, and unlock your FREE AI powered ' +
+                      'custom home value enhancement report. No obligation, no strings attached.'
       },
       
       boost: {
@@ -106,7 +117,9 @@ function ValueBoostReport() {
         unlockHeadline: 'Get Your FREE Value Boost Report',
         unlockSubtext: 'Get your complete value boost strategy with investment priorities',
         conciergeHeadline: 'Want Expert Help Boosting Your Home Value?',
-        buttonText: 'GET VALUE REPORT'
+        buttonText: 'GET VALUE REPORT',
+        readySubheadline: 'Check your ValueBoost potential below, and unlock your FREE AI powered ' +
+                      'custom home value enhancement report. No obligation, no strings attached.'
       },
       
       equity: {
@@ -117,19 +130,23 @@ function ValueBoostReport() {
         unlockHeadline: 'Get Your FREE Equity Maximizer Report',
         unlockSubtext: 'Get your complete equity enhancement plan with growth projections',
         conciergeHeadline: 'Want Expert Help Unlocking Your Home Equity?',
-        buttonText: 'GET VALUE REPORT'
+        buttonText: 'GET VALUE REPORT',
+        readySubheadline: 'Check your equity potential below, and unlock your FREE AI powered ' +
+                      'custom home equity maximization report. No obligation, no strings attached.'
       },
       
-      // ========== DEFAULT FALLBACK ==========
+      // ========== DEFAULT FALLBACK (BASED ON FAST CASE) ==========
       default: {
-        reportHeadline: 'ValueBoost Report Ready:',
-        potentialHeadline: 'Your ValueBoost Potential:',
-        recommendationsTitle: 'Your Top 10 ValueBoost Recommendations',
-        recommendationsSubtitle: 'Here are the Highest impact AI generated opportunities for your home',
-        unlockHeadline: 'Get Your FREE ValueBoost Report',
-        unlockSubtext: 'Unlock your full property value report with all personalized recommendations',
-        conciergeHeadline: 'Want Expert Help Implementing These Improvements?',
-        buttonText: 'GET VALUE REPORT'
+        reportHeadline: 'Your OfferBoost Strategy Ready:',
+        potentialHeadline: 'Your OfferBoost Potential:',
+        recommendationsTitle: 'Your Top 10 OfferBoost Accelerators',
+        recommendationsSubtitle: 'Speed up your sale with these time-tested strategies',
+        unlockHeadline: 'Get Your FREE OfferBoost Maximum Vaulue Report',
+        unlockSubtext: 'Get your complete fast sale strategy with timeline optimization',
+        conciergeHeadline: 'Want Expert Help Selling Lightning Fast?',
+        buttonText: 'CHECK FAST OFFER',
+        readySubheadline: 'Check your OfferBoost cash offer below, and unlock your FREE AI powered ' +
+                      'custom home value and offer optimization report. No obligation, no strings attached.'
       }
     };
     
@@ -1162,22 +1179,8 @@ function ValueBoostReport() {
           leadId: leadData.id
         });
         
-        // Send notifications using centralized service (non-blocking background execution)
-        (async () => {
-          try {
-            console.log('🔔 Sending ValueBoost lead notifications...');
-            const notificationResults = await sendValueBoostNotifications(leadData);
-            
-            if (notificationResults.summary.totalNotificationsSent > 0) {
-              console.log('✅ ValueBoost notifications sent successfully');
-            } else {
-              console.warn('⚠️ Some ValueBoost notifications may have failed');
-            }
-          } catch (error) {
-            console.error('❌ Error sending ValueBoost notifications:', error);
-            // Don't block the form submission if notifications fail
-          }
-        })();
+        // Note: Notifications are now handled automatically by the centralized notification system
+        // in FormContext via the useNotifications hook
       }, 0);
 
       // After successful submission
@@ -1393,11 +1396,11 @@ function ValueBoostReport() {
                   }
                   
                   // Default to ValueBoost for value/improvement campaigns
-                  return 'Your ValueBoost Report is Ready!';
+                  return 'Your ValueBoost Home Value Report is Ready!';
                 })()}
               </div>
               <div className="vb-af1-hero-subheadline">
-               Check your OfferBoost cash offer below, and unlock your FREE AI powered custom home value and offer optimization report. No obligation, no strings attached..
+                {dynamicContent.readySubheadline}
               </div>
             </div>
           )}
@@ -1919,22 +1922,8 @@ function ValueBoostReport() {
                               leadId: leadData.id
                             });
                             
-                            // Send notifications using centralized service (non-blocking background execution)
-                            (async () => {
-                              try {
-                                console.log('🔔 Sending ValueBoost lead notifications from OVERLAY...');
-                                const notificationResults = await sendValueBoostNotifications(leadData);
-                                
-                                if (notificationResults.summary.totalNotificationsSent > 0) {
-                                  console.log('✅ ValueBoost overlay notifications sent successfully');
-                                } else {
-                                  console.warn('⚠️ Some ValueBoost overlay notifications may have failed');
-                                }
-                              } catch (error) {
-                                console.error('❌ Error sending ValueBoost overlay notifications:', error);
-                                // Don't block the form submission if notifications fail
-                              }
-                            })();
+                            // Note: Notifications are now handled automatically by the centralized notification system
+                            // in FormContext via the useNotifications hook
                           }, 0);
                           
                           setIsSubmitting(false);

@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { submitLeadToFirebase, updateLeadInFirebase, createSuggestionLead, updateContactInfo } from '../services/firebase';
 import { trackPageVisit, upgradeVisitorToLead } from '../services/visitor-tracking';
+import { useNotifications } from '../hooks/useNotifications';
 
 // Custom hook to use the form context
 export function useFormContext() {
@@ -92,6 +93,10 @@ export function FormProvider({ children }) {
   const [formData, setFormData] = useState(initialFormState);
   const [leadId, setLeadId] = useState(null);
   const [lastUpdateTime, setLastUpdateTime] = useState(null);
+  
+  // Initialize centralized notification system
+  // This automatically monitors formData changes and sends notifications
+  const notificationStatus = useNotifications(formData);
   
   // Check for saved leadId from localStorage
   useEffect(() => {
