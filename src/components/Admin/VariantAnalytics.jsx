@@ -169,7 +169,7 @@ const VariantAnalytics = () => {
         leadsSnapshot.docs.forEach(doc => {
           const data = doc.data();
           const campaignName = data.campaign_name || 'Unknown';
-          const variant = getVariantFromUrl(data.url) || 'Unknown';
+          const variant = data.variant || getVariantFromUrl(data.url) || 'Unknown';
           
           if (!variantStats[campaignName]) {
             variantStats[campaignName] = {};

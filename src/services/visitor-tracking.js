@@ -14,6 +14,13 @@ import {
  */
 export async function trackPageVisit(campaignData) {
   try {
+    // Skip tracking for CRM pages to avoid skewing visitor analytics
+    const currentPath = window.location.pathname.toLowerCase();
+    if (currentPath.includes('/crm') || currentPath.includes('/admin')) {
+      console.log('🚫 Skipping analytics tracking for internal page:', currentPath);
+      return null;
+    }
+    
     const db = getFirestore();
     
     // Generate a unique visitor ID

@@ -77,6 +77,13 @@ export function initializeAnalytics() {
 
 // Track page views (GA4-compliant)
 export function trackPageView(path) {
+  // Skip tracking for CRM and admin pages to avoid skewing visitor analytics
+  const currentPath = (path || window.location.pathname).toLowerCase();
+  if (currentPath.includes('/crm') || currentPath.includes('/admin')) {
+    if (isDebug) console.log('🚫 Skipping page view tracking for internal page:', currentPath);
+    return;
+  }
+  
   if (isDebug) console.log('Analytics - Page View:', path);
   
   // No consent management needed
