@@ -541,54 +541,9 @@ const LeadList = ({ onSelectLead }) => {
         </div>
       ) : (
         <>
-          {/* Bulk Actions Bar */}
-          <div style={styles.bulkActions}>
-            <label style={{display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px'}}>
-              <input
-                type="checkbox"
-                style={styles.checkbox}
-                checked={isAllSelected}
-                ref={checkbox => {
-                  if (checkbox) checkbox.indeterminate = isPartiallySelected;
-                }}
-                onChange={(e) => handleSelectAll(e.target.checked)}
-              />
-              Select All ({filteredLeads.length} leads)
-            </label>
-            
-            {selectedLeads.size > 0 && (
-              <>
-                <span style={{fontSize: '14px', color: '#666'}}>
-                  {selectedLeads.size} lead{selectedLeads.size !== 1 ? 's' : ''} selected
-                </span>
-                <button
-                  style={{
-                    ...styles.bulkButton,
-                    ...(deleting ? styles.bulkButtonDisabled : {})
-                  }}
-                  onClick={handleBulkDelete}
-                  disabled={deleting}
-                >
-                  {deleting ? 'Deleting...' : `🗑️ Delete ${selectedLeads.size} Lead${selectedLeads.size !== 1 ? 's' : ''}`}
-                </button>
-              </>
-            )}
-          </div>
-
           <table style={styles.table} className="crm-lead-list-table">
             <thead className="crm-lead-list-table-head">
               <tr className="crm-lead-list-table-row">
-                <th style={{...styles.tableHeader, width: '40px'}} className="crm-lead-list-table-header">
-                  <input
-                    type="checkbox"
-                    style={styles.checkbox}
-                    checked={isAllSelected}
-                    ref={checkbox => {
-                      if (checkbox) checkbox.indeterminate = isPartiallySelected;
-                    }}
-                    onChange={(e) => handleSelectAll(e.target.checked)}
-                  />
-                </th>
                 <th style={styles.tableHeader} className="crm-lead-list-table-header">Name</th>
                 <th style={styles.tableHeader} className="crm-lead-list-table-header">Address</th>
                 <th style={styles.tableHeader} className="crm-lead-list-table-header">Phone</th>
@@ -604,80 +559,24 @@ const LeadList = ({ onSelectLead }) => {
                   key={lead.id} 
                   style={{
                     ...styles.tableRow,
-                    ...(hoveredRow === lead.id ? styles.tableRowHover : {}),
-                    ...(selectedLeads.has(lead.id) ? {backgroundColor: '#e3f2fd'} : {})
+                    ...(hoveredRow === lead.id ? styles.tableRowHover : {})
                   }}
+                  onClick={() => onSelectLead && onSelectLead(lead.id)}
                   onMouseEnter={() => setHoveredRow(lead.id)}
                   onMouseLeave={() => setHoveredRow(null)}
                   className={`crm-lead-list-table-row ${hoveredRow === lead.id ? 'crm-lead-list-table-row-hover' : ''}`}
                 >
-                  <td style={styles.tableCell} className="crm-lead-list-table-cell">
-                    <input
-                      type="checkbox"
-                      style={styles.checkbox}
-                      checked={selectedLeads.has(lead.id)}
-                      onChange={(e) => {
-                        e.stopPropagation();
-                        handleSelectLead(lead.id, e.target.checked);
-                      }}
-                    />
-                  </td>
-                  <td 
-                    style={{...styles.tableCell, cursor: 'pointer'}} 
-                    className="crm-lead-list-table-cell" 
-                    data-label="Name"
-                    onClick={() => onSelectLead && onSelectLead(lead.id)}
-                  >
-                    {lead.name || 'N/A'}
-                  </td>
-                  <td 
-                    style={{...styles.tableCell, cursor: 'pointer'}} 
-                    className="crm-lead-list-table-cell" 
-                    data-label="Address"
-                    onClick={() => onSelectLead && onSelectLead(lead.id)}
-                  >
+                  <td style={styles.tableCell} className="crm-lead-list-table-cell" data-label="Name">{lead.name || 'N/A'}</td>
+                  <td style={styles.tableCell} className="crm-lead-list-table-cell" data-label="Address">
                     {lead.street ? `${lead.street}, ${lead.city || ''}, ${lead.state || ''} ${lead.zip || ''}` : 'N/A'}
                   </td>
-                  <td 
-                    style={{...styles.tableCell, cursor: 'pointer'}} 
-                    className="crm-lead-list-table-cell" 
-                    data-label="Phone"
-                    onClick={() => onSelectLead && onSelectLead(lead.id)}
-                  >
-                    {lead.phone || 'N/A'}
-                  </td>
-                  <td 
-                    style={{...styles.tableCell, cursor: 'pointer'}} 
-                    className="crm-lead-list-table-cell" 
-                    data-label="Email"
-                    onClick={() => onSelectLead && onSelectLead(lead.id)}
-                  >
-                    {lead.email || 'N/A'}
-                  </td>
-                  <td 
-                    style={{...styles.tableCell, cursor: 'pointer'}} 
-                    className="crm-lead-list-table-cell crm-lead-list-status-cell" 
-                    data-label="Status"
-                    onClick={() => onSelectLead && onSelectLead(lead.id)}
-                  >
+                  <td style={styles.tableCell} className="crm-lead-list-table-cell" data-label="Phone">{lead.phone || 'N/A'}</td>
+                  <td style={styles.tableCell} className="crm-lead-list-table-cell" data-label="Email">{lead.email || 'N/A'}</td>
+                  <td style={styles.tableCell} className="crm-lead-list-table-cell crm-lead-list-status-cell" data-label="Status">
                     <div className="crm-lead-list-status-wrapper">{renderStatusBadge(lead.status || 'Unassigned')}</div>
                   </td>
-                  <td 
-                    style={{...styles.tableCell, cursor: 'pointer'}} 
-                    className="crm-lead-list-table-cell" 
-                    data-label="Created"
-                    onClick={() => onSelectLead && onSelectLead(lead.id)}
-                  >
-                    {formatDate(lead.createdAt)}
-                  </td>
-                  <td 
-                    style={{...styles.tableCell, cursor: 'pointer'}} 
-                    className="crm-lead-list-table-cell" 
-                    data-label="Updated"
-                    onClick={() => onSelectLead && onSelectLead(lead.id)}
-                  >
-                    {formatDate(lead.updatedAt)}
-                  </td>
+                  <td style={styles.tableCell} className="crm-lead-list-table-cell" data-label="Created">{formatDate(lead.createdAt)}</td>
+                  <td style={styles.tableCell} className="crm-lead-list-table-cell" data-label="Updated">{formatDate(lead.updatedAt)}</td>
                 </tr>
               ))}
             </tbody>
@@ -713,71 +612,6 @@ const LeadList = ({ onSelectLead }) => {
                 className="crm-lead-list-page-button crm-lead-list-next-button"
               >
                 Next
-              </button>
-            </div>
-          </div>
-        </>
-      )}
-      
-      {/* Delete Confirmation Dialog */}
-      {showDeleteConfirm && (
-        <>
-          <div style={styles.overlay} onClick={cancelBulkDelete} />
-          <div style={styles.confirmDialog}>
-            <h3 style={{color: '#dc3545', marginBottom: '15px', fontSize: '18px'}}>
-              ⚠️ Confirm Bulk Delete
-            </h3>
-            
-            <div style={{marginBottom: '20px'}}>
-              <p><strong>You are about to permanently delete {selectedLeads.size} lead{selectedLeads.size !== 1 ? 's' : ''}.</strong></p>
-              <p style={{color: '#666', fontSize: '14px'}}>This action cannot be undone. All lead data, history, and associated records will be permanently removed.</p>
-              
-              <p style={{marginTop: '15px'}}>Type <strong>"DELETE {selectedLeads.size} LEADS"</strong> to confirm:</p>
-            </div>
-            
-            <input
-              type="text"
-              value={deleteConfirmText}
-              onChange={(e) => setDeleteConfirmText(e.target.value)}
-              placeholder={`DELETE ${selectedLeads.size} LEADS`}
-              style={{
-                width: '100%',
-                padding: '10px',
-                margin: '10px 0',
-                border: '2px solid #e2e8f0',
-                borderRadius: '4px',
-                fontSize: '14px',
-                boxSizing: 'border-box'
-              }}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  confirmBulkDelete();
-                }
-              }}
-            />
-            
-            <div style={{display: 'flex', gap: '10px', marginTop: '20px'}}>
-              <button
-                style={{
-                  ...styles.bulkButton,
-                  backgroundColor: '#dc3545',
-                  ...(deleting ? styles.bulkButtonDisabled : {})
-                }}
-                onClick={confirmBulkDelete}
-                disabled={deleting}
-              >
-                {deleting ? 'Deleting...' : 'Confirm Delete'}
-              </button>
-              
-              <button
-                style={{
-                  ...styles.bulkButton,
-                  backgroundColor: '#6c757d'
-                }}
-                onClick={cancelBulkDelete}
-                disabled={deleting}
-              >
-                Cancel
               </button>
             </div>
           </div>
