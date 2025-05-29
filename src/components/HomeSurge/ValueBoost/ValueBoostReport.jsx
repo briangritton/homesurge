@@ -44,11 +44,11 @@ function ValueBoostReport() {
     const templates = {
       // ========== CASH/SELLING CAMPAIGNS ==========
       cash: {
-        reportHeadline: 'Your OfferBoost Cash Offer Analysis is Ready!:',
+        reportHeadline: 'Your OfferBoost Maximum Cash Offer Is Ready!:',
         potentialHeadline: 'Your OfferBoost Potential:',
         recommendationsTitle: 'Your Top 10 OfferBoost Strategies',
         recommendationsSubtitle: 'Maximize your cash offer with these proven strategies',
-        unlockHeadline: 'Get Your FREE OfferBoost Cash Offer Report',
+        unlockHeadline: 'Get Your FREE OfferBoost Maximum Cash Offer Report',
         unlockSubtext: 'Get your complete cash offer analysis with all selling strategies',
         conciergeHeadline: 'Want Expert Help Maximizing Your Cash Offer?',
         buttonText: 'GET CASH OFFER',
@@ -57,15 +57,15 @@ function ValueBoostReport() {
       },
       
       fast: {
-        reportHeadline: 'Your OfferBoost Strategy Ready:',
+        reportHeadline: 'Your OfferBoost Fastest Maximum Offer Report Is Ready:',
         potentialHeadline: 'Your OfferBoost Potential:',
         recommendationsTitle: 'Your Top 10 OfferBoost Accelerators',
         recommendationsSubtitle: 'Speed up your sale with these time-tested strategies',
-        unlockHeadline: 'Get Your FREE OfferBoost Cash Offer Report',
+        unlockHeadline: 'Get Your FREE OfferBoost Maximum Cash Offer Report',
         unlockSubtext: 'Get your complete fast sale strategy with timeline optimization',
         conciergeHeadline: 'Want Expert Help Selling Lightning Fast?',
         buttonText: 'CHECK FAST OFFER',
-        readySubheadline: 'Check your OfferBoost cash offer below, and unlock your FREE AI powered ' +
+        readySubheadline: 'Check your OfferBoost <strong>fastest maximum offer</strong> below, and unlock your FREE AI powered ' +
                       'custom home value and offer optimization report. No obligation, no strings attached.'
       },
       
@@ -74,7 +74,7 @@ function ValueBoostReport() {
         potentialHeadline: 'Your OfferBoost Potential:',
         recommendationsTitle: 'Your Top 10 OfferBoost Tactics',
         recommendationsSubtitle: 'Get cash fast with these immediate action strategies',
-        unlockHeadline: 'Get Your FREE OfferBoost Cash Offer Report',
+        unlockHeadline: 'Get Your FREE OfferBoost Maximum Cash Offer Report',
         unlockSubtext: 'Get your complete instant sale guide with cash offer optimization',
         conciergeHeadline: 'Want Expert Help Getting Cash Now?',
         buttonText: 'GET CASH OFFER',
@@ -88,14 +88,14 @@ function ValueBoostReport() {
         potentialHeadline: 'Your ValueBoost Potential:',
         recommendationsTitle: 'Your Top 10 ValueBoost Recommendations',
         recommendationsSubtitle: 'Here are the Highest impact AI generated opportunities for your home',
-        unlockHeadline: 'Get Your FREE ValueBoost Maximization Report',
+        unlockHeadline: 'Get Your FREE ValueBoost Max Value Report',
         unlockSubtext: 'Unlock your full property value report with all personalized recommendations',
         conciergeHeadline: 'Want Expert Help Implementing These Improvements?',
         buttonText: 'GET VALUE REPORT',
-        readySubheadline: 'Check your FREE AI customized home value report below, and see what your ValueBoost opportunies are. ' +
-                      'No obligation, no strings attached.'
+        readySubheadline: 'Check your <strong>maximum home value</strong> with FREE AI personalized ' +
+                      'opportunity recommendations below! See your home\'s true maximum value.'
       },
-      
+
       valueboost: {
         reportHeadline: 'Your Value Maximization Report Ready:',
         potentialHeadline: 'Your Maximum Value Potential:',
@@ -105,8 +105,8 @@ function ValueBoostReport() {
         unlockSubtext: 'Get your complete value enhancement plan with ROI projections',
         conciergeHeadline: 'Want Expert Help Maximizing Your Property Value?',
         buttonText: 'GET VALUE REPORT',
-        readySubheadline: 'Check your ValueBoost potential below, and unlock your FREE AI powered ' +
-                      'custom home value enhancement report. No obligation, no strings attached.'
+        readySubheadline: 'Check your <strong>maximum home value</strong> with FREE AI personalized ' +
+                      'opportunity recommendations below! See your home\'s true maximum value.'
       },
       
       boost: {
@@ -118,8 +118,8 @@ function ValueBoostReport() {
         unlockSubtext: 'Get your complete value boost strategy with investment priorities',
         conciergeHeadline: 'Want Expert Help Boosting Your Home Value?',
         buttonText: 'GET VALUE REPORT',
-        readySubheadline: 'Check your ValueBoost potential below, and unlock your FREE AI powered ' +
-                      'custom home value enhancement report. No obligation, no strings attached.'
+        readySubheadline: 'Check your <strong>maximum home value</strong> with FREE AI personalized ' +
+                      'opportunity recommendations below! See your home\'s true maximum value.'
       },
       
       equity: {
@@ -131,8 +131,8 @@ function ValueBoostReport() {
         unlockSubtext: 'Get your complete equity enhancement plan with growth projections',
         conciergeHeadline: 'Want Expert Help Unlocking Your Home Equity?',
         buttonText: 'GET VALUE REPORT',
-        readySubheadline: 'Check your equity potential below, and unlock your FREE AI powered ' +
-                      'custom home equity maximization report. No obligation, no strings attached.'
+        readySubheadline: 'Check your <strong>maximum home value</strong> with FREE AI personalized ' +
+                      'opportunity recommendations below! See your home\'s true maximum value.'
       },
       
       // ========== DEFAULT FALLBACK (BASED ON FAST CASE) ==========
@@ -1391,12 +1391,12 @@ function ValueBoostReport() {
                     
                     // CASH/SELLING CAMPAIGN READY MESSAGES
                     if (simplified.includes('cash') || simplified.includes('sellfast') || simplified.includes('sell_fast') || simplified.includes('fast')) {
-                      return 'Your OfferBoost Cash Offer Analysis is Ready!';
+                      return 'Your OfferBoost Fastest Maximum Offer is Ready!';
                     }
                   }
                   
                   // Default to ValueBoost for value/improvement campaigns
-                  return 'Your ValueBoost Home Value Report is Ready!';
+                  return 'Your Maxixum ValueBoost Report is Ready!';
                 })()}
               </div>
               <div className="vb-af1-hero-subheadline">
