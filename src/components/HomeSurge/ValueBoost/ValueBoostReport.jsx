@@ -88,12 +88,12 @@ function ValueBoostReport() {
         potentialHeadline: 'Your ValueBoost Potential:',
         recommendationsTitle: 'Your Top 10 ValueBoost Recommendations',
         recommendationsSubtitle: 'Here are the Highest impact AI generated opportunities for your home',
-        unlockHeadline: 'Get Your FREE ValueBoost Report',
+        unlockHeadline: 'Get Your FREE ValueBoost Maximization Report',
         unlockSubtext: 'Unlock your full property value report with all personalized recommendations',
         conciergeHeadline: 'Want Expert Help Implementing These Improvements?',
         buttonText: 'GET VALUE REPORT',
-        readySubheadline: 'Check your ValueBoost potential below, and unlock your FREE AI powered ' +
-                      'custom home value enhancement report. No obligation, no strings attached.'
+        readySubheadline: 'Check your FREE AI customized home value report below, and see what your ValueBoost opportunies are. ' +
+                      'No obligation, no strings attached.'
       },
       
       valueboost: {
