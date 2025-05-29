@@ -93,7 +93,7 @@ function ValueBoostReport() {
         conciergeHeadline: 'Want Expert Help Implementing These Improvements?',
         buttonText: 'GET VALUE REPORT',
         readySubheadline: 'Check your <strong>maximum home value</strong> with FREE AI personalized ' +
-                      'opportunity recommendations below! See your home\'s true maximum value.'
+                      'opportunity recommendations below! See your home\'s true potential value.'
       },
 
       valueboost: {
@@ -106,7 +106,7 @@ function ValueBoostReport() {
         conciergeHeadline: 'Want Expert Help Maximizing Your Property Value?',
         buttonText: 'GET VALUE REPORT',
         readySubheadline: 'Check your <strong>maximum home value</strong> with FREE AI personalized ' +
-                      'opportunity recommendations below! See your home\'s true maximum value.'
+                      'opportunity recommendations below! See your home\'s true potential value.'
       },
       
       boost: {
@@ -119,7 +119,7 @@ function ValueBoostReport() {
         conciergeHeadline: 'Want Expert Help Boosting Your Home Value?',
         buttonText: 'GET VALUE REPORT',
         readySubheadline: 'Check your <strong>maximum home value</strong> with FREE AI personalized ' +
-                      'opportunity recommendations below! See your home\'s true maximum value.'
+                      'opportunity recommendations below! See your home\'s true potential value.'
       },
       
       equity: {
@@ -132,7 +132,7 @@ function ValueBoostReport() {
         conciergeHeadline: 'Want Expert Help Unlocking Your Home Equity?',
         buttonText: 'GET VALUE REPORT',
         readySubheadline: 'Check your <strong>maximum home value</strong> with FREE AI personalized ' +
-                      'opportunity recommendations below! See your home\'s true maximum value.'
+                      'opportunity recommendations below! See your home\'s true potential value.'
       },
       
       // ========== DEFAULT FALLBACK (BASED ON FAST CASE) ==========
@@ -1396,7 +1396,7 @@ function ValueBoostReport() {
                   }
                   
                   // Default to ValueBoost for value/improvement campaigns
-                  return 'Your Maxixum ValueBoost Report is Ready!';
+                  return 'Your Maximum ValueBoost Report is Ready!';
                 })()}
               </div>
               <div className="vb-af1-hero-subheadline">
