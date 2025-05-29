@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { submitLeadToFirebase, updateLeadInFirebase, createSuggestionLead, updateContactInfo } from '../services/firebase';
+import { trackPageVisit, upgradeVisitorToLead } from '../services/visitor-tracking';
 
 // Custom hook to use the form context
 export function useFormContext() {
@@ -371,6 +372,14 @@ export function FormProvider({ children }) {
         // Also store in localStorage right away to ensure it's saved
         localStorage.setItem('leadId', id);
         console.log("Successfully saved Firebase lead ID:", id);
+        
+        // Upgrade visitor to lead for conversion tracking
+        upgradeVisitorToLead(id, {
+          name: cleanedFormData.name,
+          phone: cleanedFormData.phone,
+          email: cleanedFormData.email,
+          street: cleanedFormData.street
+        });
       }
       
       // Save the form data including full property record to localStorage
@@ -998,6 +1007,15 @@ export function FormProvider({ children }) {
         // Explicitly call setDynamicContent - this will get the campaign name directly 
         // from URL params and form state, so we don't need to pass it here
         setDynamicContent(campaignData.keyword, campaignData.campaign_id, campaignData.adgroup_id);
+        
+        // Track page visit immediately for conversion analytics
+        if (campaignData.campaign_id || campaignData.campaign_name) {
+          console.log('📊 Tracking page visit with campaign data');
+          trackPageVisit({
+            ...campaignData,
+            variant: urlParams.get('variant') || urlParams.get('split_test') || 'AAA'
+          });
+        }
       }, 0);
       return true;
     }

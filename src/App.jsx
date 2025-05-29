@@ -204,7 +204,10 @@ function App() {
                 <ConditionalHeader />
                 <AnalyticsTracker /> {/* Track all page views */}
                 <Routes>
-                  {/* ValueBoost is now the default home page */}
+                  {/* Analysis page (formerly ValueBoost) */}
+                  <Route path="/analysis" element={<ValueBoostContainer />} />
+                  
+                  {/* Redirect root to analysis */}
                   <Route path="/" element={<ValueBoostContainer />} />
                   
                   {/* Specific routes for other funnels */}
@@ -225,7 +228,7 @@ function App() {
                     </SimpleComponentViewer>
                   } />
                   
-                  {/* Catch-all route - redirect all unfound/typo paths to ValueBoost */}
+                  {/* Catch-all route - redirect all unfound/typo paths to analysis */}
                   <Route path="*" element={<ValueBoostContainer />} />
                 </Routes>
                 <Footer />

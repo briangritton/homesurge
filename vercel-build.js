@@ -1,14 +1,16 @@
 const { execSync } = require('child_process');
 
 try {
-  console.log('Starting build process...');
+  console.log('Starting optimized build process...');
   
-  // Set environment variables for build
+  // Set environment variables for faster builds
   process.env.BABEL_ENV = 'production';
   process.env.NODE_ENV = 'production';
+  process.env.GENERATE_SOURCEMAP = 'false'; // Disable sourcemaps for faster builds
+  process.env.ESLint_NO_DEV_ERRORS = 'true'; // Skip ESLint in production
   
-  // Use default Create React App build
-  execSync('npm run react-build', { stdio: 'inherit' });
+  // Use optimized build command
+  execSync('GENERATE_SOURCEMAP=false npm run react-build', { stdio: 'inherit' });
   
   console.log('Build completed successfully');
 } catch (error) {

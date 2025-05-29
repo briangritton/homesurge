@@ -14,6 +14,8 @@ import AutoAssignmentSettings from './AutoAssignmentSettings';
 import NotificationSettings from './NotificationSettings';
 import TestAssignment from './TestAssignment';
 import TestPushover from './TestPushover';
+import VariantAnalytics from './VariantAnalytics';
+import ConversionAnalytics from './ConversionAnalytics';
 
 // CSS for the admin dashboard
 const styles = {
@@ -371,6 +373,16 @@ const AdminDashboard = () => {
         <button 
           style={{
             ...styles.tabButton,
+            ...(activeTab === 'analytics' ? styles.activeTab : {})
+          }}
+          onClick={() => setActiveTab('analytics')}
+          className={`crm-dashboard-tab-button ${activeTab === 'analytics' ? 'crm-dashboard-tab-active' : ''}`}
+        >
+          Split Tests
+        </button>
+        <button 
+          style={{
+            ...styles.tabButton,
             ...(activeTab === 'settings' ? styles.activeTab : {})
           }}
           onClick={() => setActiveTab('settings')}
@@ -450,6 +462,13 @@ const AdminDashboard = () => {
       {activeTab === 'reports' && (
         <div className="crm-dashboard-reports">
           <p className="crm-dashboard-placeholder">Reports content will be implemented here.</p>
+        </div>
+      )}
+      
+      {activeTab === 'analytics' && (
+        <div className="crm-dashboard-analytics">
+          <ConversionAnalytics />
+          <VariantAnalytics />
         </div>
       )}
       

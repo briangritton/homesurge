@@ -177,6 +177,124 @@ async function sendPushoverNotifications(leadData, config) {
 }
 
 /**
+ * Determine if notifications should be sent based on campaign and data conditions
+ * @param {Object} leadData - Lead data to evaluate
+ * @param {string} notificationType - Type of notification ('contact_info', 'address_submit', 'autofill')
+ * @returns {boolean} - Whether to send notifications
+ */
+function shouldSendNotification(leadData, notificationType) {
+  // Get campaign name from multiple possible sources
+  const campaignName = leadData.campaign_name || leadData.campaignName || '';
+  const campaignLower = campaignName.toLowerCase();
+  
+  console.log(`🔔 Checking notification conditions:`, {
+    notificationType,
+    campaignName,
+    hasName: !!leadData.name,
+    hasPhone: !!leadData.phone,
+    hasAddress: !!(leadData.address || leadData.street)
+  });
+  
+  switch (notificationType) {
+    case 'contact_info':
+      // ALWAYS send when we get name + phone - FOR ALL CAMPAIGNS
+      const hasContactInfo = leadData.name && leadData.phone && 
+                           leadData.name !== 'Property Lead' && 
+                           leadData.phone !== '';
+      if (hasContactInfo) {
+        console.log('✅ Sending contact_info notification - ALL CAMPAIGNS: has name and phone');
+        return true;
+      }
+      break;
+      
+    case 'autofill':
+      // ALWAYS send when we get autofilled name + phone - FOR ALL CAMPAIGNS  
+      const hasAutofillData = leadData.name && leadData.phone && 
+                            leadData.name !== 'Property Lead' && 
+                            leadData.phone !== '';
+      if (hasAutofillData) {
+        console.log('✅ Sending autofill notification - ALL CAMPAIGNS: has autofilled name and phone');
+        return true;
+      }
+      break;
+      
+    case 'address_submit':
+      // ONLY send for campaigns containing "fast" or "cash"
+      const isFastOrCashCampaign = campaignLower.includes('fast') || campaignLower.includes('cash');
+      const hasAddress = leadData.address || leadData.street;
+      
+      if (isFastOrCashCampaign && hasAddress) {
+        console.log('✅ Sending address_submit notification - FAST/CASH campaign with address:', campaignName);
+        return true;
+      } else if (hasAddress && !isFastOrCashCampaign) {
+        console.log('❌ NOT sending address_submit notification - not a fast/cash campaign:', campaignName);
+        return false;
+      } else if (!hasAddress) {
+        console.log('❌ NOT sending address_submit notification - no address provided');
+        return false;
+      }
+      break;
+      
+    default:
+      console.log('❌ Unknown notification type:', notificationType);
+      return false;
+  }
+  
+  console.log('❌ Notification conditions not met');
+  return false;
+}
+
+/**
+ * Smart notification handler that checks conditions before sending
+ * @param {Object} leadData - Lead data from form
+ * @param {string} notificationType - Type of notification trigger
+ * @param {Object} customOptions - Additional options to override defaults
+ * @returns {Promise<Object|null>} - Notification results or null if not sent
+ */
+export async function sendConditionalNotifications(leadData, notificationType, customOptions = {}) {
+  // Check if we should send notifications based on conditions
+  if (!shouldSendNotification(leadData, notificationType)) {
+    console.log(`🚫 Skipping ${notificationType} notification due to campaign/data conditions`);
+    return null;
+  }
+  
+  // Determine title based on notification type and campaign
+  const campaignName = leadData.campaign_name || leadData.campaignName || 'Direct';
+  let pushoverTitle = "New Lead Notification";
+  let source = "Website Form";
+  
+  switch (notificationType) {
+    case 'contact_info':
+      pushoverTitle = "New Contact Info Lead";
+      source = "Contact Form";
+      break;
+    case 'autofill':
+      pushoverTitle = "New Autofill Lead";
+      source = "Autofill Detection";
+      break;
+    case 'address_submit':
+      pushoverTitle = `New Address Lead - ${campaignName}`;
+      source = "Address Submission";
+      break;
+  }
+  
+  // Merge custom options with defaults
+  const options = {
+    source,
+    pushoverTitle,
+    // Add campaign info to the notification context
+    additionalContext: {
+      notificationType,
+      campaignName
+    },
+    ...customOptions
+  };
+  
+  console.log(`📤 Sending ${notificationType} notification for campaign: ${campaignName}`);
+  return sendLeadNotifications(leadData, options);
+}
+
+/**
  * Quick helper for ValueBoost funnel notifications with default settings
  * @param {Object} leadData - Lead data from ValueBoost form
  * @returns {Promise<Object>} - Notification results

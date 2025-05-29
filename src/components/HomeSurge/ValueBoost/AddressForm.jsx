@@ -137,13 +137,13 @@ function AddressForm() {
       
       // ========== DEFAULT FALLBACK ==========
       default: {
-        headline: 'Maximize Your Home With ValueBoost AI',
-        subheadline: 'Find out how your home value could increase by up to 36% with FREE AI personalized home enhancement report! Don\'t miss out on your maximum equity!',
-        buttonText: 'VIEW MAXIMUM VALUE',
-        exampleTag: 'Example ValueBoost Increase*',
-        potentialHeadline: 'Your ValueBoost Potential:',
-        opportunitiesText: '11 ValueBoost opportunities found!',
-        percentageText: 'Potential Home Value Increase'
+        headline: 'Need to Sell Your Home Extremely Fast?',
+        subheadline: 'OfferBoost AI home scan will look for your <strong><em>maximum cash offer</em></strong>. Close in 7 days. No showings, no repairs, no stress',
+        buttonText: 'CHECK CASH OFFER',
+        exampleTag: 'Example OfferBoost Increase*',
+        potentialHeadline: 'Your OfferBoost Potential:',
+        opportunitiesText: '11 OfferBoost opportunities found!',
+        percentageText: 'Potential Cash Offer Increase'
       }
     };
     
@@ -944,8 +944,6 @@ function AddressForm() {
           phone: formData.phone,
           autoFilledPhone: formData.autoFilledPhone
         });
-        console.log('🔍 AUTOFILL DEBUG: autoFilledName is:', formData.autoFilledName);
-        console.log('🔍 AUTOFILL DEBUG: autoFilledPhone is:', formData.autoFilledPhone);
         console.log('🔍 AddressComponents being sent to Firebase:', addressComponents);
         console.log('🔍 Place.formatted_address being sent to Firebase:', place.formatted_address);
         console.log('🔍 FormData being sent to Firebase:', formData);
