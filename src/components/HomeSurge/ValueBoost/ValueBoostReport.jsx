@@ -204,6 +204,7 @@ function ValueBoostReport() {
   const [showReportReady, setShowReportReady] = useState(false);
   const [showAddressRetry, setShowAddressRetry] = useState(false);
   const [contactFormCompleted, setContactFormCompleted] = useState(false);
+  const [reportStateLockedIn, setReportStateLockedIn] = useState(false); // Prevent flickering back to processing
 
   // Update contact info when data becomes available - preserve user input
   useEffect(() => {
@@ -235,7 +236,13 @@ function ValueBoostReport() {
       setShowAddressRetry(false);
       setContactFormCompleted(true);
       setUnlocked(true);
+      setReportStateLockedIn(true); // Lock in this state
       localStorage.setItem('valueboost_unlocked', 'true');
+      return;
+    }
+    
+    // Don't change states if already locked in
+    if (reportStateLockedIn) {
       return;
     }
     
@@ -251,6 +258,7 @@ function ValueBoostReport() {
       // API status doesn't matter - contact form is always required
       setReportLoading(false);
       setShowReportReady(true);
+      setReportStateLockedIn(true); // Lock in this state to prevent flickering
       
       // Set up a listener to detect when APIs complete (for retry logic only)
       const dataCheckInterval = setInterval(() => {
@@ -267,7 +275,7 @@ function ValueBoostReport() {
     }, 2500); // 2.5 seconds minimum loading time
     
     // Handle data arriving during the loading phase - show immediately when ready
-    if (!isReturnFromRetry) {
+    if (!isReturnFromRetry && !reportStateLockedIn) {
       const earlyDataCheck = setInterval(() => {
         if (formData.apiEstimatedValue && formData.apiEstimatedValue > 0) {
           // API data is ready - show report immediately, skip loading delay
@@ -275,6 +283,7 @@ function ValueBoostReport() {
           clearTimeout(loadingTimeoutId); // Cancel the 2.5 second delay
           setReportLoading(false);
           setShowReportReady(true);
+          setReportStateLockedIn(true); // Lock in this state to prevent flickering
           clearInterval(earlyDataCheck);
         }
       }, 500); // Check every 500ms
@@ -286,7 +295,7 @@ function ValueBoostReport() {
     return () => {
       if (loadingTimeoutId) clearTimeout(loadingTimeoutId);
     };
-  }, [formData.apiEstimatedValue, formData.addressSelectionType, formData.leadStage]);
+  }, [formData.apiEstimatedValue, formData.addressSelectionType, formData.leadStage, reportStateLockedIn]);
   
   // Generate property-specific recommendations based on Melissa data
   const generateRecommendations = () => {
@@ -1399,8 +1408,7 @@ function ValueBoostReport() {
                   return 'Your Maximum ValueBoost Report is Ready!';
                 })()}
               </div>
-              <div className="vb-af1-hero-subheadline">
-                {dynamicContent.readySubheadline}
+              <div className="vb-af1-hero-subheadline" dangerouslySetInnerHTML={{ __html: dynamicContent.readySubheadline }}>
               </div>
             </div>
           )}

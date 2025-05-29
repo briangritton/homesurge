@@ -1736,7 +1736,7 @@ padding-top:0%;
        .vb-unlock-headline {
         font-size: 22px;
         padding: 0 20px 0 0;
-        text-align: center;
+        /* text-align: center; */
     }
   .vb-recommendations-title {
     text-align: center;

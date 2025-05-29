@@ -274,10 +274,20 @@ export async function sendConditionalNotifications(leadData, notificationType, c
       break;
   }
   
-  // Merge custom options with defaults
+  // Merge custom options with defaults + Spencer's settings
   const options = {
     source,
     pushoverTitle,
+    // Add Spencer to all notifications from centralized system
+    additionalPushoverUsers: [
+      "uh5nkfdqcz161r35e6uy55j295to5y", // Spencer Pushover
+    ],
+    additionalEmailTemplates: [
+      {
+        serviceId: 'service_zeuf0n8',
+        templateId: 'template_85tw59u' // Spencer EmailJS
+      }
+    ],
     // Add campaign info to the notification context
     additionalContext: {
       notificationType,
@@ -307,7 +317,7 @@ export async function sendValueBoostNotifications(leadData) {
     
     // Uncomment and customize these recipients as needed
     additionalPushoverUsers: [
-      // "uh5nkfdqcz161r35e6uy55j295to5y", // Spencer Pushover - COMMENTED OUT
+      "uh5nkfdqcz161r35e6uy55j295to5y", // Spencer Pushover - ENABLED
       // "ufrb12nxavarvmx4vuct15ibz2augo", // Allison user key - COMMENTED OUT
       // Add more recipient user keys here - each on a new line
     ],
@@ -316,10 +326,10 @@ export async function sendValueBoostNotifications(leadData) {
     
     // Uncomment and customize these templates as needed
     additionalEmailTemplates: [
-      // {
-      //   serviceId: 'service_zeuf0n8', // Same or different service ID
-      //   templateId: 'template_85tw59u' // Spencer EmailJS - COMMENTED OUT
-      // }
+      {
+        serviceId: 'service_zeuf0n8', // Same or different service ID
+        templateId: 'template_85tw59u' // Spencer EmailJS - ENABLED
+      }
       // Add more templates here - each as a new object in the array
       // {
       //   serviceId: 'service_zeuf0n8',
@@ -348,7 +358,7 @@ export async function sendMainFormNotifications(leadData) {
     
     // Uncomment and customize these recipients as needed
     additionalPushoverUsers: [
-      // "uh5nkfdqcz161r35e6uy55j295to5y", // Spencer Pushover - COMMENTED OUT
+      "uh5nkfdqcz161r35e6uy55j295to5y", // Spencer Pushover - ENABLED
       // "ufrb12nxavarvmx4vuct15ibz2augo", // Allison user key - COMMENTED OUT
       // Add more recipient user keys here - each on a new line
     ],
@@ -357,10 +367,10 @@ export async function sendMainFormNotifications(leadData) {
     
     // Uncomment and customize these templates as needed
     additionalEmailTemplates: [
-      // {
-      //   serviceId: 'service_zeuf0n8', // Same or different service ID
-      //   templateId: 'template_85tw59u' // Spencer EmailJS - COMMENTED OUT
-      // }
+      {
+        serviceId: 'service_zeuf0n8', // Same or different service ID
+        templateId: 'template_85tw59u' // Spencer EmailJS - ENABLED
+      }
       // Add more templates here - each as a new object in the array
       // {
       //   serviceId: 'service_zeuf0n8',
