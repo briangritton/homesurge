@@ -204,6 +204,32 @@ export function FormProvider({ children }) {
         propertyRecord: updates.propertyRecord ? "Available" : "Not available"
       });
     }
+    
+    // SECONDARY SYNC: Auto-sync campaign data to Firebase when it gets updated
+    const campaignFields = [
+      'campaign_name', 'campaign_id', 'adgroup_id', 'adgroup_name', 
+      'keyword', 'device', 'gclid', 'traffic_source', 'matchtype', 'url'
+    ];
+    
+    const hasCampaignUpdates = campaignFields.some(field => updates.hasOwnProperty(field));
+    
+    if (hasCampaignUpdates) {
+      const leadId = localStorage.getItem('leadId');
+      if (leadId) {
+        // Extract only campaign fields for Firebase update
+        const campaignUpdates = {};
+        campaignFields.forEach(field => {
+          if (updates.hasOwnProperty(field)) {
+            campaignUpdates[field] = updates[field];
+          }
+        });
+        
+        console.log('🔄 Auto-syncing campaign data to Firebase:', campaignUpdates);
+        updateLeadInFirebase(leadId, campaignUpdates)
+          .then(() => console.log('✅ Campaign data synced to Firebase'))
+          .catch(err => console.error('❌ Campaign sync failed:', err));
+      }
+    }
   };
 
   // Handle form step navigation
@@ -946,11 +972,11 @@ export function FormProvider({ children }) {
     // Extract and process campaign data 
     const campaignData = extractCampaignData(urlParams);
     
-    // Check if we found valid campaign data from URL
-    const hasValidCampaignData = campaignData && campaignData.campaign_id;
-    console.log("Has valid campaign data:", hasValidCampaignData, campaignData);
+    // Create leads for ALL visitors regardless of campaign data
+    console.log("Processing visitor with campaign data:", campaignData);
     
-    if (hasValidCampaignData) {
+    // Always process - no campaign data required
+    {
       // Store campaign data in ref for persistence
       campaignDataRef.current = campaignData;
       
@@ -1010,6 +1036,15 @@ export function FormProvider({ children }) {
         setDynamicContent(campaignData.keyword, campaignData.campaign_id, campaignData.adgroup_id);
         
         // Create immediate lead for ALL visitors (not just campaign traffic)
+        // BUT skip admin/CRM pages
+        const currentPath = window.location.pathname;
+        const isAdminPage = currentPath.includes('/admin') || currentPath.includes('/crm');
+        
+        if (isAdminPage) {
+          console.log('🚫 Skipping lead creation - admin/CRM page detected:', currentPath);
+          return true;
+        }
+        
         // Check if we already have a leadId for this session
         const existingLeadId = localStorage.getItem('leadId');
         
@@ -1022,7 +1057,7 @@ export function FormProvider({ children }) {
         } else if (creationInProgress) {
           console.log('⏳ Lead creation already in progress, skipping duplicate');
         } else {
-          console.log('📊 Creating immediate lead for ALL visitors (first time this session)');
+          console.log('📊 Creating immediate lead for visitor (first time this session)');
           
           // Set flag immediately to prevent duplicate creation
           localStorage.setItem('leadCreationInProgress', 'true');
@@ -1046,9 +1081,6 @@ export function FormProvider({ children }) {
       }, 0);
       return true;
     }
-    
-    console.log("No valid campaign data found");
-    return false;
   };
 
   // Provide the context value to children
