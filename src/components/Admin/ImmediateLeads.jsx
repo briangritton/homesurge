@@ -395,6 +395,7 @@ const ImmediateLeads = () => {
             <thead>
               <tr>
                 <th style={styles.tableHeader}>Select</th>
+                <th style={styles.tableHeader}>Lead ID</th>
                 <th style={styles.tableHeader}>Campaign Data</th>
                 <th style={styles.tableHeader}>Variant</th>
                 <th style={styles.tableHeader}>Address</th>
@@ -413,6 +414,11 @@ const ImmediateLeads = () => {
                       checked={selectedLeads.has(lead.id)}
                       onChange={() => handleSelectLead(lead.id)}
                     />
+                  </td>
+                  <td style={styles.tableCell}>
+                    <div style={{fontSize: '10px', fontFamily: 'monospace', color: '#555', wordBreak: 'break-all'}}>
+                      {lead.id}
+                    </div>
                   </td>
                   <td style={styles.tableCell}>
                     <div>

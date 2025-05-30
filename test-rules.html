@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Firebase Rules Test</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js"></script>
+</head>
+<body>
+    <h1>Firebase Rules Test</h1>
+    <button onclick="testVisitorLead()">Test Visitor Lead Creation</button>
+    <div id="result"></div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCOEm26rN6y-8T3A-SjqMoH4qJtjdi3H1A",
+            authDomain: "sell-for-cash-454017.firebaseapp.com",
+            projectId: "sell-for-cash-454017",
+            storageBucket: "sell-for-cash-454017.firebasestorage.app",
+            messagingSenderId: "961913513684",
+            appId: "1:961913513684:web:57bd83f1867273bf437d41"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        async function testVisitorLead() {
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                // Test creating a lead with 'Visitor' status
+                const testData = {
+                    status: 'Visitor',
+                    campaign_name: 'test_campaign',
+                    gclid: 'test_gclid',
+                    assignedTo: null,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                const docRef = await db.collection('leads').add(testData);
+                resultDiv.innerHTML = `<p style="color: green;">✅ SUCCESS: Visitor lead created with ID: ${docRef.id}</p>
+                                     <p>Rules are properly deployed and allowing 'Visitor' status!</p>`;
+                
+                // Clean up test document
+                await db.collection('leads').doc(docRef.id).delete();
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<p style="color: red;">❌ FAILED: ${error.message}</p>
+                                     <p>Rules may not be deployed correctly!</p>`;
+                console.error('Test failed:', error);
+            }
+        }
+    </script>
+</body>
+</html>

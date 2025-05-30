@@ -844,6 +844,9 @@ export function FormProvider({ children }) {
   // Track whether URL parameters have already been processed
   const [urlParamsProcessed, setUrlParamsProcessed] = useState(false);
   
+  // Track whether immediate lead has been created for this session
+  const [immediateLeadCreated, setImmediateLeadCreated] = useState(false);
+  
   // Use ref to store campaign data for persistence
   const campaignDataRef = React.useRef(null);
   
@@ -1006,9 +1009,24 @@ export function FormProvider({ children }) {
         // from URL params and form state, so we don't need to pass it here
         setDynamicContent(campaignData.keyword, campaignData.campaign_id, campaignData.adgroup_id);
         
-        // Create immediate lead for perfect attribution tracking
-        if (campaignData.campaign_id || campaignData.campaign_name) {
-          console.log('📊 Creating immediate lead with campaign data');
+        // Create immediate lead for ALL visitors (not just campaign traffic)
+        // Check if we already have a leadId for this session
+        const existingLeadId = localStorage.getItem('leadId');
+        
+        // Also check if creation is already in progress using a synchronous flag
+        const creationInProgress = localStorage.getItem('leadCreationInProgress');
+        
+        if (existingLeadId) {
+          console.log('🔄 Immediate lead already exists for this session:', existingLeadId);
+          setLeadId(existingLeadId);
+        } else if (creationInProgress) {
+          console.log('⏳ Lead creation already in progress, skipping duplicate');
+        } else {
+          console.log('📊 Creating immediate lead for ALL visitors (first time this session)');
+          
+          // Set flag immediately to prevent duplicate creation
+          localStorage.setItem('leadCreationInProgress', 'true');
+          
           createImmediateLead({
             ...campaignData,
             variant: urlParams.get('variant') || urlParams.get('split_test') || 'AAA'
@@ -1018,9 +1036,11 @@ export function FormProvider({ children }) {
               setLeadId(leadId);
               localStorage.setItem('leadId', leadId);
               localStorage.setItem('suggestionLeadId', leadId);
+              localStorage.removeItem('leadCreationInProgress'); // Clear the flag
             }
           }).catch(error => {
             console.error('❌ Failed to create immediate lead:', error);
+            localStorage.removeItem('leadCreationInProgress'); // Clear the flag on error
           });
         }
       }, 0);

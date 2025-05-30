@@ -1147,6 +1147,22 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
               </div>
               
               <div style={styles.fieldGroup}>
+                <div style={styles.label}>Form Submitted</div>
+                <div style={styles.value}>
+                  <span style={{
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    backgroundColor: lead.submittedAny ? '#4CAF50' : '#f5f5f5',
+                    color: lead.submittedAny ? 'white' : '#666'
+                  }}>
+                    {lead.submittedAny ? 'Yes' : 'No'}
+                  </span>
+                </div>
+              </div>
+              
+              <div style={styles.fieldGroup}>
                 <div style={styles.label}>Split Test Variant</div>
                 <div style={styles.value}>
                   {(() => {

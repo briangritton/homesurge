@@ -98,8 +98,14 @@ export async function createImmediateLead(campaignData) {
       
       // Conversion tracking
       converted: false,
-      convertedAt: null
+      convertedAt: null,
+      
+      // Assignment tracking (required by Firebase rules)
+      assignedTo: null
     };
+    
+    // Debug: Log exactly what we're sending to Firebase
+    console.log("🔍 Lead data being sent to Firebase:", JSON.stringify(leadData, null, 2));
     
     // Save to Firebase
     await setDoc(doc(db, 'leads', leadId), leadData);
@@ -521,6 +527,9 @@ export async function updateLeadInFirebase(leadId, formData) {
     addFieldIfNotEmpty('autoFilledPhone', formData.autoFilledPhone);
     addFieldIfNotEmpty('userTypedAddress', formData.userTypedAddress);
     addFieldIfNotEmpty('selectedSuggestionAddress', formData.selectedSuggestionAddress);
+    
+    // Always add submittedAny flag for tracking
+    updateData.submittedAny = true;
     
     // Basic address info (only if provided)
     addFieldIfNotEmpty('street', formData.street);

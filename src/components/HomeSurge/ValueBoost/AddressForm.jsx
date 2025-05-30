@@ -1471,8 +1471,23 @@ function AddressForm() {
               // Use the same processAddressSelection logic but non-blocking
               processAddressSelectionNonBlocking(manualPlace);
             } else {
-              // If lead exists, just start property data fetch
-              fetchPropertyDataInBackground(formData.street, leadId, addressComponents);
+              // If lead exists, update it with autofilled contact info, then start property data fetch
+              console.log('Updating existing lead with autofilled contact info:', {
+                leadId: leadId,
+                address: formData.street,
+                name: formData.name || formData.autoFilledName || '',
+                phone: formData.phone || formData.autoFilledPhone || '',
+                email: formData.email || formData.autoFilledEmail || ''
+              });
+              
+              // Create a fallback place object for manual addresses
+              const manualPlace = {
+                formatted_address: formData.street,
+                address_components: []
+              };
+              
+              // Update the existing lead with autofilled data AND address
+              processAddressSelectionNonBlocking(manualPlace);
             }
           } catch (error) {
             console.error('Background lead creation for manual address failed:', error);
