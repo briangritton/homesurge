@@ -25,6 +25,11 @@ export const sendLeadNotificationEmail = async (leadData, serviceId, templateId,
     const baseUrl = window.location.origin || 'https://homesurge.ai';
     const crmLink = leadId ? `${baseUrl}/crm?leadId=${leadId}` : `${baseUrl}/crm`;
     
+    // Determine campaign type for email subject/title customization
+    const campaignName = leadData.campaign_name || '';
+    const keyword = leadData.keyword || '';
+    const isCashOrFast = campaignName.toLowerCase().includes('cash') || campaignName.toLowerCase().includes('fast');
+    
     const templateParams = {
       lead_name: leadData.name || 'New Lead',
       lead_phone: leadData.phone || 'N/A',
@@ -32,11 +37,16 @@ export const sendLeadNotificationEmail = async (leadData, serviceId, templateId,
       lead_email: leadData.email || 'N/A',
       lead_source: leadData.leadSource || 'Website',
       submission_time: new Date().toLocaleString(),
-      campaign_name: leadData.campaign_name || 'Direct',
+      campaign_name: campaignName || 'Direct',
+      keyword: keyword || 'N/A',
       utm_source: leadData.utm_source || 'N/A',
       utm_medium: leadData.utm_medium || 'N/A',
       utm_campaign: leadData.utm_campaign || 'N/A',
-      crm_link: crmLink
+      crm_link: crmLink,
+      // Add flag for email template conditional logic
+      is_cash_or_fast: isCashOrFast,
+      // Add custom subject line based on campaign type
+      email_subject: isCashOrFast ? 'New Address Lead' : 'New Lead Created'
     };
 
     console.log('Sending email notification with data:', templateParams);

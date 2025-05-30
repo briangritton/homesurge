@@ -64,8 +64,15 @@ export async function sendLeadAssignmentNotification(leadId, salesRepId) {
       lead.zip || ''
     ].filter(Boolean).join(', ');
     
-    // Create message content
-    const message = `New lead assigned: ${lead.name || 'Unnamed Lead'}\nAddress: ${address}${lead.phone ? `\nPhone: ${lead.phone}` : ''}`;
+    // Create message content with keyword if available
+    const keyword = lead.keyword || '';
+    let message = `New lead assigned: ${lead.name || 'Unnamed Lead'}\nAddress: ${address}`;
+    if (lead.phone) {
+      message += `\nPhone: ${lead.phone}`;
+    }
+    if (keyword) {
+      message += `\nKeyword: ${keyword}`;
+    }
     
     // Prepare the request payload for Pushover API
     const payload = {

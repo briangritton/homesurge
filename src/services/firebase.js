@@ -391,14 +391,34 @@ export async function submitLeadToFirebase(formData) {
             preparedData.zip || ''
           ].filter(Boolean).join(', ');
           
+          // Determine campaign type and create appropriate title and message
+          const campaignName = preparedData.campaign_name || '';
+          const keyword = preparedData.keyword || '';
+          const isCashOrFast = campaignName.toLowerCase().includes('cash') || campaignName.toLowerCase().includes('fast');
+          
+          // Create title based on campaign type
+          const notificationTitle = isCashOrFast ? "New Address Lead" : "New Lead Created";
+          
+          // Build message with keyword if available
+          let message = `New lead created: ${preparedData.name || 'Unnamed Lead'}\nAddress: ${address}`;
+          if (preparedData.phone) {
+            message += `\nPhone: ${preparedData.phone}`;
+          }
+          if (keyword) {
+            message += `\nKeyword: ${keyword}`;
+          }
+          if (campaignName && !isCashOrFast) {
+            message += `\nCampaign: ${campaignName}`;
+          }
+          
           // Send Pushover notification directly to API endpoint
           const response = await fetch('/api/pushover/send-notification', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               user: adminPushoverUserKey,
-              message: `New lead created: ${preparedData.name || 'Unnamed Lead'}\nAddress: ${address}${preparedData.phone ? `\nPhone: ${preparedData.phone}` : ''}`,
-              title: "New Lead Created",
+              message: message,
+              title: notificationTitle,
               priority: 1,
               sound: "persistent"
             })
