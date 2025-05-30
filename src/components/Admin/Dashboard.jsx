@@ -410,17 +410,47 @@ const AdminDashboard = () => {
         <p className="crm-dashboard-error">{error}</p>
       ) : (
         activeTab === 'leads' && (
-          <table style={styles.table} className="crm-dashboard-table">
-            <thead className="crm-dashboard-table-head">
-              <tr className="crm-dashboard-table-row">
-                <th style={styles.tableHeader} className="crm-dashboard-table-header">Name</th>
-                <th style={styles.tableHeader} className="crm-dashboard-table-header">Address</th>
-                <th style={styles.tableHeader} className="crm-dashboard-table-header">Phone</th>
-                <th style={styles.tableHeader} className="crm-dashboard-table-header">Status</th>
-                <th style={styles.tableHeader} className="crm-dashboard-table-header">Created</th>
-                <th style={styles.tableHeader} className="crm-dashboard-table-header">Actions</th>
-              </tr>
-            </thead>
+          <>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '15px',
+              padding: '10px',
+              background: '#f8f9fa',
+              borderRadius: '4px',
+              border: '1px solid #e0e0e0'
+            }}>
+              <div>
+                <strong>Recent Leads</strong> (showing last 10)
+              </div>
+              <button
+                style={styles.button}
+                onClick={() => {
+                  // Navigate to full Lead Management view using the global navigation function
+                  if (window.navigateToLeads) {
+                    window.navigateToLeads();
+                  } else {
+                    // Fallback for direct navigation
+                    window.location.hash = 'leads';
+                    window.location.reload();
+                  }
+                }}
+              >
+                View All Leads →
+              </button>
+            </div>
+            <table style={styles.table} className="crm-dashboard-table">
+              <thead className="crm-dashboard-table-head">
+                <tr className="crm-dashboard-table-row">
+                  <th style={styles.tableHeader} className="crm-dashboard-table-header">Name</th>
+                  <th style={styles.tableHeader} className="crm-dashboard-table-header">Address</th>
+                  <th style={styles.tableHeader} className="crm-dashboard-table-header">Phone</th>
+                  <th style={styles.tableHeader} className="crm-dashboard-table-header">Status</th>
+                  <th style={styles.tableHeader} className="crm-dashboard-table-header">Created</th>
+                  <th style={styles.tableHeader} className="crm-dashboard-table-header">Actions</th>
+                </tr>
+              </thead>
             <tbody className="crm-dashboard-table-body">
               {leads.map(lead => (
                 <tr key={lead.id} style={styles.tableRow} className="crm-dashboard-table-row">
@@ -461,6 +491,7 @@ const AdminDashboard = () => {
               )}
             </tbody>
           </table>
+          </>
         )
       )}
       

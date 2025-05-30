@@ -161,6 +161,12 @@ const CRMApp = () => {
   // Make the handleSelectLead function available globally for navigation
   // This is a workaround for cross-component communication
   window.handleSelectLead = handleSelectLead;
+  
+  // Also make navigation to leads view available globally
+  window.navigateToLeads = () => {
+    setActiveView('leads');
+    setSelectedLeadId(null);
+  };
 
   const handleBackToLeads = () => {
     setSelectedLeadId(null);
