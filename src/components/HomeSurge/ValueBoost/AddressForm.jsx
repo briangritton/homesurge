@@ -1495,7 +1495,7 @@ function AddressForm() {
         })();
       } else {
         // Address doesn't validate
-        setErrorMessage('Please enter a valid address to get your value boost report');
+        setErrorMessage('Please enter a valid address');
         setIsLoading(false);
       }
     } catch (error) {
@@ -2178,6 +2178,17 @@ function AddressForm() {
               - Fallback default is defined below
               - Priority: Dynamic Content > Fallback Default
             */}
+
+
+{errorMessage && (
+            <div className="vb-af1-error-message">{errorMessage}</div>
+          )}
+
+
+
+
+
+
             <button 
               type="submit"
               className="vb-af1-submit-button"
@@ -2220,9 +2231,7 @@ function AddressForm() {
           </div>
           
           
-          {errorMessage && (
-            <div className="vb-af1-error-message">{errorMessage}</div>
-          )}
+          
           
           {/* Disclaimer Section */}
           <div className="vb-disclaimer-section">

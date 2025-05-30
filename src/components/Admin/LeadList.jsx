@@ -240,6 +240,7 @@ const LeadList = ({ onSelectLead }) => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [showAllPageVisits, setShowAllPageVisits] = useState(false); // Default to false - only show form submissions
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortDirection, setSortDirection] = useState('desc');
   const [lastVisible, setLastVisible] = useState(null);
@@ -254,7 +255,7 @@ const LeadList = ({ onSelectLead }) => {
 
   useEffect(() => {
     fetchLeads();
-  }, [statusFilter, sortBy, sortDirection, currentPage]);
+  }, [statusFilter, showAllPageVisits, sortBy, sortDirection, currentPage]);
 
   const fetchLeads = async () => {
     try {
@@ -268,6 +269,14 @@ const LeadList = ({ onSelectLead }) => {
       // Apply filters
       if (statusFilter !== 'All') {
         constraints.push(where('status', '==', statusFilter));
+      }
+      
+      // Apply form submission filter - by default only show leads with form submissions or contact info
+      // This handles cases where submittedAny field might not exist on older leads
+      if (!showAllPageVisits) {
+        // Show leads that either have submittedAny=true OR have contact information (name or phone)
+        // We'll filter this in memory since Firestore doesn't support OR across different fields easily
+        // For now, let's use a simpler approach and filter in JavaScript after getting results
       }
       
       // Apply sorting
@@ -293,8 +302,19 @@ const LeadList = ({ onSelectLead }) => {
       if (currentPage === 1) {
         // This is a simple way to get count - but note for large collections
         // a better approach using Firestore aggregation would be needed
-        const countQuery = statusFilter !== 'All' 
-          ? query(leadsRef, where('status', '==', statusFilter))
+        let countConstraints = [];
+        
+        if (statusFilter !== 'All') {
+          countConstraints.push(where('status', '==', statusFilter));
+        }
+        
+        // Note: We'll filter the form submissions in JavaScript, so don't add Firestore constraint here
+        // if (!showAllPageVisits) {
+        //   countConstraints.push(where('submittedAny', '==', true));
+        // }
+        
+        const countQuery = countConstraints.length > 0 
+          ? query(leadsRef, ...countConstraints)
           : query(leadsRef);
         
         const countSnapshot = await getDocs(countQuery);
@@ -369,6 +389,18 @@ const LeadList = ({ onSelectLead }) => {
   };
 
   const filteredLeads = leads.filter(lead => {
+    // First apply the form submission filter
+    if (!showAllPageVisits) {
+      // Show only leads that have submitted a form OR have contact information
+      const hasSubmittedForm = lead.submittedAny === true;
+      const hasContactInfo = lead.name || lead.phone || lead.email;
+      
+      if (!hasSubmittedForm && !hasContactInfo) {
+        return false; // Hide page visit leads without contact info
+      }
+    }
+    
+    // Then apply search filter
     if (!searchTerm) return true;
     
     const searchLower = searchTerm.toLowerCase();
@@ -470,7 +502,26 @@ const LeadList = ({ onSelectLead }) => {
     <div style={styles.container} className="crm-lead-list-container">
       <div style={styles.header} className="crm-lead-list-header">
         <h2 style={styles.title} className="crm-lead-list-title">Lead Management</h2>
-        <button style={styles.button} className="crm-lead-list-add-button">+ Add New Lead</button>
+        <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
+          {/* Page Visit Filter Checkbox */}
+          <div style={{display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', padding: '8px 12px', border: '1px solid #e0e0e0', borderRadius: '4px', backgroundColor: '#f8f9fa'}}>
+            <input
+              type="checkbox"
+              id="showAllPageVisits"
+              checked={showAllPageVisits}
+              onChange={(e) => {
+                setShowAllPageVisits(e.target.checked);
+                setCurrentPage(1);
+                setLastVisible(null);
+              }}
+              style={styles.checkbox}
+            />
+            <label htmlFor="showAllPageVisits" style={{cursor: 'pointer', fontWeight: '500'}}>
+              Show all page visit leads
+            </label>
+          </div>
+          <button style={styles.button} className="crm-lead-list-add-button">+ Add New Lead</button>
+        </div>
       </div>
       
       <div style={styles.controls} className="crm-lead-list-controls">
@@ -480,7 +531,7 @@ const LeadList = ({ onSelectLead }) => {
             placeholder="Search by name, email, phone, or address..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            onKeyPress={e => e.key === 'Enter' && handleSearch()}
+            onKeyDown={e => e.key === 'Enter' && handleSearch()}
             style={styles.searchInput}
             className="crm-lead-list-search-input"
           />
@@ -687,6 +738,7 @@ const LeadList = ({ onSelectLead }) => {
             <div style={styles.pageInfo} className="crm-lead-list-page-info">
               Showing {filteredLeads.length} of {totalLeads} leads
               {statusFilter !== 'All' ? ` with status "${statusFilter}"` : ''}
+              {!showAllPageVisits ? ' (form submissions only)' : ' (including page visits)'}
             </div>
             <div style={styles.pageButtons} className="crm-lead-list-page-buttons">
               <button 
@@ -749,7 +801,7 @@ const LeadList = ({ onSelectLead }) => {
                 fontSize: '14px',
                 boxSizing: 'border-box'
               }}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   confirmBulkDelete();
                 }

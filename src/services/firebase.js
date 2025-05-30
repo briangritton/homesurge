@@ -59,7 +59,7 @@ export async function createImmediateLead(campaignData) {
     const leadData = {
       // Lead tracking
       id: leadId,
-      status: 'Visitor', // Hidden from sales dashboard until contact info provided
+      status: 'New', // Show in sales dashboard immediately
       leadStage: 'Landing Page Visit',
       
       // Campaign attribution (captured immediately)

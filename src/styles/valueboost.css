@@ -901,12 +901,17 @@
 }
 
 .vb-af1-address-input-invalid {
-  border: 2px solid #ff4d4f !important;
-  border-radius: 12px !important;
-  box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2) !important;
-  background-color: rgba(255, 77, 79, 0.05) !important;
+border: 2px solid #09a5c8 !important;
+border-radius: 12px !important;
+box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2) !important;
+background-color: rgba(255, 77, 79, 0.05) !important;
+width: calc(100% - 40px);
+padding: 20px;
+border-color: #09a5c8 !important;
+box-shadow: 0 0 0 3px rgba(0, 184, 230, 0.2), 0 4px 15px rgba(0, 184, 230, 0.15) !important;
+background: none !important;
+font-size: 1rem !important;
 }
-
 
 
 
@@ -940,13 +945,13 @@
 }
 
 .vb-af1-error-message {
-  color: #ff4d4f !important;
-  font-size: 16px !important;
-  margin-top: 10px !important;
-  padding: 10px !important;
-  background-color: rgba(255, 77, 79, 0.1) !important;
-  border-radius: 8px !important;
-  border: 1px solid rgba(255, 77, 79, 0.3) !important;
+color: #09a5c8 !important;
+font-size: 16px !important;
+margin-top: 10px !important;
+padding: 10px !important;
+/* background-color: rgba(255, 77, 79, 0.1) !important; */
+border-radius: 8px !important;
+border: 1px solid #09a5c8 !important;
 }
 
 /* Sliding Flare Effect for Buttons */
