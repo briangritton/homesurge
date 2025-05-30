@@ -93,6 +93,16 @@ function AddressForm() {
         opportunitiesText: '11 OfferBoost opportunities found!',
         percentageText: 'Potential Cash Offer Increase'
       },
+
+        wide: {
+        headline: 'Want to Sell Your House Fast?',
+        subheadline: 'OfferBoost AI home scan will look for your <strong><em>fastest maximum offer</em></strong>. Close in as little as 7 days. No showings, no repairs, no stress',
+        buttonText: 'CHECK FAST OFFERS',
+        exampleTag: 'Example OfferBoost Increase*',
+        potentialHeadline: 'Your OfferBoost Potential:',
+        opportunitiesText: '11 OfferBoost opportunities found!',
+        percentageText: 'Potential Cash Offer Increase'
+      },
       
       // ========== VALUE/IMPROVEMENT CAMPAIGNS (Enhanced ValueBoost) ==========
       value: {
@@ -156,6 +166,7 @@ function AddressForm() {
       // CASH/SELLING CAMPAIGN MATCHING (Highest priority)
       if (simplified.includes('cash')) return templates.cash;
       if (simplified.includes('sellfast') || simplified.includes('sell_fast')) return templates.sellfast;
+      if (simplified.includes('wide')) return templates.wide;
       if (simplified.includes('fast')) return templates.fast;
       
       // VALUE/IMPROVEMENT CAMPAIGN MATCHING
