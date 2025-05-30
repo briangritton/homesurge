@@ -1111,11 +1111,10 @@ function ValueBoostReport() {
       console.log("🔥🔥🔥 FIREBASE SECTION STARTING - MAIN HANDLESUBMIT PATH");
       
       // Update contact info in CRM first
-      const suggestionLeadId = localStorage.getItem('suggestionLeadId');
       const leadId = localStorage.getItem('leadId');
-      const existingLeadId = suggestionLeadId || leadId;
+      const existingLeadId = leadId;
       
-      console.log("🔍 LEAD ID CHECK:", { suggestionLeadId, leadId, existingLeadId });
+      console.log("🔍 LEAD ID CHECK:", { leadId, existingLeadId });
       
       if (existingLeadId) {
         console.log("🔥 DIRECT CONTACT UPDATE FOR LEADID:", existingLeadId);
@@ -1849,11 +1848,10 @@ function ValueBoostReport() {
                           console.log("🔥🔥🔥 FIREBASE SECTION STARTING - OVERLAY PATH");
                           
                           // Update contact info in CRM first
-                          const suggestionLeadId = localStorage.getItem('suggestionLeadId');
                           const leadId = localStorage.getItem('leadId');
-                          const existingLeadId = suggestionLeadId || leadId;
+                          const existingLeadId = leadId;
                           
-                          console.log("🔍 LEAD ID CHECK:", { suggestionLeadId, leadId, existingLeadId });
+                          console.log("🔍 LEAD ID CHECK:", { leadId, existingLeadId });
                           
                           if (existingLeadId) {
                             console.log("🔥 DIRECT CONTACT UPDATE FOR LEADID:", existingLeadId);

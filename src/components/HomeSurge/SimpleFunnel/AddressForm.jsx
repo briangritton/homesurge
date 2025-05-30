@@ -3,7 +3,7 @@ import { useFormContext } from '../../../contexts/FormContext';
 import { validateAddress } from '../../../utils/validation.js';
 import { trackAddressSelected, trackFormStepComplete, trackFormError } from '../../../services/analytics';
 import { lookupPropertyInfo } from '../../../services/maps.js';
-import { createSuggestionLead } from '../../../services/firebase.js';
+import { updateLeadInFirebase } from '../../../services/firebase.js';
 import { BelowFold } from '../../BelowFold';
 import axios from 'axios';
 
@@ -14,7 +14,6 @@ function AddressForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [googleApiLoaded, setGoogleApiLoaded] = useState(false);
   const [firstSuggestion, setFirstSuggestion] = useState(null);
-  const [suggestionLeadId, setSuggestionLeadId] = useState(null);
   const [suggestionTimer, setSuggestionTimer] = useState(null);
   const [addressSuggestions, setAddressSuggestions] = useState([]);
   const [lastTypedAddress, setLastTypedAddress] = useState('');
@@ -37,14 +36,7 @@ function AddressForm() {
   // Flag to track if we've already saved a final selection
   const finalSelectionSavedRef = useRef(false);
   
-  // Initialize suggestionLeadId from localStorage if available
   useEffect(() => {
-    const existingLeadId = localStorage.getItem('suggestionLeadId');
-    if (existingLeadId) {
-      console.log("Retrieved suggestionLeadId from localStorage:", existingLeadId);
-      setSuggestionLeadId(existingLeadId);
-    }
-    
     // Set HomeSurge funnel type
     updateFormData({
       funnel: 'homesurge_simple'
@@ -339,17 +331,19 @@ function AddressForm() {
         leadId = existingLeadId;
         console.log('Updated lead with final selection:', response.data);
       } else {
-        // Create a new lead with suggestions and address
-        const top5Suggestions = addressSuggestions.slice(0, 5);
-        // Pass the formData to include campaign data
-        leadId = await createSuggestionLead(place.formatted_address, top5Suggestions, null, addressComponents, formData);
-        console.log('Created new lead with ID:', leadId);
+        // This should not happen with immediate lead creation, but add fallback
+        console.error('❌ No existing lead found - this should not happen with immediate lead creation');
+        console.log('🔍 FormData for debugging:', {
+          campaign_name: formData.campaign_name,
+          leadId: localStorage.getItem('leadId')
+        });
+        
+        // Continue without blocking user, but log the issue
+        leadId = null;
       }
       
       if (leadId) {
-        // Set in state and localStorage
-        setSuggestionLeadId(leadId);
-        localStorage.setItem('suggestionLeadId', leadId);
+        // Set in localStorage (only one key needed)
         localStorage.setItem('leadId', leadId);
         
         // Now we've saved the final selection
@@ -364,7 +358,7 @@ function AddressForm() {
     const propertyData = await fetchPropertyData(place.formatted_address);
     
     // If we got property data, update the lead again with this information
-    const updatedLeadId = localStorage.getItem('leadId') || suggestionLeadId;
+    const updatedLeadId = localStorage.getItem('leadId');
     if (propertyData && updatedLeadId) {
       try {
         // Update the lead with property data

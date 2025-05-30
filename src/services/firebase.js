@@ -761,123 +761,6 @@ export async function trackFirebaseConversion(event, leadId, status = null, cust
   }
 }
 
-/**
- * Create a lead from partial address and suggestions
- * @param {string} partialAddress - User-typed partial address
- * @param {Array} suggestions - Address suggestions
- * @param {Object} contactInfo - Optional contact info with name, phone, leadId
- * @param {Object} addressComponents - Optional address components if selection made
- * @returns {Promise<string>} - ID of created or updated lead
- */
-export async function createSuggestionLead(partialAddress, suggestions, contactInfo = null, addressComponents = null, formData = null) {
-  try {
-    // If we already have contactInfo containing a leadId, use update, otherwise create
-    const leadId = contactInfo?.leadId || null;
-    
-    // Extract campaign data from contactInfo or formData if available
-    // This ensures campaign parameters are captured in the initial lead creation
-    const campaignData = formData || (contactInfo && contactInfo.formData) || {};
-    
-    // Format the data for Firebase
-    const preparedData = {
-      // Only include userTypedAddress, not the official street address
-      userTypedAddress: partialAddress || '',
-      
-      // Lead classification
-      leadSource: campaignData.leadSource || 'Address Entry',
-      leadStage: 'Address Typing',
-      addressSelectionType: 'Partial',
-      
-      // Use provided name/phone/email from contactInfo if available, otherwise defaults
-      name: contactInfo?.name || 'Property Lead',
-      phone: contactInfo?.phone || '',
-      email: contactInfo?.email || '',
-      autoFilledName: contactInfo?.autoFilledName || contactInfo?.name || '',
-      autoFilledPhone: contactInfo?.autoFilledPhone || contactInfo?.phone || '',
-      
-      // CRITICAL: Include ALL campaign tracking parameters from formData
-      campaign_name: campaignData.campaign_name || '',
-      campaign_id: campaignData.campaign_id || '',
-      adgroup_name: campaignData.adgroup_name || '',
-      adgroup_id: campaignData.adgroup_id || '',
-      keyword: campaignData.keyword || '',
-      device: campaignData.device || '',
-      gclid: campaignData.gclid || '',
-      traffic_source: campaignData.traffic_source || 'Direct',
-      matchtype: campaignData.matchtype || '',
-      templateType: campaignData.templateType || campaignData.template_type || '',
-      template_type: campaignData.template_type || campaignData.templateType || '',
-      url: campaignData.url || window.location.href || '',
-      
-      // Include dynamic content information if available
-      dynamicHeadline: campaignData.dynamicHeadline || '',
-      dynamicSubHeadline: campaignData.dynamicSubHeadline || '',
-      buttonText: campaignData.buttonText || '',
-      
-      // Include API property data if available - ensure ALL fields are included
-      apiOwnerName: campaignData.apiOwnerName || '',
-      apiEstimatedValue: campaignData.apiEstimatedValue?.toString() || '',
-      apiMaxHomeValue: campaignData.apiMaxHomeValue?.toString() || '',
-      apiHomeValue: campaignData.apiEstimatedValue?.toString() || '',  // Add this for consistency
-      formattedApiEstimatedValue: campaignData.formattedApiEstimatedValue || '',
-      apiEquity: campaignData.apiEquity?.toString() || '',
-      apiPercentage: campaignData.apiPercentage?.toString() || '',
-      propertyEquity: campaignData.apiEquity?.toString() || '',        // Add this for consistency
-      equityPercentage: campaignData.apiPercentage?.toString() || ''   // Add this for consistency
-    };
-    
-    console.log("Creating suggestion lead with campaign data:", {
-      campaign_name: preparedData.campaign_name,
-      campaign_id: preparedData.campaign_id,
-      adgroup_name: preparedData.adgroup_name,
-      keyword: preparedData.keyword
-    });
-    
-    // Add address components if explicitly provided - always set street if partialAddress is available
-    if (addressComponents) {
-      preparedData.city = addressComponents.city || '';
-      preparedData.state = addressComponents.state || 'GA';
-      preparedData.zip = addressComponents.zip || '';
-      preparedData.street = partialAddress; // Always set street when addressComponents is provided
-      preparedData.leadStage = 'Address Selected'; // Update the stage
-    }
-    
-    // System fields
-    preparedData.updatedAt = serverTimestamp();
-    
-    if (leadId) {
-      // Update existing lead
-      console.log(`Updating suggestion lead with ID: ${leadId}`);
-      const leadRef = doc(db, 'leads', leadId);
-      await updateDoc(leadRef, preparedData);
-      return leadId;
-    } else {
-      // Create new lead
-      console.log(`Creating new suggestion lead with partial address: "${partialAddress}"`);
-      preparedData.createdAt = serverTimestamp();
-      preparedData.status = 'New';
-      preparedData.assignedTo = null;
-      preparedData.conversions = [];
-      
-      // Create a new lead document with auto-generated ID
-      const leadsCollection = collection(db, 'leads');
-      const newLeadDoc = doc(leadsCollection);
-      
-      // Add lead ID to prepared data for reference
-      preparedData.id = newLeadDoc.id;
-      
-      // Store in Firestore
-      await setDoc(newLeadDoc, preparedData);
-      
-      console.log(`Successfully created suggestion lead with ID: ${newLeadDoc.id}`);
-      return newLeadDoc.id;
-    }
-  } catch (error) {
-    console.error("Error in suggestion lead operation:", error.message);
-    // Return null if there was an error - the calling code should handle gracefully
-    return null;
-  }
-}
 
 /**
  * Specialized function to update ONLY contact info (name and phone)
@@ -1163,7 +1046,6 @@ export default {
   submitLeadToFirebase,
   updateLeadInFirebase,
   trackFirebaseConversion,
-  createSuggestionLead,
   updateContactInfo,
   // Authentication
   login,

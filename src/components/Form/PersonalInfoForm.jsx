@@ -376,11 +376,10 @@ function PersonalInfoForm() {
         address: formData.street
       });
       
-      const existingLeadId = localStorage.getItem('suggestionLeadId') || localStorage.getItem('leadId');
+      const existingLeadId = localStorage.getItem('leadId');
       
       // Debug logging to identify Firebase issue
       console.log('🔍 LEAD DEBUG:', {
-        existingLeadId: localStorage.getItem('suggestionLeadId'),
         leadId: localStorage.getItem('leadId'),
         formDataKeys: Object.keys(formData),
         undefinedFields: Object.entries(formData).filter(([k,v]) => v === undefined)

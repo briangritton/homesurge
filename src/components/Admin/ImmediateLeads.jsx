@@ -140,6 +140,8 @@ const ImmediateLeads = () => {
       setLoading(true);
       const db = getFirestore();
       
+      console.log('🔍 Fetching immediate leads with status "Visitor"...');
+      
       // Get leads with status 'Visitor' (immediate leads created on page landing)
       const leadsQuery = query(
         collection(db, 'leads'),
@@ -148,18 +150,83 @@ const ImmediateLeads = () => {
       );
       
       const leadsSnapshot = await getDocs(leadsQuery);
-      const leadsList = leadsSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        // Convert timestamps to dates for display
-        createdAt: doc.data().createdAt?.toDate?.() || new Date(),
-        visitedAt: doc.data().visitedAt?.toDate?.() || new Date(),
-        updatedAt: doc.data().updatedAt?.toDate?.() || new Date()
-      }));
+      console.log(`📊 Found ${leadsSnapshot.size} leads with status "Visitor"`);
       
+      const leadsList = leadsSnapshot.docs.map(doc => {
+        const data = doc.data();
+        console.log('🎯 Visitor lead found:', {
+          id: doc.id,
+          status: data.status,
+          campaign_name: data.campaign_name,
+          createdAt: data.createdAt?.toDate?.() || 'No date',
+          hasGclid: !!data.gclid
+        });
+        
+        return {
+          id: doc.id,
+          ...data,
+          // Convert timestamps to dates for display
+          createdAt: data.createdAt?.toDate?.() || new Date(),
+          visitedAt: data.visitedAt?.toDate?.() || new Date(),
+          updatedAt: data.updatedAt?.toDate?.() || new Date()
+        };
+      });
+      
+      console.log(`✅ Processed ${leadsList.length} immediate leads for display`);
       setLeads(leadsList);
     } catch (error) {
-      console.error('Error fetching immediate leads:', error);
+      console.error('❌ Error fetching immediate leads:', error);
+      
+      // Try alternate query without orderBy in case of index issues
+      try {
+        console.log('🔄 Trying alternate query without orderBy...');
+        const db = getFirestore();
+        const simpleQuery = query(
+          collection(db, 'leads'),
+          where('status', '==', 'Visitor')
+        );
+        
+        const simpleSnapshot = await getDocs(simpleQuery);
+        console.log(`📊 Alternate query found ${simpleSnapshot.size} leads`);
+        
+        const leadsList = simpleSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: doc.data().createdAt?.toDate?.() || new Date(),
+          visitedAt: doc.data().visitedAt?.toDate?.() || new Date(),
+          updatedAt: doc.data().updatedAt?.toDate?.() || new Date()
+        }));
+        
+        // Filter to only show leads that look like immediate leads
+        // (have campaign data, recent, empty name/phone initially)
+        const immediateLookingLeads = leadsList.filter(lead => {
+          const hasImmedateLeadCharacteristics = (
+            (lead.campaign_name || lead.campaign_id || lead.gclid) && // Has campaign data
+            (!lead.name || lead.name === '' || lead.name === 'Property Lead') && // No name initially
+            (!lead.phone || lead.phone === '') // No phone initially
+          );
+          
+          console.log(`🔍 Lead ${lead.id}:`, {
+            status: lead.status,
+            campaign_name: lead.campaign_name,
+            hasGclid: !!lead.gclid,
+            name: lead.name || 'empty',
+            phone: lead.phone || 'empty',
+            isImmediate: hasImmedateLeadCharacteristics
+          });
+          
+          return hasImmedateLeadCharacteristics;
+        });
+        
+        console.log(`✅ Found ${immediateLookingLeads.length} immediate-looking leads out of ${leadsList.length} total`);
+        
+        // Sort in JavaScript if Firestore index is missing
+        immediateLookingLeads.sort((a, b) => b.createdAt - a.createdAt);
+        
+        setLeads(immediateLookingLeads);
+      } catch (fallbackError) {
+        console.error('❌ Fallback query also failed:', fallbackError);
+      }
     } finally {
       setLoading(false);
     }
@@ -264,6 +331,38 @@ const ImmediateLeads = () => {
         These are leads created immediately when users land on the page with campaign data. 
         They have status "Visitor" until contact information is provided.
         Perfect for tracking attribution and split test performance.
+      </div>
+      
+      <div style={{marginBottom: '15px', padding: '10px', backgroundColor: '#f0f8ff', borderRadius: '4px', fontSize: '14px'}}>
+        <strong>Debug Info:</strong> Check browser console for detailed query results.
+        <button 
+          onClick={fetchImmediateLeads}
+          style={{marginLeft: '10px', padding: '5px 10px', fontSize: '12px'}}
+        >
+          🔍 Refresh & Debug
+        </button>
+        <button 
+          onClick={async () => {
+            try {
+              const db = getFirestore();
+              const allLeadsQuery = query(collection(db, 'leads'));
+              const allSnapshot = await getDocs(allLeadsQuery);
+              console.log('📊 ALL LEADS ANALYSIS:');
+              const statusCounts = {};
+              allSnapshot.docs.forEach(doc => {
+                const status = doc.data().status || 'undefined';
+                statusCounts[status] = (statusCounts[status] || 0) + 1;
+              });
+              console.table(statusCounts);
+              alert(`Total leads: ${allSnapshot.size}. Check console for status breakdown.`);
+            } catch (error) {
+              console.error('Debug query failed:', error);
+            }
+          }}
+          style={{marginLeft: '5px', padding: '5px 10px', fontSize: '12px'}}
+        >
+          📊 Analyze All Leads
+        </button>
       </div>
       
       {leads.length === 0 ? (

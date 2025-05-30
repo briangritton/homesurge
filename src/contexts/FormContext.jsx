@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { submitLeadToFirebase, updateLeadInFirebase, createSuggestionLead, updateContactInfo, createImmediateLead } from '../services/firebase';
+import { submitLeadToFirebase, updateLeadInFirebase, updateContactInfo, createImmediateLead } from '../services/firebase';
 import { useNotifications } from '../hooks/useNotifications';
 
 // Custom hook to use the form context

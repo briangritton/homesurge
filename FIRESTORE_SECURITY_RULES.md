@@ -29,8 +29,12 @@ service cloud.firestore {
     
     // Helper function to check if the request contains required lead fields
     function hasRequiredLeadFields() {
-      return request.resource.data.keys().hasAll(['name', 'email', 'phone']) ||
-             (request.resource.data.keys().hasAny(['street', 'city', 'state', 'zip']));
+      // For regular form submissions - require contact info
+      // For immediate leads (Visitor status) - allow creation with campaign data only
+      return (request.resource.data.status == 'Visitor' && 
+              request.resource.data.keys().hasAny(['campaign_name', 'campaign_id', 'gclid'])) ||
+             (request.resource.data.keys().hasAll(['name', 'email', 'phone']) ||
+              request.resource.data.keys().hasAny(['street', 'city', 'state', 'zip']));
     }
     
     // Users collection - users can read their own data, admins can read/write all users
@@ -60,13 +64,14 @@ service cloud.firestore {
                      !request.resource.data.diff(resource.data).affectedKeys().hasAny(['assignedTo']);
       
       // Allow public submission of leads through form (no authentication required)
+      // Support both 'New' (form submissions) and 'Visitor' (immediate leads) statuses
       allow create: if hasRequiredLeadFields() && 
-                     request.resource.data.status == 'New' &&
+                     request.resource.data.status in ['New', 'Visitor'] &&
                      request.resource.data.assignedTo == null;
                      
-      // Allow public updates to any lead with "New" status (for API data updates)
-      allow update: if resource.data.status == 'New' && 
-                     request.resource.data.status == 'New';
+      // Allow public updates to leads with "New" or "Visitor" status (for API data updates and immediate lead progression)
+      allow update: if resource.data.status in ['New', 'Visitor'] && 
+                     request.resource.data.status in ['New', 'Visitor', 'Unassigned'];
     }
     
     // Conversations collection - for messages and calls

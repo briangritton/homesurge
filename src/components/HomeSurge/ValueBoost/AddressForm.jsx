@@ -5,7 +5,7 @@ import { trackAddressSelected, trackFormStepComplete, trackFormError } from '../
 import { trackPropertyValue } from '../../../services/facebook';
 import { lookupPropertyInfo } from '../../../services/maps.js';
 import { lookupPhoneNumbers } from '../../../services/batchdata.js';
-import { createSuggestionLead, updateLeadInFirebase } from '../../../services/firebase.js';
+import { updateLeadInFirebase } from '../../../services/firebase.js';
 import { generateAIValueBoostReport } from '../../../services/openai';
 // Removed formatSubheadline, formatText - using CSS text-wrap: pretty instead
 import gradientArrow from '../../../assets/images/gradient-arrow.png';
@@ -178,7 +178,6 @@ function AddressForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [googleApiLoaded, setGoogleApiLoaded] = useState(false);
   const [firstSuggestion, setFirstSuggestion] = useState(null);
-  const [suggestionLeadId, setSuggestionLeadId] = useState(null);
   const [suggestionTimer, setSuggestionTimer] = useState(null);
   const [addressSuggestions, setAddressSuggestions] = useState([]);
   const [lastTypedAddress, setLastTypedAddress] = useState('');
@@ -205,13 +204,6 @@ function AddressForm() {
   const [lastStreetValue, setLastStreetValue] = useState('');
   const [autofillDetected, setAutofillDetected] = useState(false);
   
-  // Initialize suggestionLeadId from localStorage if available
-  useEffect(() => {
-    const existingLeadId = localStorage.getItem('suggestionLeadId');
-    if (existingLeadId) {
-      setSuggestionLeadId(existingLeadId);
-    }
-  }, []);
   
   // Generate a session token for Google Places API
   const generateSessionToken = () => {
@@ -920,43 +912,31 @@ function AddressForm() {
         zip: finalSelectionData.zip
       });
       
-      // Create a new lead or update existing one - COPIED FROM MAIN FORM
-      let leadId, response;
+      // Update existing lead (should always exist with immediate lead creation)
+      let leadId;
       
       if (existingLeadId) {
-        // Update existing lead with Firebase
+        // Update existing lead with address data
         await updateLeadInFirebase(existingLeadId, finalSelectionData);
         leadId = existingLeadId;
         console.log('Updated lead with final selection in Firebase:', leadId);
       } else {
-        // Create a new lead with address - separate primary and autofilled data
-        const contactInfo = {
-          name: 'Property Lead',  // Don't send autofilled name as primary name
-          phone: '',              // Don't send autofilled phone as primary phone
-          autoFilledName: formData.autoFilledName || '',   // Pass autofilled data
-          autoFilledPhone: formData.autoFilledPhone || ''  // Pass autofilled data
-        };
-        
-        console.log('🔍 ContactInfo being sent to Firebase:', contactInfo);
-        console.log('🔍 FormData values:', {
+        // This should not happen with immediate lead creation, but add fallback
+        console.error('❌ No existing lead found - this should not happen with immediate lead creation');
+        console.log('🔍 FormData for debugging:', {
           name: formData.name,
           autoFilledName: formData.autoFilledName,
           phone: formData.phone,
-          autoFilledPhone: formData.autoFilledPhone
+          autoFilledPhone: formData.autoFilledPhone,
+          campaign_name: formData.campaign_name
         });
-        console.log('🔍 AddressComponents being sent to Firebase:', addressComponents);
-        console.log('🔍 Place.formatted_address being sent to Firebase:', place.formatted_address);
-        console.log('🔍 FormData being sent to Firebase:', formData);
         
-        // Pass the full formData object to ensure campaign data is captured in the initial lead creation - COPIED FROM MAIN FORM
-        leadId = await createSuggestionLead(place.formatted_address, [], contactInfo, addressComponents, formData);
-        console.log('Created new lead with ID in Firebase:', leadId);
+        // Continue without blocking user, but log the issue
+        leadId = null;
       }
       
       if (leadId) {
-        // Set in state and localStorage
-        setSuggestionLeadId(leadId);
-        localStorage.setItem('suggestionLeadId', leadId);
+        // Set in localStorage (only one key needed)
         localStorage.setItem('leadId', leadId);
         
         // Now we've saved the final selection
@@ -971,7 +951,7 @@ function AddressForm() {
     
     // Fetch property data and phone numbers in the background - don't await this
     // These APIs run unconditionally to ensure best user experience
-    const leadId = localStorage.getItem('leadId') || suggestionLeadId;
+    const leadId = localStorage.getItem('leadId');
     fetchPropertyDataInBackground(place.formatted_address, leadId, addressComponents);
     lookupPhoneNumbersInBackground(place.formatted_address, leadId, addressComponents);
     
@@ -1336,7 +1316,7 @@ function AddressForm() {
           state: 'GA',
           zip: ''
         };
-        const leadId = localStorage.getItem('leadId') || suggestionLeadId;
+        const leadId = localStorage.getItem('leadId');
         if (leadId) {
           fetchPropertyDataInBackground(formData.street, leadId, addressComponents);
         }
@@ -1471,7 +1451,7 @@ function AddressForm() {
               zip: ''
             };
             
-            let leadId = localStorage.getItem('leadId') || suggestionLeadId;
+            let leadId = localStorage.getItem('leadId');
             
             if (!leadId) {
               console.log('Creating lead for manual address with autofilled contact info:', {
