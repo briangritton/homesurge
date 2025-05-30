@@ -5,6 +5,28 @@ import { sendLeadNotificationEmail } from './emailjs.js';
  * Combines Pushover and EmailJS notifications in one reusable service
  */
 
+// ================= GLOBAL ADDITIONAL RECIPIENTS CONTROL ==================
+// To disable ALL Spencer notifications across the entire system:
+// 1. Comment out the arrays below
+// ============================================================================
+
+const GLOBAL_ADDITIONAL_RECIPIENTS = {
+
+  // additionalPushoverUsers: [
+  //   "uh5nkfdqcz161r35e6uy55j295to5y", // Spencer Pushover - DISABLED
+  //   // "ufrb12nxavarvmx4vuct15ibz2augo", // Allison user key - COMMENTED OUT
+  // ],
+  // additionalEmailTemplates: [
+  //   {
+  //     serviceId: 'service_zeuf0n8',
+  //     templateId: 'template_85tw59u' // Spencer EmailJS - DISABLED
+  //   }
+  // ]
+
+};
+
+// ================= END GLOBAL RECIPIENTS CONTROL ======================
+
 /**
  * Send comprehensive lead notifications (Pushover + EmailJS)
  * @param {Object} leadData - The lead data object
@@ -44,7 +66,7 @@ export async function sendLeadNotifications(leadData, options = {}) {
     utm_source: leadData.utm_source || '',
     utm_medium: leadData.utm_medium || '',
     utm_campaign: leadData.utm_campaign || '',
-    id: leadData.id || leadData.leadId || localStorage.getItem('leadId') || '',
+    id: leadData.id || leadData.leadId || localStorage.getItem('leadId') || localStorage.getItem('suggestionLeadId') || '',
     street: leadData.street || leadData.address || 'No address'
   };
 
@@ -274,20 +296,12 @@ export async function sendConditionalNotifications(leadData, notificationType, c
       break;
   }
   
-  // Merge custom options with defaults + Spencer's settings
+  // Merge custom options with defaults + global additional recipients
   const options = {
     source,
     pushoverTitle,
-    // Add Spencer to all notifications from centralized system
-    additionalPushoverUsers: [
-      "uh5nkfdqcz161r35e6uy55j295to5y", // Spencer Pushover
-    ],
-    additionalEmailTemplates: [
-      {
-        serviceId: 'service_zeuf0n8',
-        templateId: 'template_85tw59u' // Spencer EmailJS
-      }
-    ],
+    // Use global additional recipients
+    ...GLOBAL_ADDITIONAL_RECIPIENTS,
     // Add campaign info to the notification context
     additionalContext: {
       notificationType,
@@ -309,35 +323,8 @@ export async function sendValueBoostNotifications(leadData) {
   return sendLeadNotifications(leadData, {
     source: "ValueBoost Funnel",
     pushoverTitle: "New ValueBoost Lead",
-    
-    // ================= ADDITIONAL RECIPIENTS SECTION ==================
-    // To disable ALL additional notifications:
-    // 1. Simply comment out the arrays below and leave them empty: []
-    // ================= ADDITIONAL PUSHOVER USERS ===================
-    
-    // Uncomment and customize these recipients as needed
-    additionalPushoverUsers: [
-      "uh5nkfdqcz161r35e6uy55j295to5y", // Spencer Pushover - ENABLED
-      // "ufrb12nxavarvmx4vuct15ibz2augo", // Allison user key - COMMENTED OUT
-      // Add more recipient user keys here - each on a new line
-    ],
-    
-    // ================= ADDITIONAL EMAIL TEMPLATES ===================
-    
-    // Uncomment and customize these templates as needed
-    additionalEmailTemplates: [
-      {
-        serviceId: 'service_zeuf0n8', // Same or different service ID
-        templateId: 'template_85tw59u' // Spencer EmailJS - ENABLED
-      }
-      // Add more templates here - each as a new object in the array
-      // {
-      //   serviceId: 'service_zeuf0n8',
-      //   templateId: 'template_another_id'
-      // }
-    ]
-    
-    // ================= END ADDITIONAL RECIPIENTS =====================
+    // Use global additional recipients (currently commented out for ValueBoost)
+    // ...GLOBAL_ADDITIONAL_RECIPIENTS,
   });
 }
 
@@ -350,35 +337,8 @@ export async function sendMainFormNotifications(leadData) {
   return sendLeadNotifications(leadData, {
     source: "Main Form",
     pushoverTitle: "New Lead Notification",
-    
-    // ================= ADDITIONAL RECIPIENTS SECTION ==================
-    // To disable ALL additional notifications:
-    // 1. Simply comment out the arrays below and leave them empty: []
-    // ================= ADDITIONAL PUSHOVER USERS ===================
-    
-    // Uncomment and customize these recipients as needed
-    additionalPushoverUsers: [
-      "uh5nkfdqcz161r35e6uy55j295to5y", // Spencer Pushover - ENABLED
-      // "ufrb12nxavarvmx4vuct15ibz2augo", // Allison user key - COMMENTED OUT
-      // Add more recipient user keys here - each on a new line
-    ],
-    
-    // ================= ADDITIONAL EMAIL TEMPLATES ===================
-    
-    // Uncomment and customize these templates as needed
-    additionalEmailTemplates: [
-      {
-        serviceId: 'service_zeuf0n8', // Same or different service ID
-        templateId: 'template_85tw59u' // Spencer EmailJS - ENABLED
-      }
-      // Add more templates here - each as a new object in the array
-      // {
-      //   serviceId: 'service_zeuf0n8',
-      //   templateId: 'template_another_id'
-      // }
-    ]
-    
-    // ================= END ADDITIONAL RECIPIENTS =====================
+    // Use global additional recipients
+    ...GLOBAL_ADDITIONAL_RECIPIENTS,
   });
 }
 

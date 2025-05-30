@@ -1,7 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { submitLeadToFirebase, updateLeadInFirebase, createSuggestionLead, updateContactInfo } from '../services/firebase';
-import { trackPageVisit, upgradeVisitorToLead } from '../services/visitor-tracking';
+import { submitLeadToFirebase, updateLeadInFirebase, createSuggestionLead, updateContactInfo, createImmediateLead } from '../services/firebase';
 import { useNotifications } from '../hooks/useNotifications';
 
 // Custom hook to use the form context
@@ -96,7 +95,7 @@ export function FormProvider({ children }) {
   
   // Initialize centralized notification system
   // This automatically monitors formData changes and sends notifications
-  const notificationStatus = useNotifications(formData);
+  const notificationStatus = useNotifications(formData, leadId);
   
   // Check for saved leadId from localStorage
   useEffect(() => {
@@ -378,13 +377,7 @@ export function FormProvider({ children }) {
         localStorage.setItem('leadId', id);
         console.log("Successfully saved Firebase lead ID:", id);
         
-        // Upgrade visitor to lead for conversion tracking
-        upgradeVisitorToLead(id, {
-          name: cleanedFormData.name,
-          phone: cleanedFormData.phone,
-          email: cleanedFormData.email,
-          street: cleanedFormData.street
-        });
+        // Lead already exists from immediate creation, no need for visitor upgrade
       }
       
       // Save the form data including full property record to localStorage
@@ -1013,12 +1006,21 @@ export function FormProvider({ children }) {
         // from URL params and form state, so we don't need to pass it here
         setDynamicContent(campaignData.keyword, campaignData.campaign_id, campaignData.adgroup_id);
         
-        // Track page visit immediately for conversion analytics
+        // Create immediate lead for perfect attribution tracking
         if (campaignData.campaign_id || campaignData.campaign_name) {
-          console.log('📊 Tracking page visit with campaign data');
-          trackPageVisit({
+          console.log('📊 Creating immediate lead with campaign data');
+          createImmediateLead({
             ...campaignData,
             variant: urlParams.get('variant') || urlParams.get('split_test') || 'AAA'
+          }).then(leadId => {
+            if (leadId) {
+              console.log('✅ Immediate lead created:', leadId);
+              setLeadId(leadId);
+              localStorage.setItem('leadId', leadId);
+              localStorage.setItem('suggestionLeadId', leadId);
+            }
+          }).catch(error => {
+            console.error('❌ Failed to create immediate lead:', error);
           });
         }
       }, 0);

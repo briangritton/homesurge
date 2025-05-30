@@ -21,6 +21,7 @@ import {
   createUserWithEmailAndPassword, 
   sendPasswordResetEmail 
 } from 'firebase/auth';
+import { v4 as uuidv4 } from 'uuid';
 
 // Your Firebase configuration
 const firebaseConfig = {
@@ -42,6 +43,76 @@ const auth = getAuth(app);
  * @param {Object} formData - The form data to submit
  * @returns {Promise<string>} - The ID of the created lead
  */
+/**
+ * Create a lead immediately when user lands on page with campaign data
+ * This ensures perfect attribution and variant tracking from the start
+ */
+export async function createImmediateLead(campaignData) {
+  console.log("%c CREATE IMMEDIATE LEAD ON LANDING", "background: #2196F3; color: white; font-size: 16px; padding: 5px;");
+  console.log("Campaign data captured:", campaignData);
+  
+  try {
+    const db = getFirestore();
+    const leadId = uuidv4();
+    
+    // Create lead document with campaign attribution locked in
+    const leadData = {
+      // Lead tracking
+      id: leadId,
+      status: 'Visitor', // Hidden from sales dashboard until contact info provided
+      leadStage: 'Landing Page Visit',
+      
+      // Campaign attribution (captured immediately)
+      campaign_name: campaignData.campaign_name || '',
+      campaign_id: campaignData.campaign_id || '',
+      adgroup_id: campaignData.adgroup_id || '',
+      adgroup_name: campaignData.adgroup_name || '',
+      keyword: campaignData.keyword || '',
+      matchtype: campaignData.matchtype || '',
+      device: campaignData.device || '',
+      gclid: campaignData.gclid || '',
+      traffic_source: campaignData.traffic_source || 'Direct',
+      
+      // Variant tracking (critical for split tests)
+      variant: campaignData.variant || 'AAA',
+      split_test: campaignData.split_test || campaignData.variant || 'AAA',
+      
+      // Page data
+      url: window.location.href,
+      referrer: document.referrer || '',
+      userAgent: navigator.userAgent,
+      
+      // Empty fields to be filled later
+      name: '',
+      phone: '',
+      email: '',
+      street: '',
+      city: '',
+      state: 'GA',
+      zip: '',
+      
+      // Timestamps
+      visitedAt: serverTimestamp(),
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      
+      // Conversion tracking
+      converted: false,
+      convertedAt: null
+    };
+    
+    // Save to Firebase
+    await setDoc(doc(db, 'leads', leadId), leadData);
+    
+    console.log("✅ Immediate lead created successfully:", leadId);
+    return leadId;
+    
+  } catch (error) {
+    console.error("❌ Failed to create immediate lead:", error);
+    throw error;
+  }
+}
+
 export async function submitLeadToFirebase(formData) {
   console.log("%c SUBMIT LEAD TO FIREBASE CALLED", "background: #4caf50; color: white; font-size: 16px; padding: 5px;");
   console.log("Form data provided:", {

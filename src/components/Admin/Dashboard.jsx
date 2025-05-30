@@ -16,6 +16,7 @@ import TestAssignment from './TestAssignment';
 import TestPushover from './TestPushover';
 import VariantAnalytics from './VariantAnalytics';
 import ConversionAnalytics from './ConversionAnalytics';
+import ImmediateLeads from './ImmediateLeads';
 
 // CSS for the admin dashboard
 const styles = {
@@ -383,6 +384,16 @@ const AdminDashboard = () => {
         <button 
           style={{
             ...styles.tabButton,
+            ...(activeTab === 'immediate_leads' ? styles.activeTab : {})
+          }}
+          onClick={() => setActiveTab('immediate_leads')}
+          className={`crm-dashboard-tab-button ${activeTab === 'immediate_leads' ? 'crm-dashboard-tab-active' : ''}`}
+        >
+          🚀 Visitor Leads
+        </button>
+        <button 
+          style={{
+            ...styles.tabButton,
             ...(activeTab === 'settings' ? styles.activeTab : {})
           }}
           onClick={() => setActiveTab('settings')}
@@ -469,6 +480,12 @@ const AdminDashboard = () => {
         <div className="crm-dashboard-analytics">
           <ConversionAnalytics />
           <VariantAnalytics />
+        </div>
+      )}
+      
+      {activeTab === 'immediate_leads' && (
+        <div className="crm-dashboard-immediate-leads">
+          <ImmediateLeads />
         </div>
       )}
       

@@ -133,39 +133,13 @@ const VariantAnalytics = () => {
         setLoading(true);
         const db = getFirestore();
         
-        // Get all visitors (for click data)
-        const visitorsQuery = query(collection(db, 'visitors'));
-        const visitorsSnapshot = await getDocs(visitorsQuery);
-        
-        // Get all leads
+        // Get all leads (which now represent both page visits and conversions)
         const leadsQuery = query(collection(db, 'leads'));
         const leadsSnapshot = await getDocs(leadsQuery);
         
         const variantStats = {};
         
-        // Process visitors (clicks)
-        visitorsSnapshot.docs.forEach(doc => {
-          const data = doc.data();
-          const campaignName = data.campaign_name || 'Unknown';
-          const variant = data.variant || getVariantFromUrl(data.url) || 'Unknown';
-          
-          if (!variantStats[campaignName]) {
-            variantStats[campaignName] = {};
-          }
-          
-          if (!variantStats[campaignName][variant]) {
-            variantStats[campaignName][variant] = {
-              clicks: 0,
-              count: 0,
-              contactInfo: 0,
-              appointed: 0
-            };
-          }
-          
-          variantStats[campaignName][variant].clicks++;
-        });
-        
-        // Process leads (conversions)
+        // Process leads (both page visits and conversions are now in one collection)
         leadsSnapshot.docs.forEach(doc => {
           const data = doc.data();
           const campaignName = data.campaign_name || 'Unknown';
@@ -184,6 +158,8 @@ const VariantAnalytics = () => {
             };
           }
           
+          // Every lead represents a page visit/click (since we create leads immediately)
+          variantStats[campaignName][variant].clicks++;
           variantStats[campaignName][variant].count++;
           
           // Count leads with contact info provided

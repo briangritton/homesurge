@@ -204,16 +204,7 @@ const ConversionAnalytics = () => {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - daysAgo);
       
-      // Get visitors (page visits/clicks) - ONLY with GCLID to filter out testing
-      const visitorsQuery = query(
-        collection(db, 'visitors'),
-        where('visitedAt', '>=', startDate),
-        where('gclid', '!=', ''), // Only include visitors with GCLID (real Google Ads traffic)
-        orderBy('visitedAt', 'desc')
-      );
-      const visitorsSnapshot = await getDocs(visitorsQuery);
-      
-      // Get converted leads - ONLY with GCLID to filter out testing  
+      // Get all leads (which now represent both page visits and conversions) - ONLY with GCLID to filter out testing  
       const leadsQuery = query(
         collection(db, 'leads'),
         where('createdAt', '>=', startDate),
@@ -225,31 +216,11 @@ const ConversionAnalytics = () => {
       // Process data
       const analytics = {};
       
-      // Process visitors (clicks)
-      visitorsSnapshot.docs.forEach(doc => {
-        const visitor = doc.data();
-        const campaign = visitor.campaign_name || 'Unknown';
-        const variant = visitor.variant || 'Unknown';
-        
-        if (!analytics[campaign]) {
-          analytics[campaign] = {};
-        }
-        if (!analytics[campaign][variant]) {
-          analytics[campaign][variant] = {
-            clicks: 0,
-            conversions: 0,
-            contactConversions: 0
-          };
-        }
-        
-        analytics[campaign][variant].clicks++;
-      });
-      
-      // Process leads (conversions)
+      // Process leads (both page visits and conversions are now in one collection)
       leadsSnapshot.docs.forEach(doc => {
         const lead = doc.data();
         const campaign = lead.campaign_name || 'Unknown';
-        const variant = getVariantFromUrl(lead.url) || 'Unknown';
+        const variant = lead.variant || getVariantFromUrl(lead.url) || 'Unknown';
         
         if (!analytics[campaign]) {
           analytics[campaign] = {};
@@ -262,6 +233,8 @@ const ConversionAnalytics = () => {
           };
         }
         
+        // Every lead represents a page visit/click (since we create leads immediately)
+        analytics[campaign][variant].clicks++;
         analytics[campaign][variant].conversions++;
         
         // Count contact conversions (name + phone provided)
@@ -370,21 +343,25 @@ const ConversionAnalytics = () => {
     return variantData;
   };
 
-  // Clear all visitor data (not leads)
+  // Clear test leads (leads without GCLID - likely testing data)
   const clearAllVisitorData = async () => {
     try {
       setActionLoading(true);
       const db = getFirestore();
       
-      // Get all visitors
-      const visitorsSnapshot = await getDocs(collection(db, 'visitors'));
+      // Get all leads WITHOUT GCLID (test data)
+      const testLeadsQuery = query(
+        collection(db, 'leads'),
+        where('gclid', '==', '')
+      );
+      const testLeadsSnapshot = await getDocs(testLeadsQuery);
       
       // Delete in batches
       const batch = writeBatch(db);
       let batchCount = 0;
       
-      for (const docSnapshot of visitorsSnapshot.docs) {
-        batch.delete(doc(db, 'visitors', docSnapshot.id));
+      for (const docSnapshot of testLeadsSnapshot.docs) {
+        batch.delete(doc(db, 'leads', docSnapshot.id));
         batchCount++;
         
         // Firestore batch limit is 500
@@ -399,40 +376,41 @@ const ConversionAnalytics = () => {
         await batch.commit();
       }
       
-      console.log(`Deleted ${visitorsSnapshot.size} visitor records`);
+      console.log(`Deleted ${testLeadsSnapshot.size} test lead records`);
       
       // Refresh data
       await fetchAnalyticsData();
       
-      alert(`Successfully deleted ${visitorsSnapshot.size} visitor records. Leads were not affected.`);
+      alert(`Successfully deleted ${testLeadsSnapshot.size} test lead records (leads without GCLID).`);
     } catch (error) {
-      console.error('Error clearing visitor data:', error);
-      alert('Error clearing visitor data: ' + error.message);
+      console.error('Error clearing test data:', error);
+      alert('Error clearing test data: ' + error.message);
     } finally {
       setActionLoading(false);
       setConfirmDialog(null);
     }
   };
 
-  // Delete all visitor data for a specific campaign
+  // Delete all test leads for a specific campaign (leads without GCLID)
   const deleteCampaignVisitorData = async (campaignName) => {
     try {
       setActionLoading(true);
       const db = getFirestore();
       
-      // Get visitors for this campaign
-      const visitorsQuery = query(
-        collection(db, 'visitors'),
-        where('campaign_name', '==', campaignName)
+      // Get test leads for this campaign (without GCLID)
+      const testLeadsQuery = query(
+        collection(db, 'leads'),
+        where('campaign_name', '==', campaignName),
+        where('gclid', '==', '')
       );
-      const visitorsSnapshot = await getDocs(visitorsQuery);
+      const testLeadsSnapshot = await getDocs(testLeadsQuery);
       
       // Delete in batches
       const batch = writeBatch(db);
       let batchCount = 0;
       
-      for (const docSnapshot of visitorsSnapshot.docs) {
-        batch.delete(doc(db, 'visitors', docSnapshot.id));
+      for (const docSnapshot of testLeadsSnapshot.docs) {
+        batch.delete(doc(db, 'leads', docSnapshot.id));
         batchCount++;
         
         if (batchCount >= 500) {
@@ -445,15 +423,15 @@ const ConversionAnalytics = () => {
         await batch.commit();
       }
       
-      console.log(`Deleted ${visitorsSnapshot.size} visitor records for campaign: ${campaignName}`);
+      console.log(`Deleted ${testLeadsSnapshot.size} test lead records for campaign: ${campaignName}`);
       
       // Refresh data
       await fetchAnalyticsData();
       
-      alert(`Successfully deleted ${visitorsSnapshot.size} visitor records for campaign "${campaignName}". Leads were not affected.`);
+      alert(`Successfully deleted ${testLeadsSnapshot.size} test lead records for campaign "${campaignName}" (leads without GCLID).`);
     } catch (error) {
-      console.error('Error deleting campaign visitor data:', error);
-      alert('Error deleting campaign visitor data: ' + error.message);
+      console.error('Error deleting campaign test data:', error);
+      alert('Error deleting campaign test data: ' + error.message);
     } finally {
       setActionLoading(false);
       setConfirmDialog(null);

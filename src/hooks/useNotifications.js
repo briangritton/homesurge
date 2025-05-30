@@ -5,7 +5,7 @@ import { sendConditionalNotifications } from '../services/notifications.js';
  * Custom hook for handling automatic notifications based on form state changes
  * All notifications run asynchronously and never block user progression
  */
-export const useNotifications = (formData) => {
+export const useNotifications = (formData, leadId = null) => {
   // Track previous state to detect changes
   const prevFormDataRef = useRef({});
   const notificationsSentRef = useRef(new Set());
@@ -27,7 +27,25 @@ export const useNotifications = (formData) => {
       // Send notification asynchronously without blocking
       setTimeout(async () => {
         try {
-          const result = await sendConditionalNotifications(leadData, notificationType);
+          // Try to get leadId from multiple sources
+          const currentLeadId = leadId || 
+                               localStorage.getItem('leadId') || 
+                               localStorage.getItem('suggestionLeadId') || 
+                               'N/A';
+          
+          // Include leadId in the notification data (both formats for compatibility)
+          const notificationData = {
+            ...leadData,
+            id: currentLeadId,        // For the notifications service 'id' field
+            leadId: currentLeadId     // For backup 'leadId' field
+          };
+          
+          console.log(`🔔 Sending ${notificationType} notification with leadId:`, currentLeadId);
+          if (currentLeadId === 'N/A') {
+            console.log(`⚠️ Warning: No leadId found in hook parameter (${leadId}) or localStorage`);
+          }
+          
+          const result = await sendConditionalNotifications(notificationData, notificationType);
           if (result) {
             console.log(`✅ ${notificationType} notification sent successfully`);
             // Mark as sent to prevent duplicates
