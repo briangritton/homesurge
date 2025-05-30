@@ -7,6 +7,7 @@ import {
   collection,
   query,
   where,
+  orderBy,
   getDocs,
   serverTimestamp
 } from 'firebase/firestore';
@@ -223,6 +224,22 @@ const styles = {
     fontWeight: 'bold',
     color: '#09a5c8',
   },
+  navLink: {
+    background: 'none',
+    border: 'none',
+    color: '#09a5c8',
+    fontSize: '14px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '5px',
+    textDecoration: 'none',
+    marginLeft: '20px',
+  },
+  navLinkDisabled: {
+    color: '#ccc',
+    cursor: 'not-allowed',
+  },
 };
 
 // Status color mapping
@@ -262,12 +279,19 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
   
+  // Navigation state
+  const [allFilteredLeads, setAllFilteredLeads] = useState([]);
+  const [currentLeadIndex, setCurrentLeadIndex] = useState(0);
+  const [navigationLoading, setNavigationLoading] = useState(false);
+  const [showAllPageVisits] = useState(false); // Fixed to false since filter is not displayed
+  
   useEffect(() => {
     if (leadId) {
       fetchLead(leadId);
       fetchSalesReps();
+      fetchAllFilteredLeads(leadId);
     }
-  }, [leadId]);
+  }, [leadId, showAllPageVisits]); // fetchAllFilteredLeads is defined below and stable
   
   const fetchLead = async (id) => {
     try {
@@ -316,6 +340,86 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
       setSalesReps(reps);
     } catch (err) {
       console.error('Error fetching sales reps:', err);
+    }
+  };
+  
+  const fetchAllFilteredLeads = async (currentLeadId) => {
+    try {
+      const db = getFirestore();
+      
+      // Build query to get all leads with proper ordering
+      let leadsRef = collection(db, 'leads');
+      let constraints = [orderBy('createdAt', 'desc')]; // Same order as LeadList
+      
+      const leadsQuery = query(leadsRef, ...constraints);
+      const snapshot = await getDocs(leadsQuery);
+      
+      // Transform data same as LeadList
+      const leadsList = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate?.() || new Date(),
+        updatedAt: doc.data().updatedAt?.toDate?.() || new Date()
+      }));
+      
+      // Apply the same filter logic as LeadList
+      const filteredLeads = leadsList.filter(lead => {
+        // Apply form submission filter same as LeadList
+        if (!showAllPageVisits) {
+          const hasSubmittedForm = lead.submittedAny === true;
+          const hasContactInfo = lead.name || lead.phone || lead.email;
+          
+          if (!hasSubmittedForm && !hasContactInfo) {
+            return false;
+          }
+        }
+        return true;
+      });
+      
+      setAllFilteredLeads(filteredLeads);
+      
+      // Find current lead index in filtered list
+      const currentIndex = filteredLeads.findIndex(lead => lead.id === currentLeadId);
+      setCurrentLeadIndex(currentIndex >= 0 ? currentIndex : 0);
+      
+    } catch (err) {
+      console.error('Error fetching filtered leads for navigation:', err);
+    }
+  };
+  
+  const navigateToLead = async (direction) => {
+    if (navigationLoading || allFilteredLeads.length === 0) return;
+    
+    let newIndex = currentLeadIndex;
+    if (direction === 'next' && currentLeadIndex < allFilteredLeads.length - 1) {
+      newIndex = currentLeadIndex + 1;
+    } else if (direction === 'prev' && currentLeadIndex > 0) {
+      newIndex = currentLeadIndex - 1;
+    } else {
+      return; // No navigation possible
+    }
+    
+    const targetLead = allFilteredLeads[newIndex];
+    if (!targetLead) return;
+    
+    setNavigationLoading(true);
+    
+    try {
+      // Update the current lead data
+      await fetchLead(targetLead.id);
+      setCurrentLeadIndex(newIndex);
+      
+      // Clear any edit mode when navigating
+      setEditMode(false);
+      setNote('');
+      
+      // Update URL hash for deep linking
+      window.location.hash = `lead-${targetLead.id}`;
+      
+    } catch (error) {
+      console.error('Error navigating to lead:', error);
+    } finally {
+      setNavigationLoading(false);
     }
   };
   
@@ -535,33 +639,28 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
           </h1>
         </div>
         
-        <div>
-          {!editMode ? (
-            <button 
-              style={styles.button} 
-              onClick={() => setEditMode(true)}
-              disabled={saving}
-            >
-              {isAdmin ? 'Edit Lead' : 'Update Status'}
-            </button>
-          ) : (
-            <>
-              <button 
-                style={{...styles.button, background: 'linear-gradient(135deg, #09a5c8 0%, #236b6d 100%)'}} 
-                onClick={handleSubmit}
-                disabled={saving}
-              >
-                {saving ? 'Saving...' : 'Save Changes'}
-              </button>
-              <button 
-                style={{...styles.button, background: '#F44336'}} 
-                onClick={handleCancel}
-                disabled={saving}
-              >
-                Cancel
-              </button>
-            </>
-          )}
+        <div style={{display: 'flex', alignItems: 'center'}}>
+          <button 
+            style={{
+              ...styles.navLink,
+              ...(currentLeadIndex === 0 || navigationLoading ? styles.navLinkDisabled : {})
+            }}
+            onClick={() => navigateToLead('prev')}
+            disabled={currentLeadIndex === 0 || navigationLoading}
+          >
+            ← Previous Lead
+          </button>
+          
+          <button 
+            style={{
+              ...styles.navLink,
+              ...(currentLeadIndex === allFilteredLeads.length - 1 || navigationLoading ? styles.navLinkDisabled : {})
+            }}
+            onClick={() => navigateToLead('next')}
+            disabled={currentLeadIndex === allFilteredLeads.length - 1 || navigationLoading}
+          >
+            Next Lead →
+          </button>
         </div>
       </div>
 
@@ -727,6 +826,24 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
                       </select>
                     </div>
                   )}
+                  
+                  {/* Save/Cancel buttons for edit mode */}
+                  <div style={styles.buttonRow}>
+                    <button 
+                      style={{...styles.button, background: 'linear-gradient(135deg, #09a5c8 0%, #236b6d 100%)'}} 
+                      onClick={handleSubmit}
+                      disabled={saving}
+                    >
+                      {saving ? 'Saving...' : 'Save Changes'}
+                    </button>
+                    <button 
+                      style={{...styles.button, background: '#F44336'}} 
+                      onClick={handleCancel}
+                      disabled={saving}
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </>
               ) : (
                 <>

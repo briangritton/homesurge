@@ -153,6 +153,9 @@ const CRMApp = () => {
   const handleSelectLead = (leadId) => {
     setSelectedLeadId(leadId);
     setActiveView('leadDetail');
+    
+    // Update the URL hash for deep linking (optional)
+    window.location.hash = `lead-${leadId}`;
   };
   
   // Make the handleSelectLead function available globally for navigation

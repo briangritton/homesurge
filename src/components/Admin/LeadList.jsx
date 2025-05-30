@@ -244,7 +244,6 @@ const LeadList = ({ onSelectLead }) => {
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortDirection, setSortDirection] = useState('desc');
   const [lastVisible, setLastVisible] = useState(null);
-  const [pageSize] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalLeads, setTotalLeads] = useState(0);
   const [hoveredRow, setHoveredRow] = useState(null);
@@ -262,79 +261,121 @@ const LeadList = ({ onSelectLead }) => {
       setLoading(true);
       const db = getFirestore();
       
-      // Build query
-      let leadsRef = collection(db, 'leads');
-      let constraints = [];
+      // We need to fetch more leads and filter client-side to ensure we get 10 displayed leads
+      const maxFetchSize = showAllPageVisits ? 10 : 50; // Fetch more when filtering
+      let allLeads = [];
+      let lastDoc = null;
+      let attempts = 0;
+      const maxAttempts = 5; // Prevent infinite loops
       
-      // Apply filters
-      if (statusFilter !== 'All') {
-        constraints.push(where('status', '==', statusFilter));
-      }
-      
-      // Apply form submission filter - by default only show leads with form submissions or contact info
-      // This handles cases where submittedAny field might not exist on older leads
-      if (!showAllPageVisits) {
-        // Show leads that either have submittedAny=true OR have contact information (name or phone)
-        // We'll filter this in memory since Firestore doesn't support OR across different fields easily
-        // For now, let's use a simpler approach and filter in JavaScript after getting results
-      }
-      
-      // Apply sorting
-      constraints.push(orderBy(sortBy, sortDirection));
-      
-      // Apply pagination
-      constraints.push(limit(pageSize));
-      
-      // Apply cursor if not on first page
-      if (currentPage > 1 && lastVisible) {
-        constraints.push(startAfter(lastVisible));
-      } else if (currentPage > 1 && !lastVisible) {
-        // If we don't have a cursor but trying to access later pages,
-        // reset to page 1
-        setCurrentPage(1);
-        return;
-      }
-      
-      const leadsQuery = query(leadsRef, ...constraints);
-      const snapshot = await getDocs(leadsQuery);
-      
-      // Get total count for pagination
-      if (currentPage === 1) {
-        // This is a simple way to get count - but note for large collections
-        // a better approach using Firestore aggregation would be needed
-        let countConstraints = [];
+      // Keep fetching until we have 10 filtered leads or run out of leads
+      while (allLeads.length < 10 && attempts < maxAttempts) {
+        attempts++;
         
+        // Build query
+        let leadsRef = collection(db, 'leads');
+        let constraints = [];
+        
+        // Apply filters
+        if (statusFilter !== 'All') {
+          constraints.push(where('status', '==', statusFilter));
+        }
+        
+        // Apply sorting
+        constraints.push(orderBy(sortBy, sortDirection));
+        
+        // Apply pagination
+        constraints.push(limit(maxFetchSize));
+        
+        // Apply cursor for pagination
+        if (currentPage > 1 && lastVisible) {
+          constraints.push(startAfter(lastVisible));
+        } else if (currentPage > 1 && !lastVisible) {
+          // If we don't have a cursor but trying to access later pages, reset to page 1
+          setCurrentPage(1);
+          return;
+        }
+        
+        // Use lastDoc for subsequent fetches within this function
+        if (lastDoc) {
+          constraints.push(startAfter(lastDoc));
+        }
+        
+        const leadsQuery = query(leadsRef, ...constraints);
+        const snapshot = await getDocs(leadsQuery);
+        
+        if (snapshot.empty) {
+          break; // No more leads to fetch
+        }
+        
+        // Transform data
+        const fetchedLeads = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: doc.data().createdAt?.toDate?.() || new Date(),
+          updatedAt: doc.data().updatedAt?.toDate?.() || new Date()
+        }));
+        
+        // Apply client-side filtering
+        const filteredLeads = fetchedLeads.filter(lead => {
+          if (!showAllPageVisits) {
+            const hasSubmittedForm = lead.submittedAny === true;
+            const hasContactInfo = lead.name || lead.phone || lead.email;
+            
+            if (!hasSubmittedForm && !hasContactInfo) {
+              return false;
+            }
+          }
+          return true;
+        });
+        
+        allLeads = [...allLeads, ...filteredLeads];
+        lastDoc = snapshot.docs[snapshot.docs.length - 1];
+        
+        // If we got fewer than maxFetchSize leads, we've reached the end
+        if (snapshot.docs.length < maxFetchSize) {
+          break;
+        }
+      }
+      
+      // Take only the first 10 leads for display
+      const displayLeads = allLeads.slice(0, 10);
+      
+      // Save the last visible document for pagination
+      if (displayLeads.length > 0) {
+        // Find the actual Firestore document for the last displayed lead
+        const lastLeadId = displayLeads[displayLeads.length - 1].id;
+        setLastVisible(lastDoc); // Use the last fetched document for pagination
+      }
+      
+      // Get total count for pagination (simplified)
+      if (currentPage === 1) {
+        let countConstraints = [];
         if (statusFilter !== 'All') {
           countConstraints.push(where('status', '==', statusFilter));
         }
         
-        // Note: We'll filter the form submissions in JavaScript, so don't add Firestore constraint here
-        // if (!showAllPageVisits) {
-        //   countConstraints.push(where('submittedAny', '==', true));
-        // }
-        
         const countQuery = countConstraints.length > 0 
-          ? query(leadsRef, ...countConstraints)
-          : query(leadsRef);
+          ? query(collection(db, 'leads'), ...countConstraints)
+          : query(collection(db, 'leads'));
         
         const countSnapshot = await getDocs(countQuery);
-        setTotalLeads(countSnapshot.size);
+        
+        // Apply the same filtering to get accurate count
+        const allLeadsForCount = countSnapshot.docs.map(doc => doc.data());
+        const filteredCount = allLeadsForCount.filter(lead => {
+          if (!showAllPageVisits) {
+            const hasSubmittedForm = lead.submittedAny === true;
+            const hasContactInfo = lead.name || lead.phone || lead.email;
+            return hasSubmittedForm || hasContactInfo;
+          }
+          return true;
+        }).length;
+        
+        setTotalLeads(filteredCount);
       }
       
-      // Save last document for pagination
-      const lastDoc = snapshot.docs[snapshot.docs.length - 1];
-      setLastVisible(lastDoc);
-      
-      // Transform data
-      const leadsList = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        // Convert timestamps to dates for display
-        createdAt: doc.data().createdAt?.toDate?.() || new Date(),
-        updatedAt: doc.data().updatedAt?.toDate?.() || new Date()
-      }));
-      
-      setLeads(leadsList);
+      setLeads(displayLeads);
       setLoading(false);
     } catch (err) {
       console.error('Error fetching leads:', err);
@@ -389,18 +430,7 @@ const LeadList = ({ onSelectLead }) => {
   };
 
   const filteredLeads = leads.filter(lead => {
-    // First apply the form submission filter
-    if (!showAllPageVisits) {
-      // Show only leads that have submitted a form OR have contact information
-      const hasSubmittedForm = lead.submittedAny === true;
-      const hasContactInfo = lead.name || lead.phone || lead.email;
-      
-      if (!hasSubmittedForm && !hasContactInfo) {
-        return false; // Hide page visit leads without contact info
-      }
-    }
-    
-    // Then apply search filter
+    // Only apply search filter here - form submission filter is now handled in fetchLeads
     if (!searchTerm) return true;
     
     const searchLower = searchTerm.toLowerCase();
@@ -757,11 +787,11 @@ const LeadList = ({ onSelectLead }) => {
               <button 
                 style={{
                   ...styles.pageButton,
-                  opacity: filteredLeads.length < pageSize ? 0.5 : 1,
-                  cursor: filteredLeads.length < pageSize ? 'not-allowed' : 'pointer'
+                  opacity: leads.length < 10 ? 0.5 : 1,
+                  cursor: leads.length < 10 ? 'not-allowed' : 'pointer'
                 }}
                 onClick={handleNextPage}
-                disabled={filteredLeads.length < pageSize}
+                disabled={leads.length < 10}
                 className="crm-lead-list-page-button crm-lead-list-next-button"
               >
                 Next

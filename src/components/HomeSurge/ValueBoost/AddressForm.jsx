@@ -76,7 +76,7 @@ function AddressForm() {
       // ========== CASH/SELLING CAMPAIGNS (From Form Funnel) ==========
       cash: {
         headline: 'Need to Sell Your Home Extremely Fast?',
-        subheadline: 'Our OfferBoost AI home scan will generate your <strong><em>maximum cash offer</em></strong>. Close in 7 days. No showings, no repairs, no stress',
+        subheadline: 'Our OfferBoost AI home scan will generate your <strong><em>maximum cash offer</em></strong> report. Close in 7 days. No showings, no repairs, no stress',
         buttonText: 'CHECK CASH OFFER',
         exampleTag: 'Example OfferBoost Increase*',
         potentialHeadline: 'Your OfferBoost Potential:',
@@ -86,7 +86,7 @@ function AddressForm() {
       
       fast: {
         headline: 'Need to Sell Your Home Extremely Fast?',
-        subheadline: 'Our OfferBoost AI home scan will generate your <strong><em>fastest maximum offer</em></strong>. Close in 7 days. No showings, no repairs, no stress',
+        subheadline: 'Our OfferBoost AI home scan will generate your <strong><em>fastest maximum offer</em></strong> report. Close in 7 days. No showings, no repairs, no stress',
         buttonText: 'CHECK FAST OFFER',
         exampleTag: 'Example OfferBoost Increase*',
         potentialHeadline: 'Your OfferBoost Potential:',
@@ -96,7 +96,7 @@ function AddressForm() {
 
         wide: {
         headline: 'Want to Sell Your House Fast?',
-        subheadline: 'Our OfferBoost AI home scan will generate your <strong><em>fastest maximum offer</em></strong>. Close in as little as 7 days. No showings, no repairs, no stress',
+        subheadline: 'Our OfferBoost AI home scan will generate your <strong><em>fastest maximum offer</em></strong> report. Close in as little as 7 days. No showings, no repairs, no stress',
         buttonText: 'CHECK FAST OFFERS',
         exampleTag: 'Example OfferBoost Increase*',
         potentialHeadline: 'Your OfferBoost Potential:',
@@ -148,7 +148,7 @@ function AddressForm() {
       // ========== DEFAULT FALLBACK ==========
       default: {
         headline: 'Need to Sell Your Home Extremely Fast?',
-        subheadline: 'OfferBoost AI home scan will look for your <strong><em>maximum cash offer</em></strong>. Close in 7 days. No showings, no repairs, no stress',
+        subheadline: 'Our OfferBoost AI home scan will generate your <strong><em>maximum cash offer</em></strong> report. Close in 7 days. No showings, no repairs, no stress',
         buttonText: 'CHECK CASH OFFER',
         exampleTag: 'Example OfferBoost Increase*',
         potentialHeadline: 'Your OfferBoost Potential:',
