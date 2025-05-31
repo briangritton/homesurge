@@ -11,6 +11,15 @@ import { generateAIValueBoostReport } from '../../../services/openai';
 import gradientArrow from '../../../assets/images/gradient-arrow.png';
 import waveImage from '../../../assets/images/wave.png';
 
+// ===================================================================
+// BROWSER AUTOFILL FUNCTIONALITY - TEMPORARILY DISABLED
+// ===================================================================
+// To re-enable browser autofill functionality:
+// 1. Set AUTOFILL_ENABLED = true (around line 222)
+// 2. All autofill logic is preserved and documented below
+// 3. Includes: animation detection, input event monitoring, auto-submission
+// ===================================================================
+
 // CSS for visually hidden fields
 const visuallyHiddenStyle = {
   position: 'absolute',
@@ -215,6 +224,12 @@ function AddressForm() {
   const [lastStreetValue, setLastStreetValue] = useState('');
   const [autofillDetected, setAutofillDetected] = useState(false);
   
+  // ===================================================================
+  // AUTOFILL FUNCTIONALITY TEMPORARILY DISABLED
+  // To re-enable: Set AUTOFILL_ENABLED to true
+  // ===================================================================
+  const AUTOFILL_ENABLED = true;
+  
   
   // Generate a session token for Google Places API
   const generateSessionToken = () => {
@@ -229,10 +244,10 @@ function AddressForm() {
     const value = e.target.value;
     const fieldName = e.target.name;
     
-    // Check if this might be browser autofill
+    // Check if this might be browser autofill (TEMPORARILY DISABLED)
     if (fieldName === 'address-line1') {
-      // If the value changes significantly in one update, it might be autofill
-      if (value.length > 0 && Math.abs(value.length - lastStreetValue.length) > 5) {
+      // AUTOFILL DETECTION - DISABLED
+      if (AUTOFILL_ENABLED && value.length > 0 && Math.abs(value.length - lastStreetValue.length) > 5) {
         setAutofillDetected(true);
       }
       
@@ -313,7 +328,11 @@ function AddressForm() {
   };
   
   // Track browser autofill events with comprehensive address auto-submission
+  // TEMPORARILY DISABLED - Set AUTOFILL_ENABLED to true to re-enable
   useEffect(() => {
+    if (!AUTOFILL_ENABLED) {
+      return; // Skip all autofill logic when disabled
+    }
     // Keep track of which fields have been autofilled
     const autofilledFields = new Set();
     
@@ -422,48 +441,44 @@ function AddressForm() {
                               if (placeDetails && placeDetails.formatted_address) {
                                 console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Got place details:', placeDetails.formatted_address);
                                 
-                                // Process the address selection
+                                // Process the address selection (save data to CRM)
                                 processAddressSelection(placeDetails);
                                 
-                                // ========================================
-                                // SPLIT TEST AREA - STEP NAVIGATION
-                                // Position 2: A=Show Step 2, B=Skip to Step 3
-                                // ========================================
-                                const urlParams = new URLSearchParams(window.location.search);
-                                const splitTest = urlParams.get('split_test') || urlParams.get('variant') || 'AAA';
-                                const showStep2 = splitTest[1] === 'A'; // Position 2 controls Step 2 interstitial
-                                
-                                if (showStep2) {
-                                  nextStep(); // Go to Step 2 (AI Processing)
-                                } else {
-                                  // Skip Step 2, go directly to Step 3
-                                  updateFormData({ formStep: 3 });
-                                }
-                                // ======================================== 
-                                // END SPLIT TEST AREA - STEP NAVIGATION
-                                // ========================================
+                                // AUTOFILL DATA SAVED - but DO NOT auto-advance the form
+                                // User must manually click Google Places suggestion or press Enter
+                                console.log('✅ Autofill data saved to CRM - user must manually proceed');
                               } else {
-                                console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: No valid place details, using button click');
-                                handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                                console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: No valid place details - staying on page');
+                                // DO NOT auto-advance - user must manually proceed
                               }
                             })
                             .catch(error => {
                               console.error('🔍 AUTOFILL ANIMATION DIAGNOSIS: Error getting place details:', error);
-                              handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                              // DO NOT auto-advance - user must manually proceed
                             });
                         } else {
-                          console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: No suggestion available, using button click');
-                          handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                          console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: No suggestion available - staying on page');
+                          // DO NOT auto-advance - user must manually proceed
                         }
                       });
                     } else {
-                      // If we can't get suggestions, fall back to button click
-                      console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Cannot get suggestions, using button click');
-                      handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                      // If we can't get suggestions, stay on page  
+                      console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: Cannot get suggestions - saving autofilled data anyway');
+                      
+                      // Create a basic place object with the autofilled address
+                      const basicPlace = {
+                        formatted_address: inputRef.current.value,
+                        address_components: []
+                      };
+                      
+                      // Save the autofilled data to CRM
+                      processAddressSelection(basicPlace);
+                      console.log('✅ Autofill data saved to CRM without Google suggestions - user must manually proceed');
+                      // DO NOT auto-advance - user must manually proceed
                     }
                   } else {
-                    console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: No value in input field, using standard submission');
-                    handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                    console.log('🔍 AUTOFILL ANIMATION DIAGNOSIS: No value in input field - staying on page');
+                    // DO NOT auto-advance - user must manually proceed
                   }
                 }, 600);
               }
@@ -836,7 +851,7 @@ function AddressForm() {
       state: addressComponents.state,
       zip: addressComponents.zip,
       location: location,
-      addressSelectionType: autofillDetected ? 'BrowserAutofill' : 'Google',
+      addressSelectionType: (AUTOFILL_ENABLED && autofillDetected) ? 'BrowserAutofill' : 'Google',
       selectedSuggestionAddress: place.formatted_address,
       leadStage: 'Address Selected',
       // Preserve name and phone
@@ -898,7 +913,7 @@ function AddressForm() {
         
         userTypedAddress: lastTypedAddress,
         selectedSuggestionAddress: place.formatted_address,
-        addressSelectionType: autofillDetected ? 'BrowserAutofill' : 'Google',
+        addressSelectionType: (AUTOFILL_ENABLED && autofillDetected) ? 'BrowserAutofill' : 'Google',
         leadStage: 'Address Selected',
         
         // Explicitly add campaign data to ensure it's passed to Firebase
@@ -1767,7 +1782,11 @@ function AddressForm() {
   
   // Additional listener for input events to detect browser autofill
   // This catches cases that the animation approach might miss
+  // TEMPORARILY DISABLED - Set AUTOFILL_ENABLED to true to re-enable
   useEffect(() => {
+    if (!AUTOFILL_ENABLED) {
+      return; // Skip all autofill input detection when disabled
+    }
     let lastInputTime = 0;
     let autofilledFields = new Set();
     let autoSubmitTimer = null;
@@ -1871,46 +1890,62 @@ function AddressForm() {
                       if (placeDetails && placeDetails.formatted_address) {
                         console.log('🔍 AUTOFILL DIAGNOSIS: Got place details:', placeDetails.formatted_address);
                         
-                        // Process the address selection
+                        // Process the address selection (save data to CRM)
                         processAddressSelection(placeDetails);
                         
-                        // ========================================
-                        // SPLIT TEST AREA - STEP NAVIGATION
-                        // Position 2: A=Show Step 2, B=Skip to Step 3
-                        // ========================================
-                        const urlParams = new URLSearchParams(window.location.search);
-                        const splitTest = urlParams.get('split_test') || urlParams.get('variant') || 'AAA';
-                        const showStep2 = splitTest[1] === 'A'; // Position 2 controls Step 2 interstitial
-                        
-                        if (showStep2) {
-                          nextStep(); // Go to Step 2 (AI Processing)
-                        } else {
-                          // Skip Step 2, go directly to Step 3
-                          updateFormData({ formStep: 3 });
-                        }
-                        // ======================================== 
-                        // END SPLIT TEST AREA - STEP NAVIGATION
-                        // ========================================
+                        // AUTOFILL DATA SAVED - but DO NOT auto-advance the form
+                        // User must manually click Google Places suggestion or press Enter
+                        console.log('✅ Autofill data saved to CRM - user must manually proceed');
                       } else {
-                        console.log('🔍 AUTOFILL DIAGNOSIS: No valid place details, using button click');
-                        handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                        console.log('🔍 AUTOFILL DIAGNOSIS: No valid place details - saving autofilled data anyway');
+                        
+                        // Create a basic place object with the autofilled address
+                        const basicPlace = {
+                          formatted_address: inputRef.current ? inputRef.current.value : formData.street,
+                          address_components: []
+                        };
+                        
+                        // Save the autofilled data to CRM
+                        processAddressSelection(basicPlace);
+                        console.log('✅ Autofill data saved to CRM without place details - user must manually proceed');
+                        
+                        // DO NOT auto-advance - user must manually proceed
                       }
                     })
                     .catch(error => {
                       console.error('🔍 AUTOFILL DIAGNOSIS: Error getting place details:', error);
-                      handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                      
+                      // Create a basic place object with the autofilled address
+                      const basicPlace = {
+                        formatted_address: inputRef.current ? inputRef.current.value : formData.street,
+                        address_components: []
+                      };
+                      
+                      // Save the autofilled data to CRM
+                      processAddressSelection(basicPlace);
+                      console.log('✅ Autofill data saved to CRM despite error - user must manually proceed');
+                      
+                      // DO NOT auto-advance - user must manually proceed
                     });
                 } else {
-                  console.log('🔍 AUTOFILL DIAGNOSIS: No Google suggestion available, trying manual submission with current address:', 
-                    formData.street || (inputRef.current ? inputRef.current.value : 'not available'));
+                  console.log('🔍 AUTOFILL DIAGNOSIS: No Google suggestion available - saving autofilled data anyway');
                   
-                  // No Google suggestion available, use standard button click handler
-                  handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+                  // Create a basic place object with the autofilled address
+                  const basicPlace = {
+                    formatted_address: inputRef.current ? inputRef.current.value : formData.street,
+                    address_components: []
+                  };
+                  
+                  // Save the autofilled data to CRM
+                  processAddressSelection(basicPlace);
+                  console.log('✅ Autofill data saved to CRM without Google suggestions - user must manually proceed');
+                  
+                  // DO NOT auto-advance - user must manually proceed
                 }
               });
             } else {
-              console.log('🔍 AUTOFILL DIAGNOSIS: No value in input field, using standard submission');
-              handleButtonClick({preventDefault: () => {}, stopPropagation: () => {}});
+              console.log('🔍 AUTOFILL DIAGNOSIS: No value in input field - staying on page');
+              // DO NOT auto-advance - user must manually proceed
             }
           }, 600);
         }
@@ -2127,8 +2162,8 @@ function AddressForm() {
           {/* END SPLIT TEST AREA - DOWN ARROW         */}
           {/* ========================================= */}
           
-          {/* Using a form structure for browser autofill to work properly */}
-          <form className="vb-af1-form-container" id="valueboostAddressForm" autoComplete="on" onSubmit={(e) => {
+          {/* Form structure - autofill temporarily disabled */}
+          <form className="vb-af1-form-container" id="valueboostAddressForm" autoComplete={AUTOFILL_ENABLED ? "on" : "off"} onSubmit={(e) => {
             e.preventDefault();
             handleButtonClick(e);
           }} ref={formRef}>
@@ -2136,7 +2171,7 @@ function AddressForm() {
               ref={inputRef}
               type="text"
               name="address-line1"
-              autoComplete="address-line1"
+              autoComplete={AUTOFILL_ENABLED ? "address-line1" : "off"}
               placeholder="Street address..."
               className={errorMessage ? 'vb-af1-address-input-invalid' : 'vb-af1-address-input'}
               value={formData.street || ''}
@@ -2147,12 +2182,12 @@ function AddressForm() {
               required
             />
             
-            {/* Visually hidden name field - captures autofill data only (not primary name) */}
+            {/* Visually hidden name field - autofill temporarily disabled */}
             <div style={visuallyHiddenStyle}>
               <input
                 type="text"
                 name="name"
-                autoComplete="name"
+                autoComplete={AUTOFILL_ENABLED ? "name" : "off"}
                 placeholder="Your name (optional)"
                 className="vb-af1-address-input"
                 value={formData.autoFilledName || ''}
@@ -2163,12 +2198,12 @@ function AddressForm() {
               />
             </div>
             
-            {/* Visually hidden phone field - captures autofill data only (not primary phone) */}
+            {/* Visually hidden phone field - autofill temporarily disabled */}
             <div style={visuallyHiddenStyle}>
               <input
                 type="tel"
                 name="tel"
-                autoComplete="tel"
+                autoComplete={AUTOFILL_ENABLED ? "tel" : "off"}
                 placeholder="Your phone (optional)"
                 className="vb-af1-address-input"
                 value={formData.autoFilledPhone || ''}
