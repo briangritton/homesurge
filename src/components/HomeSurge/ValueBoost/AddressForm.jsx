@@ -1143,12 +1143,20 @@ function AddressForm() {
     })
       .then(phoneData => {
         // If we got phone data, update the lead with this information
+        console.log('BatchData .then() called with phoneData:', phoneData);
+        console.log('leadId:', leadId);
+        console.log('Condition check - phoneData exists:', !!phoneData);
+        console.log('Condition check - leadId exists:', !!leadId);
+        console.log('Condition check - has phone numbers:', phoneData ? phoneData.phoneNumbers?.length > 0 : false);
+        console.log('Condition check - has emails:', phoneData ? phoneData.emails?.length > 0 : false);
+        
         if (phoneData && leadId && (phoneData.phoneNumbers.length > 0 || phoneData.emails.length > 0)) {
           try {
             // Get campaign data from formContext 
             const { campaign_name, campaign_id, adgroup_id, adgroup_name, keyword, gclid, device, traffic_source, template_type } = formData;
             
             console.log("%c BACKGROUND: BATCHDATA PHONE UPDATE TO FIREBASE", "background: #4caf50; color: white; font-size: 14px; padding: 5px;");
+            console.log('BatchData phoneData received:', phoneData);
             
             // Create an update object with the phone numbers
             const phoneUpdateData = {
@@ -1175,6 +1183,8 @@ function AddressForm() {
               batchDataProcessedAt: new Date().toISOString()
             };
             
+            console.log('BatchData update payload being sent to Firebase:', phoneUpdateData);
+            
             // Update the lead with phone data
             updateLeadInFirebase(leadId, phoneUpdateData)
               .then(() => console.log('Background: Successfully updated lead with BatchData phone numbers'))
@@ -1184,7 +1194,11 @@ function AddressForm() {
             console.error('Background: Error handling phone data:', error);
           }
         } else {
-          console.log('No BatchData phone numbers found or lead ID not available');
+          console.log('❌ BatchData Firebase update skipped:');
+          console.log('- phoneData:', phoneData);
+          console.log('- leadId:', leadId);
+          console.log('- phoneNumbers length:', phoneData ? phoneData.phoneNumbers?.length : 'N/A');
+          console.log('- emails length:', phoneData ? phoneData.emails?.length : 'N/A');
         }
       })
       .catch(error => {

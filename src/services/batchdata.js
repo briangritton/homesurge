@@ -40,6 +40,7 @@ export async function lookupPhoneNumbers(address) {
     };
     
     console.log(`Looking up BatchData phone numbers for address: ${address.street}`);
+    console.log('BatchData request payload:', JSON.stringify(payload, null, 2));
     
     // Make API request with timeout
     const { data } = await axios({
@@ -58,47 +59,32 @@ export async function lookupPhoneNumbers(address) {
     });
     
     // Parse and extract phone numbers from response
-    if (data && data.response && data.response.results) {
+    console.log('BatchData API Response:', JSON.stringify(data, null, 2));
+    
+    if (data && data.results && data.results.persons) {
       const phoneNumbers = [];
-      
-      // Extract phone numbers from the response
-      if (data.response.results.result && 
-          data.response.results.result[0] && 
-          data.response.results.result[0].results && 
-          data.response.results.result[0].results.persons) {
-        
-        const persons = data.response.results.result[0].results.persons;
-        
-        persons.forEach(person => {
-          if (person.phoneNumbers && Array.isArray(person.phoneNumbers)) {
-            person.phoneNumbers.forEach(phone => {
-              if (phone.number) {
-                phoneNumbers.push(phone.number);
-              }
-            });
-          }
-        });
-      }
-      
-      // Also extract emails if available
       const emails = [];
-      if (data.response.results.result && 
-          data.response.results.result[0] && 
-          data.response.results.result[0].results && 
-          data.response.results.result[0].results.persons) {
+      
+      // Extract phone numbers and emails from the persons array
+      data.results.persons.forEach(person => {
+        // Extract phone numbers
+        if (person.phoneNumbers && Array.isArray(person.phoneNumbers)) {
+          person.phoneNumbers.forEach(phone => {
+            if (phone.number) {
+              phoneNumbers.push(phone.number);
+            }
+          });
+        }
         
-        const persons = data.response.results.result[0].results.persons;
-        
-        persons.forEach(person => {
-          if (person.emails && Array.isArray(person.emails)) {
-            person.emails.forEach(email => {
-              if (email.email) {
-                emails.push(email.email);
-              }
-            });
-          }
-        });
-      }
+        // Extract emails
+        if (person.emails && Array.isArray(person.emails)) {
+          person.emails.forEach(email => {
+            if (email.email) {
+              emails.push(email.email);
+            }
+          });
+        }
+      });
       
       // Create result object with all the needed data
       const result = {
@@ -107,11 +93,11 @@ export async function lookupPhoneNumbers(address) {
         rawData: data // Store the raw response for debugging/future use
       };
       
-      console.log(`Found ${phoneNumbers.length} BatchData phone numbers and ${emails.length} emails`);
+      console.log(`✅ Found ${phoneNumbers.length} BatchData phone numbers and ${emails.length} emails`);
       return result;
     }
     
-    console.log('No BatchData phone numbers found for this address');
+    console.log('No BatchData contact data found - data.results.persons missing or empty');
     return null;
   } catch (error) {
     console.error('Error looking up BatchData phone numbers:', error);
