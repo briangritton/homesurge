@@ -650,17 +650,7 @@ export async function updateLeadInFirebase(leadId, formData) {
     
     console.log("Updating lead in Firebase:", { 
       leadId, 
-      data: {
-        needsRepairs: updateData.needsRepairs,
-        wantToSetAppointment: updateData.wantToSetAppointment,
-        selectedAppointmentDate: updateData.selectedAppointmentDate,
-        selectedAppointmentTime: updateData.selectedAppointmentTime,
-        apiEquity: updateData.apiEquity,
-        apiPercentage: updateData.apiPercentage,
-        selectedSuggestionAddress: updateData.selectedSuggestionAddress,
-        userTypedAddress: updateData.userTypedAddress,
-        leadStage: updateData.leadStage
-      } 
+      data: updateData // Show FULL update data to see if BatchData fields are being overwritten
     });
     
     // Update lead in Firestore
