@@ -60,10 +60,10 @@ export const ContactFields = [
   { id: 'email', label: 'Email', section: 'contact', type: 'email' },
   { id: 'autoFilledName', label: 'Auto Filled Name', section: 'contact', type: 'text' },
   { id: 'autoFilledPhone', label: 'Auto Filled Phone', section: 'contact', type: 'phone' },
-  { id: 'batchDataPhoneNumbers', label: 'BatchData Phone Numbers', section: 'contact', type: 'phoneArray' },
-  { id: 'batchDataEmails', label: 'BatchData Emails', section: 'contact', type: 'emailArray' },
-  { id: 'batchDataProcessed', label: 'BatchData Processed', section: 'contact', type: 'boolean' },
-  { id: 'batchDataProcessedAt', label: 'BatchData Processed At', section: 'contact', type: 'text' },
+  { id: 'batchDataPhoneNumbers', label: 'BatchData Phone Numbers', section: 'contact', type: 'phoneArray', alwaysShow: true },
+  { id: 'batchDataEmails', label: 'BatchData Emails', section: 'contact', type: 'emailArray', alwaysShow: true },
+  { id: 'batchDataProcessed', label: 'BatchData Processed', section: 'contact', type: 'boolean', alwaysShow: true },
+  { id: 'batchDataProcessedAt', label: 'BatchData Processed At', section: 'contact', type: 'text', alwaysShow: true },
 ];
 
 export const ActivityFields = [
