@@ -83,11 +83,11 @@ function AIProcessing() {
         completionText: 'Equity Analysis Complete!'
       },
       
-      // ========== DEFAULT FALLBACK ==========
+      // ========== DEFAULT FALLBACK (MATCHES CASH THEME) ==========
       default: {
-        headline: 'Finding Maximum Value...',
-        subheadline: 'AI is analyzing your property\'s improvement potential',
-        completionText: 'ValueBoost Report Complete!'
+        headline: 'Analyzing Your OfferBoost Options...',
+        subheadline: 'Our AI is calculating your optimal cash offer and timeline',
+        completionText: 'OfferBoost Analysis Complete!'
       }
     };
     

@@ -154,7 +154,7 @@ function AddressForm() {
         percentageText: 'Potential Home Value Increase'
       },
       
-      // ========== DEFAULT FALLBACK ==========
+      // ========== DEFAULT FALLBACK (MATCHES CASH THEME) ==========
       default: {
         headline: 'Need to Sell Your Home Extremely Fast?',
         subheadline: 'Our OfferBoost AI home scan will generate your <strong><em>maximum cash offer</em></strong> report. Close in 7 days. No showings, no repairs, no stress',

@@ -135,16 +135,16 @@ function ValueBoostReport() {
                       'opportunity recommendations below! See your home\'s true potential value.'
       },
       
-      // ========== DEFAULT FALLBACK (BASED ON FAST CASE) ==========
+      // ========== DEFAULT FALLBACK (MATCHES CASH THEME) ==========
       default: {
-        reportHeadline: 'Your OfferBoost Strategy Ready:',
+        reportHeadline: 'Your OfferBoost Maximum Cash Offer Is Ready!:',
         potentialHeadline: 'Your OfferBoost Potential:',
-        recommendationsTitle: 'Your Top 10 OfferBoost Accelerators',
-        recommendationsSubtitle: 'Speed up your sale with these time-tested strategies',
-        unlockHeadline: 'Get Your FREE OfferBoost Maximum Vaulue Report',
-        unlockSubtext: 'Get your complete fast sale strategy with timeline optimization',
-        conciergeHeadline: 'Want Expert Help Selling Lightning Fast?',
-        buttonText: 'CHECK FAST OFFER',
+        recommendationsTitle: 'Your Top 10 OfferBoost Strategies',
+        recommendationsSubtitle: 'Maximize your cash offer with these proven strategies',
+        unlockHeadline: 'Get Your FREE OfferBoost Maximum Cash Report',
+        unlockSubtext: 'Get your complete cash offer strategy with market insights and opportunities',
+        conciergeHeadline: 'Want Expert Help Maximizing Your Cash Offer?',
+        buttonText: 'CHECK CASH OFFER',
         readySubheadline: 'Check your OfferBoost cash offer below, and unlock your FREE AI powered ' +
                       'custom home value and offer optimization report. No obligation, no strings attached.'
       }
