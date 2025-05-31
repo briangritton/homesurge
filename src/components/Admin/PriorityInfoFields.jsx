@@ -71,6 +71,18 @@ export default function PriorityInfoFields({ lead }) {
           {phoneValue !== 'N/A' ? (
             <a href={`tel:${phoneValue}`} style={styles.phoneLink} className="phone-link">{phoneValue}</a>
           ) : 'N/A'}
+          
+          {/* BatchData Phone Numbers */}
+          {lead.batchDataPhoneNumbers && Array.isArray(lead.batchDataPhoneNumbers) && lead.batchDataPhoneNumbers.length > 0 && (
+            <div style={{marginTop: '8px'}}>
+              <div style={{fontSize: '12px', color: '#666', marginBottom: '4px'}}>BatchData:</div>
+              {lead.batchDataPhoneNumbers.map((phone, index) => (
+                <div key={index} style={{marginBottom: '2px'}}>
+                  <a href={`tel:${phone}`} style={{...styles.phoneLink, fontSize: '14px'}} className="phone-link">{phone}</a>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
       

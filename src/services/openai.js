@@ -60,6 +60,8 @@ REQUIRED OUTPUT FORMAT (follow this structure exactly):
 
 ValueBoost AI Analysis Report
 
+[START WITH AN INTRODUCTION PARAGRAPH: Write a brief, personalized introduction that explains this is their custom ValueBoost/OfferBoost report, which uses AI analysis to identify specific opportunities to increase their home's value based on their unique property details. Make it welcoming and explain that they're about to see AI-reviewed recommendations tailored specifically to their ${address} property.]
+
 Property: [property address]
 Current Estimated Value: [formatted current value]
 Potential Value Increase: [formatted potential increase]
@@ -172,6 +174,8 @@ function generateFallbackReport(propertyContext) {
   }).format(potentialIncrease || 0);
 
   return `ValueBoost AI Analysis Report
+
+Welcome to your personalized ValueBoost report for ${address}! This AI-powered analysis has been specifically tailored to your unique property characteristics to identify the most effective opportunities for increasing your home's value. Using advanced market data and proven renovation strategies, we've compiled strategic recommendations that are optimized for your specific property type and location.
 
 Property: ${address}
 Current Estimated Value: ${formattedValue}

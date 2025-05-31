@@ -47,9 +47,21 @@ const auth = getAuth(app);
  * Create a lead immediately when user lands on page with campaign data
  * This ensures perfect attribution and variant tracking from the start
  */
+// Rate limiting for immediate lead creation
+let lastLeadCreation = 0;
+const LEAD_CREATION_COOLDOWN = 1000; // 1 second between creations
+
 export async function createImmediateLead(campaignData) {
   console.log("%c CREATE IMMEDIATE LEAD ON LANDING", "background: #2196F3; color: white; font-size: 16px; padding: 5px;");
   console.log("Campaign data captured:", campaignData);
+  
+  // Rate limiting to prevent Firebase overload
+  const now = Date.now();
+  if (now - lastLeadCreation < LEAD_CREATION_COOLDOWN) {
+    console.log("Rate limited: Lead creation too frequent, skipping");
+    return null;
+  }
+  lastLeadCreation = now;
   
   try {
     const db = getFirestore();

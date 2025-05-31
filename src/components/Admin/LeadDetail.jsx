@@ -293,11 +293,18 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
     }
   }, [leadId, showAllPageVisits]); // fetchAllFilteredLeads is defined below and stable
   
-  const fetchLead = async (id) => {
+  const fetchLead = async (id, retryCount = 0) => {
     try {
       setLoading(true);
       const db = getFirestore();
-      const leadDoc = await getDoc(doc(db, 'leads', id));
+      
+      // Add timeout to prevent hanging
+      const leadDocPromise = getDoc(doc(db, 'leads', id));
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Firebase timeout')), 10000)
+      );
+      
+      const leadDoc = await Promise.race([leadDocPromise, timeoutPromise]);
       
       if (leadDoc.exists()) {
         const leadData = {
@@ -317,6 +324,14 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
       setLoading(false);
     } catch (err) {
       console.error('Error fetching lead:', err);
+      
+      // Retry logic for Firebase timeouts/connection issues
+      if (retryCount < 2 && (err.message.includes('timeout') || err.message.includes('network'))) {
+        console.log(`Retrying lead fetch (attempt ${retryCount + 1})`);
+        setTimeout(() => fetchLead(id, retryCount + 1), 1000);
+        return;
+      }
+      
       setError('Failed to load lead details. Please try again.');
       setLoading(false);
     }
@@ -778,6 +793,33 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
                     />
                   </div>
                   
+                  {/* BatchData Fields - Display Only in Edit Mode */}
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label}>BatchData Phone Numbers (Read Only)</label>
+                    <div style={{...styles.input, backgroundColor: '#f5f5f5', padding: '8px 12px'}}>
+                      {formData.batchDataPhoneNumbers && Array.isArray(formData.batchDataPhoneNumbers) && formData.batchDataPhoneNumbers.length > 0 
+                        ? formData.batchDataPhoneNumbers.join(', ') 
+                        : 'N/A'}
+                    </div>
+                  </div>
+                  
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label}>BatchData Emails (Read Only)</label>
+                    <div style={{...styles.input, backgroundColor: '#f5f5f5', padding: '8px 12px'}}>
+                      {formData.batchDataEmails && Array.isArray(formData.batchDataEmails) && formData.batchDataEmails.length > 0 
+                        ? formData.batchDataEmails.join(', ') 
+                        : 'N/A'}
+                    </div>
+                  </div>
+                  
+                  
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label}>BatchData Processed At (Read Only)</label>
+                    <div style={{...styles.input, backgroundColor: '#f5f5f5', padding: '8px 12px'}}>
+                      {formData.batchDataProcessedAt || 'N/A'}
+                    </div>
+                  </div>
+                  
                   <div style={styles.fieldGroup}>
                     <label style={styles.label}>Status</label>
                     <select
@@ -870,6 +912,39 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
                   <div style={styles.fieldGroup}>
                     <div style={styles.label}>Email</div>
                     <div style={styles.value}>{lead.email || 'N/A'}</div>
+                  </div>
+                  
+                  {/* BatchData Fields */}
+                  <div style={styles.fieldGroup}>
+                    <div style={styles.label}>BatchData Phone Numbers</div>
+                    <div style={styles.value}>
+                      {lead.batchDataPhoneNumbers && Array.isArray(lead.batchDataPhoneNumbers) && lead.batchDataPhoneNumbers.length > 0 ? (
+                        lead.batchDataPhoneNumbers.map((phone, index) => (
+                          <div key={index}>
+                            <a href={`tel:${phone}`} style={{color: '#09a5c8', textDecoration: 'none'}}>{phone}</a>
+                          </div>
+                        ))
+                      ) : 'N/A'}
+                    </div>
+                  </div>
+                  
+                  <div style={styles.fieldGroup}>
+                    <div style={styles.label}>BatchData Emails</div>
+                    <div style={styles.value}>
+                      {lead.batchDataEmails && Array.isArray(lead.batchDataEmails) && lead.batchDataEmails.length > 0 ? (
+                        lead.batchDataEmails.map((email, index) => (
+                          <div key={index}>
+                            <a href={`mailto:${email}`} style={{color: '#09a5c8', textDecoration: 'none'}}>{email}</a>
+                          </div>
+                        ))
+                      ) : 'N/A'}
+                    </div>
+                  </div>
+                  
+                  
+                  <div style={styles.fieldGroup}>
+                    <div style={styles.label}>BatchData Processed At</div>
+                    <div style={styles.value}>{lead.batchDataProcessedAt || 'N/A'}</div>
                   </div>
                   
                   <div style={styles.fieldGroup}>
@@ -978,6 +1053,176 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
                   </div>
                 </>
               )}
+            </div>
+          )}
+          
+          {/* Reports Section in Lead Details Tab */}
+          {activeTab === 'details' && (
+            <div style={styles.section} className="crm-lead-section crm-lead-reports-section">
+              <h3 style={styles.sectionTitle}>Reports & Activity</h3>
+              
+              {/* Conversion Events Summary */}
+              <h4 style={{...styles.sectionTitle, fontSize: '14px', marginBottom: '10px'}}>Latest Conversion Events</h4>
+              {lead.conversions && lead.conversions.length > 0 ? (
+                <div style={styles.activityLog}>
+                  {lead.conversions.slice(0, 3).map((conversion, index) => (
+                    <div key={index} style={styles.activityItem}>
+                      <strong>{conversion.event}</strong>
+                      {conversion.status && ` - ${conversion.status}`}
+                      {conversion.value && ` (Value: $${conversion.value})`}
+                      <div style={styles.timestamp}>
+                        {conversion.timestamp?.toDate 
+                          ? formatDate(conversion.timestamp.toDate()) 
+                          : 'No timestamp'}
+                      </div>
+                    </div>
+                  ))}
+                  {lead.conversions.length > 3 && (
+                    <div style={{fontSize: '12px', color: '#666', marginTop: '10px'}}>
+                      ... and {lead.conversions.length - 3} more events
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p style={styles.noData}>No conversion events recorded yet.</p>
+              )}
+              
+              {/* Record Conversion Event Section */}
+              <h4 style={{...styles.sectionTitle, fontSize: '14px', marginBottom: '10px', marginTop: '20px'}}>Record Conversion Event</h4>
+              <div className="crm-lead-conversion-buttons" style={{display: 'flex', flexWrap: 'wrap', gap: '10px'}}>
+                {conversionEvents.map(event => (
+                  <button
+                    key={event.id}
+                    style={styles.conversionButton}
+                    onClick={() => handleRecordConversion(event.id)}
+                    disabled={saving}
+                  >
+                    {event.label}
+                  </button>
+                ))}
+              </div>
+              
+              {/* BatchData Report Section */}
+              {lead.batchDataReport && (
+                <>
+                  <h4 style={{...styles.sectionTitle, fontSize: '14px', marginBottom: '10px', marginTop: '20px'}}>BatchData Skip Trace Report</h4>
+                  <div style={{
+                    background: '#f8fff8',
+                    border: '1px solid #e0f0e0',
+                    borderRadius: '8px',
+                    padding: '15px',
+                    marginBottom: '20px'
+                  }}>
+                    <div style={{
+                      fontSize: '12px',
+                      color: '#666',
+                      marginBottom: '10px',
+                      fontStyle: 'italic'
+                    }}>
+                      Generated on: {lead.batchDataProcessedAt 
+                        ? formatDate(new Date(lead.batchDataProcessedAt))
+                        : 'Unknown date'}
+                    </div>
+                    <div style={{
+                      whiteSpace: 'pre-wrap',
+                      fontFamily: 'Consolas, Monaco, "Courier New", monospace',
+                      fontSize: '12px',
+                      lineHeight: '1.4',
+                      color: '#333',
+                      background: 'white',
+                      padding: '10px',
+                      borderRadius: '4px',
+                      border: '1px solid #ddd',
+                      maxHeight: '200px',
+                      overflowY: 'auto'
+                    }}>
+                      {JSON.stringify(lead.batchDataReport, null, 2)}
+                    </div>
+                  </div>
+                </>
+              )}
+              
+              {/* AI Home Report Section */}
+              {lead.aiHomeReport && (
+                <>
+                  <h4 style={{...styles.sectionTitle, fontSize: '14px', marginBottom: '10px', marginTop: '20px'}}>AI Home Enhancement Report</h4>
+                  <div style={{
+                    background: '#f8faff',
+                    border: '1px solid #e0e8f0',
+                    borderRadius: '8px',
+                    padding: '15px',
+                    marginBottom: '20px'
+                  }}>
+                    <div style={{
+                      fontSize: '12px',
+                      color: '#666',
+                      marginBottom: '10px',
+                      fontStyle: 'italic'
+                    }}>
+                      Generated on: {lead.aiReportGeneratedAt 
+                        ? formatDate(new Date(lead.aiReportGeneratedAt))
+                        : 'Unknown date'}
+                    </div>
+                    <div style={{
+                      whiteSpace: 'pre-wrap',
+                      fontFamily: 'Consolas, Monaco, "Courier New", monospace',
+                      fontSize: '12px',
+                      lineHeight: '1.4',
+                      color: '#333',
+                      background: 'white',
+                      padding: '10px',
+                      borderRadius: '4px',
+                      border: '1px solid #ddd',
+                      maxHeight: '200px',
+                      overflowY: 'auto'
+                    }}>
+                      {lead.aiHomeReport}
+                    </div>
+                  </div>
+                </>
+              )}
+              
+              {/* Notes Section */}
+              <h4 style={{...styles.sectionTitle, fontSize: '14px', marginBottom: '10px', marginTop: '20px'}}>Notes</h4>
+              <div className="crm-lead-notes-container">
+              
+              {lead.notes && lead.notes.length > 0 ? (
+                <div style={styles.activityLog}>
+                  {lead.notes.map((note, index) => (
+                    <div key={index} style={styles.activityItem}>
+                      <div>{note.text}</div>
+                      <div style={styles.timestamp}>
+                        {note.userName || 'Anonymous'} - 
+                        {note.timestamp?.toDate 
+                          ? formatDate(note.timestamp.toDate())
+                          : formatDate(note.timestamp) || 'No timestamp'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p style={styles.noData}>No notes have been added yet.</p>
+              )}
+              
+              </div>
+              <div style={styles.addNoteForm} className="crm-lead-add-note-form">
+                <textarea
+                  placeholder="Add a note..."
+                  value={note}
+                  onChange={e => setNote(e.target.value)}
+                  style={styles.textarea}
+                  disabled={saving}
+                />
+                <div style={styles.buttonRow}>
+                  <button
+                    style={styles.button}
+                    onClick={handleAddNote}
+                    disabled={!note.trim() || saving}
+                  >
+                    Add Note
+                  </button>
+                </div>
+              </div>
             </div>
           )}
           
@@ -1375,6 +1620,47 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
                   </button>
                 ))}
               </div>
+              
+              {/* BatchData Report Section */}
+              {lead.batchDataReport && (
+                <>
+                  <h3 style={styles.sectionTitle}>BatchData Skip Trace Report</h3>
+                  <div style={{
+                    ...styles.section,
+                    background: '#f8fff8',
+                    border: '1px solid #e0f0e0',
+                    borderRadius: '8px',
+                    padding: '15px',
+                    marginBottom: '20px'
+                  }}>
+                    <div style={{
+                      fontSize: '12px',
+                      color: '#666',
+                      marginBottom: '10px',
+                      fontStyle: 'italic'
+                    }}>
+                      Generated on: {lead.batchDataProcessedAt 
+                        ? formatDate(new Date(lead.batchDataProcessedAt))
+                        : 'Unknown date'}
+                    </div>
+                    <div style={{
+                      whiteSpace: 'pre-wrap',
+                      fontFamily: 'Consolas, Monaco, "Courier New", monospace',
+                      fontSize: '13px',
+                      lineHeight: '1.6',
+                      color: '#333',
+                      background: 'white',
+                      padding: '15px',
+                      borderRadius: '4px',
+                      border: '1px solid #ddd',
+                      maxHeight: '400px',
+                      overflowY: 'auto'
+                    }}>
+                      {JSON.stringify(lead.batchDataReport, null, 2)}
+                    </div>
+                  </div>
+                </>
+              )}
               
               {/* AI Home Report Section */}
               {lead.aiHomeReport && (

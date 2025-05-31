@@ -91,6 +91,13 @@ export const renderFieldValue = (lead, field) => {
     return '-';
   }
 
+  // Special handling for array fields and boolean fields that should show even when empty
+  if (field.alwaysShow && (field.type === 'phoneArray' || field.type === 'emailArray' || field.type === 'boolean')) {
+    // These fields should always render, even when empty
+  } else if (lead[field.id] === '') {
+    return '-';
+  }
+
   // Handle special render cases
   if (field.type === 'special') {
     switch (field.specialRender) {
