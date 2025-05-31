@@ -6,6 +6,7 @@ import {
   ContactFields,
   LeadFields,
   PriorityFields,
+  ActivityFields,
   renderFieldValue
 } from './LeadDetailFields';
 
@@ -22,6 +23,10 @@ export default function LeadDetail({ lead }) {
     // Make sure all fields from the lead are displayed even if they aren't
     // explicitly defined in the field arrays
     const shouldShowField = (field) => {
+      // Always show fields marked with alwaysShow flag
+      if (field.alwaysShow) {
+        return true;
+      }
       if (field.showOnlyIfExists) {
         return lead[field.id] !== undefined && lead[field.id] !== null && lead[field.id] !== '';
       }
@@ -88,6 +93,12 @@ export default function LeadDetail({ lead }) {
         >
           Lead Details
         </button>
+        <button 
+          className={`crm-tab-button crm-lead-detail-tab ${activeTab === 'activity' ? 'active crm-tab-active crm-lead-detail-tab-active' : ''}`}
+          onClick={() => setActiveTab('activity')}
+        >
+          Activity & Reports
+        </button>
       </div>
       
       {/* Content for the active tab */}
@@ -111,6 +122,10 @@ export default function LeadDetail({ lead }) {
         <div className="crm-tab-panel" style={{ display: activeTab === 'lead' ? 'block' : 'none' }}>
           <h3 className="crm-section-title">Lead Details</h3>
           {renderFields(LeadFields)}
+        </div>
+        <div className="crm-tab-panel" style={{ display: activeTab === 'activity' ? 'block' : 'none' }}>
+          <h3 className="crm-section-title">Activity & Reports</h3>
+          {renderFields(ActivityFields)}
         </div>
       </div>
 

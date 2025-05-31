@@ -1158,12 +1158,26 @@ function AddressForm() {
             console.log("%c BACKGROUND: BATCHDATA PHONE UPDATE TO FIREBASE", "background: #4caf50; color: white; font-size: 14px; padding: 5px;");
             console.log('BatchData phoneData received:', phoneData);
             
-            // Create an update object with the phone numbers
+            // Create BatchData report object (similar to aiHomeReport)
+            const batchDataReport = {
+              phoneNumbers: phoneData.phoneNumbers,
+              emails: phoneData.emails,
+              processedAt: new Date().toISOString(),
+              source: 'BatchData API',
+              processed: true,
+              rawData: phoneData.rawData // Include full API response
+            };
+            
+            // Create an update object with the BatchData report
             const phoneUpdateData = {
-              // IMPORTANT: Keep BatchData phone numbers separate from user input
-              // These are stored in separate fields and won't overwrite user-entered data
+              // Store as a complete report object (like aiHomeReport)
+              batchDataReport: batchDataReport,
+              
+              // ALSO keep individual fields for backward compatibility and easy CRM access
               batchDataPhoneNumbers: phoneData.phoneNumbers,
               batchDataEmails: phoneData.emails,
+              batchDataProcessed: true,
+              batchDataProcessedAt: new Date().toISOString(),
               
               // CRITICAL: Include ALL campaign data with phone update
               campaign_name: campaign_name || '',
@@ -1174,13 +1188,7 @@ function AddressForm() {
               gclid: gclid || '',
               device: device || '',
               traffic_source: traffic_source || 'Direct',
-              template_type: template_type || '',
-              
-              // Set a flag to indicate BatchData was processed
-              batchDataProcessed: true,
-              
-              // Include timestamp for when this was processed
-              batchDataProcessedAt: new Date().toISOString()
+              template_type: template_type || ''
             };
             
             console.log('BatchData update payload being sent to Firebase:', phoneUpdateData);

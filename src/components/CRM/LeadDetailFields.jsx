@@ -66,6 +66,12 @@ export const ContactFields = [
   { id: 'batchDataProcessedAt', label: 'BatchData Processed At', section: 'contact', type: 'text' },
 ];
 
+export const ActivityFields = [
+  { id: 'notes', label: 'Notes', section: 'activity', type: 'text', alwaysShow: true },
+  { id: 'aiHomeReport', label: 'AI Home Report', section: 'activity', type: 'object' },
+  { id: 'batchDataReport', label: 'BatchData Report', section: 'activity', type: 'object' },
+];
+
 export const LeadFields = [
   { id: 'leadStage', label: 'Lead Stage', section: 'lead', type: 'text' },
   { id: 'leadSource', label: 'Lead Source', section: 'lead', type: 'text' },
@@ -164,6 +170,18 @@ export const renderFieldValue = (lead, field) => {
     case 'boolean':
       return lead[field.id] === true ? 'Yes' : 'No';
     
+    case 'object':
+      if (typeof lead[field.id] === 'object' && lead[field.id] !== null) {
+        return (
+          <div className="crm-object-field">
+            <pre style={{ fontSize: '12px', margin: 0, whiteSpace: 'pre-wrap' }}>
+              {JSON.stringify(lead[field.id], null, 2)}
+            </pre>
+          </div>
+        );
+      }
+      return '-';
+    
     default:
       return lead[field.id];
   }
@@ -176,7 +194,8 @@ export const AllFields = [
   ...AddressFields,
   ...PropertyFields,
   ...MarketingFields,
-  ...LeadFields
+  ...LeadFields,
+  ...ActivityFields
 ];
 
 export default function LeadDetailFields() {

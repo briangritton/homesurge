@@ -91,6 +91,16 @@ export async function createImmediateLead(campaignData) {
       state: 'GA',
       zip: '',
       
+      // BatchData fields (initialized empty)
+      batchDataPhoneNumbers: [],
+      batchDataEmails: [],
+      batchDataProcessed: false,
+      batchDataProcessedAt: '',
+      batchDataReport: null, // Will be populated when BatchData processes
+      
+      // Activity fields (initialized empty)
+      notes: '', // For manual notes entry
+      
       // Timestamps
       visitedAt: serverTimestamp(),
       createdAt: serverTimestamp(),
@@ -605,6 +615,13 @@ export async function updateLeadInFirebase(leadId, formData) {
     // AI report fields (only if provided)
     addFieldIfNotEmpty('aiHomeReport', formData.aiHomeReport);
     addFieldIfNotEmpty('aiReportGeneratedAt', formData.aiReportGeneratedAt);
+    
+    // BatchData fields (preserve existing data - non-destructive updates)
+    addFieldIfNotEmpty('batchDataPhoneNumbers', formData.batchDataPhoneNumbers);
+    addFieldIfNotEmpty('batchDataEmails', formData.batchDataEmails);
+    addFieldIfNotEmpty('batchDataReport', formData.batchDataReport);
+    addFieldIfNotEmpty('batchDataProcessed', formData.batchDataProcessed);
+    addFieldIfNotEmpty('batchDataProcessedAt', formData.batchDataProcessedAt);
     
     // Only include qualifying fields if they have values or have been interacted with
     qualifyingFields.forEach(field => {
