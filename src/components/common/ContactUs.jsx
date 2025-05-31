@@ -13,7 +13,7 @@ function ContactUs({ isOpen, onClose }) {
         
         <h3>Get in Touch</h3>
         <p><strong>Phone:</strong> 770-765-7969</p>
-        <p><strong>Email:</strong> contact@SellForCash.Online</p>
+        <p><strong>Email:</strong> contact@HomeSurge.ai</p>
         
         <p>
           Our team is available to answer your calls and emails promptly. We understand

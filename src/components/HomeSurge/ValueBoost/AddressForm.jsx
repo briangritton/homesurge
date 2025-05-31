@@ -154,10 +154,89 @@ function AddressForm() {
         percentageText: 'Potential Home Value Increase'
       },
       
+      // ========== B SECONDARY CONTENT VARIANTS ==========
+      // CASH B - Secondary cash selling content
+      cashB2: {
+        headline: 'Get an Instant Cash Offer Today',
+        subheadline: 'Just enter you address and we\'ll give you our <strong><em>maximum cash offer</em></strong> in minutes. Close in as little as 7 days. No showings, no repairs, no stress',
+        buttonText: 'CHECK CASH OFFER',
+        //  buttonText: 'GET INSTANT OFFER',
+        exampleTag: 'Example OfferBoost Increase*',
+        potentialHeadline: 'Your OfferBoost Potential:',
+        opportunitiesText: '11 OfferBoost opportunities found!',
+        percentageText: 'Potential Cash Offer Increase'
+      },
+      
+      // FAST B - Secondary fast selling content
+      fastB2: {
+        headline: 'Get an Instant Cash Offer Today',
+        subheadline: 'Just enter you address to check your <strong><em>maximum cash offer</em></strong> in minutes. Close in as little as 7 days. No showings, no repairs, no stress',
+        buttonText: 'CHECK CASH OFFER',
+        exampleTag: 'Example OfferBoost Increase*',
+        potentialHeadline: 'Your OfferBoost Potential:',
+        opportunitiesText: '11 OfferBoost opportunities found!',
+        percentageText: 'Potential Cash Offer Increase'
+      },
+      
+      // WIDE B - Secondary hassle-free content
+      wideB2: {
+        headline: 'Get an Instant Cash Offer Today',
+        subheadline: 'Just enter you address to check your <strong><em>maximum cash offer</em></strong> in minutes. Close in as little as 7 days. No showings, no repairs, no stress',
+        buttonText: 'CHECK CASH OFFER',
+        exampleTag: 'Example OfferBoost Increase*',
+        potentialHeadline: 'Your OfferBoost Potential:',
+        opportunitiesText: '11 OfferBoost opportunities found!',
+        percentageText: 'Potential Cash Offer Increase'
+      },
+      
+      // VALUE B - Secondary value content
+      valueB2: {
+        headline: 'What\'s Your Home Really Worth?',
+        subheadline: 'Our advanced ValueBoost AI reveals your property\'s <strong><em>true market potential</em></strong> with detailed equity analysis and improvement roadmap',
+        buttonText: 'GET VALUE ANALYSIS',
+        exampleTag: 'Example ValueBoost Increase*',
+        potentialHeadline: 'Your ValueBoost Potential:',
+        opportunitiesText: '11 ValueBoost opportunities found!',
+        percentageText: 'Potential Home Value Increase'
+      },
+      
+      // VALUEBOOST B - Secondary valueboost content  
+      valueboostB2: {
+        headline: 'Maximize Your Property Investment',
+        subheadline: 'Smart AI technology identifies exactly which renovations deliver maximum ROI for your specific property type and location',
+        buttonText: 'MAXIMIZE ROI NOW',
+        exampleTag: 'Example ValueBoost Increase*',
+        potentialHeadline: 'Your ValueBoost Potential:',
+        opportunitiesText: '11 ValueBoost opportunities found!',
+        percentageText: 'Potential Home Value Increase'
+      },
+      
+      // BOOST B - Secondary boost content
+      boostB2: {
+        headline: 'Transform Your Home\'s Value',
+        subheadline: 'Revolutionary AI technology creates your personalized value enhancement blueprint. See exactly how much equity you can unlock',
+        buttonText: 'TRANSFORM VALUE',
+        exampleTag: 'Example ValueBoost Increase*',
+        potentialHeadline: 'Your ValueBoost Potential:',
+        opportunitiesText: '11 ValueBoost opportunities found!',
+        percentageText: 'Potential Home Value Increase'
+      },
+      
+      // EQUITY B - Secondary equity content
+      equityB2: {
+        headline: 'Discover Hidden Home Wealth',
+        subheadline: 'AI-driven analysis uncovers untapped equity potential in your property. Get your wealth-building renovation strategy',
+        buttonText: 'DISCOVER WEALTH',
+        exampleTag: 'Example ValueBoost Increase*',
+        potentialHeadline: 'Your ValueBoost Potential:',
+        opportunitiesText: '11 ValueBoost opportunities found!',
+        percentageText: 'Potential Home Value Increase'
+      },
+      
       // ========== DEFAULT FALLBACK (MATCHES CASH THEME) ==========
       default: {
-        headline: 'Need to Sell Your Home Extremely Fast?',
-        subheadline: 'Our OfferBoost AI home scan will generate your <strong><em>maximum cash offer</em></strong> report. Close in 7 days. No showings, no repairs, no stress',
+        headline: 'Get an Instant Cash Offer Today',
+        subheadline: 'Just enter your address and we\'ll give you our <strong><em>maximum cash offer</em></strong> in minutes. Close in as little as 7 days. No showings, no repairs, no stress',
         buttonText: 'CHECK CASH OFFER',
         exampleTag: 'Example OfferBoost Increase*',
         potentialHeadline: 'Your OfferBoost Potential:',
@@ -167,22 +246,52 @@ function AddressForm() {
     };
     
     // ================= CAMPAIGN MATCHING LOGIC ===================
-    // ENHANCED MATCHING - Supports both Value and Cash campaigns
-    // Priority: cash > sellfast > fast > value > valueboost > boost > equity
+    // ENHANCED MATCHING - Supports both Value and Cash campaigns + A/B content variants
+    // Priority: cash > sellfast > fast > wide > value > valueboost > boost > equity
+    
+    // Split Test Logic - Check for variant parameter  
+    const variant = urlParams.get('variant') || urlParams.get('split_test') || localStorage.getItem('assignedVariant') || 'B2OB2';
+    
+    // Parse variant for step 1 content selection (position 0-1)
+    // Format: A1IA1, A2OB2, B2IB2, etc.
+    const step1Content = variant.substring(0, 2);  // A1, A2, or B2
+    
+    console.log('AddressForm - Step 1 variant:', {
+      full: variant,
+      step1Content: step1Content
+    });
+    
     if (campaignName) {
       const simplified = campaignName.toLowerCase().replace(/[\s\-_\.]/g, '');
       
       // CASH/SELLING CAMPAIGN MATCHING (Highest priority)
-      if (simplified.includes('cash')) return templates.cash;
-      if (simplified.includes('sellfast') || simplified.includes('sell_fast')) return templates.sellfast;
-      if (simplified.includes('wide')) return templates.wide;
-      if (simplified.includes('fast')) return templates.fast;
+      if (simplified.includes('cash')) {
+        return step1Content === 'B2' ? templates.cashB2 : templates.cash;
+      }
+      if (simplified.includes('sellfast') || simplified.includes('sell_fast')) {
+        // Treat sellfast as fast variant
+        return step1Content === 'B2' ? templates.fastB2 : templates.fast;
+      }
+      if (simplified.includes('wide')) {
+        return step1Content === 'B2' ? templates.wideB2 : templates.wide;
+      }
+      if (simplified.includes('fast')) {
+        return step1Content === 'B2' ? templates.fastB2 : templates.fast;
+      }
       
       // VALUE/IMPROVEMENT CAMPAIGN MATCHING
-      if (simplified.includes('valueboost') || simplified.includes('value_boost')) return templates.valueboost;
-      if (simplified.includes('value')) return templates.value;
-      if (simplified.includes('boost')) return templates.boost;
-      if (simplified.includes('equity')) return templates.equity;
+      if (simplified.includes('valueboost') || simplified.includes('value_boost')) {
+        return step1Content === 'B2' ? templates.valueboostB2 : templates.valueboost;
+      }
+      if (simplified.includes('value')) {
+        return step1Content === 'B2' ? templates.valueB2 : templates.value;
+      }
+      if (simplified.includes('boost')) {
+        return step1Content === 'B2' ? templates.boostB2 : templates.boost;
+      }
+      if (simplified.includes('equity')) {
+        return step1Content === 'B2' ? templates.equityB2 : templates.equity;
+      }
     }
     
     return templates.default;
@@ -1333,8 +1442,8 @@ function AddressForm() {
         // Position 2: A=Show Step 2, B=Skip to Step 3
         // ========================================
         const urlParams = new URLSearchParams(window.location.search);
-        const splitTest = urlParams.get('split_test') || urlParams.get('variant') || 'AAA';
-        const showStep2 = splitTest[1] === 'A'; // Position 2 controls Step 2 interstitial
+        const splitTest = urlParams.get('split_test') || urlParams.get('variant') || localStorage.getItem('assignedVariant') || 'AAA';
+        const showStep2 = splitTest[1] === 'I'; // Position 1 controls Step 2 interstitial (I=show, O=skip)
         
         if (showStep2) {
           nextStep(); // Go to Step 2 (AI Processing)
@@ -1375,8 +1484,8 @@ function AddressForm() {
         // Position 2: A=Show Step 2, B=Skip to Step 3
         // ========================================
         const urlParams = new URLSearchParams(window.location.search);
-        const splitTest = urlParams.get('split_test') || urlParams.get('variant') || 'AAA';
-        const showStep2 = splitTest[1] === 'A'; // Position 2 controls Step 2 interstitial
+        const splitTest = urlParams.get('split_test') || urlParams.get('variant') || localStorage.getItem('assignedVariant') || 'AAA';
+        const showStep2 = splitTest[1] === 'I'; // Position 1 controls Step 2 interstitial (I=show, O=skip)
         
         if (showStep2) {
           nextStep(); // Go to Step 2 (AI Processing)
@@ -1444,8 +1553,8 @@ function AddressForm() {
         // Position 2: A=Show Step 2, B=Skip to Step 3
         // ========================================
         const urlParams = new URLSearchParams(window.location.search);
-        const splitTest = urlParams.get('split_test') || urlParams.get('variant') || 'AAA';
-        const showStep2 = splitTest[1] === 'A'; // Position 2 controls Step 2 interstitial
+        const splitTest = urlParams.get('split_test') || urlParams.get('variant') || localStorage.getItem('assignedVariant') || 'AAA';
+        const showStep2 = splitTest[1] === 'I'; // Position 1 controls Step 2 interstitial (I=show, O=skip)
         
         if (showStep2) {
           nextStep(); // Go to Step 2 (AI Processing)
@@ -1476,8 +1585,8 @@ function AddressForm() {
         // Position 2: A=Show Step 2, B=Skip to Step 3
         // ========================================
         const urlParams = new URLSearchParams(window.location.search);
-        const splitTest = urlParams.get('split_test') || urlParams.get('variant') || 'AAA';
-        const showStep2 = splitTest[1] === 'A'; // Position 2 controls Step 2 interstitial
+        const splitTest = urlParams.get('split_test') || urlParams.get('variant') || localStorage.getItem('assignedVariant') || 'AAA';
+        const showStep2 = splitTest[1] === 'I'; // Position 1 controls Step 2 interstitial (I=show, O=skip)
         
         if (showStep2) {
           nextStep(); // Go to Step 2 (AI Processing)
@@ -1734,8 +1843,8 @@ function AddressForm() {
           // Position 2: A=Show Step 2, B=Skip to Step 3
           // ========================================
           const urlParams = new URLSearchParams(window.location.search);
-          const splitTest = urlParams.get('split_test') || urlParams.get('variant') || 'AAA';
-          const showStep2 = splitTest[1] === 'A'; // Position 2 controls Step 2 interstitial
+          const splitTest = urlParams.get('split_test') || urlParams.get('variant') || localStorage.getItem('assignedVariant') || 'AAA';
+          const showStep2 = splitTest[1] === 'I'; // Position 1 controls Step 2 interstitial (I=show, O=skip)
           
           if (showStep2) {
             nextStep(); // Go to Step 2 (AI Processing)
@@ -2071,7 +2180,7 @@ function AddressForm() {
           {(() => {
             // Check split test parameters from URL
             const urlParams = new URLSearchParams(window.location.search);
-            const splitTest = urlParams.get('split_test') || urlParams.get('variant') || 'AAA'; // Default to show everything
+            const splitTest = urlParams.get('split_test') || urlParams.get('variant') || localStorage.getItem('assignedVariant') || 'AAA'; // Default to show everything
             const showStep1Box = splitTest[0] === 'A'; // Position 1 controls Step 1 box - A=show (default), B=hide
             
             return showStep1Box;
@@ -2154,7 +2263,7 @@ function AddressForm() {
           {(() => {
             // Check split test parameters from URL
             const urlParams = new URLSearchParams(window.location.search);
-            const splitTest = urlParams.get('split_test') || urlParams.get('variant') || 'AAA';
+            const splitTest = urlParams.get('split_test') || urlParams.get('variant') || localStorage.getItem('assignedVariant') || 'AAA';
             const showStep1Box = splitTest[0] === 'A'; // Position 1 controls Step 1 box and arrow
             
             return showStep1Box;

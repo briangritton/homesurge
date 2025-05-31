@@ -516,6 +516,89 @@ export function FormProvider({ children }) {
   };
 
   // ================================================================================
+  // RANDOM VARIANT ASSIGNMENT SYSTEM
+  // ================================================================================
+  
+  // Get or assign random variant for split testing
+  const getAssignedVariant = () => {
+    let variant = localStorage.getItem('assignedVariant');
+    
+    // Migrate legacy variants to new system (NO B1 - map to B2)
+    const legacyMigration = {
+      'AAA': 'A1IA1',
+      'AAB': 'A1IA1', 
+      'ABA': 'A1OA1',
+      'ABB': 'A1OA1',
+      'BAA': 'B2IB2',  // B1 → B2 (secondary always streamlined)
+      'BAB': 'B2IB2',  // B1 → B2 (secondary always streamlined)
+      'BBA': 'B2OB2',  // B1 → B2 (secondary always streamlined)
+      'BBB': 'B2OB2',  // B1 → B2 (secondary always streamlined)
+      'AIA': 'A1IA1',
+      'AOA': 'A1OA1',
+      'BIB': 'B2IB2',  // B1 → B2 (secondary always streamlined)
+      'BOB': 'B2OB2',  // B1 → B2 (secondary always streamlined)
+      'AIA2': 'A2IA2',
+      'BIB2': 'B2IB2',
+      'A2OA2': 'A2OA2',
+      'B2OB2': 'B2OB2'
+    };
+    
+    // Check if variant needs migration
+    if (variant && legacyMigration[variant]) {
+      const newVariant = legacyMigration[variant];
+      console.log(`🔄 Migrating legacy variant ${variant} → ${newVariant}`);
+      variant = newVariant;
+      localStorage.setItem('assignedVariant', variant);
+    }
+    
+    if (!variant) {
+      // Strategic variant combinations for testing (6 core combinations, NO B1)
+      const variants = [
+        // Core Impact Tests - Consistent format across steps
+        'A1IA1',    // Control: Primary text + original format, show step 2
+        'A1OA1',    // Skip friction: Primary text + original format, skip step 2
+        'A2IA2',    // Streamlined A: Primary text + streamlined format, show step 2
+        'A2OA2',    // Best A experience: Primary text + streamlined format, skip step 2
+        'B2IB2',    // Streamlined B: Secondary text + streamlined format, show step 2
+        'B2OB2'     // Best B experience: Secondary text + streamlined format, skip step 2
+      ];
+      
+      // Random assignment with equal distribution
+      variant = variants[Math.floor(Math.random() * variants.length)];
+      localStorage.setItem('assignedVariant', variant);
+      
+      // Console log for debugging
+      console.log(`%c🎲 VARIANT=${variant} randomly assigned`, 
+        'background: #4CAF50; color: white; font-weight: bold; padding: 4px 8px; border-radius: 4px;');
+      
+      // Track assignment in analytics
+      if (window.gtag) {
+        window.gtag('event', 'variant_assigned', {
+          assigned_variant: variant,
+          assignment_type: 'random',
+          variant_step1: variant.substring(0, 2),  // A1, A2, or B2
+          variant_step2: variant.substring(2, 3),  // I or O
+          variant_step3: variant.substring(3, 5)   // A1, A2, or B2
+        });
+      }
+      
+      // Push to dataLayer for GTM
+      if (window.dataLayer) {
+        window.dataLayer.push({
+          event: 'variant_assigned',
+          assigned_variant: variant,
+          assignment_type: 'random',
+          variant_step1: variant.substring(0, 2),  // A1, A2, or B2
+          variant_step2: variant.substring(2, 3),  // I or O
+          variant_step3: variant.substring(3, 5)   // A1, A2, or B2
+        });
+      }
+    }
+    
+    return variant;
+  };
+
+  // ================================================================================
   // DYNAMIC CONTENT SYSTEM - CAMPAIGN-BASED TEMPLATE SELECTION
   // ================================================================================
   // 
@@ -534,26 +617,9 @@ export function FormProvider({ children }) {
   // ================================================================================
   
   // Simplified dynamic content handler based only on campaign name
-  const setDynamicContent = (keyword, campaign_id, adgroup_id) => {
-    // Always get campaign name directly from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    
-    // Try various parameter naming conventions
-    let campaignName = '';
-    const possibleParamNames = ['campaign_name', 'campaignname', 'campaign-name', 'utm_campaign'];
-    
-    for (const paramName of possibleParamNames) {
-      const value = urlParams.get(paramName);
-      if (value) {
-        campaignName = value;
-        break;
-      }
-    }
-    
-    // If no campaign name in URL, use the one in form state
-    if (!campaignName) {
-      campaignName = formData.campaign_name || '';
-    }
+  const setDynamicContent = (keyword, campaign_id, adgroup_id, passedCampaignName, passedVariant) => {
+    // Use passed campaign name first, then fall back to form state
+    let campaignName = passedCampaignName || formData.campaign_name || '';
     
     // Log information about the current campaign name we'll use for matching
     console.log('Using campaign name for template selection:', campaignName);
@@ -610,6 +676,23 @@ export function FormProvider({ children }) {
       thankYouHeadline: 'Request Completed!',
       thankYouSubHeadline: 'You\'ll be receiving your requested details at your contact number shortly, thank you!'
     };
+    
+    // Use passed variant or fallback to assigned variant
+    const variant = passedVariant || getAssignedVariant();
+    console.log('Split test variant being used:', variant);
+    
+    // Parse variant for step 1 (position 1-2) and step 3 (position 4-5)
+    // Format: A1IA1 = A1(step1) I(step2) A1(step3)
+    const step1Variant = variant.substring(0, 2);  // A1, A2, B1, or B2
+    const step2Control = variant.substring(2, 3);  // I or O
+    const step3Variant = variant.substring(3, 5);  // A1, A2, B1, or B2
+    
+    console.log('Variant breakdown:', {
+      full: variant,
+      step1: step1Variant,
+      step2: step2Control,
+      step3: step3Variant
+    });
     
     // Identify which template to use based on campaign name
     let contentTemplate = null;
@@ -1031,9 +1114,12 @@ export function FormProvider({ children }) {
         // Now form state should include campaign name from URL
         console.log("Setting dynamic content with campaign name:", campaignData.campaign_name);
         
-        // Explicitly call setDynamicContent - this will get the campaign name directly 
-        // from URL params and form state, so we don't need to pass it here
-        setDynamicContent(campaignData.keyword, campaignData.campaign_id, campaignData.adgroup_id);
+        // Get variant info from URL or assign random variant
+        const variant = urlParams.get('variant') || urlParams.get('split_test') || getAssignedVariant();
+        
+        // Explicitly call setDynamicContent with the campaign name and variant
+        console.log("Calling setDynamicContent with campaign name:", campaignData.campaign_name, "and variant:", variant);
+        setDynamicContent(campaignData.keyword, campaignData.campaign_id, campaignData.adgroup_id, campaignData.campaign_name, variant);
         
         // Create immediate lead for ALL visitors (not just campaign traffic)
         // BUT skip admin/CRM pages
@@ -1064,7 +1150,7 @@ export function FormProvider({ children }) {
           
           createImmediateLead({
             ...campaignData,
-            variant: urlParams.get('variant') || urlParams.get('split_test') || 'AAA'
+            variant: urlParams.get('variant') || urlParams.get('split_test') || getAssignedVariant()
           }).then(leadId => {
             if (leadId) {
               console.log('✅ Immediate lead created:', leadId);
@@ -1096,7 +1182,8 @@ export function FormProvider({ children }) {
       updateLead,
       setDynamicContent,
       initFromUrlParams,
-      clearFormData
+      clearFormData,
+      getAssignedVariant
     }}>
       {children}
     </FormContext.Provider>

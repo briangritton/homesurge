@@ -43,70 +43,147 @@ function AIProcessing() {
       cash: {
         headline: 'Analyzing Your OfferBoost Options...',
         subheadline: 'Our AI is calculating your optimal cash offer and timeline',
-        completionText: 'OfferBoost Analysis Complete!'
+        completionText: 'OfferBoost Analysis Complete!',
+        estimateLabel: 'OfferBoost Estimate:'
       },
       
       fast: {
         headline: 'Processing Your OfferBoost Request...',
         subheadline: 'Determining the fastest path to close your home',
-        completionText: 'OfferBoost Strategy Ready!'
+        completionText: 'OfferBoost Strategy Ready!',
+        estimateLabel: 'OfferBoost Estimate:'
       },
       
       sellfast: {
         headline: 'Lightning-Fast OfferBoost Analysis...',
         subheadline: 'Calculating your instant cash offer potential',
-        completionText: 'OfferBoost Ready!'
+        completionText: 'OfferBoost Ready!',
+        estimateLabel: 'OfferBoost Estimate:'
       },
       
       // ========== VALUE/IMPROVEMENT CAMPAIGNS ==========
       value: {
         headline: 'AI Value Analysis In Progress...',
         subheadline: 'Discovering hidden value opportunities in your home',
-        completionText: 'Value Enhancement Report Ready!'
+        completionText: 'Value Enhancement Report Ready!',
+        estimateLabel: 'ValueBoost Estimate:'
       },
       
       valueboost: {
         headline: 'Finding Maximum Value...',
         subheadline: 'AI is analyzing your property\'s improvement potential',
-        completionText: 'ValueBoost Report Complete!'
+        completionText: 'ValueBoost Report Complete!',
+        estimateLabel: 'ValueBoost Estimate:'
       },
       
       boost: {
         headline: 'Boosting Your Home Value...',
         subheadline: 'Identifying the highest-impact improvements for your property',
-        completionText: 'Value Boost Strategy Ready!'
+        completionText: 'Value Boost Strategy Ready!',
+        estimateLabel: 'ValueBoost Estimate:'
       },
       
       equity: {
         headline: 'Unlocking Your Home Equity...',
         subheadline: 'Calculating your maximum equity potential',
-        completionText: 'Equity Analysis Complete!'
+        completionText: 'Equity Analysis Complete!',
+        estimateLabel: 'ValueBoost Estimate:'
+      },
+      
+      // ========== B SECONDARY CONTENT VARIANTS ==========
+      // CASH B - Secondary cash processing content
+      cashB2: {
+        headline: 'Generating Your Instant Cash Offer...',
+        subheadline: 'Advanced AI algorithms are computing your guaranteed offer amount',
+        completionText: 'Instant Cash Offer Generated!',
+        estimateLabel: 'Instant Cash Estimate:'
+      },
+      
+      // FAST B - Secondary fast processing content
+      fastB2: {
+        headline: 'Emergency Sale Processing...',
+        subheadline: 'Urgent AI analysis for your immediate home sale needs',
+        completionText: 'Emergency Sale Plan Ready!',
+        estimateLabel: 'Emergency Offer Estimate:'
+      },
+      
+      // SELLFAST B - Secondary sellfast content
+      sellfastB2: {
+        headline: 'Rapid OfferBoost Calculation...',
+        subheadline: 'AI is creating your express sale strategy',
+        completionText: 'Express Strategy Complete!',
+        estimateLabel: 'Express Offer Estimate:'
+      },
+      
+      // VALUE B - Secondary value processing content
+      valueB2: {
+        headline: 'Discovering Your Home\'s True Worth...',
+        subheadline: 'Deep AI analysis revealing your property\'s maximum market potential',
+        completionText: 'True Value Report Generated!',
+        estimateLabel: 'True Value Estimate:'
+      },
+      
+      // VALUEBOOST B - Secondary valueboost content
+      valueboostB2: {
+        headline: 'Optimizing Investment Returns...',
+        subheadline: 'AI is calculating maximum ROI renovation strategies',
+        completionText: 'Investment Strategy Optimized!',
+        estimateLabel: 'Investment Estimate:'
+      },
+      
+      // BOOST B - Secondary boost content
+      boostB2: {
+        headline: 'Transforming Value Potential...',
+        subheadline: 'Revolutionary AI creating your personalized enhancement blueprint',
+        completionText: 'Transformation Plan Ready!',
+        estimateLabel: 'Transformation Estimate:'
+      },
+      
+      // EQUITY B - Secondary equity content
+      equityB2: {
+        headline: 'Discovering Hidden Wealth...',
+        subheadline: 'AI wealth analysis uncovering untapped property potential',
+        completionText: 'Wealth Discovery Complete!',
+        estimateLabel: 'Wealth Estimate:'
       },
       
       // ========== DEFAULT FALLBACK (MATCHES CASH THEME) ==========
       default: {
         headline: 'Analyzing Your OfferBoost Options...',
         subheadline: 'Our AI is calculating your optimal cash offer and timeline',
-        completionText: 'OfferBoost Analysis Complete!'
+        completionText: 'OfferBoost Analysis Complete!',
+        estimateLabel: 'OfferBoost Estimate:'
       }
     };
     
-    // Campaign matching logic (same as AddressForm)
+    // Split Test Logic - Check for variant parameter
+    const variant = urlParams.get('variant') || urlParams.get('split_test') || localStorage.getItem('assignedVariant') || 'B2OB2';
+    
+    // Note: AIProcessing step uses step 1 content (for consistency with step theme)
+    // Parse variant for step 1 content selection (position 0-1)
+    const step1Content = variant.substring(0, 2);  // A1, A2, or B2
+    
+    console.log('AIProcessing - Using step 1 variant:', {
+      full: variant,
+      step1Content: step1Content
+    });
+
+    // Campaign matching logic with A/B content variants
     if (campaignName) {
       const simplified = campaignName.toLowerCase().replace(/[\s\-_\.]/g, '');
       
       // CASH/SELLING CAMPAIGN MATCHING (Highest priority)
-      if (simplified.includes('cash')) return templates.cash;
-      if (simplified.includes('sellfast') || simplified.includes('sell_fast')) return templates.sellfast;
-      if (simplified.includes('fast')) return templates.fast;
+      if (simplified.includes('cash')) return step1Content === 'B2' ? templates.cashB2 : templates.cash;
+      if (simplified.includes('sellfast') || simplified.includes('sell_fast')) return step1Content === 'B2' ? templates.sellfastB2 : templates.sellfast;
+      if (simplified.includes('fast')) return step1Content === 'B2' ? templates.fastB2 : templates.fast;
       
       // VALUE/IMPROVEMENT CAMPAIGN MATCHING
-      if (simplified.includes('valueboost') || simplified.includes('value_boost')) return templates.valueboost;
-      if (simplified.includes('value')) return templates.value;
-      if (simplified.includes('boost')) return templates.boost;
-      if (simplified.includes('equity')) return templates.equity;
+      if (simplified.includes('valueboost') || simplified.includes('value_boost')) return step1Content === 'B2' ? templates.valueboostB2 : templates.valueboost;
+      if (simplified.includes('value')) return step1Content === 'B2' ? templates.valueB2 : templates.value;
+      if (simplified.includes('boost')) return step1Content === 'B2' ? templates.boostB2 : templates.boost;
+      if (simplified.includes('equity')) return step1Content === 'B2' ? templates.equityB2 : templates.equity;
     }
-    
+
     return templates.default;
   };
   
@@ -492,32 +569,7 @@ function AIProcessing() {
           {/* Value display above scanning image */}
           <div className="vb-ai-value-container">
             <div className="vb-ai-value-display">
-              {(() => {
-                // Dynamic label based on campaign type
-                const urlParams = new URLSearchParams(window.location.search);
-                const possibleParamNames = ['campaign_name', 'campaignname', 'campaign-name', 'utm_campaign'];
-                
-                let campaignName = '';
-                for (const paramName of possibleParamNames) {
-                  const value = urlParams.get(paramName);
-                  if (value) {
-                    campaignName = value;
-                    break;
-                  }
-                }
-                
-                if (campaignName) {
-                  const simplified = campaignName.toLowerCase().replace(/[\s\-_\.]/g, '');
-                  
-                  // CASH/SELLING CAMPAIGN MATCHING (Show OfferBoost)
-                  if (simplified.includes('cash') || simplified.includes('sellfast') || simplified.includes('sell_fast') || simplified.includes('fast')) {
-                    return 'OfferBoost Estimate:';
-                  }
-                }
-                
-                // Default to ValueBoost for value/improvement campaigns
-                return 'ValueBoost Estimate:';
-              })()}
+              {dynamicContent.estimateLabel}
               <br />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 +{animatedPercentage}%

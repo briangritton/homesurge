@@ -53,7 +53,9 @@ function ValueBoostReport() {
         conciergeHeadline: 'Want Expert Help Maximizing Your Cash Offer?',
         buttonText: 'GET CASH OFFER',
         readySubheadline: 'Check your OfferBoost cash offer below, and unlock your FREE AI powered ' +
-                      'custom home value and offer optimization report. No obligation, no strings attached.'
+                      'custom home value and offer optimization report. No obligation, no strings attached.',
+        loadingMessage: 'Processing Your OfferBoost Cash Offer Analysis...',
+        readyHeadline: 'Your OfferBoost Fastest Maximum Offer is Ready!'
       },
       
       fast: {
@@ -66,7 +68,9 @@ function ValueBoostReport() {
         conciergeHeadline: 'Want Expert Help Selling Lightning Fast?',
         buttonText: 'CHECK FAST OFFER',
         readySubheadline: 'Check your OfferBoost <strong>fastest maximum offer</strong> below, and unlock your FREE AI powered ' +
-                      'custom home value and offer optimization report. No obligation, no strings attached.'
+                      'custom home value and offer optimization report. No obligation, no strings attached.',
+        loadingMessage: 'Processing Your OfferBoost Cash Offer Analysis...',
+        readyHeadline: 'Your OfferBoost Fastest Maximum Offer is Ready!'
       },
       
       sellfast: {
@@ -79,7 +83,9 @@ function ValueBoostReport() {
         conciergeHeadline: 'Want Expert Help Getting Cash Now?',
         buttonText: 'GET CASH OFFER',
         readySubheadline: 'Check your OfferBoost cash offer below, and unlock your FREE AI powered ' +
-                      'custom home value and offer optimization report. No obligation, no strings attached.'
+                      'custom home value and offer optimization report. No obligation, no strings attached.',
+        loadingMessage: 'Processing Your OfferBoost Fast Sale Analysis...',
+        readyHeadline: 'Your OfferBoost Fast Sale Strategy is Ready!'
       },
       
       // ========== VALUE/IMPROVEMENT CAMPAIGNS ==========
@@ -93,7 +99,9 @@ function ValueBoostReport() {
         conciergeHeadline: 'Want Expert Help Implementing These Improvements?',
         buttonText: 'GET VALUE REPORT',
         readySubheadline: 'Check your <strong>maximum home value</strong> with FREE AI personalized ' +
-                      'opportunity recommendations below! See your home\'s true potential value.'
+                      'opportunity recommendations below! See your home\'s true potential value.',
+        loadingMessage: 'Processing Your ValueBoost Analysis...',
+        readyHeadline: 'Your ValueBoost Report is Ready!'
       },
 
       valueboost: {
@@ -106,7 +114,9 @@ function ValueBoostReport() {
         conciergeHeadline: 'Want Expert Help Maximizing Your Property Value?',
         buttonText: 'GET VALUE REPORT',
         readySubheadline: 'Check your <strong>maximum home value</strong> with FREE AI personalized ' +
-                      'opportunity recommendations below! See your home\'s true potential value.'
+                      'opportunity recommendations below! See your home\'s true potential value.',
+        loadingMessage: 'Processing Your ValueBoost Maximization Analysis...',
+        readyHeadline: 'Your ValueBoost Maximization Report is Ready!'
       },
       
       boost: {
@@ -119,7 +129,9 @@ function ValueBoostReport() {
         conciergeHeadline: 'Want Expert Help Boosting Your Home Value?',
         buttonText: 'GET VALUE REPORT',
         readySubheadline: 'Check your <strong>maximum home value</strong> with FREE AI personalized ' +
-                      'opportunity recommendations below! See your home\'s true potential value.'
+                      'opportunity recommendations below! See your home\'s true potential value.',
+        loadingMessage: 'Processing Your ValueBoost Analysis...',
+        readyHeadline: 'Your ValueBoost Analysis is Ready!'
       },
       
       equity: {
@@ -132,7 +144,150 @@ function ValueBoostReport() {
         conciergeHeadline: 'Want Expert Help Unlocking Your Home Equity?',
         buttonText: 'GET VALUE REPORT',
         readySubheadline: 'Check your <strong>maximum home value</strong> with FREE AI personalized ' +
-                      'opportunity recommendations below! See your home\'s true potential value.'
+                      'opportunity recommendations below! See your home\'s true potential value.',
+        loadingMessage: 'Processing Your ValueBoost Equity Analysis...',
+        readyHeadline: 'Your ValueBoost Equity Analysis is Ready!'
+      },
+      
+      // ========== WIDE CAMPAIGN ==========
+      wide: {
+        reportHeadline: 'Your Hassle-Free Home Solution Ready:',
+        potentialHeadline: 'Your Stress-Free Potential:',
+        recommendationsTitle: 'Your Top 10 Hassle-Free Solutions',
+        recommendationsSubtitle: 'Eliminate real estate stress with these comprehensive strategies',
+        unlockHeadline: 'Get Your FREE Hassle-Free Home Report',
+        unlockSubtext: 'Get your complete stress-free solution with all paperwork handled',
+        conciergeHeadline: 'Want Expert Help Eliminating Real Estate Stress?',
+        buttonText: 'GET SOLUTION',
+        readySubheadline: 'Check your <strong>hassle-free home solution</strong> below, and unlock your FREE AI powered ' +
+                      'custom home optimization report. No stress, no complications.'
+      },
+      
+      // ========== B SECONDARY CONTENT VARIANTS ==========
+      // CASH B - More urgent, immediate cash offer language
+      cashB2: {
+        reportHeadline: 'URGENT: Your Maximum Cash Offer Expires Soon!',
+        potentialHeadline: 'Your Immediate Cash Potential:',
+        recommendationsTitle: 'Your Top 10 Instant Cash Maximizers',
+        recommendationsSubtitle: 'Critical strategies to get maximum cash before market conditions change',
+        unlockHeadline: 'Get Your URGENT Maximum Cash Offer Report',
+        unlockSubtext: 'Time-sensitive analysis - get your complete cash offer before rates change',
+        conciergeHeadline: 'Need Immediate Cash? Our Experts Are Standing By',
+        buttonText: 'URGENT CASH OFFER',
+        readySubheadline: 'Your <strong>time-sensitive maximum cash offer</strong> is below. Market conditions are shifting - ' +
+                      'unlock your FREE urgent cash analysis now!',
+        loadingMessage: 'URGENT: Processing Your Maximum OfferBoost Cash Analysis...',
+        readyHeadline: 'URGENT: Your Maximum OfferBoost Cash Offer is Ready!'
+      },
+      
+      // FAST B - Emergency/urgent sale scenarios
+      fastB2: {
+        reportHeadline: 'EMERGENCY SALE: Your 7-Day Cash Exit Ready!',
+        potentialHeadline: 'Your Emergency Sale Potential:',
+        recommendationsTitle: 'Your Top 10 Emergency Sale Tactics',
+        recommendationsSubtitle: 'Crisis-proven strategies for immediate property liquidation',
+        unlockHeadline: 'Get Your EMERGENCY 7-Day Sale Report',
+        unlockSubtext: 'Critical timeline analysis for immediate property liquidation',
+        conciergeHeadline: 'Emergency Sale Needed? We Can Close This Week',
+        buttonText: 'EMERGENCY SALE',
+        readySubheadline: 'Your <strong>emergency 7-day sale solution</strong> is ready below. ' +
+                      'Get immediate cash when you need it most - no delays!',
+        loadingMessage: 'EMERGENCY: Processing Your 7-Day OfferBoost Exit Strategy...',
+        readyHeadline: 'EMERGENCY: Your 7-Day OfferBoost Exit Strategy is Ready!'
+      },
+      
+      // SELLFAST B - Enhanced urgency for immediate cash
+      sellfastB2: {
+        reportHeadline: 'INSTANT CASH: Your Same-Day Offer Ready!',
+        potentialHeadline: 'Your Instant Cash Potential:',
+        recommendationsTitle: 'Your Top 10 Same-Day Cash Strategies',
+        recommendationsSubtitle: 'Lightning-fast tactics for immediate cash in hand',
+        unlockHeadline: 'Get Your INSTANT Same-Day Cash Report',
+        unlockSubtext: 'Immediate cash solutions with same-day offer guarantee',
+        conciergeHeadline: 'Need Cash Today? We Can Wire Funds Immediately',
+        buttonText: 'SAME-DAY CASH',
+        readySubheadline: 'Your <strong>same-day cash offer</strong> is ready below. ' +
+                      'Get cash wired to your account within hours!',
+        loadingMessage: 'INSTANT: Processing Your Same-Day OfferBoost Analysis...',
+        readyHeadline: 'INSTANT: Your Same-Day OfferBoost is Ready!'
+      },
+      
+      // VALUE B - Deeper value analysis and insights
+      valueB2: {
+        reportHeadline: 'DEEP DIVE: Your Hidden Value Secrets Revealed!',
+        potentialHeadline: 'Your Hidden Value Potential:',
+        recommendationsTitle: 'Your Top 10 Value Discovery Insights',
+        recommendationsSubtitle: 'Advanced analysis reveals untapped equity opportunities most miss',
+        unlockHeadline: 'Get Your DEEP VALUE Discovery Report',
+        unlockSubtext: 'Comprehensive value analysis with hidden equity identification',
+        conciergeHeadline: 'Want Expert Analysis of Your Hidden Value Potential?',
+        buttonText: 'DISCOVER VALUE',
+        readySubheadline: 'Your <strong>deep value analysis</strong> reveals hidden opportunities below. ' +
+                      'Discover equity potential others overlook!',
+        loadingMessage: 'DEEP DIVE: Processing Your Advanced ValueBoost Analysis...',
+        readyHeadline: 'DEEP DIVE: Your Advanced ValueBoost Analysis is Ready!'
+      },
+      
+      // VALUEBOOST B - Advanced optimization strategies
+      valueboostB2: {
+        reportHeadline: 'ADVANCED: Your Value Engineering Blueprint Ready!',
+        potentialHeadline: 'Your Advanced Optimization Potential:',
+        recommendationsTitle: 'Your Top 10 Value Engineering Strategies',
+        recommendationsSubtitle: 'Sophisticated optimization techniques for maximum ROI achievement',
+        unlockHeadline: 'Get Your ADVANCED Value Engineering Report',
+        unlockSubtext: 'Professional-grade optimization with precision ROI calculations',
+        conciergeHeadline: 'Ready for Advanced Value Engineering Consultation?',
+        buttonText: 'ENGINEER VALUE',
+        readySubheadline: 'Your <strong>advanced value engineering blueprint</strong> is below. ' +
+                      'Sophisticated strategies for maximum property optimization!',
+        loadingMessage: 'ADVANCED: Processing Your ValueBoost Engineering Analysis...',
+        readyHeadline: 'ADVANCED: Your ValueBoost Engineering Blueprint is Ready!'
+      },
+      
+      // BOOST B - Transformation and enhancement focus
+      boostB2: {
+        reportHeadline: 'TRANSFORMATION: Your Property Makeover Plan Ready!',
+        potentialHeadline: 'Your Transformation Potential:',
+        recommendationsTitle: 'Your Top 10 Transformation Catalysts',
+        recommendationsSubtitle: 'Revolutionary improvements that completely transform property value',
+        unlockHeadline: 'Get Your TRANSFORMATION Blueprint Report',
+        unlockSubtext: 'Complete makeover strategy with dramatic value enhancement plan',
+        conciergeHeadline: 'Ready to Transform Your Property Value?',
+        buttonText: 'TRANSFORM NOW',
+        readySubheadline: 'Your <strong>property transformation blueprint</strong> is ready below. ' +
+                      'Revolutionary strategies for dramatic value enhancement!',
+        loadingMessage: 'TRANSFORMATION: Processing Your ValueBoost Makeover Plan...',
+        readyHeadline: 'TRANSFORMATION: Your ValueBoost Makeover Plan is Ready!'
+      },
+      
+      // EQUITY B - Wealth building and financial benefits
+      equityB2: {
+        reportHeadline: 'WEALTH BUILDER: Your Equity Multiplication Strategy Ready!',
+        potentialHeadline: 'Your Wealth Building Potential:',
+        recommendationsTitle: 'Your Top 10 Wealth Multiplication Tactics',
+        recommendationsSubtitle: 'Strategic equity moves that accelerate long-term wealth building',
+        unlockHeadline: 'Get Your WEALTH BUILDING Equity Report',
+        unlockSubtext: 'Comprehensive wealth strategy with equity multiplication techniques',
+        conciergeHeadline: 'Ready to Accelerate Your Wealth Building Strategy?',
+        buttonText: 'BUILD WEALTH',
+        readySubheadline: 'Your <strong>wealth building equity strategy</strong> is below. ' +
+                      'Multiply your property equity for accelerated financial growth!',
+        loadingMessage: 'WEALTH BUILDER: Processing Your ValueBoost Equity Strategy...',
+        readyHeadline: 'WEALTH BUILDER: Your ValueBoost Equity Strategy is Ready!'
+      },
+      
+      // WIDE B - Enhanced comprehensive hassle-free solutions
+      wideB2: {
+        reportHeadline: 'COMPLETE SOLUTION: Your All-Inclusive Property Plan Ready!',
+        potentialHeadline: 'Your Complete Solution Potential:',
+        recommendationsTitle: 'Your Top 10 All-Inclusive Strategies',
+        recommendationsSubtitle: 'Comprehensive end-to-end solutions covering every aspect',
+        unlockHeadline: 'Get Your COMPLETE All-Inclusive Report',
+        unlockSubtext: 'Total property solution with every detail managed professionally',
+        conciergeHeadline: 'Want Complete White-Glove Property Management?',
+        buttonText: 'COMPLETE SOLUTION',
+        readySubheadline: 'Your <strong>complete all-inclusive solution</strong> is below. ' +
+                      'Every detail handled with white-glove service!'
       },
       
       // ========== DEFAULT FALLBACK (MATCHES CASH THEME) ==========
@@ -146,24 +301,39 @@ function ValueBoostReport() {
         conciergeHeadline: 'Want Expert Help Maximizing Your Cash Offer?',
         buttonText: 'CHECK CASH OFFER',
         readySubheadline: 'Check your OfferBoost cash offer below, and unlock your FREE AI powered ' +
-                      'custom home value and offer optimization report. No obligation, no strings attached.'
+                      'custom home value and offer optimization report. No obligation, no strings attached.',
+        loadingMessage: 'Processing Your OfferBoost Cash Offer Analysis...',
+        readyHeadline: 'Your OfferBoost Maximum Cash Offer is Ready!'
       }
     };
     
-    // Campaign matching logic (consistent with AddressForm and AIProcessing)
+    // Split Test Logic - Check for variant parameter
+    const variant = urlParams.get('variant') || urlParams.get('split_test') || localStorage.getItem('assignedVariant') || 'B2OB2';
+    
+    // Parse variant for step 3 content selection (position 3-4)
+    // Format: A1IA1, A2OB2, B2IB2, etc.
+    const step3Content = variant.substring(3, 5);  // A1, A2, or B2
+    
+    console.log('ValueBoostReport - Step 3 variant:', {
+      full: variant,
+      step3Content: step3Content
+    });
+    
+    // Campaign matching logic with A/B content variants (consistent with AddressForm and AIProcessing)
     if (campaignName) {
       const simplified = campaignName.toLowerCase().replace(/[\s\-_\.]/g, '');
       
       // CASH/SELLING CAMPAIGN MATCHING (Highest priority)
-      if (simplified.includes('cash')) return templates.cash;
-      if (simplified.includes('sellfast') || simplified.includes('sell_fast')) return templates.sellfast;
-      if (simplified.includes('fast')) return templates.fast;
+      if (simplified.includes('cash')) return step3Content === 'B2' ? templates.cashB2 : templates.cash;
+      if (simplified.includes('sellfast') || simplified.includes('sell_fast')) return step3Content === 'B2' ? templates.sellfastB2 : templates.sellfast;
+      if (simplified.includes('fast')) return step3Content === 'B2' ? templates.fastB2 : templates.fast;
+      if (simplified.includes('wide')) return step3Content === 'B2' ? templates.wideB2 : templates.wide;
       
       // VALUE/IMPROVEMENT CAMPAIGN MATCHING
-      if (simplified.includes('valueboost') || simplified.includes('value_boost')) return templates.valueboost;
-      if (simplified.includes('value')) return templates.value;
-      if (simplified.includes('boost')) return templates.boost;
-      if (simplified.includes('equity')) return templates.equity;
+      if (simplified.includes('valueboost') || simplified.includes('value_boost')) return step3Content === 'B2' ? templates.valueboostB2 : templates.valueboost;
+      if (simplified.includes('value')) return step3Content === 'B2' ? templates.valueB2 : templates.value;
+      if (simplified.includes('boost')) return step3Content === 'B2' ? templates.boostB2 : templates.boost;
+      if (simplified.includes('equity')) return step3Content === 'B2' ? templates.equityB2 : templates.equity;
     }
 
     return templates.default;
@@ -1339,32 +1509,7 @@ function ValueBoostReport() {
           {reportLoading && (
             <div className="vb-loading-container">
               <div className="vb-af1-hero-headline">
-                {(() => {
-                  // Dynamic loading headline based on campaign type
-                  const urlParams = new URLSearchParams(window.location.search);
-                  const possibleParamNames = ['campaign_name', 'campaignname', 'campaign-name', 'utm_campaign'];
-                  
-                  let campaignName = '';
-                  for (const paramName of possibleParamNames) {
-                    const value = urlParams.get(paramName);
-                    if (value) {
-                      campaignName = value;
-                      break;
-                    }
-                  }
-                  
-                  if (campaignName) {
-                    const simplified = campaignName.toLowerCase().replace(/[\s\-_\.]/g, '');
-                    
-                    // CASH/SELLING CAMPAIGN LOADING MESSAGES
-                    if (simplified.includes('cash') || simplified.includes('sellfast') || simplified.includes('sell_fast') || simplified.includes('fast')) {
-                      return 'Processing Your OfferBoost Cash Offer Analysis...';
-                    }
-                  }
-                  
-                  // Default to ValueBoost for value/improvement campaigns
-                  return 'Generating Your ValueBoost Report...';
-                })()}
+                {dynamicContent.loadingMessage}
               </div>
               
               {/* Animated dots */}
@@ -1380,32 +1525,7 @@ function ValueBoostReport() {
           {showReportReady && !showAddressRetry && (
             <div className="vb-ready-container">
               <div className="vb-af1-hero-headline">
-                {(() => {
-                  // Dynamic ready headline based on campaign type
-                  const urlParams = new URLSearchParams(window.location.search);
-                  const possibleParamNames = ['campaign_name', 'campaignname', 'campaign-name', 'utm_campaign'];
-                  
-                  let campaignName = '';
-                  for (const paramName of possibleParamNames) {
-                    const value = urlParams.get(paramName);
-                    if (value) {
-                      campaignName = value;
-                      break;
-                    }
-                  }
-                  
-                  if (campaignName) {
-                    const simplified = campaignName.toLowerCase().replace(/[\s\-_\.]/g, '');
-                    
-                    // CASH/SELLING CAMPAIGN READY MESSAGES
-                    if (simplified.includes('cash') || simplified.includes('sellfast') || simplified.includes('sell_fast') || simplified.includes('fast')) {
-                      return 'Your OfferBoost Fastest Maximum Offer is Ready!';
-                    }
-                  }
-                  
-                  // Default to ValueBoost for value/improvement campaigns
-                  return 'Your Maximum ValueBoost Report is Ready!';
-                })()}
+                {dynamicContent.readyHeadline}
               </div>
               <div className="vb-af1-hero-subheadline" dangerouslySetInnerHTML={{ __html: dynamicContent.readySubheadline }}>
               </div>
@@ -1452,7 +1572,7 @@ function ValueBoostReport() {
           {(() => {
             // Check split test parameters from URL
             const urlParams = new URLSearchParams(window.location.search);
-            const splitTest = urlParams.get('split_test') || urlParams.get('variant') || 'AAA'; // Default to show everything
+            const splitTest = urlParams.get('split_test') || urlParams.get('variant') || localStorage.getItem('assignedVariant') || 'AAA'; // Default to show everything
             const showStep3Box = splitTest[2] === 'A'; // Position 3 controls Step 3 box
             
             // Check if returning from retry

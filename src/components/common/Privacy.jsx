@@ -118,13 +118,13 @@ function Privacy({ handleTermsClick }) {
             <p>
               If you have any questions about this Privacy Policy, the practices
               of this site, or your dealings with this site, please contact us
-              at: contact@SellForCash.Online
+              at: contact@HomeSurge.ai
             </p>
           </li>
 
           <li>
             <h2>Nomad Creative LLC</h2>
-            <p>Email: contact@SellForCash.Online</p>
+            <p>Email: contact@HomeSurge.ai</p>
           </li>
         </ol>
       </div>

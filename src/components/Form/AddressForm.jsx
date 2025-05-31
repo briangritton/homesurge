@@ -52,6 +52,11 @@ function AddressForm() {
       }
     }
     
+    // Check for variant parameter for content selection
+    const variant = urlParams.get('variant') || urlParams.get('split_test') || 'AIA';
+    const useBContent = variant.includes('B');
+    const useStreamlinedFormat = variant.includes('2');
+    
     // Main Form Templates - Based on existing content
     const templates = {
       cash: {
@@ -59,10 +64,40 @@ function AddressForm() {
         subheadline: 'Get a great cash offer today. Close in 7 days. No showings, no repairs, no stress',
         buttonText: 'CHECK OFFER'
       },
+      cash2: {
+        headline: 'Get an Instant Cash Offer Today',
+        subheadline: 'Sell your house as-is in 7 days. No agents, no fees, no waiting. Cash in hand fast',
+        buttonText: 'GET CASH OFFER'
+      },
       fast: {
         headline: 'Sell Your Home In 10 Days or Less',
         subheadline: 'Get a great cash offer today. Close in 7 days. No showings, no repairs, no stress',
         buttonText: 'CHECK OFFER'
+      },
+      fast2: {
+        headline: 'Close on Your House This Week',
+        subheadline: 'Emergency home sale? We buy houses in any condition. Get your offer in 24 hours, close in days',
+        buttonText: 'URGENT SALE'
+      },
+      value: {
+        headline: 'Need to Check Your Home Value Fast?',
+        subheadline: 'Find out how much equity you have now.',
+        buttonText: 'CHECK VALUE'
+      },
+      value2: {
+        headline: 'What\'s Your Home Really Worth?',
+        subheadline: 'Get your accurate home value and equity report instantly. No obligations, just answers',
+        buttonText: 'GET VALUE REPORT'
+      },
+      wide: {
+        headline: 'Sell Your Home Without the Hassle',
+        subheadline: 'No repairs, no showings, no waiting. Get a fair cash offer and close when you want',
+        buttonText: 'GET OFFER'
+      },
+      wide2: {
+        headline: 'Skip the Real Estate Headaches',
+        subheadline: 'Avoid months of stress. We handle everything from inspection to paperwork. You just show up to closing',
+        buttonText: 'AVOID STRESS'
       },
       default: {
         headline: 'Need to Sell Your Home Extremely Fast?',
