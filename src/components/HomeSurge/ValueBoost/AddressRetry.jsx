@@ -19,7 +19,7 @@ const visuallyHiddenStyle = {
   border: 0
 };
 
-function AddressRetry() {
+function AddressRetry({ campaign, variant }) {
   const { formData, updateFormData, nextStep } = useFormContext();
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -742,12 +742,12 @@ function AddressRetry() {
                 type="text"
                 name="name"
                 autoComplete="name"
-                placeholder="Your name (optional)"
+                placeholder="Name"
                 className="vb-af1-address-input vb-retry-address-input"
                 value={formData.name || ''}
                 onChange={(e) => updateFormData({ name: e.target.value, autoFilledName: e.target.value })}
                 onFocus={(e) => e.target.placeholder = ''}
-                onBlur={(e) => e.target.placeholder = 'Your name (optional)'}
+                onBlur={(e) => e.target.placeholder = 'Name'}
                 disabled={isLoading}
               />
             </div>

@@ -10,6 +10,7 @@ import { generateAIValueBoostReport } from '../../../services/openai';
 // Removed formatSubheadline, formatText - using CSS text-wrap: pretty instead
 import gradientArrow from '../../../assets/images/gradient-arrow.png';
 import waveImage from '../../../assets/images/wave.png';
+import BelowFold from '../../BelowFold/BelowFold';
 
 // ===================================================================
 // BROWSER AUTOFILL FUNCTIONALITY - TEMPORARILY DISABLED
@@ -33,8 +34,21 @@ const visuallyHiddenStyle = {
   border: 0
 };
 
-function AddressForm() {
+function AddressForm({ campaign, variant }) {
   const { formData, updateFormData, nextStep } = useFormContext();
+  
+  // Helper function to handle step navigation based on variant
+  const handleStepNavigation = () => {
+    console.log(`🎯 AddressForm navigation for variant: ${variant}`);
+    
+    if (variant === 'A1I') {
+      // A1I shows AI Processing step
+      nextStep(); // Go to Step 2 (AI Processing)
+    } else {
+      // A1O, A2O, B2O skip AI Processing, go directly to Step 3
+      updateFormData({ formStep: 3 });
+    }
+  };
   
   // State for AI animation loading and fade-in effect
   const [aiAnimationLoaded, setAiAnimationLoaded] = useState(false);
@@ -65,162 +79,194 @@ function AddressForm() {
   // ================================================================================
   
   const getDynamicContent = () => {
-    // Read campaign name directly from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const possibleParamNames = ['campaign_name', 'campaignname', 'campaign-name', 'utm_campaign'];
-    
-    let campaignName = '';
-    for (const paramName of possibleParamNames) {
-      const value = urlParams.get(paramName);
-      if (value) {
-        campaignName = value;
-        break;
-      }
-    }
+    // Use campaign prop from route (e.g., /analysis/cash/a1o)
+    const campaignName = campaign || 'cash';
     
     // ================= UNIVERSAL DYNAMIC CONTENT TEMPLATES ===================
     // COMPREHENSIVE TEMPLATES - ValueBoost + Form Funnel campaigns
     // ================= ADD NEW CAMPAIGNS HERE ===================
     const templates = {
-      // ========== CASH/SELLING CAMPAIGNS (From Form Funnel) ==========
-      cash: {
-        headline: 'Need to Sell Your Home Extremely Fast?',
-        subheadline: 'Our OfferBoost AI home scan will generate your <strong><em>maximum cash offer</em></strong> report. Close in 7 days. No showings, no repairs, no stress',
+      // ========== CASH/SELLING CAMPAIGNS A TEMPLATES ==========
+      cashA: {
+        headline: 'Get an Instant Cash Offer Today and Sell Fast!',
+        subheadline: 'Our OfferBoost AI home scan will generate our <strong><em>highest cash offer</em></strong> and opportunity report. Close in 7 days. No showings, no repairs, no stress',
         buttonText: 'CHECK CASH OFFER',
-        exampleTag: 'Example OfferBoost Increase*',
+        exampleTag: 'Example OfferBoost Report Increase*',
         potentialHeadline: 'Your OfferBoost Potential:',
         opportunitiesText: '11 OfferBoost opportunities found!',
-        percentageText: 'Potential Cash Offer Increase'
-      },
-      
-      fast: {
-        headline: 'Need to Sell Your Home Extremely Fast?',
-        subheadline: 'Our OfferBoost AI home scan will generate your <strong><em>fastest maximum offer</em></strong> report. Close in 7 days. No showings, no repairs, no stress',
-        buttonText: 'CHECK FAST OFFER',
-        exampleTag: 'Example OfferBoost Increase*',
-        potentialHeadline: 'Your OfferBoost Potential:',
-        opportunitiesText: '11 OfferBoost opportunities found!',
-        percentageText: 'Potential Cash Offer Increase'
+        percentageText: 'Potential Cash Offer Increase',
+        // Contact section content
+        contactHeadline: '<i>HomeSurge Cash Offer Benefits:</i>',
+        checkmark1: '<strong>No stress closing!</strong> No repairs, inspections, commision, or closing costs.',
+        checkmark2: '<strong>No hidden fees.</strong> We make an offer, you get the <em><strong>exact amount</strong></em> in cash.',
+        checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
+        contactButtonText: 'GET CASH OFFER',
+        contactDisclaimer: '*Example values only. Your cash offer expires soon and will depend on current market conditions and property details. ' +
+          'By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. ' +
+          'We respect your privacy and will never share your details with anyone. No spam ever.',
+        // Disclaimer split content
+        disclaimerMain: '*Example values only. Your offer amount will depend on your specific home details and other factors. ' +
+          '<span class="disclaimer-link">See Offerboost details</span>. By entering your address, you agree to be contacted at the information details provided and ' +
+          'send address details and other available browser autofill information to HomeSurge.AI for the purpose of contacting you with your requested information. ' +
+          '<strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong>',
+        disclaimerPopup: 'Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase ' +
+          'that might be acheived by various home improvements and other opportunities custom to your specific property. ' +
+          'All numbers are for example only and are simply possible outcomes.'
       },
 
-        wide: {
-        headline: 'Want to Sell Your House Fast?',
-        subheadline: 'Our OfferBoost AI home scan will generate your <strong><em>fastest maximum offer</em></strong> report. Close in as little as 7 days. No showings, no repairs, no stress',
-        buttonText: 'CHECK FAST OFFERS',
-        exampleTag: 'Example OfferBoost Increase*',
+        sellA: {
+        headline: 'Want to Sell Your House Fast, Without Repairs?',
+        subheadline: 'Our OfferBoost AI home scan will generate our <strong><em>highest cash offer</em></strong> and opportunity report. Close in 7 days. No showings, no repairs, no stress',
+        buttonText: 'CHECK CASH OFFER',
+        exampleTag: 'Example OfferBoost Report Increase*',
         potentialHeadline: 'Your OfferBoost Potential:',
         opportunitiesText: '11 OfferBoost opportunities found!',
-        percentageText: 'Potential Cash Offer Increase'
+        percentageText: 'Potential Cash Offer Increase',
+        // Contact section content
+        contactHeadline: '<i>HomeSurge Cash Offer Benefits:</i>',
+        checkmark1: '<strong>No stress closing!</strong> No repairs, inspections, commision, or closing costs.',
+        checkmark2: '<strong>No hidden fees.</strong> We make an offer, you get the <em><strong>exact amount</strong></em> in cash.',
+        checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
+        contactButtonText: 'GET CASH OFFER',
+        contactDisclaimer: '*Example values only. Your cash offer expires soon and will depend on current market conditions and property details. ' +
+          'By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. ' +
+          'We respect your privacy and will never share your details with anyone. No spam ever.',
+        // Disclaimer split content
+        disclaimerMain: '*Example values only. Your offer amount will depend on your specific home details and other factors. ' +
+          '<span class="disclaimer-link">See Offerboost details</span>. By entering your address, you agree to be contacted at the information details provided and ' +
+          'send address details and other available browser autofill information to HomeSurge.AI for the purpose of contacting you with your requested information. ' +
+          '<strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong>',
+        disclaimerPopup: 'Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase ' +
+          'that might be acheived by various home improvements and other opportunities custom to your specific property. ' +
+          'All numbers are for example only and are simply possible outcomes.'
       },
       
       // ========== VALUE/IMPROVEMENT CAMPAIGNS (Enhanced ValueBoost) ==========
-      value: {
+      valueA: {
         headline: 'Maximize Your Home Value With ValueBoost AI',
-        subheadline: 'Our ValueBoost AI home scan will generate your <strong><em>maximum home value</em></strong> with FREE AI personalized opportunity recommendations!',
+        subheadline: 'Our ValueBoost AI home scan will generate your <strong><em>maximum home value</em></strong> report with FREE AI personalized opportunity recommendations!',
         buttonText: 'GET VALUE REPORT',
-        exampleTag: 'Example ValueBoost Increase*',
+        exampleTag: 'Example ValueBoost Report Increase*',
         potentialHeadline: 'Your ValueBoost Potential:',
         opportunitiesText: '11 ValueBoost opportunities found!',
-        percentageText: 'Potential Home Value Increase'
+        percentageText: 'Potential Home Value Increase',
+        // Contact section content
+        contactHeadline: 'Get Your DEEP VALUE Discovery Report',
+        checkmark1: '<strong><em>DEEP DIVE:</em></strong> All <strong>hidden value secrets</strong> for your property',
+        checkmark2: '<strong><em>ADVANCED:</em></strong> Untapped <strong>equity opportunities</strong> others miss',
+        checkmark3: '<strong><em>DEEP VALUE:</em></strong> <strong>Customized</strong> for your property',
+       contactButtonText: 'GET VALUE REPORT',
+      contactDisclaimer: '*Example values only. Your value report will depend on current market conditions and property details. ' +
+          'By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. ' +
+          'We respect your privacy and will never share your details with anyone. No spam ever.',
+        // Disclaimer split content
+        disclaimerMain: '*Example values only. Your value report amount will depend on your specific home details and other factors. ' +
+          '<span class="disclaimer-link">See Offerboost details</span>. By entering your address, you agree to be contacted at the information details provided and ' +
+          'send address details and other available browser autofill information to HomeSurge.AI for the purpose of contacting you with your requested information. ' +
+          '<strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong>',
+        disclaimerPopup: 'Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase ' +
+          'that might be acheived by various home improvements and other opportunities custom to your specific property. ' +
+          'All numbers are for example only and are simply possible outcomes.'
       },
       
-      valueboost: {
-        headline: 'Unlock Your Property\'s Maximum Value',
-        subheadline: 'AI analysis reveals exactly which improvements will boost your home value the most',
-        buttonText: 'START VALUE ANALYSIS',
-        exampleTag: 'Example ValueBoost Increase*',
-        potentialHeadline: 'Your ValueBoost Potential:',
-        opportunitiesText: '11 ValueBoost opportunities found!',
-        percentageText: 'Potential Home Value Increase'
-      },
       
-      boost: {
-        headline: 'Boost Your Home Value Instantly',
-        subheadline: 'AI-powered analysis reveals hidden value in your home. Get your personalized enhancement plan now!',
-        buttonText: 'BOOST MY VALUE',
-        exampleTag: 'Example ValueBoost Increase*',
-        potentialHeadline: 'Your ValueBoost Potential:',
-        opportunitiesText: '11 ValueBoost opportunities found!',
-        percentageText: 'Potential Home Value Increase'
-      },
-      
-      equity: {
+      equityA: {
         headline: 'Unlock Hidden Home Equity',
         subheadline: 'Find out how much equity you could gain with strategic home improvements guided by AI.',
         buttonText: 'UNLOCK EQUITY',
-        exampleTag: 'Example ValueBoost Increase*',
+        exampleTag: 'Example ValueBoost Report Increase*',
         potentialHeadline: 'Your ValueBoost Potential:',
         opportunitiesText: '11 ValueBoost opportunities found!',
-        percentageText: 'Potential Home Value Increase'
+        percentageText: 'Potential Home Value Increase',
+        disclaimerMain: '*Example values only. Your offer amount will depend on your specific home details and other factors. ' +
+          '<span class="disclaimer-link">See Offerboost details</span>. By submitting your address, you agree to send address details and ' +
+          'other available autofill information not displayed to HomeSurge.AI for the purpose of contacting you with your requested information. ' +
+          '<strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong>',
+        disclaimerPopup: 'Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase ' +
+          'that might be acheived by various home improvements and other opportunities custom to your specific property. ' +
+          'All numbers are for example only and are simply possible outcomes.'
       },
       
       // ========== B SECONDARY CONTENT VARIANTS ==========
       // CASH B - Secondary cash selling content
       cashB2: {
-        headline: 'Get an Instant Cash Offer Today',
-        subheadline: 'Just enter you address and we\'ll give you our <strong><em>maximum cash offer</em></strong> in minutes. Close in as little as 7 days. No showings, no repairs, no stress',
+        headline: 'Get an Instant Cash Offer Today and Sell Fast!',
+        subheadline: 'Just enter you address and we\'ll give you our <strong><em>highest cash offer</em></strong> in minutes. Close in as little as 7 days. No showings, no repairs, no stress',
         buttonText: 'CHECK CASH OFFER',
         //  buttonText: 'GET INSTANT OFFER',
-        exampleTag: 'Example OfferBoost Increase*',
+        exampleTag: 'Example OfferBoost Report Increase*',
         potentialHeadline: 'Your OfferBoost Potential:',
         opportunitiesText: '11 OfferBoost opportunities found!',
-        percentageText: 'Potential Cash Offer Increase'
-      },
-      
-      // FAST B - Secondary fast selling content
-      fastB2: {
-        headline: 'Get an Instant Cash Offer Today',
-        subheadline: 'Just enter you address to check your <strong><em>maximum cash offer</em></strong> in minutes. Close in as little as 7 days. No showings, no repairs, no stress',
-        buttonText: 'CHECK CASH OFFER',
-        exampleTag: 'Example OfferBoost Increase*',
-        potentialHeadline: 'Your OfferBoost Potential:',
-        opportunitiesText: '11 OfferBoost opportunities found!',
-        percentageText: 'Potential Cash Offer Increase'
+        percentageText: 'Potential Cash Offer Increase',
+        // Contact section content
+        contactHeadline: '<i>HomeSurge Cash Offer Benefits:</i>',
+        checkmark1: '<strong>No stress closing!</strong> No repairs, inspections, commision, or closing costs.',
+        checkmark2: '<strong>No hidden fees.</strong> We make an offer, you get the <em><strong>exact amount</strong></em> in cash.',
+        checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
+        contactButtonText: 'CHECK CASH OFFER',
+        contactDisclaimer: '*Example values only. Your cash offer expires soon and will depend on current market conditions and property details. ' +
+          'By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. ' +
+          'We respect your privacy and will never share your details with anyone. No spam ever.',
+        disclaimerMain: '*<strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong> ' +
+          'By entering your address, you agree to be contacted at the information details provided and send address details and ' +
+          'other available browser autofill information to HomeSurge.AI for the purpose of contacting you with your requested information.',
+        disclaimerPopup: 'Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase ' +
+          'that might be acheived by various home improvements and other opportunities custom to your specific property. ' +
+          'All numbers are for example only and are simply possible outcomes.'
       },
       
       // WIDE B - Secondary hassle-free content
-      wideB2: {
-        headline: 'Get an Instant Cash Offer Today',
-        subheadline: 'Just enter you address to check your <strong><em>maximum cash offer</em></strong> in minutes. Close in as little as 7 days. No showings, no repairs, no stress',
+      sellB2: {
+        headline: 'Want to Sell Your House Fast, Without Repairs?',
+        subheadline: 'Just enter you address to check your <strong><em>highest cash offer</em></strong> in minutes. Close in as little as 7 days. No showings, no repairs, no stress',
         buttonText: 'CHECK CASH OFFER',
-        exampleTag: 'Example OfferBoost Increase*',
+        exampleTag: 'Example OfferBoost Report Increase*',
         potentialHeadline: 'Your OfferBoost Potential:',
         opportunitiesText: '11 OfferBoost opportunities found!',
-        percentageText: 'Potential Cash Offer Increase'
+        percentageText: 'Potential Cash Offer Increase',
+        // Contact section content
+        contactHeadline: '<i>HomeSurge Cash Offer Benefits:</i>',
+        checkmark1: '<strong>No stress closing!</strong> No repairs, inspections, commision, or closing costs.',
+        checkmark2: '<strong>No hidden fees.</strong> We make an offer, you get the <em><strong>exact amount</strong></em> in cash.',
+        checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
+        contactButtonText: 'CHECK CASH OFFER',
+        contactDisclaimer: '*Example values only. Your cash offer expires soon and will depend on current market conditions and property details. ' +
+          'By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. ' +
+          'We respect your privacy and will never share your details with anyone. No spam ever.',
+  disclaimerMain: '*<strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong> ' +
+          'By entering your address, you agree to be contacted at the information details provided and send address details and ' +
+          'other available browser autofill information to HomeSurge.AI for the purpose of contacting you with your requested information.',
+        disclaimerPopup: 'Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase ' +
+          'that might be acheived by various home improvements and other opportunities custom to your specific property. ' +
+          'All numbers are for example only and are simply possible outcomes.'
       },
       
       // VALUE B - Secondary value content
       valueB2: {
-        headline: 'What\'s Your Home Really Worth?',
-        subheadline: 'Our advanced ValueBoost AI reveals your property\'s <strong><em>true market potential</em></strong> with detailed equity analysis and improvement roadmap',
+        headline: 'Maximize Your Home Value With ValueBoost AI',
+         subheadline: 'Our ValueBoost AI home scan will generate your <strong><em>maximum home value</em></strong> report with FREE AI personalized opportunity recommendations!',
         buttonText: 'GET VALUE ANALYSIS',
-        exampleTag: 'Example ValueBoost Increase*',
+        exampleTag: 'Example ValueBoost Report Increase*',
         potentialHeadline: 'Your ValueBoost Potential:',
         opportunitiesText: '11 ValueBoost opportunities found!',
-        percentageText: 'Potential Home Value Increase'
+        percentageText: 'Potential Home Value Increase',
+        // Contact section content
+        contactHeadline: 'Get Your DEEP VALUE Discovery Report',
+        checkmark1: '<strong><em>DEEP DIVE:</em></strong> All <strong>hidden value secrets</strong> for your property',
+        checkmark2: '<strong><em>ADVANCED:</em></strong> Untapped <strong>equity opportunities</strong> others miss',
+        checkmark3: '<strong><em>DEEP VALUE:</em></strong> <strong>Customized</strong> for your property',
+        contactButtonText: 'GET VALUE REPORT',
+      contactDisclaimer: '*Example values only. Your value report will depend on current market conditions and property details. ' +
+          'By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. ' +
+          'We respect your privacy and will never share your details with anyone. No spam ever.',
+  disclaimerMain: '*<strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong> ' +
+          'By entering your address, you agree to be contacted at the information details provided and send address details and ' +
+          'other available browser autofill information to HomeSurge.AI for the purpose of contacting you with your requested information.',
+        disclaimerPopup: 'Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase ' +
+          'that might be acheived by various home improvements and other opportunities custom to your specific property. ' +
+          'All numbers are for example only and are simply possible outcomes.'
       },
       
-      // VALUEBOOST B - Secondary valueboost content  
-      valueboostB2: {
-        headline: 'Maximize Your Property Investment',
-        subheadline: 'Smart AI technology identifies exactly which renovations deliver maximum ROI for your specific property type and location',
-        buttonText: 'MAXIMIZE ROI NOW',
-        exampleTag: 'Example ValueBoost Increase*',
-        potentialHeadline: 'Your ValueBoost Potential:',
-        opportunitiesText: '11 ValueBoost opportunities found!',
-        percentageText: 'Potential Home Value Increase'
-      },
-      
-      // BOOST B - Secondary boost content
-      boostB2: {
-        headline: 'Transform Your Home\'s Value',
-        subheadline: 'Revolutionary AI technology creates your personalized value enhancement blueprint. See exactly how much equity you can unlock',
-        buttonText: 'TRANSFORM VALUE',
-        exampleTag: 'Example ValueBoost Increase*',
-        potentialHeadline: 'Your ValueBoost Potential:',
-        opportunitiesText: '11 ValueBoost opportunities found!',
-        percentageText: 'Potential Home Value Increase'
-      },
       
       // EQUITY B - Secondary equity content
       equityB2: {
@@ -234,67 +280,62 @@ function AddressForm() {
       },
       
       // ========== DEFAULT FALLBACK (MATCHES CASH THEME) ==========
-      default: {
-        headline: 'Get an Instant Cash Offer Today',
-        subheadline: 'Just enter your address and we\'ll give you our <strong><em>maximum cash offer</em></strong> in minutes. Close in as little as 7 days. No showings, no repairs, no stress',
+      defaultA: {
+          headline: 'Get an Instant Cash Offer Today and Sell Fast!',
+        subheadline: 'Our OfferBoost AI home scan will generate our <strong><em>highest cash offer</em></strong> and opportunity report. Close in 7 days. No showings, no repairs, no stress',
         buttonText: 'CHECK CASH OFFER',
-        exampleTag: 'Example OfferBoost Increase*',
+        exampleTag: 'Example OfferBoost Report Increase*',
         potentialHeadline: 'Your OfferBoost Potential:',
         opportunitiesText: '11 OfferBoost opportunities found!',
-        percentageText: 'Potential Cash Offer Increase'
+        percentageText: 'Potential Cash Offer Increase',
+        // Contact section content
+        contactHeadline: '<i>HomeSurge Cash Offer Benefits:</i>',
+        checkmark1: '<strong>No stress closing!</strong> No repairs, inspections, commision, or closing costs.',
+        checkmark2: '<strong>No hidden fees.</strong> We make an offer, you get the <em><strong>exact amount</strong></em> in cash.',
+        checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
+        contactButtonText: 'GET CASH OFFER',
+        contactDisclaimer: '*Example values only. Your cash offer expires soon and will depend on current market conditions and property details. ' +
+          'By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. ' +
+          'We respect your privacy and will never share your details with anyone. No spam ever.',
+        // Disclaimer split content
+        disclaimerMain: '*Example values only. Your offer amount will depend on your specific home details and other factors. ' +
+          '<span class="disclaimer-link">See Offerboost details</span>. By entering your address, you agree to be contacted at the information details provided and ' +
+          'send address details and other available browser autofill information to HomeSurge.AI for the purpose of contacting you with your requested information. ' +
+          '<strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong>',
+        disclaimerPopup: 'Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase ' +
+          'that might be acheived by various home improvements and other opportunities custom to your specific property. ' +
+          'All numbers are for example only and are simply possible outcomes.'
       }
     };
     
     // ================= CAMPAIGN MATCHING LOGIC ===================
     // ENHANCED MATCHING - Supports both Value and Cash campaigns + A/B content variants
-    // Priority: cash > sellfast > fast > wide > value > valueboost > boost > equity
+    // Priority: cash > sellfast > fast > sell > value > valueboost > boost > equity
     
-    // Split Test Logic - Check for variant parameter  
-    const variant = urlParams.get('variant') || urlParams.get('split_test') || localStorage.getItem('assignedVariant') || 'B2OB2';
-    
-    // Parse variant for step 1 content selection (position 0-1)
-    // Format: A1IA1, A2OB2, B2IB2, etc.
-    const step1Content = variant.substring(0, 2);  // A1, A2, or B2
-    
-    console.log('AddressForm - Step 1 variant:', {
-      full: variant,
-      step1Content: step1Content
-    });
+    // Use variant prop from URL path (passed from container)
+    console.log('AddressForm - Using variant prop:', variant);
     
     if (campaignName) {
       const simplified = campaignName.toLowerCase().replace(/[\s\-_\.]/g, '');
       
       // CASH/SELLING CAMPAIGN MATCHING (Highest priority)
-      if (simplified.includes('cash')) {
-        return step1Content === 'B2' ? templates.cashB2 : templates.cash;
+      if (simplified.includes('cash') || simplified.includes('fast')) {
+        return variant === 'B2O' ? templates.cashB2 : templates.cashA;
       }
-      if (simplified.includes('sellfast') || simplified.includes('sell_fast')) {
-        // Treat sellfast as fast variant
-        return step1Content === 'B2' ? templates.fastB2 : templates.fast;
-      }
-      if (simplified.includes('wide')) {
-        return step1Content === 'B2' ? templates.wideB2 : templates.wide;
-      }
-      if (simplified.includes('fast')) {
-        return step1Content === 'B2' ? templates.fastB2 : templates.fast;
+      if (simplified.includes('sell')) {
+        return variant === 'B2O' ? templates.sellB2 : templates.sellA;
       }
       
       // VALUE/IMPROVEMENT CAMPAIGN MATCHING
-      if (simplified.includes('valueboost') || simplified.includes('value_boost')) {
-        return step1Content === 'B2' ? templates.valueboostB2 : templates.valueboost;
-      }
-      if (simplified.includes('value')) {
-        return step1Content === 'B2' ? templates.valueB2 : templates.value;
-      }
-      if (simplified.includes('boost')) {
-        return step1Content === 'B2' ? templates.boostB2 : templates.boost;
+      if (simplified.includes('value') || simplified.includes('boost') || simplified.includes('valueboost') || simplified.includes('value_boost')) {
+        return variant === 'B2O' ? templates.valueB2 : templates.valueA;
       }
       if (simplified.includes('equity')) {
-        return step1Content === 'B2' ? templates.equityB2 : templates.equity;
+        return variant === 'B2O' ? templates.equityB2 : templates.equityA;
       }
     }
     
-    return templates.default;
+    return variant === 'B2O' ? templates.cashB2 : templates.defaultA;
   };
   
   const dynamicContent = getDynamicContent();
@@ -310,6 +351,7 @@ function AddressForm() {
   const [suggestionTimer, setSuggestionTimer] = useState(null);
   const [addressSuggestions, setAddressSuggestions] = useState([]);
   const [lastTypedAddress, setLastTypedAddress] = useState('');
+  const [showDisclaimerPopup, setShowDisclaimerPopup] = useState(false);
   
   // Reference to the main input 
   const inputRef = useRef(null);
@@ -1437,23 +1479,8 @@ function AddressForm() {
         // Proceed to next step immediately - don't wait for APIs
         trackFormStepComplete(1, 'Address Form Completed (Enter Key)', formData);
         
-        // ========================================
-        // SPLIT TEST AREA - STEP NAVIGATION
-        // Position 2: A=Show Step 2, B=Skip to Step 3
-        // ========================================
-        const urlParams = new URLSearchParams(window.location.search);
-        const splitTest = urlParams.get('split_test') || urlParams.get('variant') || localStorage.getItem('assignedVariant') || 'AAA';
-        const showStep2 = splitTest[1] === 'I'; // Position 1 controls Step 2 interstitial (I=show, O=skip)
-        
-        if (showStep2) {
-          nextStep(); // Go to Step 2 (AI Processing)
-        } else {
-          // Skip Step 2, go directly to Step 3
-          updateFormData({ formStep: 3 });
-        }
-        // ======================================== 
-        // END SPLIT TEST AREA - STEP NAVIGATION
-        // ========================================
+        // Navigate to next step based on variant
+        handleStepNavigation();
         setIsLoading(false);
         
         // Start background API processing - prioritize for property valuation
@@ -1479,23 +1506,8 @@ function AddressForm() {
         }
         trackFormStepComplete(1, 'Address Form Completed (Fallback)', formData);
         
-        // ========================================
-        // SPLIT TEST AREA - STEP NAVIGATION
-        // Position 2: A=Show Step 2, B=Skip to Step 3
-        // ========================================
-        const urlParams = new URLSearchParams(window.location.search);
-        const splitTest = urlParams.get('split_test') || urlParams.get('variant') || localStorage.getItem('assignedVariant') || 'AAA';
-        const showStep2 = splitTest[1] === 'I'; // Position 1 controls Step 2 interstitial (I=show, O=skip)
-        
-        if (showStep2) {
-          nextStep(); // Go to Step 2 (AI Processing)
-        } else {
-          // Skip Step 2, go directly to Step 3
-          updateFormData({ formStep: 3 });
-        }
-        // ======================================== 
-        // END SPLIT TEST AREA - STEP NAVIGATION
-        // ========================================
+        // Navigate to next step based on variant
+        handleStepNavigation();
         setIsLoading(false);
         
         return;
@@ -1548,23 +1560,8 @@ function AddressForm() {
         // Proceed to next step immediately - don't wait for APIs
         trackFormStepComplete(1, 'Address Form Completed (Google Suggestion)', formData);
         
-        // ========================================
-        // SPLIT TEST AREA - STEP NAVIGATION
-        // Position 2: A=Show Step 2, B=Skip to Step 3
-        // ========================================
-        const urlParams = new URLSearchParams(window.location.search);
-        const splitTest = urlParams.get('split_test') || urlParams.get('variant') || localStorage.getItem('assignedVariant') || 'AAA';
-        const showStep2 = splitTest[1] === 'I'; // Position 1 controls Step 2 interstitial (I=show, O=skip)
-        
-        if (showStep2) {
-          nextStep(); // Go to Step 2 (AI Processing)
-        } else {
-          // Skip Step 2, go directly to Step 3
-          updateFormData({ formStep: 3 });
-        }
-        // ======================================== 
-        // END SPLIT TEST AREA - STEP NAVIGATION
-        // ========================================
+        // Navigate to next step based on variant
+        handleStepNavigation();
         setIsLoading(false);
         
         // Start background API processing - prioritize for property valuation
@@ -1580,23 +1577,8 @@ function AddressForm() {
         // Track and proceed immediately (Option B behavior)
         trackFormStepComplete(1, 'Address Form Completed (Manual)', formData);
         
-        // ========================================
-        // SPLIT TEST AREA - STEP NAVIGATION
-        // Position 2: A=Show Step 2, B=Skip to Step 3
-        // ========================================
-        const urlParams = new URLSearchParams(window.location.search);
-        const splitTest = urlParams.get('split_test') || urlParams.get('variant') || localStorage.getItem('assignedVariant') || 'AAA';
-        const showStep2 = splitTest[1] === 'I'; // Position 1 controls Step 2 interstitial (I=show, O=skip)
-        
-        if (showStep2) {
-          nextStep(); // Go to Step 2 (AI Processing)
-        } else {
-          // Skip Step 2, go directly to Step 3
-          updateFormData({ formStep: 3 });
-        }
-        // ======================================== 
-        // END SPLIT TEST AREA - STEP NAVIGATION
-        // ========================================
+        // Navigate to next step based on variant
+        handleStepNavigation();
         setIsLoading(false);
         
         // Create lead in background for manual address - this should ALWAYS happen
@@ -1844,7 +1826,7 @@ function AddressForm() {
           // ========================================
           const urlParams = new URLSearchParams(window.location.search);
           const splitTest = urlParams.get('split_test') || urlParams.get('variant') || localStorage.getItem('assignedVariant') || 'AAA';
-          const showStep2 = splitTest[1] === 'I'; // Position 1 controls Step 2 interstitial (I=show, O=skip)
+          const showStep2 = splitTest[2] === 'I'; // Position 2 controls Step 2 interstitial (I=show, O=skip)
           
           if (showStep2) {
             nextStep(); // Go to Step 2 (AI Processing)
@@ -2319,12 +2301,12 @@ function AddressForm() {
                 type="text"
                 name="name"
                 autoComplete={AUTOFILL_ENABLED ? "name" : "off"}
-                placeholder="Your name (optional)"
+                placeholder="Name"
                 className="vb-af1-address-input"
                 value={formData.autoFilledName || ''}
                 onChange={(e) => updateFormData({ autoFilledName: e.target.value })}
                 onFocus={(e) => e.target.placeholder = ''}
-                onBlur={(e) => e.target.placeholder = 'Your name (optional)'}
+                onBlur={(e) => e.target.placeholder = 'Name'}
                 disabled={isLoading}
               />
             </div>
@@ -2391,7 +2373,7 @@ function AddressForm() {
             paddingLeft: '20px',
             paddingRight: '20px'
           }}>
-            Smarter Home Ownership, Powered by HomeSurge.AI
+            Smarter Home Services, Powered by HomeSurge.AI
           </div>
           
           {/* Static wave image container */}
@@ -2412,12 +2394,68 @@ function AddressForm() {
           
           {/* Disclaimer Section */}
           <div className="vb-disclaimer-section">
-            <div className="vb-disclaimer-text">
-              *Example values only. Your offer amount will depend on your specific home details and other factors. Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase that might be acheived by various home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes. By submitting your address, you agree to send address details and other available autofill information not displayed to HomeSurge.AI for the purpose of contacting you with your requested information. <strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong>
-            </div>
+            <div 
+              className="vb-disclaimer-text"
+              dangerouslySetInnerHTML={{ __html: dynamicContent.disclaimerMain }}
+              onClick={(e) => {
+                if (e.target.classList.contains('disclaimer-link')) {
+                  setShowDisclaimerPopup(true);
+                }
+              }}
+            />
           </div>
+
+          {/* Disclaimer Popup */}
+          {showDisclaimerPopup && (
+            <div className="vb-disclaimer-popup-overlay" onClick={() => setShowDisclaimerPopup(false)}>
+              <div className="vb-disclaimer-popup" onClick={(e) => e.stopPropagation()}>
+                <div className="vb-disclaimer-popup-header">
+                  <h3>Offerboost Details</h3>
+                  <button 
+                    className="vb-disclaimer-popup-close"
+                    onClick={() => setShowDisclaimerPopup(false)}
+                  >
+                    ×
+                  </button>
+                </div>
+                <div className="vb-disclaimer-popup-content">
+                  {dynamicContent.disclaimerPopup}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Contact Form Section */}
+      <div className="vb-af-contact-section-wrapper">
+        <div className="vb-af-contact-header">
+          <h3 className="vb-af-contact-headline" dangerouslySetInnerHTML={{ __html: dynamicContent.contactHeadline }}></h3>
+        </div>
+        <div className="vb-af-features-bubble">
+          <div className="vb-af-feature-item">
+            <div className="vb-af-feature-icon">✓</div>
+            <p className="vb-af-feature-text" dangerouslySetInnerHTML={{ __html: dynamicContent.checkmark1 }}></p>
+          </div>
+          <div className="vb-af-feature-item">
+            <div className="vb-af-feature-icon">✓</div>
+            <p className="vb-af-feature-text" dangerouslySetInnerHTML={{ __html: dynamicContent.checkmark2 }}></p>
+          </div>
+          <div className="vb-af-feature-item">
+            <div className="vb-af-feature-icon">✓</div>
+            <p className="vb-af-feature-text" dangerouslySetInnerHTML={{ __html: dynamicContent.checkmark3 }}></p>
+          </div>
+        </div>
+        <button 
+          className="vb-af-contact-button vb-af-button-flare"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        >
+          {dynamicContent.contactButtonText}
+        </button>
+      </div>
+      
+      {/* BelowFold Section */}
+      <BelowFold />
       
     </div>
   );

@@ -519,83 +519,41 @@ export function FormProvider({ children }) {
   // RANDOM VARIANT ASSIGNMENT SYSTEM
   // ================================================================================
   
-  // Get or assign random variant for split testing
+  // Get variant and campaign from URL path (no localStorage, no random assignment)
+  const getRouteData = () => {
+    const path = window.location.pathname;
+    
+    // Parse /analysis/campaign/variant structure
+    const pathParts = path.split('/');
+    
+    if (pathParts[1] === 'analysis' && pathParts.length >= 4) {
+      const campaign = pathParts[2]; // cash, sell, value, equity
+      const variant = pathParts[3].toUpperCase(); // a1o -> A1O
+      
+      console.log(`🎯 Route parsed: campaign="${campaign}", variant="${variant}"`);
+      return { campaign, variant };
+    }
+    
+    // Legacy /valueboost routes
+    if (path.includes('/valueboost/a1o')) return { campaign: 'cash', variant: 'A1O' };
+    if (path.includes('/valueboost/a1i')) return { campaign: 'cash', variant: 'A1I' }; 
+    if (path.includes('/valueboost/a2o')) return { campaign: 'value', variant: 'A2O' };
+    if (path.includes('/valueboost/b2o')) return { campaign: 'cash', variant: 'B2O' };
+    
+    // Fallback for legacy routes or testing
+    if (path.includes('/valueboost')) {
+      console.log('🔄 Legacy ValueBoost route detected, defaulting to cash/A1O');
+      return { campaign: 'cash', variant: 'A1O' };
+    }
+    
+    // Default fallback
+    console.log('⚠️ No route data detected, defaulting to cash/A1O');
+    return { campaign: 'cash', variant: 'A1O' };
+  };
+
+  // Backward compatibility - just return variant
   const getAssignedVariant = () => {
-    let variant = localStorage.getItem('assignedVariant');
-    
-    // Migrate legacy variants to new system (NO B1 - map to B2)
-    const legacyMigration = {
-      'AAA': 'A1IA1',
-      'AAB': 'A1IA1', 
-      'ABA': 'A1OA1',
-      'ABB': 'A1OA1',
-      'BAA': 'B2IB2',  // B1 → B2 (secondary always streamlined)
-      'BAB': 'B2IB2',  // B1 → B2 (secondary always streamlined)
-      'BBA': 'B2OB2',  // B1 → B2 (secondary always streamlined)
-      'BBB': 'B2OB2',  // B1 → B2 (secondary always streamlined)
-      'AIA': 'A1IA1',
-      'AOA': 'A1OA1',
-      'BIB': 'B2IB2',  // B1 → B2 (secondary always streamlined)
-      'BOB': 'B2OB2',  // B1 → B2 (secondary always streamlined)
-      'AIA2': 'A2IA2',
-      'BIB2': 'B2IB2',
-      'A2OA2': 'A2OA2',
-      'B2OB2': 'B2OB2'
-    };
-    
-    // Check if variant needs migration
-    if (variant && legacyMigration[variant]) {
-      const newVariant = legacyMigration[variant];
-      console.log(`🔄 Migrating legacy variant ${variant} → ${newVariant}`);
-      variant = newVariant;
-      localStorage.setItem('assignedVariant', variant);
-    }
-    
-    if (!variant) {
-      // Strategic variant combinations for testing (6 core combinations, NO B1)
-      const variants = [
-        // Core Impact Tests - Consistent format across steps
-        'A1IA1',    // Control: Primary text + original format, show step 2
-        'A1OA1',    // Skip friction: Primary text + original format, skip step 2
-        'A2IA2',    // Streamlined A: Primary text + streamlined format, show step 2
-        'A2OA2',    // Best A experience: Primary text + streamlined format, skip step 2
-        'B2IB2',    // Streamlined B: Secondary text + streamlined format, show step 2
-        'B2OB2'     // Best B experience: Secondary text + streamlined format, skip step 2
-      ];
-      
-      // Random assignment with equal distribution
-      variant = variants[Math.floor(Math.random() * variants.length)];
-      localStorage.setItem('assignedVariant', variant);
-      
-      // Console log for debugging
-      console.log(`%c🎲 VARIANT=${variant} randomly assigned`, 
-        'background: #4CAF50; color: white; font-weight: bold; padding: 4px 8px; border-radius: 4px;');
-      
-      // Track assignment in analytics
-      if (window.gtag) {
-        window.gtag('event', 'variant_assigned', {
-          assigned_variant: variant,
-          assignment_type: 'random',
-          variant_step1: variant.substring(0, 2),  // A1, A2, or B2
-          variant_step2: variant.substring(2, 3),  // I or O
-          variant_step3: variant.substring(3, 5)   // A1, A2, or B2
-        });
-      }
-      
-      // Push to dataLayer for GTM
-      if (window.dataLayer) {
-        window.dataLayer.push({
-          event: 'variant_assigned',
-          assigned_variant: variant,
-          assignment_type: 'random',
-          variant_step1: variant.substring(0, 2),  // A1, A2, or B2
-          variant_step2: variant.substring(2, 3),  // I or O
-          variant_step3: variant.substring(3, 5)   // A1, A2, or B2
-        });
-      }
-    }
-    
-    return variant;
+    return getRouteData().variant;
   };
 
   // ================================================================================
@@ -643,7 +601,8 @@ export function FormProvider({ children }) {
         subHeadline: 'Get a great cash offer today. Close in 7 days. No showings, no repairs, no stress',
         thankYouHeadline: 'Cash Offer Request Completed!',
         thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!',
-        buttonText: 'CHECK OFFER'
+        buttonText: 'CHECK OFFER',
+        disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase that might be acheived by various home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes. By submitting your address, you agree to send address details and other available autofill information not displayed to HomeSurge.AI for the purpose of contacting you with your requested information. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
       
       // FAST TEMPLATE - Triggered by "fast" in campaign name  
@@ -653,7 +612,8 @@ export function FormProvider({ children }) {
         subHeadline: 'Skip the repairs and listings. Get a no-obligation cash offer today and close on your terms. No fees, no stress',
         thankYouHeadline: 'Request Completed!',
         thankYouSubHeadline: 'You\'ll be receiving your fast sale details at your contact number shortly, thank you!',
-        buttonText: 'CHECK OFFER'
+        buttonText: 'CHECK OFFER',
+        disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase that might be acheived by various home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes. By submitting your address, you agree to send address details and other available autofill information not displayed to HomeSurge.AI for the purpose of contacting you with your requested information. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
       
       // VALUE TEMPLATE - Triggered by "value" in campaign name
@@ -663,7 +623,8 @@ export function FormProvider({ children }) {
         subHeadline: 'Find out how much equity you have now.',
         thankYouHeadline: 'Home Value Request Completed!',
         thankYouSubHeadline: 'You\'ll be receiving your home value details at your contact number shortly, thank you!',
-        buttonText: 'CHECK VALUE'
+        buttonText: 'CHECK VALUE',
+        disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase that might be acheived by various home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes. By submitting your address, you agree to send address details and other available autofill information not displayed to HomeSurge.AI for the purpose of contacting you with your requested information. We respect your privacy and will never share your details with anyone. No spam ever.'
       }
     };
     
@@ -674,7 +635,8 @@ export function FormProvider({ children }) {
       subHeadline: 'Get a great cash offer today. Close in 7 days. No showings, no repairs, no stress',
       buttonText: 'CHECK OFFER',
       thankYouHeadline: 'Request Completed!',
-      thankYouSubHeadline: 'You\'ll be receiving your requested details at your contact number shortly, thank you!'
+      thankYouSubHeadline: 'You\'ll be receiving your requested details at your contact number shortly, thank you!',
+      disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase that might be acheived by various home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes. By submitting your address, you agree to send address details and other available autofill information not displayed to HomeSurge.AI for the purpose of contacting you with your requested information. We respect your privacy and will never share your details with anyone. No spam ever.'
     };
     
     // Use passed variant or fallback to assigned variant
@@ -1183,7 +1145,8 @@ export function FormProvider({ children }) {
       setDynamicContent,
       initFromUrlParams,
       clearFormData,
-      getAssignedVariant
+      getAssignedVariant,
+      getRouteData
     }}>
       {children}
     </FormContext.Provider>

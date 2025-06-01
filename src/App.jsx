@@ -204,10 +204,38 @@ function App() {
                 <ConditionalHeader />
                 <AnalyticsTracker /> {/* Track all page views */}
                 <Routes>
-                  {/* Analysis page (formerly ValueBoost) */}
+                  {/* Analysis page routes - all campaign and variant combinations */}
+                  {/* Cash campaigns */}
+                  <Route path="/analysis/cash/a1o" element={<ValueBoostContainer />} />
+                  <Route path="/analysis/cash/a1i" element={<ValueBoostContainer />} />
+                  <Route path="/analysis/cash/a2o" element={<ValueBoostContainer />} />
+                  <Route path="/analysis/cash/b2o" element={<ValueBoostContainer />} />
+                  
+                  {/* Sell campaigns */}
+                  <Route path="/analysis/sell/a1o" element={<ValueBoostContainer />} />
+                  <Route path="/analysis/sell/a1i" element={<ValueBoostContainer />} />
+                  <Route path="/analysis/sell/a2o" element={<ValueBoostContainer />} />
+                  <Route path="/analysis/sell/b2o" element={<ValueBoostContainer />} />
+                  
+                  {/* Value campaigns */}
+                  <Route path="/analysis/value/a1o" element={<ValueBoostContainer />} />
+                  <Route path="/analysis/value/a1i" element={<ValueBoostContainer />} />
+                  <Route path="/analysis/value/a2o" element={<ValueBoostContainer />} />
+                  <Route path="/analysis/value/b2o" element={<ValueBoostContainer />} />
+                  
+                  {/* Equity campaigns */}
+                  <Route path="/analysis/equity/a1o" element={<ValueBoostContainer />} />
+                  <Route path="/analysis/equity/a1i" element={<ValueBoostContainer />} />
+                  <Route path="/analysis/equity/a2o" element={<ValueBoostContainer />} />
+                  <Route path="/analysis/equity/b2o" element={<ValueBoostContainer />} />
+                  
+                  {/* Dynamic route as fallback */}
+                  <Route path="/analysis/:campaign/:variant" element={<ValueBoostContainer />} />
+                  
+                  {/* Legacy analysis route - redirect to default */}
                   <Route path="/analysis" element={<ValueBoostContainer />} />
                   
-                  {/* Redirect root to analysis */}
+                  {/* Redirect root to default analysis route */}
                   <Route path="/" element={<ValueBoostContainer />} />
                   
                   {/* Specific routes for other funnels */}

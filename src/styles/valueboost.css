@@ -300,7 +300,7 @@
   font-weight: bold;
   margin-bottom: 20px;
   text-align: center;
-  color: #236b6d;
+  color: #16899d;
 }
 
 /* Report-specific styles */
@@ -639,14 +639,14 @@
 .vb-success-item-icon {
   font-size: 22px;
   margin-right: 15px;
-  color: #236b6d;
+  color: #16899d;
 }
 
 .vb-success-item-title {
   margin: 0 0 5px 0;
   font-size: 16px;
   font-weight: bold;
-  color: #236b6d;
+  color: #16899d;
 }
 
 .vb-success-item-text {
@@ -879,7 +879,7 @@
   .vb-af1-submit-button{
     margin: 0 !important;
     width: 100% !important;
-    font-size: 16px !important;
+    font-size: 1.1rem !important;
     padding: 16px 20px !important;
     box-sizing: border-box !important;
   }
@@ -1086,7 +1086,7 @@ border: 1px solid #09a5c8 !important;
 
 /* ValueBoost specific headline color overrides */
 .vb-af1-hero-headline {
-    color: #236b6d !important;
+    color: #16899d !important;
     padding-left: 20px;
     padding-right: 20px;
     padding-top: 0px;
@@ -1333,7 +1333,7 @@ border: 1px solid #09a5c8 !important;
 }
 
 .vb-current-value {
-  color: #236b6d;
+  color: #16899d;
 }
 
 .vb-boost-value {
@@ -1468,12 +1468,12 @@ margin-bottom: 0px;
 }
 
 .vb-af1-hero-headline {
-    color: #236b6d !important;
+    color: #16899d !important;
     padding-left: 20px;
     padding-right: 20px;
     padding-top: 0px;
     font-size: 1.7rem !important;
-    line-height: 1;
+  
     text-wrap: pretty;
     orphans: 2;
     widows: 2;
@@ -1487,11 +1487,11 @@ margin-bottom: 0px;
     }
   
   /* Consistent mobile spacing for all form elements */
-  .vb-af1-hero-subheadline {
+     .vb-af1-hero-subheadline {
         padding: 0 20px !important;
         margin-bottom: 25px !important;
         font-size: 1.1rem;
-        line-height: 1.1;
+        line-height: 1.4;
         margin-top: 15px;
         text-wrap: pretty;
         orphans: 2;
@@ -1530,8 +1530,8 @@ margin-bottom: 0px;
  
 
   .vb-af1-hero-middle-container{
-
 padding-top:0%;
+        padding-bottom: 50px;
   }
  
  
@@ -1837,7 +1837,7 @@ padding-top:0%;
 .vb-chat-link {
   background: none;
   border: none;
-  color: #236b6d;
+  color: #16899d;
   text-decoration: underline;
   cursor: pointer;
   font-size: inherit;
@@ -1990,7 +1990,7 @@ padding-top:0%;
 .vb-retry-chat-link {
   background: none;
   border: none;
-  color: #236b6d;
+  color: #16899d;
   text-decoration: underline;
   cursor: pointer;
   font-size: inherit;
@@ -2053,9 +2053,9 @@ padding-top:0%;
 
 /* Mobile responsive disclaimer */
 @media (max-width: 768px) {
-    .vb-disclaimer-section {
+       .vb-disclaimer-section {
         /* margin-top: 80px; */
-        padding: 0 20px;
+        /* padding: 0 30px; */
     }
   
   .vb-disclaimer-text {
@@ -2143,9 +2143,11 @@ padding-top:0%;
     align-items: center;
     width: 100%;
     height: 80px;
-    margin-bottom: 20px;
-    overflow: hidden;
+    margin-bottom: 0px;
+    overflow: coantain;
     margin-top: -20px;
+    max-width: 200px;
+    /* align-self: center; */
 }
 
 /* CSS Complex Rotating Wave Animation - Replaces GIF */
@@ -2212,5 +2214,1178 @@ padding-top:0%;
   .vb-dot {
     width: 10px;
     height: 10px;
+  }
+}
+
+/* ================================================================================
+   VALUEBOOST B2 - LIGHTWEIGHT STYLES
+   ================================================================================
+   
+   B2-specific styles for the lightweight ValueBoostB2 component.
+   All selectors are prefixed with 'vb-b2-' to avoid conflicts.
+*/
+
+/* Main B2 container styles - MATCH ORIGINAL */
+.vb-b2-report-section {
+  min-height: 100vh;
+  padding: 20px 0;
+}
+
+.vb-b2-report-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.vb-b2-content {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 60%;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 750px;
+}
+
+.vb-b2-ready-container {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.vb-b2-fade-in {
+  animation: vb-b2-fadeIn 0.8s ease-out;
+}
+
+@keyframes vb-b2-fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* B2 header styles - MATCH ORIGINAL vb-af1-hero-headline */
+.vb-b2-hero-headline {
+  color: #16899d !important;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 0px;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-wrap: pretty;
+  orphans: 2;
+  widows: 2;
+  text-align: center;
+}
+
+.vb-b2-hero-subheadline {
+  font-size: 1.5rem;
+  margin-top: 10px;
+  margin-bottom: 30px;
+  line-height: 1.2;
+  margin: 20px 0px;
+  color: #444;
+  text-wrap: pretty;
+  orphans: 2;
+  widows: 2;
+  text-align: center;
+}
+
+/* B2 form section styles - MATCH ORIGINAL */
+.vb-b2-form-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.vb-b2-locked-overlay {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.vb-b2-unlock-section-wrapper {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  background: #fffffff2;
+  border-radius: 15px;
+  box-shadow: 0 8px 32px #0000001a;
+  max-width: 600px;
+  padding: 20px;
+}
+
+.vb-b2-unlock-header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.vb-b2-unlock-headline {
+  color: #0e98b4 !important;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 0px;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-wrap: pretty;
+  orphans: 2;
+  widows: 2;
+  text-align: center;
+  margin: 0;
+  font-style: italic;
+}
+
+/* B2 features/checkmarks styles - EXACT MATCH ORIGINAL */
+.vb-b2-features-bubble {
+  background: #fffffff2;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  max-width: 450px;
+  width: auto;
+}
+
+.vb-b2-feature-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.vb-b2-feature-item:last-child {
+  margin-bottom: 0;
+}
+
+.vb-b2-feature-icon {
+  font-size: 24px;
+  margin-right: 15px;
+  color: #28a745;
+}
+
+.vb-b2-feature-text {
+  margin: 0;
+  font-size: 16px;
+  text-align: left;
+  font-weight: normal;
+  text-wrap: pretty;
+  orphans: 2;
+  widows: 2;
+}
+
+/* B2 form input styles */
+.vb-b2-unlock-form-container {
+  margin-bottom: 25px;
+}
+
+.vb-b2-optin-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.vb-b2-unlock-input {
+  width: 100%;
+  padding: 15px 20px;
+  font-size: 1rem;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  background: white;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.vb-b2-unlock-input:focus {
+  outline: none;
+  border-color: #00b8e6;
+  box-shadow: 0 0 0 3px rgba(0, 184, 230, 0.1);
+}
+
+.vb-b2-unlock-input-error {
+  border-color: #ff4d4f;
+  background-color: #fff2f0;
+}
+
+.vb-b2-unlock-form-error {
+  color: #ff4d4f;
+  font-size: 0.9rem;
+  margin-top: 8px;
+  text-align: center;
+}
+
+/* B2 button styles */
+.vb-b2-unlock-button {
+  width: 100%;
+  padding: 18px 30px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(135deg, #00b8e6 0%, #236b6d 100%);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.vb-b2-unlock-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 184, 230, 0.4);
+}
+
+.vb-b2-unlock-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.vb-b2-button-flare {
+  position: relative;
+}
+
+.vb-b2-button-flare::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.6s ease;
+}
+
+.vb-b2-button-flare:hover::before {
+  left: 100%;
+}
+
+/* B2 disclaimer styles */
+.vb-b2-unlock-security-text {
+  font-size: 0.85rem;
+  color: #666;
+  text-align: center;
+  line-height: 1.4;
+  padding: 0 10px;
+  text-wrap: pretty;
+  orphans: 2;
+  widows: 2;
+}
+
+.vb-b2-unlock-security-text strong {
+  color: #333;
+}
+
+/* B2 responsive styles - MATCH ORIGINAL */
+@media (max-width: 768px) {
+  .vb-b2-report-section {
+    min-height: 100vh;
+    padding: 0;
+  }
+  
+  .vb-b2-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 0px;
+    width: 100%;
+    min-height: 1000px;
+    justify-content: flex-start;
+  }
+  
+  .vb-b2-hero-headline {
+    color: #16899d !important;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 0px;
+    font-size: 1.7rem !important;
+    line-height: 1;
+    text-wrap: pretty;
+    orphans: 2;
+    widows: 2;
+  }
+  
+  .vb-b2-hero-subheadline {
+    padding: 0 20px !important;
+    margin-bottom: 25px !important;
+    font-size: 1.1rem;
+    line-height: 1.1;
+    margin-top: 15px;
+    text-wrap: pretty;
+    orphans: 2;
+    widows: 2;
+  }
+  
+  .vb-b2-unlock-section-wrapper {
+    border-radius: 12px;
+    /* margin: 0px 20px 0; */
+    padding: 20px;
+    max-width: calc(100vw - 40px);
+    box-sizing: border-box;
+  }
+  
+  .vb-b2-ready-container {
+    padding: 0px 20px;
+    box-sizing: border-box;
+  }
+  
+  .vb-b2-form-section {
+    padding: 10px 0px;
+    width: 100%;
+    max-width: calc(100vw - 40px);
+    box-sizing: border-box;
+  }
+  
+  .vb-b2-locked-overlay {
+    padding: 0 0px;
+    max-width: calc(100vw - 40px);
+    box-sizing: border-box;
+  }
+  
+  .vb-b2-unlock-form-container {
+    margin-bottom: 25px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .vb-b2-optin-form-fields {
+    gap: 15px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .vb-b2-unlock-input {
+    width: 100%;
+    font-size: 1rem;
+    padding: 15px 20px;
+    box-sizing: border-box;
+  }
+  
+  .vb-b2-unlock-button {
+    width: 100%;
+    font-size: 1.1rem;
+    padding: 16px 20px;
+    box-sizing: border-box;
+  }
+  
+  .vb-b2-unlock-security-text {
+    font-size: 13px;
+    line-height: 1.3;
+    padding: 0 10px;
+    text-wrap: pretty;
+    orphans: 2;
+    widows: 2;
+  }
+  
+  .vb-b2-unlock-headline {
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 0px;
+    font-size: 1.7rem !important;
+    line-height: 1;
+    text-wrap: pretty;
+    orphans: 2;
+    widows: 2;
+  }
+}
+
+/* ================================================================================
+   VALUEBOOST QUALIFYING FORM STYLES - STEP 4
+   ================================================================================
+   
+   All styles prefixed with 'vb-q-' to avoid conflicts.
+   Based on original qualifying form but adapted for ValueBoost funnel.
+   
+   ================================================================================
+*/
+
+.vb-q-section {
+  align-items: center;
+  animation: vb-fadeIn 0.5s ease;
+  animation-fill-mode: forwards;
+  animation-iteration-count: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  margin: 25% auto;
+  max-width: 60%;
+  min-width: 400px;
+  width: 100%;
+  width: 90%;
+}
+
+.vb-q-headline {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #16899d;
+  text-align: center;
+  text-wrap: pretty;
+  orphans: 2;
+  widows: 2;
+}
+
+.vb-q-form-container {
+  margin-top: 15px;
+  flex-direction: column;
+  display: flex;
+  width: 100%;
+  max-width: 1000px;
+  align-items: center;
+}
+
+.vb-q-option-column {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 5px;
+  align-items: center;
+}
+
+.vb-q-question {
+  font-size: 1.5rem;
+  text-align: center;
+  align-items: center;
+  display: flex;
+  text-wrap: pretty;
+  orphans: 2;
+  widows: 2;
+}
+
+.vb-q-answer-container {
+  display: flex;
+  flex-direction: row;
+  cursor: pointer !important;
+  margin-top: 15px;
+}
+
+.vb-q-toggle-selected-left {
+  font-size: 1.2rem;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  width: 150px;
+  text-align: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #09a5c8 0%, #236b6d 100%);
+  color: white;
+  border: none;
+  border-radius: 12px 0px 0px 12px;
+  cursor: pointer !important;
+  box-shadow: 0 8px 20px rgba(0, 184, 230, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.vb-q-toggle-selected-right {
+  font-size: 1.2rem;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  width: 150px;
+  text-align: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #09a5c8 0%, #236b6d 100%);
+  color: white;
+  border: none;
+  border-radius: 0px 12px 12px 0px;
+  cursor: pointer !important;
+  box-shadow: 0 8px 20px rgba(0, 184, 230, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.vb-q-toggle-selected-left::before,
+.vb-q-toggle-selected-right::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.vb-q-toggle-selected-left:hover::before,
+.vb-q-toggle-selected-right:hover::before {
+  left: 100%;
+}
+
+.vb-q-toggle-deselected-left {
+  font-size: 1.2rem;
+  color: #6d6d6d;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  width: 150px;
+  text-align: center;
+  justify-content: center;
+  border: 1px solid #a3a3a3;
+  background-color: white;
+  border-radius: 12px 0px 0px 12px;
+  border-right: none;
+  cursor: pointer !important;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.vb-q-toggle-deselected-right {
+  font-size: 1.2rem;
+  color: #6d6d6d;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  width: 150px;
+  text-align: center;
+  justify-content: center;
+  border: 1px solid #a3a3a3;
+  background-color: white;
+  border-radius: 0px 12px 12px 0px;
+  border-left: none;
+  cursor: pointer !important;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hover effects for deselected buttons - fade towards selected state */
+.vb-q-toggle-deselected-left:hover {
+  background: linear-gradient(135deg, rgba(9, 165, 200, 0.1) 0%, rgba(35, 107, 109, 0.1) 100%);
+  border-color: #09a5c8;
+  color: #09a5c8;
+  box-shadow: 0 4px 12px rgba(0, 184, 230, 0.2);
+}
+
+.vb-q-toggle-deselected-right:hover {
+  background: linear-gradient(135deg, rgba(9, 165, 200, 0.1) 0%, rgba(35, 107, 109, 0.1) 100%);
+  border-color: #09a5c8;
+  color: #09a5c8;
+  box-shadow: 0 4px 12px rgba(0, 184, 230, 0.2);
+}
+
+/* Hover effects for selected buttons - fade towards deselected state */
+.vb-q-toggle-selected-left:hover {
+  background: linear-gradient(135deg, rgba(9, 165, 200, 0.8) 0%, rgba(35, 107, 109, 0.8) 100%);
+  box-shadow: 0 4px 12px rgba(0, 184, 230, 0.2);
+}
+
+.vb-q-toggle-selected-right:hover {
+  background: linear-gradient(135deg, rgba(9, 165, 200, 0.8) 0%, rgba(35, 107, 109, 0.8) 100%);
+  box-shadow: 0 4px 12px rgba(0, 184, 230, 0.2);
+}
+
+.vb-q-slider-container {
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.vb-q-slider-text {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #2e7b7d;
+}
+
+.vb-q-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 15px;
+  border-radius: 5px;
+  background: #d3d3d3 !important;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: 0.2s;
+  transition: opacity 0.2s;
+}
+
+.vb-q-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #09a5c8 0%, #236b6d 100%);
+  cursor: pointer;
+  border-style: solid;
+  border-color: #09a5c8;
+  border-width: 1px;
+  box-shadow: 0px 1px 4px 0px #0000004d;
+}
+
+.vb-q-slider::-moz-range-thumb {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #09a5c8 0%, #236b6d 100%);
+  cursor: pointer;
+  border-style: solid;
+  border-color: #236869;
+  border-width: 1px;
+  box-shadow: 0px 1px 4px 0px #0000004d;
+}
+
+.vb-q-button {
+  color: white;
+  font-weight: bold;
+  width: 300px;
+  text-align: center;
+  font-size: 1.2rem;
+  height: 52px;
+  border-radius: 12px;
+  cursor: pointer !important;
+  border: none;
+  white-space: nowrap;
+  padding: 0px 50px;
+  margin-left: -3px;
+  background: linear-gradient(135deg, #09a5c8 0%, #236b6d 100%);
+  box-shadow: 0 8px 20px rgba(0, 184, 230, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.vb-q-button:hover {
+  background: linear-gradient(135deg, #0bb5da 0%, #2a7a7d 100%);
+  box-shadow: 0 12px 30px rgba(0, 184, 230, 0.4);
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}
+
+.vb-q-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.vb-q-button:hover::before {
+  left: 100%;
+}
+
+.vb-q-dropdown {
+  position: relative;
+  display: inline-block;
+  width: 300px;
+  margin-top: 15px;
+}
+
+.vb-q-dropbtn {
+  background-color: #ffffff;
+  color: #6d6d6d;
+  box-shadow: 0px 1px 4px 0px #0000004d;
+  border-radius: 5px 5px 5px 5px;
+  cursor: pointer !important;
+  border-style: solid;
+  border-color: #a3a3a3;
+  border-width: 1px;
+  cursor: pointer;
+  width: 100%;
+  height: 52px;
+  font-size: 1.2rem;
+  position: relative;
+  padding-right: 20px;
+}
+
+.vb-q-dropbtn::after {
+  content: "";
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #1b405b;
+}
+
+.vb-q-dropdown-content {
+  width: 300px;
+  display: none;
+  position: absolute;
+  background-color: #ffffff;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  border-style: solid;
+  border-color: #a3a3a3;
+  border-width: 1px;
+  border-radius: 5px;
+  padding: 10px 0px;
+  line-height: 2rem;
+  font-size: 1.2rem;
+}
+
+.vb-q-dropdown:hover .vb-q-dropdown-content {
+  display: block;
+}
+
+.vb-q-dropdown-item:hover {
+  background-color: #f2f2f2;
+  cursor: pointer;
+}
+
+.vb-q-dropdown:hover .vb-q-dropbtn {
+  background-color: #ffffff;
+}
+
+.vb-q-temp-id-message {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 5px;
+  color: #856404;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* Mobile responsive styles for ValueBoost Qualifying */
+@media (max-width: 768px) {
+  .vb-q-section {
+    margin: 5% auto;
+    max-width: 95%;
+    min-width: 300px;
+    padding: 0 10px;
+  }
+  
+  .vb-q-headline {
+    font-size: 1.8rem;
+    padding: 0 10px;
+  }
+  
+  .vb-q-question {
+    font-size: 1.2rem;
+    padding: 0 10px;
+  }
+  
+  .vb-q-toggle-selected-left,
+  .vb-q-toggle-selected-right,
+  .vb-q-toggle-deselected-left,
+  .vb-q-toggle-deselected-right {
+    width: 120px;
+    font-size: 1rem;
+  }
+  
+  .vb-q-slider-container,
+  .vb-q-dropdown,
+  .vb-q-button {
+    width: 280px;
+  }
+  
+  .vb-q-slider-text {
+    font-size: 1.5rem;
+  }
+}
+
+/* ================================================================================
+   ADDRESSFORM CONTACT SECTION STYLES - Based on B2 styling
+   ================================================================================
+   Contact form section for AddressForm page with exact B2 styling.
+   All selectors are prefixed with 'vb-af-' to avoid conflicts.
+   ================================================================================ */
+
+.vb-af-contact-section-wrapper {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  background: #fffffff2;
+  border-radius: 15px;
+  box-shadow: 0 0 32px #0000001a;
+  max-width: 600px;
+  padding: 60px 30px;
+  margin: 40px auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.vb-af-contact-header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.vb-af-contact-headline {
+  color: #0e98b4 !important;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 0px;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-wrap: pretty;
+  orphans: 2;
+  widows: 2;
+  text-align: center;
+  margin: 0;
+  font-style: italic;
+}
+
+/* AF features/checkmarks styles - EXACT MATCH B2 */
+.vb-af-features-bubble {
+  background: #fffffff2;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  max-width: 450px;
+  width: auto;
+  color:#444;
+}
+
+.vb-af-feature-item {
+    display: flex
+;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.vb-af-feature-item:last-child {
+  margin-bottom: 0;
+}
+
+.vb-af-feature-icon {
+  font-size: 24px;
+  margin-right: 15px;
+  color: #28a745;
+}
+
+.vb-af-feature-text {
+    margin: 0;
+    font-size: 16px;
+    text-align: left;
+    font-weight: normal;
+    text-wrap: pretty;
+    orphans: 2;
+    widows: 2;
+    line-height: 1.2;
+    font-size: 1.2rem;
+    color: var(--bf-text-gray);
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+/* AF form input styles */
+.vb-af-contact-form-container {
+  margin-bottom: 25px;
+  width: 100%;
+}
+
+.vb-af-optin-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+}
+
+.vb-af-contact-input {
+  width: 100%;
+  padding: 15px 20px;
+  font-size: 1rem;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  background: white;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.vb-af-contact-input:focus {
+  outline: none;
+  border-color: #00b8e6;
+  box-shadow: 0 0 0 3px rgba(0, 184, 230, 0.1);
+}
+
+.vb-af-contact-input-error {
+  border-color: #ff4d4f;
+  background-color: #fff2f0;
+}
+
+.vb-af-contact-form-error {
+  color: #ff4d4f;
+  font-size: 0.9rem;
+  margin-top: 8px;
+  text-align: center;
+}
+
+/* AF button styles */
+.vb-af-contact-button {
+  /* width: 100%; */
+  padding: 18px 30px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(135deg, #00b8e6 0%, #236b6d 100%);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.vb-af-contact-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 184, 230, 0.4);
+}
+
+.vb-af-contact-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.vb-af-button-flare {
+  position: relative;
+}
+
+.vb-af-button-flare::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.6s ease;
+}
+
+.vb-af-button-flare:hover::before {
+  left: 100%;
+}
+
+/* AF disclaimer styles */
+.vb-af-contact-security-text {
+  font-size: 0.85rem;
+  color: #666;
+  text-align: center;
+  line-height: 1.4;
+  padding: 0 10px;
+  text-wrap: pretty;
+  orphans: 2;
+  widows: 2;
+}
+
+.vb-af-contact-security-text strong {
+  color: #333;
+}
+
+/* AF responsive styles - MATCH B2 */
+@media (max-width: 768px) {
+      .vb-af-contact-section-wrapper {
+        margin: 20px auto 0;
+        padding: 60px 30px;
+        max-width: 95%;
+        box-shadow: 0px -20px 20px 0px #0000000f;
+    }
+  
+  .vb-af-contact-form-container {
+    margin-bottom: 25px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .vb-af-optin-form-fields {
+    gap: 15px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .vb-af-contact-input {
+    width: 100%;
+    font-size: 1rem;
+    padding: 15px 20px;
+    box-sizing: border-box;
+  }
+  
+  .vb-af-contact-button {
+    /* width: 100%; */
+    font-size: 1.1rem;
+    padding: 16px 20px;
+    box-sizing: border-box;
+  }
+  
+  .vb-af-contact-security-text {
+    font-size: 13px;
+    line-height: 1.3;
+    padding: 0 10px;
+    text-wrap: pretty;
+    orphans: 2;
+    widows: 2;
+  }
+  
+  .vb-af-contact-headline {
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 0px;
+    font-size: 1.7rem !important;
+    
+    text-wrap: pretty;
+    orphans: 2;
+    widows: 2;
+  }
+}
+
+/* ================================================================================
+   DISCLAIMER POPUP STYLES
+   ================================================================================
+   Popup modal for disclaimer details triggered by "See Offerboost details" link
+   ================================================================================ */
+
+.disclaimer-link {
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: normal;
+}
+
+.disclaimer-link:hover {
+  color: inherit;
+  opacity: 0.8;
+}
+
+.vb-disclaimer-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.vb-disclaimer-popup {
+  background: white;
+  border-radius: 10px;
+  max-width: 600px;
+  max-height: 80vh;
+  margin: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.vb-disclaimer-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e1e5e9;
+}
+
+.vb-disclaimer-popup-header h3 {
+  margin: 0;
+  color: #16899d;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.vb-disclaimer-popup-close {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #666;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.vb-disclaimer-popup-close:hover {
+  background: #e1e5e9;
+  color: #333;
+}
+
+.vb-disclaimer-popup-content {
+  padding: 20px;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #333;
+  overflow-y: auto;
+  max-height: 60vh;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .vb-disclaimer-popup {
+    margin: 10px;
+    max-width: calc(100% - 20px);
+  }
+  
+  .vb-disclaimer-popup-header {
+    padding: 15px;
+  }
+  
+  .vb-disclaimer-popup-header h3 {
+    font-size: 1.3rem;
+  }
+  
+  .vb-disclaimer-popup-content {
+    padding: 15px;
+    font-size: 0.95rem;
+  }
+}
+
+/* ================================================================================
+   LEADERSHIP SECTION STYLES
+   ================================================================================
+   Styling for the family image and CTA button in the LeadershipSection component
+   ================================================================================ */
+
+.bf-leadership-image {
+  text-align: center;
+  margin: 30px auto 20px auto;
+}
+
+.bf-family-photo {
+  max-width: 400px;
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.bf-leadership-cta {
+  margin: 20px auto 40px auto;
+  display: block;
+  max-width: 300px;
+}
+
+@media (max-width: 768px) {
+  .bf-family-photo {
+    /* max-width: 320px; */
+    border-radius: 8px;
+  }
+  
+  .bf-leadership-image {
+    margin: 25px auto 25px auto;
+  }
+  
+  .bf-leadership-cta {
+    margin: 35px auto 35px auto;
+    max-width: 280px;
   }
 }

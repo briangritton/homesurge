@@ -6,7 +6,7 @@ import { generateAIValueBoostReport } from '../../../services/openai';
 import houseIcon from '../../../assets/images/house-icon.png';
 import smallArrow from '../../../assets/images/smallarrow.png';
 
-function AIProcessing() {
+function AIProcessing({ campaign, variant }) {
   const { formData, nextStep } = useFormContext();
   
   // =========================================================
@@ -41,14 +41,14 @@ function AIProcessing() {
     const templates = {
       // ========== CASH/SELLING CAMPAIGNS ==========
       cash: {
-        headline: 'Analyzing Your OfferBoost Options...',
+        headline: 'Analyzing Your OfferBoost Maximum Offer...',
         subheadline: 'Our AI is calculating your optimal cash offer and timeline',
         completionText: 'OfferBoost Analysis Complete!',
         estimateLabel: 'OfferBoost Estimate:'
       },
       
       fast: {
-        headline: 'Processing Your OfferBoost Request...',
+        headline: 'Analyzing Your OfferBoost Maximum Offer...',
         subheadline: 'Determining the fastest path to close your home',
         completionText: 'OfferBoost Strategy Ready!',
         estimateLabel: 'OfferBoost Estimate:'
@@ -93,18 +93,18 @@ function AIProcessing() {
       // ========== B SECONDARY CONTENT VARIANTS ==========
       // CASH B - Secondary cash processing content
       cashB2: {
-        headline: 'Generating Your Instant Cash Offer...',
-        subheadline: 'Advanced AI algorithms are computing your guaranteed offer amount',
-        completionText: 'Instant Cash Offer Generated!',
-        estimateLabel: 'Instant Cash Estimate:'
+        headline: 'Analyzing Your OfferBoost Maximum Offer...',
+        subheadline: 'Our AI is calculating your optimal cash offer and timeline',
+        completionText: 'OfferBoost Analysis Complete!',
+        estimateLabel: 'OfferBoost Estimate:'
       },
       
       // FAST B - Secondary fast processing content
       fastB2: {
-        headline: 'Emergency Sale Processing...',
-        subheadline: 'Urgent AI analysis for your immediate home sale needs',
-        completionText: 'Emergency Sale Plan Ready!',
-        estimateLabel: 'Emergency Offer Estimate:'
+          headline: 'Analyzing Your OfferBoost Maximum Offer...',
+        subheadline: 'Our AI is calculating your optimal cash offer and timeline',
+        completionText: 'OfferBoost Analysis Complete!',
+        estimateLabel: 'OfferBoost Estimate:'
       },
       
       // SELLFAST B - Secondary sellfast content
@@ -654,7 +654,7 @@ function AIProcessing() {
                     <div style={{
                       marginTop: '10px',
                       fontSize: '14px',
-                      color: '#236b6d',
+                      color: '#0e98b4',
                       fontWeight: 'bold'
                     }}>
                       Loading map view...

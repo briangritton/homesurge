@@ -5,6 +5,8 @@ import { initEmailJS } from '../../../services/emailjs.js';
 import AddressForm from './AddressForm';
 import AIProcessing from './AIProcessing';
 import ValueBoostReport from './ValueBoostReport';
+import B2Step3 from './B2Step3';
+import ValueBoostQualifyingB2 from './ValueBoostQualifyingB2';
 import AddressRetry from './AddressRetry';
 
 // Import custom styles for ValueBoost funnel
@@ -20,7 +22,7 @@ function ValueBoostContainer() {
 }
 
 function ValueBoostFunnel() {
-  const { formData, initFromUrlParams } = useFormContext();
+  const { formData, initFromUrlParams, getAssignedVariant, getRouteData } = useFormContext();
   
   // Scroll to top whenever the form step changes
   useEffect(() => {
@@ -52,18 +54,32 @@ function ValueBoostFunnel() {
   const renderStep = () => {
     // Default to step 1 if not set
     const currentStep = formData?.formStep || 1;
+    const { campaign, variant } = getRouteData();
 
     switch (currentStep) {
       case 1:
-        return <AddressForm />;
+        return <AddressForm campaign={campaign} variant={variant} />;
       case 2:
-        return <AIProcessing />;
+        return <AIProcessing campaign={campaign} variant={variant} />;
       case 3:
-        return <ValueBoostReport />;
+        // Route based on variant type
+        if (variant === 'B2O') {
+          return <B2Step3 campaign={campaign} variant={variant} />;
+        }
+        
+        // A1O, A1I, A2O all go to ValueBoostReport
+        return <ValueBoostReport campaign={campaign} variant={variant} />;
       case 4:
-        return <AddressRetry />;
+        // Only B2O variant goes to qualifying form, A variants end at step 3
+        if (variant === 'B2O') {
+          return <ValueBoostQualifyingB2 campaign={campaign} variant={variant} />;
+        }
+        // A variants should not reach step 4 - redirect back to step 3
+        return <ValueBoostReport campaign={campaign} variant={variant} />;
+      case 5:
+        return <AddressRetry campaign={campaign} variant={variant} />;
       default:
-        return <AddressForm />;
+        return <AddressForm campaign={campaign} variant={variant} />;
     }
   };
 

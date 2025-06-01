@@ -10,7 +10,7 @@ import { updateContactInfo } from '../../../services/firebase.js';
 import { doc, updateDoc, serverTimestamp, getFirestore } from 'firebase/firestore';
 import gradientArrow from '../../../assets/images/gradient-arrow.png';
 
-function ValueBoostReport() {
+function ValueBoostReport({ campaign, variant }) {
   const { formData, updateFormData, updateLead, nextStep } = useFormContext();
   const db = getFirestore();
   
@@ -44,33 +44,67 @@ function ValueBoostReport() {
     const templates = {
       // ========== CASH/SELLING CAMPAIGNS ==========
       cash: {
-        reportHeadline: 'Your OfferBoost Maximum Cash Offer Is Ready!:',
-        potentialHeadline: 'Your OfferBoost Potential:',
-        recommendationsTitle: 'Your Top 10 OfferBoost Strategies',
-        recommendationsSubtitle: 'Maximize your cash offer with these proven strategies',
-        unlockHeadline: 'Get Your FREE OfferBoost Maximum Cash Offer Report',
-        unlockSubtext: 'Get your complete cash offer analysis with all selling strategies',
-        conciergeHeadline: 'Want Expert Help Maximizing Your Cash Offer?',
-        buttonText: 'GET CASH OFFER',
+        // Header content
+        readyHeadline: 'Your OfferBoost Fastest Maximum Offer is Ready!',
+        reportHeadline: 'Your OfferBoost Highest Cash Offer Is Ready!:',
         readySubheadline: 'Check your OfferBoost cash offer below, and unlock your FREE AI powered ' +
                       'custom home value and offer optimization report. No obligation, no strings attached.',
         loadingMessage: 'Processing Your OfferBoost Cash Offer Analysis...',
-        readyHeadline: 'Your OfferBoost Fastest Maximum Offer is Ready!'
+        
+        // Value display
+        potentialHeadline: 'Your OfferBoost Potential:',
+        
+        // Recommendations section
+        recommendationsTitle: 'Your Top 10 OfferBoost Strategies',
+        recommendationsSubtitle: 'Maximize your cash offer with these proven strategies',
+        
+        // Unlock form content
+        unlockHeadline: 'Get Your FREE OfferBoost Highest Cash Offer Report',
+        unlockSubtext: 'Get your complete cash offer analysis with all selling strategies',
+        
+        // Checkmark lines
+        checkmark1: 'All OfferBoost cash offer opportunities for your property',
+        checkmark2: 'Detailed maximum OfferBoost calculations for maximizing home value',
+        checkmark3: 'Customized for your property',
+        
+        // CTA section
+        conciergeHeadline: 'Want Expert Help Maximizing Your Cash Offer?',
+        buttonText: 'GET CASH OFFER',
+        
+        // Disclaimer (at bottom)
+        disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
       
       fast: {
+        // Header content
+        readyHeadline: 'Your OfferBoost Fastest Maximum Offer is Ready!',
         reportHeadline: 'Your OfferBoost Fastest Maximum Offer Report Is Ready:',
-        potentialHeadline: 'Your OfferBoost Potential:',
-        recommendationsTitle: 'Your Top 10 OfferBoost Accelerators',
-        recommendationsSubtitle: 'Speed up your sale with these time-tested strategies',
-        unlockHeadline: 'Get Your FREE OfferBoost Maximum Cash Offer Report',
-        unlockSubtext: 'Get your complete fast sale strategy with timeline optimization',
-        conciergeHeadline: 'Want Expert Help Selling Lightning Fast?',
-        buttonText: 'CHECK FAST OFFER',
         readySubheadline: 'Check your OfferBoost <strong>fastest maximum offer</strong> below, and unlock your FREE AI powered ' +
                       'custom home value and offer optimization report. No obligation, no strings attached.',
         loadingMessage: 'Processing Your OfferBoost Cash Offer Analysis...',
-        readyHeadline: 'Your OfferBoost Fastest Maximum Offer is Ready!'
+        
+        // Value display
+        potentialHeadline: 'Your OfferBoost Potential:',
+        
+        // Recommendations section
+        recommendationsTitle: 'Your Top 10 OfferBoost Accelerators',
+        recommendationsSubtitle: 'Speed up your sale with these time-tested strategies',
+        
+        // Unlock form content
+        unlockHeadline: 'Get Your FREE OfferBoost Highest Cash Offer Report',
+        unlockSubtext: 'Get your complete fast sale strategy with timeline optimization',
+        
+        // Checkmark lines
+        checkmark1: 'All OfferBoost fast sale opportunities for your property',
+        checkmark2: 'Detailed maximum OfferBoost timeline optimization strategies',
+        checkmark3: 'Customized for your property',
+        
+        // CTA section
+        conciergeHeadline: 'Want Expert Help Selling Lightning Fast?',
+        buttonText: 'CHECK FAST OFFER',
+        
+        // Disclaimer (at bottom)
+        disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
       
       sellfast: {
@@ -78,7 +112,7 @@ function ValueBoostReport() {
         potentialHeadline: 'Your OfferBoost Potential:',
         recommendationsTitle: 'Your Top 10 OfferBoost Tactics',
         recommendationsSubtitle: 'Get cash fast with these immediate action strategies',
-        unlockHeadline: 'Get Your FREE OfferBoost Maximum Cash Offer Report',
+        unlockHeadline: 'Get Your FREE OfferBoost Highest Cash Offer Report',
         unlockSubtext: 'Get your complete instant sale guide with cash offer optimization',
         conciergeHeadline: 'Want Expert Help Getting Cash Now?',
         buttonText: 'GET CASH OFFER',
@@ -90,18 +124,35 @@ function ValueBoostReport() {
       
       // ========== VALUE/IMPROVEMENT CAMPAIGNS ==========
       value: {
+        // Header content
+        readyHeadline: 'Your ValueBoost Report is Ready!',
         reportHeadline: 'ValueBoost Report Ready:',
-        potentialHeadline: 'Your ValueBoost Potential:',
-        recommendationsTitle: 'Your Top 10 ValueBoost Recommendations',
-        recommendationsSubtitle: 'Here are the Highest impact AI generated opportunities for your home',
-        unlockHeadline: 'Get Your FREE ValueBoost Max Value Report',
-        unlockSubtext: 'Unlock your full property value report with all personalized recommendations',
-        conciergeHeadline: 'Want Expert Help Implementing These Improvements?',
-        buttonText: 'GET VALUE REPORT',
         readySubheadline: 'Check your <strong>maximum home value</strong> with FREE AI personalized ' +
                       'opportunity recommendations below! See your home\'s true potential value.',
         loadingMessage: 'Processing Your ValueBoost Analysis...',
-        readyHeadline: 'Your ValueBoost Report is Ready!'
+        
+        // Value display
+        potentialHeadline: 'Your ValueBoost Potential:',
+        
+        // Recommendations section
+        recommendationsTitle: 'Your Top 10 ValueBoost Recommendations',
+        recommendationsSubtitle: 'Here are the Highest impact AI generated opportunities for your home',
+        
+        // Unlock form content
+        unlockHeadline: 'Get Your FREE ValueBoost Max Value Report',
+        unlockSubtext: 'Unlock your full property value report with all personalized recommendations',
+        
+        // Checkmark lines
+        checkmark1: 'All ValueBoost opportunities for your property',
+        checkmark2: 'Detailed maximum ValueBoost calculations for maximizing home value',
+        checkmark3: 'Customized for your property',
+        
+        // CTA section
+        conciergeHeadline: 'Want Expert Help Implementing These Improvements?',
+        buttonText: 'GET VALUE REPORT',
+        
+        // Disclaimer (at bottom)
+        disclaimer: '*Example values only. Your value increase will depend on your specific home details and market conditions. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
 
       valueboost: {
@@ -150,50 +201,102 @@ function ValueBoostReport() {
       },
       
       // ========== WIDE CAMPAIGN ==========
-      wide: {
+      sellA: {
+        // Header content
+        readyHeadline: 'Your Hassle-Free Home Solution is Ready!',
         reportHeadline: 'Your Hassle-Free Home Solution Ready:',
+        readySubheadline: 'Check your <strong>hassle-free home solution</strong> below, and unlock your FREE AI powered ' +
+                      'custom home optimization report. No stress, no complications.',
+        loadingMessage: 'Processing Your Hassle-Free Solution Analysis...',
+        
+        // Value display
         potentialHeadline: 'Your Stress-Free Potential:',
+        
+        // Recommendations section
         recommendationsTitle: 'Your Top 10 Hassle-Free Solutions',
         recommendationsSubtitle: 'Eliminate real estate stress with these comprehensive strategies',
+        
+        // Unlock form content
         unlockHeadline: 'Get Your FREE Hassle-Free Home Report',
         unlockSubtext: 'Get your complete stress-free solution with all paperwork handled',
+        
+        // Checkmark lines
+        checkmark1: 'All hassle-free solutions for your property',
+        checkmark2: 'Detailed stress-free strategy for maximizing value',
+        checkmark3: 'Customized for your property',
+        
+        // CTA section
         conciergeHeadline: 'Want Expert Help Eliminating Real Estate Stress?',
         buttonText: 'GET SOLUTION',
-        readySubheadline: 'Check your <strong>hassle-free home solution</strong> below, and unlock your FREE AI powered ' +
-                      'custom home optimization report. No stress, no complications.'
+        
+        // Disclaimer (at bottom)
+        disclaimer: '*Example values only. Your solution will depend on your specific home details and market conditions. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
       
       // ========== B SECONDARY CONTENT VARIANTS ==========
       // CASH B - More urgent, immediate cash offer language
       cashB2: {
-        reportHeadline: 'URGENT: Your Maximum Cash Offer Expires Soon!',
+        // Header content
+        readyHeadline: 'Next, where do you want us to text your cash offer?',
+        reportHeadline: 'URGENT: Your Highest Cash Offer Expires Soon!',
+        readySubheadline: 'We\'ll send you our strongest <strong><i>no obligation cash offer</i></strong>, and you choose how fast to close! ',
+        loadingMessage: 'URGENT: Processing Your Maximum OfferBoost Cash Analysis...',
+        
+        // Value display
         potentialHeadline: 'Your Immediate Cash Potential:',
+        
+        // Recommendations section
         recommendationsTitle: 'Your Top 10 Instant Cash Maximizers',
         recommendationsSubtitle: 'Critical strategies to get maximum cash before market conditions change',
-        unlockHeadline: 'Get Your URGENT Maximum Cash Offer Report',
+        
+        // Unlock form content
+        unlockHeadline: '<i>HomeSurge Cash Offer Benefits:</i>',
         unlockSubtext: 'Time-sensitive analysis - get your complete cash offer before rates change',
+        
+        // Checkmark lines
+        checkmark1: 'No stress closing! No repairs, inspections, commision, or closing costs.',
+        checkmark2: 'No hidden fees. We make an offer, you get the exact amount in cash. ',
+        checkmark3: 'Close in as little as 7 days, or at any later date, you choose your timeline!',
+        
+        // CTA section
         conciergeHeadline: 'Need Immediate Cash? Our Experts Are Standing By',
-        buttonText: 'URGENT CASH OFFER',
-        readySubheadline: 'Your <strong>time-sensitive maximum cash offer</strong> is below. Market conditions are shifting - ' +
-                      'unlock your FREE urgent cash analysis now!',
-        loadingMessage: 'URGENT: Processing Your Maximum OfferBoost Cash Analysis...',
-        readyHeadline: 'URGENT: Your Maximum OfferBoost Cash Offer is Ready!'
+        buttonText: 'GET CASH OFFER',
+        
+        // Disclaimer (at bottom)
+        disclaimer: '*URGENT: Example values only. Your cash offer expires soon and will depend on current market conditions and property details. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
       
       // FAST B - Emergency/urgent sale scenarios
       fastB2: {
+        // Header content
+        readyHeadline: 'EMERGENCY: Your 7-Day OfferBoost Exit Strategy is Ready!',
         reportHeadline: 'EMERGENCY SALE: Your 7-Day Cash Exit Ready!',
-        potentialHeadline: 'Your Emergency Sale Potential:',
-        recommendationsTitle: 'Your Top 10 Emergency Sale Tactics',
-        recommendationsSubtitle: 'Crisis-proven strategies for immediate property liquidation',
-        unlockHeadline: 'Get Your EMERGENCY 7-Day Sale Report',
-        unlockSubtext: 'Critical timeline analysis for immediate property liquidation',
-        conciergeHeadline: 'Emergency Sale Needed? We Can Close This Week',
-        buttonText: 'EMERGENCY SALE',
         readySubheadline: 'Your <strong>emergency 7-day sale solution</strong> is ready below. ' +
                       'Get immediate cash when you need it most - no delays!',
         loadingMessage: 'EMERGENCY: Processing Your 7-Day OfferBoost Exit Strategy...',
-        readyHeadline: 'EMERGENCY: Your 7-Day OfferBoost Exit Strategy is Ready!'
+        
+        // Value display
+        potentialHeadline: 'Your Emergency Sale Potential:',
+        
+        // Recommendations section
+        recommendationsTitle: 'Your Top 10 Emergency Sale Tactics',
+        recommendationsSubtitle: 'Crisis-proven strategies for immediate property liquidation',
+        
+        // Unlock form content
+        unlockHeadline: 'Get Your EMERGENCY 7-Day Sale Report',
+        unlockSubtext: 'Critical timeline analysis for immediate property liquidation',
+        
+        // Checkmark lines
+        checkmark1: 'EMERGENCY: All 7-day exit strategies for your property',
+        checkmark2: 'CRISIS-PROVEN: Immediate property liquidation tactics',
+        checkmark3: 'EMERGENCY: Customized for your property',
+        
+        // CTA section
+        conciergeHeadline: 'Emergency Sale Needed? We Can Close This Week',
+        buttonText: 'EMERGENCY SALE',
+        
+        // Disclaimer (at bottom)
+        disclaimer: '*EMERGENCY: Example values only. Your 7-day exit strategy will depend on urgent market conditions and property details. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
       
       // SELLFAST B - Enhanced urgency for immediate cash
@@ -214,18 +317,35 @@ function ValueBoostReport() {
       
       // VALUE B - Deeper value analysis and insights
       valueB2: {
+        // Header content
+        readyHeadline: 'DEEP DIVE: Your Advanced ValueBoost Analysis is Ready!',
         reportHeadline: 'DEEP DIVE: Your Hidden Value Secrets Revealed!',
-        potentialHeadline: 'Your Hidden Value Potential:',
-        recommendationsTitle: 'Your Top 10 Value Discovery Insights',
-        recommendationsSubtitle: 'Advanced analysis reveals untapped equity opportunities most miss',
-        unlockHeadline: 'Get Your DEEP VALUE Discovery Report',
-        unlockSubtext: 'Comprehensive value analysis with hidden equity identification',
-        conciergeHeadline: 'Want Expert Analysis of Your Hidden Value Potential?',
-        buttonText: 'DISCOVER VALUE',
         readySubheadline: 'Your <strong>deep value analysis</strong> reveals hidden opportunities below. ' +
                       'Discover equity potential others overlook!',
         loadingMessage: 'DEEP DIVE: Processing Your Advanced ValueBoost Analysis...',
-        readyHeadline: 'DEEP DIVE: Your Advanced ValueBoost Analysis is Ready!'
+        
+        // Value display
+        potentialHeadline: 'Your Hidden Value Potential:',
+        
+        // Recommendations section
+        recommendationsTitle: 'Your Top 10 Value Discovery Insights',
+        recommendationsSubtitle: 'Advanced analysis reveals untapped equity opportunities most miss',
+        
+        // Unlock form content
+        unlockHeadline: 'Get Your DEEP VALUE Discovery Report',
+        unlockSubtext: 'Comprehensive value analysis with hidden equity identification',
+        
+        // Checkmark lines
+        checkmark1: 'DEEP DIVE: All hidden value secrets for your property',
+        checkmark2: 'ADVANCED: Untapped equity opportunities others miss',
+        checkmark3: 'DEEP VALUE: Customized for your property',
+        
+        // CTA section
+        conciergeHeadline: 'Want Expert Analysis of Your Hidden Value Potential?',
+        buttonText: 'DISCOVER VALUE',
+        
+        // Disclaimer (at bottom)
+        disclaimer: '*DEEP DIVE: Example values only. Your hidden value potential will depend on advanced analysis of specific property details and market conditions. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
       
       // VALUEBOOST B - Advanced optimization strategies
@@ -277,33 +397,59 @@ function ValueBoostReport() {
       },
       
       // WIDE B - Enhanced comprehensive hassle-free solutions
-      wideB2: {
+      sellB2: {
+        // Header content
+        readyHeadline: 'COMPLETE: Your All-Inclusive Property Plan is Ready!',
         reportHeadline: 'COMPLETE SOLUTION: Your All-Inclusive Property Plan Ready!',
+        readySubheadline: 'Your <strong>complete all-inclusive solution</strong> is below. ' +
+                      'Every detail handled with white-glove service!',
+        loadingMessage: 'COMPLETE: Processing Your All-Inclusive Solution Analysis...',
+        
+        // Value display
         potentialHeadline: 'Your Complete Solution Potential:',
+        
+        // Recommendations section
         recommendationsTitle: 'Your Top 10 All-Inclusive Strategies',
         recommendationsSubtitle: 'Comprehensive end-to-end solutions covering every aspect',
+        
+        // Unlock form content
         unlockHeadline: 'Get Your COMPLETE All-Inclusive Report',
         unlockSubtext: 'Total property solution with every detail managed professionally',
+        
+        // Checkmark lines
+        checkmark1: 'COMPLETE: All-inclusive solutions for your property',
+        checkmark2: 'WHITE-GLOVE: Every detail managed professionally',
+        checkmark3: 'COMPREHENSIVE: Customized for your property',
+        
+        // CTA section
         conciergeHeadline: 'Want Complete White-Glove Property Management?',
         buttonText: 'COMPLETE SOLUTION',
-        readySubheadline: 'Your <strong>complete all-inclusive solution</strong> is below. ' +
-                      'Every detail handled with white-glove service!'
+        
+        // Disclaimer (at bottom)
+        disclaimer: '*COMPLETE: Example values only. Your all-inclusive solution will depend on comprehensive analysis of specific property details and service requirements. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
       
       // ========== DEFAULT FALLBACK (MATCHES CASH THEME) ==========
       default: {
-        reportHeadline: 'Your OfferBoost Maximum Cash Offer Is Ready!:',
+        reportHeadline: 'Your OfferBoost Highest Cash Offer Is Ready!:',
         potentialHeadline: 'Your OfferBoost Potential:',
         recommendationsTitle: 'Your Top 10 OfferBoost Strategies',
         recommendationsSubtitle: 'Maximize your cash offer with these proven strategies',
         unlockHeadline: 'Get Your FREE OfferBoost Maximum Cash Report',
         unlockSubtext: 'Get your complete cash offer strategy with market insights and opportunities',
         conciergeHeadline: 'Want Expert Help Maximizing Your Cash Offer?',
+
+
+    checkmark1: '*All OfferBoost cash offer opportunities for your property',
+        checkmark2: 'Detailed maximum OfferBoost calculations for maximizing home value',
+        checkmark3: 'Customized for your property',
+
+
         buttonText: 'CHECK CASH OFFER',
         readySubheadline: 'Check your OfferBoost cash offer below, and unlock your FREE AI powered ' +
                       'custom home value and offer optimization report. No obligation, no strings attached.',
         loadingMessage: 'Processing Your OfferBoost Cash Offer Analysis...',
-        readyHeadline: 'Your OfferBoost Maximum Cash Offer is Ready!'
+        readyHeadline: 'Your OfferBoost Highest Cash Offer is Ready!'
       }
     };
     
@@ -327,7 +473,7 @@ function ValueBoostReport() {
       if (simplified.includes('cash')) return step3Content === 'B2' ? templates.cashB2 : templates.cash;
       if (simplified.includes('sellfast') || simplified.includes('sell_fast')) return step3Content === 'B2' ? templates.sellfastB2 : templates.sellfast;
       if (simplified.includes('fast')) return step3Content === 'B2' ? templates.fastB2 : templates.fast;
-      if (simplified.includes('wide')) return step3Content === 'B2' ? templates.wideB2 : templates.wide;
+      if (simplified.includes('sell')) return step3Content === 'B2' ? templates.sellB2 : templates.sellA;
       
       // VALUE/IMPROVEMENT CAMPAIGN MATCHING
       if (simplified.includes('valueboost') || simplified.includes('value_boost')) return step3Content === 'B2' ? templates.valueboostB2 : templates.valueboost;
@@ -1553,6 +1699,7 @@ function ValueBoostReport() {
             </div>
           )}
           
+          
           {/* Header - only show if API provided a valid value */}
           {!reportLoading && !showReportReady && !!(testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) && (
           <>
@@ -1574,6 +1721,7 @@ function ValueBoostReport() {
             const urlParams = new URLSearchParams(window.location.search);
             const splitTest = urlParams.get('split_test') || urlParams.get('variant') || localStorage.getItem('assignedVariant') || 'AAA'; // Default to show everything
             const showStep3Box = splitTest[2] === 'A'; // Position 3 controls Step 3 box
+            
             
             // Check if returning from retry
             const isReturnFromRetry = formData.addressSelectionType === 'AddressRetry-Google' || 
@@ -1873,32 +2021,55 @@ function ValueBoostReport() {
                   {/* Opaque background wrapper for the unlock section */}
                   <div className="vb-unlock-section-wrapper">
                     <div className="vb-unlock-header">
-                      <div className="vb-lock-icon-container">
-                        <div className="vb-lock-icon">
-                          🔒
-                        </div>
-                      </div>
-                      <h3 className="vb-unlock-headline">
-                        {dynamicContent.unlockHeadline}
+                      {(() => {
+                        // Check if this is a B2 variant - if so, hide lock icon
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const variant = urlParams.get('variant') || urlParams.get('split_test') || localStorage.getItem('assignedVariant') || 'B2OB2';
+                        const step3Content = variant.substring(3, 5);  // A1, A2, or B2
+                        const isB2Variant = step3Content === 'B2';
+                        
+                        // Only show lock icon if NOT B2 variant
+                        if (!isB2Variant) {
+                          return (
+                            <div className="vb-lock-icon-container">
+                              <div className="vb-lock-icon">
+                                🔒
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
+                      <h3 className="vb-unlock-headline" dangerouslySetInnerHTML={{ __html: dynamicContent.unlockHeadline }}>
                       </h3>
                     </div>
                     <div className="vb-features-bubble">
                       <div className="vb-feature-item">
                         <div className="vb-feature-icon">✓</div>
                         <p className="vb-feature-text">
-                          <strong>All {dynamicContent.reportHeadline.includes('OfferBoost') ? 'OfferBoost cash offer' : 'ValueBoost'} opportunities</strong> for your property
+                          <strong>{dynamicContent.checkmark1}</strong>
                         </p>
                       </div>
                       <div className="vb-feature-item">
                         <div className="vb-feature-icon">✓</div>
                         <p className="vb-feature-text">
-                          <strong>Detailed maximum {dynamicContent.reportHeadline.includes('OfferBoost') ? 'OfferBoost' : 'ValueBoost'} calculations</strong> for maximizing home value
+                          <strong>{dynamicContent.checkmark2}</strong>
                         </p>
                       </div>
                       <div className="vb-feature-item">
                         <div className="vb-feature-icon">✓</div>
                         <p className="vb-feature-text">
-                          <strong>Customized for your property</strong> at {formData.street}
+                          <strong>{dynamicContent.checkmark3}</strong>{(() => {
+                            // Check if this is a B2 variant using the same logic as getDynamicContent
+                            const urlParams = new URLSearchParams(window.location.search);
+                            const variant = urlParams.get('variant') || urlParams.get('split_test') || localStorage.getItem('assignedVariant') || 'B2OB2';
+                            const step3Content = variant.substring(3, 5);  // A1, A2, or B2
+                            
+                            // If it's a B2 variant, don't show address
+                            const isB2Variant = step3Content === 'B2';
+                            
+                            return isB2Variant ? '' : ` at ${formData.street}`;
+                          })()}
                         </p>
                       </div>
                     </div>
@@ -1912,7 +2083,7 @@ function ValueBoostReport() {
                           name="name"
                           value={contactInfo.name}
                           onChange={handleInputChange}
-                          placeholder="Your name (optional)"
+                          placeholder="Name"
                           className={`vb-unlock-input ${formErrors.name ? 'vb-unlock-input-error' : ''}`}
                         />
                         <input
@@ -2141,7 +2312,7 @@ function ValueBoostReport() {
               boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
               display: unlocked ? 'block' : 'none' // Only show when recommendations are unlocked
             }}>
-              <h3 style={{ margin: '0 0 15px 0', fontSize: '22px', color: '#236b6d' }}>
+              <h3 style={{ margin: '0 0 15px 0', fontSize: '22px', color: '#16899d' }}>
                 Want These Upgrades Done At No Upfront Cost?
               </h3>
               <p style={{ margin: '0 0 20px 0', fontSize: '16px' }}>
@@ -2219,7 +2390,7 @@ function ValueBoostReport() {
               >
                 ×
               </button>
-              <h3 style={{ margin: '0 0 20px 0', fontSize: '22px', color: '#236b6d', textAlign: 'center' }}>
+              <h3 style={{ margin: '0 0 20px 0', fontSize: '22px', color: '#16899d', textAlign: 'center' }}>
                 Create Your Free Account
               </h3>
               <p style={{ margin: '0 0 25px 0', fontSize: '16px', textAlign: 'center', color: '#555' }}>
@@ -2323,7 +2494,7 @@ function ValueBoostReport() {
                   </button>
                 </div>
                 <div className="vb-disclaimer-text" style={{ marginTop: '15px', fontSize: '13px', color: '#999', textAlign: 'center', lineHeight: '1.4', maxWidth: '400px', margin: '15px auto 0', padding: '0 20px' }}>
-                  *Example values only. Your offer amount will depend on your specific home details and other factors. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. <strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong>
+                  {dynamicContent.disclaimer}
                 </div>
               </form>
 

@@ -1,31 +1,28 @@
 import React from 'react';
 import LeadershipSection from './LeadershipSection';
 import HowItWorks from './HowItWorks';
-import ValueBoostHowItWorks from './ValueBoostHowItWorks';
-import CommonQuestions from './CommonQuestions';
-import OfferBoostHowItWorks from './OfferBoostHowItWorks';
-import WeBuyHomes from './WeBuyHomes';
-import AITools from './AITools';
-import Results from './Results';
-import WhyAI from './WhyAI';
-import WhoItsFor from './WhoItsFor';
-import CallToAction from './CallToAction';
+import ComparisonTable from './ComparisonTable';
+import ContactForm from './ContactForm';
+import LazyImage from '../common/LazyImage';
+import waveImage from '../../assets/images/wave.gif';
 import '../../styles/belowfold.css';
 
 function BelowFold() {
   return (
     <div className="bf-belowfold">
+      <div className="ai-wave-container">
+        <LazyImage src={waveImage} alt="" />
+      </div>
       <LeadershipSection />
+      <div className="ai-wave-container">
+        <LazyImage src={waveImage} alt="" />
+      </div>
       <HowItWorks />
-      <ValueBoostHowItWorks />
-      <CommonQuestions />
-      <OfferBoostHowItWorks />
-      <WeBuyHomes />
-      <AITools />
-      <Results />
-      <WhyAI />
-      <WhoItsFor />
-      <CallToAction />
+      <div className="ai-wave-container">
+        <LazyImage src={waveImage} alt="" />
+      </div>
+      <ComparisonTable />
+      <ContactForm />
     </div>
   );
 }
