@@ -1528,11 +1528,19 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
                 <div style={styles.label}>Split Test Variant</div>
                 <div style={styles.value}>
                   {(() => {
-                    // Extract variant from URL or stored variant field
-                    const variant = lead.variant || lead.split_test || (() => {
+                    // Extract variant from route-based fields or legacy URL/stored fields
+                    const routeVariant = lead.routeVariant;
+                    const routeCampaign = lead.routeCampaign;
+                    const legacyVariant = lead.variant || lead.split_test || (() => {
                       if (lead.url) {
                         try {
                           const urlObj = new URL(lead.url);
+                          // Check route path first
+                          const pathParts = urlObj.pathname.split('/');
+                          if (pathParts[1] === 'analysis' && pathParts.length >= 4) {
+                            return pathParts[3].toUpperCase(); // a1o -> A1O
+                          }
+                          // Fallback to URL parameters
                           return urlObj.searchParams.get('variant') || urlObj.searchParams.get('split_test');
                         } catch {
                           return null;
@@ -1541,17 +1549,24 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
                       return null;
                     })();
                     
+                    const variant = routeVariant || legacyVariant;
+                    
                     if (variant) {
-                      // Display variant with description
+                      // Route-based variant descriptions
                       const variantDescriptions = {
-                        'AAA': 'Show Box + Show Step2 + Default Step3',
-                        'AAB': 'Show Box + Show Step2 + Alt Step3',
-                        'ABA': 'Show Box + Skip Step2 + Default Step3',
-                        'ABB': 'Show Box + Skip Step2 + Alt Step3',
-                        'BAA': 'Hide Box + Show Step2 + Default Step3',
-                        'BAB': 'Hide Box + Show Step2 + Alt Step3',
-                        'BBA': 'Hide Box + Skip Step2 + Default Step3',
-                        'BBB': 'Hide Box + Skip Step2 + Alt Step3',
+                        'A1O': 'A text + Original layout + Skip AI',
+                        'A1I': 'A text + Original layout + Include AI', 
+                        'A2O': 'A text + Streamlined layout + Skip AI',
+                        'B2O': 'B text + Streamlined layout + Skip AI',
+                        // Legacy descriptions for backward compatibility
+                        'AAA': 'Show Box + Show Step2 + Default Step3 (Legacy)',
+                        'AAB': 'Show Box + Show Step2 + Alt Step3 (Legacy)',
+                        'ABA': 'Show Box + Skip Step2 + Default Step3 (Legacy)',
+                        'ABB': 'Show Box + Skip Step2 + Alt Step3 (Legacy)',
+                        'BAA': 'Hide Box + Show Step2 + Default Step3 (Legacy)',
+                        'BAB': 'Hide Box + Show Step2 + Alt Step3 (Legacy)',
+                        'BBA': 'Hide Box + Skip Step2 + Default Step3 (Legacy)',
+                        'BBB': 'Hide Box + Skip Step2 + Alt Step3 (Legacy)',
                       };
                       
                       const description = variantDescriptions[variant] || 'Custom variant';
@@ -1559,6 +1574,11 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
                       return (
                         <div>
                           <strong style={{color: '#09a5c8'}}>{variant}</strong>
+                          {routeCampaign && (
+                            <span style={{color: '#666', marginLeft: '8px', fontSize: '14px'}}>
+                              (Campaign: {routeCampaign})
+                            </span>
+                          )}
                           <div style={{fontSize: '12px', color: '#666', marginTop: '4px'}}>
                             {description}
                           </div>

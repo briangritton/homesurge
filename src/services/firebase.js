@@ -85,9 +85,13 @@ export async function createImmediateLead(campaignData) {
       gclid: campaignData.gclid || '',
       traffic_source: campaignData.traffic_source || 'Direct',
       
-      // Variant tracking (critical for split tests)
-      variant: campaignData.variant || 'AAA',
-      split_test: campaignData.split_test || campaignData.variant || 'AAA',
+      // Variant tracking (route-based system)
+      variant: campaignData.variant || 'A1O',
+      split_test: campaignData.split_test || campaignData.variant || 'A1O',
+      
+      // Route-based campaign and variant data
+      routeCampaign: campaignData.routeCampaign || '',
+      routeVariant: campaignData.routeVariant || campaignData.variant || 'A1O',
       
       // Page data
       url: window.location.href,

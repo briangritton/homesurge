@@ -1110,9 +1110,14 @@ export function FormProvider({ children }) {
           // Set flag immediately to prevent duplicate creation
           localStorage.setItem('leadCreationInProgress', 'true');
           
+          // Get route-based campaign and variant data
+          const routeData = getRouteData();
+          
           createImmediateLead({
             ...campaignData,
-            variant: urlParams.get('variant') || urlParams.get('split_test') || getAssignedVariant()
+            variant: urlParams.get('variant') || urlParams.get('split_test') || routeData.variant,
+            routeCampaign: routeData.campaign,
+            routeVariant: routeData.variant
           }).then(leadId => {
             if (leadId) {
               console.log('✅ Immediate lead created:', leadId);

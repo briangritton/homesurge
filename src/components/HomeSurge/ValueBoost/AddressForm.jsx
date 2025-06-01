@@ -2160,12 +2160,10 @@ function AddressForm({ campaign, variant }) {
           {/* Position 1: A=Show Box, B=Hide Box       */}
           {/* ========================================= */}
           {(() => {
-            // Check split test parameters from URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const splitTest = urlParams.get('split_test') || urlParams.get('variant') || localStorage.getItem('assignedVariant') || 'AAA'; // Default to show everything
-            const showStep1Box = splitTest[0] === 'A'; // Position 1 controls Step 1 box - A=show (default), B=hide
-            
-            return showStep1Box;
+            // Show value boost box for "1" variants (original layout), hide for "2" variants (streamlined layout)
+            const showValueBoostBox = variant === 'A1O' || variant === 'A1I';
+            console.log(`🎯 AddressForm: variant=${variant}, showValueBoostBox=${showValueBoostBox}`);
+            return showValueBoostBox;
           })() && (
           <div className="vb-value-boost-box">
             {/* Example indicator */}

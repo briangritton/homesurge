@@ -27,18 +27,8 @@ function ValueBoostReport({ campaign, variant }) {
   // ================================================================================
   
   const getDynamicContent = () => {
-    // Read campaign name directly from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const possibleParamNames = ['campaign_name', 'campaignname', 'campaign-name', 'utm_campaign'];
-    
-    let campaignName = '';
-    for (const paramName of possibleParamNames) {
-      const value = urlParams.get(paramName);
-      if (value) {
-        campaignName = value;
-        break;
-      }
-    }
+    // Use campaign prop from route (e.g., /analysis/cash/a1o)
+    const campaignName = campaign || 'cash';
     
     // UNIVERSAL REPORT TEMPLATES - Both Value and Cash campaigns
     const templates = {
@@ -453,33 +443,24 @@ function ValueBoostReport({ campaign, variant }) {
       }
     };
     
-    // Split Test Logic - Check for variant parameter
-    const variant = urlParams.get('variant') || urlParams.get('split_test') || localStorage.getItem('assignedVariant') || 'B2OB2';
-    
-    // Parse variant for step 3 content selection (position 3-4)
-    // Format: A1IA1, A2OB2, B2IB2, etc.
-    const step3Content = variant.substring(3, 5);  // A1, A2, or B2
-    
-    console.log('ValueBoostReport - Step 3 variant:', {
-      full: variant,
-      step3Content: step3Content
-    });
+    // Use variant prop from route
+    console.log('ValueBoostReport - Using variant prop:', variant);
     
     // Campaign matching logic with A/B content variants (consistent with AddressForm and AIProcessing)
     if (campaignName) {
       const simplified = campaignName.toLowerCase().replace(/[\s\-_\.]/g, '');
       
       // CASH/SELLING CAMPAIGN MATCHING (Highest priority)
-      if (simplified.includes('cash')) return step3Content === 'B2' ? templates.cashB2 : templates.cash;
-      if (simplified.includes('sellfast') || simplified.includes('sell_fast')) return step3Content === 'B2' ? templates.sellfastB2 : templates.sellfast;
-      if (simplified.includes('fast')) return step3Content === 'B2' ? templates.fastB2 : templates.fast;
-      if (simplified.includes('sell')) return step3Content === 'B2' ? templates.sellB2 : templates.sellA;
+      if (simplified.includes('cash')) return variant === 'B2O' ? templates.cashB2 : templates.cash;
+      if (simplified.includes('sellfast') || simplified.includes('sell_fast')) return variant === 'B2O' ? templates.sellfastB2 : templates.sellfast;
+      if (simplified.includes('fast')) return variant === 'B2O' ? templates.fastB2 : templates.fast;
+      if (simplified.includes('sell')) return variant === 'B2O' ? templates.sellB2 : templates.sellA;
       
       // VALUE/IMPROVEMENT CAMPAIGN MATCHING
-      if (simplified.includes('valueboost') || simplified.includes('value_boost')) return step3Content === 'B2' ? templates.valueboostB2 : templates.valueboost;
-      if (simplified.includes('value')) return step3Content === 'B2' ? templates.valueB2 : templates.value;
-      if (simplified.includes('boost')) return step3Content === 'B2' ? templates.boostB2 : templates.boost;
-      if (simplified.includes('equity')) return step3Content === 'B2' ? templates.equityB2 : templates.equity;
+      if (simplified.includes('valueboost') || simplified.includes('value_boost')) return variant === 'B2O' ? templates.valueboostB2 : templates.valueboost;
+      if (simplified.includes('value')) return variant === 'B2O' ? templates.valueB2 : templates.value;
+      if (simplified.includes('boost')) return variant === 'B2O' ? templates.boostB2 : templates.boost;
+      if (simplified.includes('equity')) return variant === 'B2O' ? templates.equityB2 : templates.equity;
     }
 
     return templates.default;
@@ -1717,10 +1698,9 @@ function ValueBoostReport({ campaign, variant }) {
           {/* Position 3: A=Show Box, B=Hide Box       */}
           {/* ========================================= */}
           {(() => {
-            // Check split test parameters from URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const splitTest = urlParams.get('split_test') || urlParams.get('variant') || localStorage.getItem('assignedVariant') || 'AAA'; // Default to show everything
-            const showStep3Box = splitTest[2] === 'A'; // Position 3 controls Step 3 box
+            // Show value boost box for "1" variants (original layout), hide for "2" variants (streamlined layout)
+            const showStep3Box = variant === 'A1O' || variant === 'A1I';
+            console.log(`🎯 ValueBoostReport: variant=${variant}, showStep3Box=${showStep3Box}`);
             
             
             // Check if returning from retry

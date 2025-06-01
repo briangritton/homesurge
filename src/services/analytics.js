@@ -10,6 +10,24 @@ const GTM_ID = process.env.REACT_APP_GTM_ID || '';
 // Debug mode for development
 const isDebug = process.env.NODE_ENV === 'development';
 
+// Helper function to get route-based variant data
+function getRouteVariantData() {
+  const path = window.location.pathname;
+  const pathParts = path.split('/');
+  
+  if (pathParts[1] === 'analysis' && pathParts.length >= 4) {
+    return {
+      routeCampaign: pathParts[2], // cash, sell, value, equity
+      routeVariant: pathParts[3].toUpperCase() // a1o -> A1O
+    };
+  }
+  
+  return {
+    routeCampaign: '',
+    routeVariant: ''
+  };
+}
+
 // No consent management needed
 
 // Initialize analytics services
@@ -108,6 +126,9 @@ export function trackPageView(path) {
     console.error('Error retrieving campaign data for pageView:', e);
   }
   
+  // Get route-based variant data
+  const routeData = getRouteVariantData();
+  
   window.dataLayer.push({
     event: 'pageView',
     page: {
@@ -124,6 +145,10 @@ export function trackPageView(path) {
       gclid: campaignData.gclid || '',
       matchtype: campaignData.matchtype || '',
       traffic_source: campaignData.traffic_source || 'Direct'
+    },
+    variantData: {
+      routeCampaign: routeData.routeCampaign,
+      routeVariant: routeData.routeVariant
     }
   });
 
@@ -173,6 +198,8 @@ export function trackFormSubmission(formData) {
 
   // GTM form submission event with enhanced campaign data
   window.dataLayer = window.dataLayer || [];
+  const routeData = getRouteVariantData();
+  
   window.dataLayer.push({
     event: 'formSubmission',
     formName: 'Lead Form',
@@ -195,6 +222,10 @@ export function trackFormSubmission(formData) {
       device: formData.device || '',
       gclid: formData.gclid || '',
       traffic_source: formData.traffic_source || 'Direct'
+    },
+    variantData: {
+      routeCampaign: routeData.routeCampaign,
+      routeVariant: routeData.routeVariant
     },
     conversionValue: formData.apiEstimatedValue ? Math.round(formData.apiEstimatedValue / 1000) : 0 // Intentionally dividing by 1000 for a "K" value scale
   });
@@ -242,6 +273,8 @@ export function trackFormStepComplete(stepNumber, stepName, formData) {
   }
 
   window.dataLayer = window.dataLayer || [];
+  const routeData = getRouteVariantData();
+  
   window.dataLayer.push({
     event: 'formStepComplete',
     formStep: stepNumber,
@@ -256,7 +289,11 @@ export function trackFormStepComplete(stepNumber, stepName, formData) {
       gclid: formData.gclid || '',
       matchtype: formData.matchtype || '',
       traffic_source: formData.traffic_source || 'Direct'
-    } : {}
+    } : {},
+    variantData: {
+      routeCampaign: routeData.routeCampaign,
+      routeVariant: routeData.routeVariant
+    }
   });
 
   // Track in Facebook Pixel

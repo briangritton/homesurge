@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useFormContext } from '../../../contexts/FormContext';
 import { updateLeadInFirebase } from '../../../services/firebase.js';
 import { trackFormStepComplete } from '../../../services/analytics';
@@ -25,18 +25,8 @@ function AIProcessing({ campaign, variant }) {
   // CAMPAIGN-BASED CONTENT - Matches AddressForm campaigns
   // ================= ADD NEW CAMPAIGNS HERE ===================
   const getDynamicContent = () => {
-    // Read campaign name directly from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const possibleParamNames = ['campaign_name', 'campaignname', 'campaign-name', 'utm_campaign'];
-    
-    let campaignName = '';
-    for (const paramName of possibleParamNames) {
-      const value = urlParams.get(paramName);
-      if (value) {
-        campaignName = value;
-        break;
-      }
-    }
+    // Use campaign prop from route (e.g., /analysis/cash/a1i)
+    const campaignName = campaign || 'cash';
     
     const templates = {
       // ========== CASH/SELLING CAMPAIGNS ==========
@@ -156,38 +146,29 @@ function AIProcessing({ campaign, variant }) {
       }
     };
     
-    // Split Test Logic - Check for variant parameter
-    const variant = urlParams.get('variant') || urlParams.get('split_test') || localStorage.getItem('assignedVariant') || 'B2OB2';
-    
-    // Note: AIProcessing step uses step 1 content (for consistency with step theme)
-    // Parse variant for step 1 content selection (position 0-1)
-    const step1Content = variant.substring(0, 2);  // A1, A2, or B2
-    
-    console.log('AIProcessing - Using step 1 variant:', {
-      full: variant,
-      step1Content: step1Content
-    });
+    // Use variant prop from route
+    console.log('AIProcessing - Using variant prop:', variant);
 
     // Campaign matching logic with A/B content variants
     if (campaignName) {
       const simplified = campaignName.toLowerCase().replace(/[\s\-_\.]/g, '');
       
       // CASH/SELLING CAMPAIGN MATCHING (Highest priority)
-      if (simplified.includes('cash')) return step1Content === 'B2' ? templates.cashB2 : templates.cash;
-      if (simplified.includes('sellfast') || simplified.includes('sell_fast')) return step1Content === 'B2' ? templates.sellfastB2 : templates.sellfast;
-      if (simplified.includes('fast')) return step1Content === 'B2' ? templates.fastB2 : templates.fast;
+      if (simplified.includes('cash')) return variant === 'B2O' ? templates.cashB2 : templates.cash;
+      if (simplified.includes('sellfast') || simplified.includes('sell_fast')) return variant === 'B2O' ? templates.sellfastB2 : templates.sellfast;
+      if (simplified.includes('fast')) return variant === 'B2O' ? templates.fastB2 : templates.fast;
       
       // VALUE/IMPROVEMENT CAMPAIGN MATCHING
-      if (simplified.includes('valueboost') || simplified.includes('value_boost')) return step1Content === 'B2' ? templates.valueboostB2 : templates.valueboost;
-      if (simplified.includes('value')) return step1Content === 'B2' ? templates.valueB2 : templates.value;
-      if (simplified.includes('boost')) return step1Content === 'B2' ? templates.boostB2 : templates.boost;
-      if (simplified.includes('equity')) return step1Content === 'B2' ? templates.equityB2 : templates.equity;
+      if (simplified.includes('valueboost') || simplified.includes('value_boost')) return variant === 'B2O' ? templates.valueboostB2 : templates.valueboost;
+      if (simplified.includes('value')) return variant === 'B2O' ? templates.valueB2 : templates.value;
+      if (simplified.includes('boost')) return variant === 'B2O' ? templates.boostB2 : templates.boost;
+      if (simplified.includes('equity')) return variant === 'B2O' ? templates.equityB2 : templates.equity;
     }
 
     return templates.default;
   };
   
-  const dynamicContent = getDynamicContent();
+  const dynamicContent = useMemo(() => getDynamicContent(), [campaign, variant]);
   const [processingStep, setProcessingStep] = useState(0);
   const [progressPercent, setProgressPercent] = useState(0);
   const [mapLoaded, setMapLoaded] = useState(false);

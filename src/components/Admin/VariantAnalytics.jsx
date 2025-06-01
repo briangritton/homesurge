@@ -164,16 +164,12 @@ const VariantAnalytics = () => {
     return true;
   };
 
-  // Variant descriptions for easier understanding
+  // Route-based variant descriptions for easier understanding
   const variantDescriptions = {
-    'AAA': 'Show Box + Show Step2 + Default Step3',
-    'AAB': 'Show Box + Show Step2 + Alt Step3',
-    'ABA': 'Show Box + Skip Step2 + Default Step3',
-    'ABB': 'Show Box + Skip Step2 + Alt Step3',
-    'BAA': 'Hide Box + Show Step2 + Default Step3',
-    'BAB': 'Hide Box + Show Step2 + Alt Step3',
-    'BBA': 'Hide Box + Skip Step2 + Default Step3',
-    'BBB': 'Hide Box + Skip Step2 + Alt Step3',
+    'A1O': 'A text + Original layout + Skip AI',
+    'A1I': 'A text + Original layout + Include AI', 
+    'A2O': 'A text + Streamlined layout + Skip AI',
+    'B2O': 'B text + Streamlined layout + Skip AI'
   };
 
   useEffect(() => {
@@ -192,7 +188,8 @@ const VariantAnalytics = () => {
         leadsSnapshot.docs.forEach(doc => {
           const data = doc.data();
           const campaignName = data.campaign_name || 'Unknown';
-          const variant = data.variant || getVariantFromUrl(data.url) || 'Unknown';
+          // Use route-based variant from Firebase, fallback to URL parsing for old leads
+          const variant = data.variant || getVariantFromUrl(data.url) || getVariantFromPath(data.url) || 'Unknown';
           
           // Filter out any campaigns with "test" in the URL
           if (data.url && data.url.toLowerCase().includes('test')) {
@@ -265,7 +262,7 @@ const VariantAnalytics = () => {
     fetchVariantData();
   }, [startDate, endDate]); // Refetch when date range changes
 
-  // Extract variant from URL parameters
+  // Extract variant from URL parameters (legacy method)
   const getVariantFromUrl = (url) => {
     if (!url) return null;
     
@@ -274,6 +271,33 @@ const VariantAnalytics = () => {
       return urlObj.searchParams.get('variant') || 
              urlObj.searchParams.get('split_test') || 
              null;
+    } catch {
+      return null;
+    }
+  };
+
+  // Extract variant from URL path (new route-based method)
+  const getVariantFromPath = (url) => {
+    if (!url) return null;
+    
+    try {
+      const urlObj = new URL(url);
+      const pathParts = urlObj.pathname.split('/');
+      
+      // Check for /analysis/{campaign}/{variant} structure
+      if (pathParts[1] === 'analysis' && pathParts.length >= 4) {
+        return pathParts[3].toUpperCase(); // a1o -> A1O
+      }
+      
+      // Check for legacy /valueboost paths
+      if (urlObj.pathname.includes('/valueboost/')) {
+        if (urlObj.pathname.includes('/a1o')) return 'A1O';
+        if (urlObj.pathname.includes('/a1i')) return 'A1I';
+        if (urlObj.pathname.includes('/a2o')) return 'A2O';
+        if (urlObj.pathname.includes('/b2o')) return 'B2O';
+      }
+      
+      return null;
     } catch {
       return null;
     }
@@ -291,11 +315,8 @@ const VariantAnalytics = () => {
   const calculateCombinedAnalytics = () => {
     const combinedVariants = {};
     const allVariants = [
-      // Strategic 6 combinations (consistent format)
-      'A1IA1', 'A1OA1', 'A2IA2', 'A2OA2', 'B2IB2', 'B2OB2',
-      // Mixed format combinations (examples - system supports all 18)
-      'A1IA2', 'A2IA1', 'A1OB2', 'A2OB2', 'B2IA1', 'B2IA2',
-      'B2OA1', 'B2OA2', 'A1IB2', 'A2IB2'
+      // Route-based variants (4 combinations)
+      'A1O', 'A1I', 'A2O', 'B2O'
     ];
     
     // Initialize all variants
@@ -426,7 +447,7 @@ const VariantAnalytics = () => {
                 </tr>
               </thead>
               <tbody>
-                {['AIA', 'AOA', 'BIB', 'BOB', 'AIA2', 'BIB2'].map(variant => {
+                {['A1O', 'A1I', 'A2O', 'B2O'].map(variant => {
                   const stats = combinedAnalytics[variant] || {
                     clicks: 0,
                     count: 0,
@@ -444,24 +465,10 @@ const VariantAnalytics = () => {
                   };
                   
                   const variantDescriptions = {
-                    // Strategic combinations
-                    'A1IA1': 'Control: Primary text + original format',
-                    'A1OA1': 'Skip step 2: Primary text + original format',
-                    'A2IA2': 'Streamlined A: Primary text + streamlined format',
-                    'A2OA2': 'Best A: Primary streamlined, skip step 2',
-                    'B2IB2': 'Streamlined B: Secondary text + streamlined format',
-                    'B2OB2': 'Best B: Secondary streamlined, skip step 2',
-                    // Mixed combinations
-                    'A1IA2': 'Mixed: Primary → Primary streamlined',
-                    'A2IA1': 'Mixed: Primary streamlined → Primary',
-                    'A1OB2': 'Mixed: Primary → Secondary streamlined, skip',
-                    'A2OB2': 'Mixed: Primary streamlined → Secondary streamlined, skip',
-                    'B2IA1': 'Mixed: Secondary streamlined → Primary',
-                    'B2IA2': 'Mixed: Secondary streamlined → Primary streamlined',
-                    'B2OA1': 'Mixed: Secondary streamlined → Primary, skip',
-                    'B2OA2': 'Mixed: Secondary streamlined → Primary streamlined, skip',
-                    'A1IB2': 'Mixed: Primary → Secondary streamlined',
-                    'A2IB2': 'Mixed: Primary streamlined → Secondary streamlined'
+                    'A1O': 'A text + Original layout + Skip AI',
+                    'A1I': 'A text + Original layout + Include AI', 
+                    'A2O': 'A text + Streamlined layout + Skip AI',
+                    'B2O': 'B text + Streamlined layout + Skip AI'
                   };
                   
                   return (
@@ -490,14 +497,10 @@ const VariantAnalytics = () => {
           
           {/* Individual Campaign Tables */}
           {Object.entries(variantData).map(([campaign, variants]) => {
-          // All possible variants for this campaign (updated for I/O system)
+          // All possible variants for this campaign (route-based system)
           const allVariants = [
-      // Strategic 6 combinations (consistent format)
-      'A1IA1', 'A1OA1', 'A2IA2', 'A2OA2', 'B2IB2', 'B2OB2',
-      // Mixed format combinations (examples - system supports all 18)
-      'A1IA2', 'A2IA1', 'A1OB2', 'A2OB2', 'B2IA1', 'B2IA2',
-      'B2OA1', 'B2OA2', 'A1IB2', 'A2IB2'
-    ];
+            'A1O', 'A1I', 'A2O', 'B2O'
+          ];
           
           return (
             <div key={campaign} style={styles.campaignSection}>
@@ -523,7 +526,7 @@ const VariantAnalytics = () => {
                             if (window.confirm(`Are you absolutely sure? This action cannot be undone.`)) {
                               // Clear the campaign data while keeping the structure
                               const newData = { ...variantData };
-                              const allVariants = ['AAA', 'AAB', 'ABA', 'ABB', 'BAA', 'BAB', 'BBA', 'BBB'];
+                              const allVariants = ['A1O', 'A1I', 'A2O', 'B2O'];
                               newData[campaign] = {};
                               allVariants.forEach(variant => {
                                 newData[campaign][variant] = {
@@ -627,9 +630,9 @@ const VariantAnalytics = () => {
       )}
       
       <div style={styles.description}>
-        <strong>Legend:</strong> A1/A2 = Primary text (1=Original, 2=Streamlined), 
-        B2 = Secondary text (streamlined), I/O = Step 2 control (I=Show, O=Skip).<br/>
-        <strong>Format:</strong> [Step1][Step2][Step3] - Example: A1IA2 = Primary original → Show step 2 → Primary streamlined
+        <strong>Legend:</strong> A/B = Text variant (A=Primary, B=Secondary), 
+        1/2 = Layout (1=Original, 2=Streamlined), O/I = AI Processing (O=Skip, I=Include).<br/>
+        <strong>Route Format:</strong> /analysis/[campaign]/[variant] - Example: /analysis/cash/a1o = Cash campaign, A text, Original layout, Skip AI
       </div>
     </div>
   );
