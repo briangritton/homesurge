@@ -37,7 +37,7 @@ function B2Step3({ campaign, variant }) {
         buttonText: 'GET CASH OFFER',
         
         // Disclaimer (at bottom)
-        disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.'
+        disclaimer: '<strong> No spam ever. </strong>We respect your privacy and will never share your details with anyone. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list.'
       },
      
       // WIDE B2 - Enhanced comprehensive hassle-free solutions
@@ -58,7 +58,7 @@ function B2Step3({ campaign, variant }) {
         buttonText: 'GET CASH OFFER',
         
         // Disclaimer (at bottom)
-        disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.'
+        disclaimer: '<strong> No spam ever. </strong>We respect your privacy and will never share your details with anyone. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list.'
       },
  
        // VALUE B2 - Deeper value analysis and insights
@@ -81,7 +81,7 @@ function B2Step3({ campaign, variant }) {
         buttonText: 'GET VALUE REPORT',
         
         // Disclaimer (at bottom)
-        disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.'
+        disclaimer: '<strong> No spam ever. </strong>We respect your privacy and will never share your details with anyone. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list.'
       },
 
 
@@ -105,7 +105,7 @@ function B2Step3({ campaign, variant }) {
         buttonText: 'GET CASH OFFER',
         
         // Disclaimer (at bottom)
-        disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.'
+        disclaimer: '<strong> No spam ever. </strong>We respect your privacy and will never share your details with anyone. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list.'
      }
     };
     

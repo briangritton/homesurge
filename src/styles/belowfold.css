@@ -81,7 +81,7 @@
 /* Grid Layouts */
 .bf-grid-3 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 40px;
   margin-bottom: 40px;
 }
@@ -450,7 +450,7 @@
   }
   
   .bf-grid-3 {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 30px;
   }
   
@@ -943,6 +943,8 @@
 .bf-how-it-works-image {
   text-align: center;
   margin: 0 auto 50px auto;
+  display:flex;
+  justify-content:center;
 }
 
 .bf-familywalk-photo {
@@ -1182,6 +1184,13 @@
 
 /* Mobile responsive */
 @media (max-width: 768px) {
+
+
+.bf-contact-form {
+  background: var(--bf-light-bg);
+}
+
+
   .bf-comparison-two-col {
     /* margin: 0 10px; */
   }
@@ -1308,7 +1317,7 @@
 
 /* Contact Form Styles */
 .bf-contact-form {
-  background: var(--bf-light-bg);
+  background: #FFF;
 }
 
 .bf-contact-form-container {
@@ -1482,6 +1491,8 @@
 .lazy-image-container {
   position: relative;
   overflow: hidden;
+  min-height: 100px;
+  display: block;
 }
 
 .lazy-image {
@@ -1490,6 +1501,7 @@
   transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
   opacity: 0;
   transform: translateY(20px);
+  display: block;
 }
 
 .lazy-image-loaded {
@@ -1500,6 +1512,15 @@
 .lazy-image-loading {
   opacity: 0;
   transform: translateY(20px);
+}
+
+.lazy-image-placeholder {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 0.3; }
 }
 
 /* AI Wave specific lazy loading */
@@ -1524,4 +1545,40 @@
 .bf-familywalk-photo .lazy-image {
   border-radius: 12px;
   transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+}
+
+/* ValueBoost Report Disclaimer Styles */
+.vb-report-disclaimer {
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  margin-bottom: 20px;
+  line-height: 1.5;
+  padding: 0 20px;
+  max-width:475px;
+}
+
+.vb-modal-disclaimer {
+  margin-top: 15px;
+  font-size: 13px;
+  color: #999;
+  text-align: center;
+  line-height: 1.4;
+  max-width: 400px;
+  margin: 15px auto 0;
+  padding: 0 20px;
+}
+
+@media (max-width: 768px) {
+  .vb-report-disclaimer {
+    font-size: 13px;
+    /* padding: 0 15px; */
+    margin-bottom: 15px;
+  }
+  
+  .vb-modal-disclaimer {
+    font-size: 12px;
+    padding: 0 15px;
+    max-width: 300px;
+  }
 }

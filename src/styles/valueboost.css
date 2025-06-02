@@ -3390,8 +3390,12 @@ padding-top:0%;
    ================================================================================ */
 
 .bf-leadership-image {
-  text-align: center;
-  margin: 30px auto 20px auto;
+    margin: 30px auto 20px;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    display: flex
+;
 }
 
 .bf-family-photo {

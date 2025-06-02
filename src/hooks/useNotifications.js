@@ -109,12 +109,12 @@ export const useNotifications = (formData, leadId = null) => {
     }
 
     // 3. ADDRESS SUBMISSION NOTIFICATIONS (FAST/CASH CAMPAIGNS ONLY)
-    // Trigger when address is submitted (minimum 10 characters to avoid triggering during typing)
-    const hasAddress = formData.street && formData.street.length >= 10;
-    const prevHadAddress = prevFormData.street && prevFormData.street.length >= 10;
+    // Trigger when address is submitted AND we've moved past step 1 (minimum 15 characters to avoid triggering during typing)
+    const hasAddress = formData.street && formData.street.length >= 15 && formData.formStep > 1;
+    const prevHadAddress = prevFormData.street && prevFormData.street.length >= 15 && prevFormData.formStep > 1;
 
     if (hasAddress && !prevHadAddress) {
-      console.log('🔔 Address submission detected (10+ characters) - triggering conditional notification');
+      console.log('🔔 Address submission detected (15+ characters, after step 1) - triggering conditional notification');
       sendNotificationSafely(formData, 'address_submit');
     }
 

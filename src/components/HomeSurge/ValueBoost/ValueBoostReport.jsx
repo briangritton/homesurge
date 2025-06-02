@@ -38,7 +38,7 @@ function ValueBoostReport({ campaign, variant }) {
         reportHeadline: 'Your OfferBoost Highest Cash Offer Is Ready!:',
         readySubheadline: 'We\'ll send you our strongest <strong><i>no obligation cash offer</i></strong>, ' +
                       'and you choose how fast to close! No obligation, no strings attached'+
-                      ' AND get your <strong><i>FREE OfferBoost report</i></strong> below, so see our most powerful AI recommendations ' +
+                      ' AND get your <strong><i>FREE OfferBoost report</i></strong> below, with our most powerful AI recommendations ' +
                       'for increasing your cash offer potential!',
         loadingMessage: 'Processing Your Cash Offer Details...',
         // Value display
@@ -74,35 +74,39 @@ function ValueBoostReport({ campaign, variant }) {
       // ========== WIDE CAMPAIGN ==========
       sellA: {
         // Header content
-        readyHeadline: 'Your Hassle-Free Home Solution is Ready!',
-        reportHeadline: 'Your Hassle-Free Home Solution Ready:',
-        readySubheadline: 'Check your <strong>hassle-free home solution</strong> below, and unlock your FREE AI powered ' +
-                      'custom home optimization report. No stress, no complications.',
-        loadingMessage: 'Processing Your Hassle-Free Solution Analysis...',
-        
+        readyHeadline: 'Next, where do you want us to text your cash offer and FREE OfferBoost report?',
+        reportHeadline: 'Your OfferBoost Highest Cash Offer Is Ready!:',
+        readySubheadline: 'We\'ll send you our strongest <strong><i>no obligation cash offer</i></strong>, ' +
+                      'and you choose how fast to close! No obligation, no strings attached'+
+                      ' AND get your <strong><i>FREE OfferBoost report</i></strong> below, with our most powerful AI recommendations ' +
+                      'for increasing your cash offer potential!',
+        loadingMessage: 'Processing Your Cash Offer Details...',
         // Value display
-        potentialHeadline: 'Your Stress-Free Potential:',
+        potentialHeadline: 'Your OfferBoost Potential:',
         
         // Recommendations section
-        recommendationsTitle: 'Your Top 10 Hassle-Free Solutions',
-        recommendationsSubtitle: 'Eliminate real estate stress with these comprehensive strategies',
+        recommendationsTitle: 'Your Top 10 OfferBoost Strategies',
+        recommendationsSubtitle: 'Maximize your cash offer with these proven strategies',
         
-        // Unlock form content
-        unlockHeadline: 'Get Your FREE Hassle-Free Home Report',
+         // Unlock form content
+        unlockHeadline: '<i>HomeSurge Cash Offer Benefits:</i>',
         timeoutUnlockHeadline: 'HomeSurge Cash Offer Benefits:',
-        unlockSubtext: 'Get your complete stress-free solution with all paperwork handled',
+        // unlockSubtext: 'Time-sensitive analysis - get your complete cash offer before rates change',
         
         // Checkmark lines
-        checkmark1: 'All hassle-free solutions for your property',
-        checkmark2: 'Detailed stress-free strategy for maximizing value',
-        checkmark3: 'Customized for your property',
+        checkmark1: '<strong>No stress closing!</strong> No repairs, inspections, commision, or closing costs.',
+        checkmark2: '<strong>No hidden fees.</strong> We make an offer, you get the <em><strong>exact amount</strong></em> in cash.',
+        checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
         
         // CTA section
-        conciergeHeadline: 'Want Expert Help Eliminating Real Estate Stress?',
-        buttonText: 'GET SOLUTION',
+        conciergeHeadline: 'Want Expert Help Maximizing Your Cash Offer?',
+        buttonText: 'GET CASH OFFER',
+        
+        // Timeout/failure message
+        timeoutHeadline: 'Watch your messages, we\'ll be sending a text with your cash offer shortly!',
         
         // Disclaimer (at bottom)
-        disclaimer: '*Example values only. Your solution will depend on your specific home details and market conditions. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.'
+        disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
       
  
@@ -2905,7 +2909,7 @@ function ValueBoostReport({ campaign, variant }) {
                     {isSubmitting ? 'Creating Account...' : 'Get My Full Report'}
                   </button>
                 </div>
-                <div className="vb-disclaimer-text" style={{ marginTop: '15px', fontSize: '13px', color: '#999', textAlign: 'center', lineHeight: '1.4', maxWidth: '400px', margin: '15px auto 0', padding: '0 20px' }}>
+                <div className="vb-disclaimer-text vb-modal-disclaimer">
                   {dynamicContent.disclaimer}
                 </div>
               </form>
@@ -2922,7 +2926,7 @@ function ValueBoostReport({ campaign, variant }) {
           
           {/* Additional information - only show when API data is ready OR timeout expired */}
           {((testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) || showReportReady) && (
-          <div style={{ fontSize: '14px', color: '#666', textAlign: 'center', marginBottom: '20px' }}>
+          <div className="vb-report-disclaimer">
             <p>
               This report is based on current market conditions and property data, but actual results may vary.
               Recommendations are personalized based on your specific property attributes and location.

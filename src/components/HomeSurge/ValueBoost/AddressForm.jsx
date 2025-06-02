@@ -12,6 +12,7 @@ import additionalStrategies from './additionalStrategies';
 import gradientArrow from '../../../assets/images/gradient-arrow.png';
 import waveImage from '../../../assets/images/wave.png';
 import BelowFold from '../../BelowFold/BelowFold';
+import LazyImage from '../../common/LazyImage';
 
 // ===================================================================
 // BROWSER AUTOFILL FUNCTIONALITY - TEMPORARILY DISABLED
@@ -530,7 +531,7 @@ function AddressForm({ campaign, variant }) {
         if (e.target.name === 'address-line1') {
           // Wait a bit for the autofill to complete
           setTimeout(() => {
-            if (e.target.value && e.target.value.length > 10) {
+            if (e.target.value && e.target.value.length > 15) {
               console.log('Address autofilled with value:', e.target.value);
               
               // If the address is sufficiently filled, and we have at least one more field autofilled,
@@ -1525,7 +1526,7 @@ function AddressForm({ campaign, variant }) {
       
       // If address text is reasonable length, allow form to proceed anyway
       // This provides a fallback if Google Places API fails
-      if (formData.street && formData.street.length > 10 && validateAddress(formData.street)) {
+      if (formData.street && formData.street.length > 15 && validateAddress(formData.street)) {
         console.log('No suggestion available, but address text is reasonable - proceeding anyway');
         
         // Start API call in background
@@ -2415,7 +2416,7 @@ function AddressForm({ campaign, variant }) {
           
           {/* Static wave image container */}
           <div className="ai-wave-container">
-            <img 
+            <LazyImage 
               src={waveImage} 
               alt="Wave decoration" 
               style={{
