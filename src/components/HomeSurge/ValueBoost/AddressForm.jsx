@@ -918,8 +918,8 @@ function AddressForm({ campaign, variant }) {
         // VALUEBOOST CALCULATION - Add back the ValueBoost calculation logic
         const valueBoostData = calculateValueBoostPotential(propertyData, formData);
         
-        // Add ValueBoost calculations to form data update
-        updateFormData({
+        // Create the updated form data object
+        const updatedFormData = {
           apiOwnerName: propertyData.apiOwnerName || '',
           apiEstimatedValue: propertyData.apiEstimatedValue || 0,
           apiMaxHomeValue: propertyData.apiMaxValue || 0,
@@ -941,7 +941,10 @@ function AddressForm({ campaign, variant }) {
           formattedPotentialIncrease: valueBoostData.formattedPotentialIncrease,
           valueIncreasePercentage: valueBoostData.valueIncreasePercentage,
           upgradesNeeded: valueBoostData.upgradesNeeded
-        });
+        };
+        
+        // Update form data state
+        updateFormData(updatedFormData);
         
         console.log('Form data updated with property info and ValueBoost calculations:', {
           estimatedValue: formattedValue,
@@ -950,6 +953,18 @@ function AddressForm({ campaign, variant }) {
           potentialValueIncrease: valueBoostData.potentialValueIncrease,
           valueIncreasePercentage: valueBoostData.valueIncreasePercentage
         });
+        
+        // Trigger OpenAI generation immediately now that we have property data
+        // Create merged property context for AI generation
+        const mergedPropertyData = {
+          ...formData,
+          ...updatedFormData,
+          address: address,
+          street: address
+        };
+        
+        console.log('📊 Melissa API data detected in fetchPropertyData, triggering AI report generation');
+        generateAIReportInBackground(mergedPropertyData, localStorage.getItem('leadId'));
         
         return propertyData;
       } else {
@@ -1133,8 +1148,7 @@ function AddressForm({ campaign, variant }) {
     fetchPropertyDataInBackground(place.formatted_address, leadId, addressComponents);
     lookupPhoneNumbersInBackground(place.formatted_address, leadId, addressComponents);
     
-    // Start OpenAI report generation in background when property data becomes available
-    startOpenAIGenerationInBackground(leadId);
+    // Note: OpenAI generation is now triggered directly from fetchPropertyData when data is received
     
     return true; // Return success immediately without waiting for API
   };
@@ -1209,50 +1223,8 @@ function AddressForm({ campaign, variant }) {
   };
 
   // Lookup phone numbers in background without blocking the UI - COPIED FROM MAIN FORM
-  // Generate OpenAI report in background when property data becomes available
-  const startOpenAIGenerationInBackground = (leadId) => {
-    console.log('🤖 Starting OpenAI monitoring from AddressForm...');
-    
-    // Monitor for Melissa API data updates and generate report when ready
-    const checkForMelissaDataAndGenerateAI = () => {
-      // Check if we have received Melissa API data
-      if (formData.apiEstimatedValue && formData.apiEstimatedValue > 0) {
-        console.log('📊 Melissa API data detected in AddressForm, triggering AI report generation');
-        
-        // Generate AI report now that we have property data
-        generateAIReportInBackground(formData, leadId);
-        return true; // Stop monitoring
-      }
-      return false; // Continue monitoring
-    };
-    
-    // Check initially
-    if (checkForMelissaDataAndGenerateAI()) {
-      return; // Data already available
-    }
-    
-    // Poll every 500ms for Melissa data updates (max 30 seconds)
-    let attempts = 0;
-    const maxAttempts = 60; // 30 seconds
-    const interval = setInterval(() => {
-      attempts++;
-      
-      if (checkForMelissaDataAndGenerateAI() || attempts >= maxAttempts) {
-        clearInterval(interval);
-        if (attempts >= maxAttempts) {
-          console.log('⚠️ OpenAI generation timeout - Melissa data not received within 30 seconds');
-          console.log('🔍 Current form data state:', {
-            hasApiValue: !!formData.apiEstimatedValue,
-            apiValue: formData.apiEstimatedValue,
-            hasAddress: !!formData.street,
-            address: formData.street
-          });
-        }
-      }
-    }, 500);
-  };
-  
-  // Generate AI report in background without blocking UI
+
+  // Generate AI report in background without blocking UI - called directly when property data is received
   const generateAIReportInBackground = async (propertyData, leadId) => {
     try {
       // Check if AI report already exists to prevent duplication

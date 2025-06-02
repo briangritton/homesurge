@@ -61,6 +61,9 @@ function ValueBoostReport({ campaign, variant }) {
         conciergeHeadline: 'Want Expert Help Maximizing Your Cash Offer?',
         buttonText: 'GET CASH OFFER',
         
+        // Timeout/failure message
+        timeoutHeadline: 'Watch your messages, we\'ll be sending a text with your cash offer shortly!',
+        
         // Disclaimer (at bottom)
         disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
@@ -93,6 +96,9 @@ function ValueBoostReport({ campaign, variant }) {
         conciergeHeadline: 'Want Expert Help Selling Lightning Fast?',
         buttonText: 'CHECK FAST OFFER',
         
+        // Timeout/failure message
+        timeoutHeadline: 'Watch your messages, we\'ll be sending a text with your cash offer shortly!',
+        
         // Disclaimer (at bottom)
         disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
@@ -109,7 +115,10 @@ function ValueBoostReport({ campaign, variant }) {
         readySubheadline: 'Check your OfferBoost cash offer below, and unlock your FREE AI powered ' +
                       'custom home value and offer optimization report. No obligation, no strings attached.',
         loadingMessage: 'Processing Your OfferBoost Fast Sale Analysis...',
-        readyHeadline: 'Your OfferBoost Fast Sale Strategy is Ready!'
+        readyHeadline: 'Your OfferBoost Fast Sale Strategy is Ready!',
+        
+        // Timeout/failure message
+        timeoutHeadline: 'Watch your messages, we\'ll be sending a text with your cash offer shortly!'
       },
       
       // ========== VALUE/IMPROVEMENT CAMPAIGNS ==========
@@ -141,6 +150,9 @@ function ValueBoostReport({ campaign, variant }) {
         conciergeHeadline: 'Want Expert Help Implementing These Improvements?',
         buttonText: 'GET VALUE REPORT',
         
+        // Timeout/failure message
+        timeoutHeadline: 'Watch your messages, we\'ll be sending a text with your ValueBoost report shortly!',
+        
         // Disclaimer (at bottom)
         disclaimer: '*Example values only. Your value increase will depend on your specific home details and market conditions. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
@@ -157,7 +169,8 @@ function ValueBoostReport({ campaign, variant }) {
         readySubheadline: 'Check your <strong>maximum home value</strong> with FREE AI personalized ' +
                       'opportunity recommendations below! See your home\'s true potential value.',
         loadingMessage: 'Processing Your ValueBoost Maximization Analysis...',
-        readyHeadline: 'Your ValueBoost Maximization Report is Ready!'
+        readyHeadline: 'Your ValueBoost Maximization Report is Ready!',
+        timeoutHeadline: 'Watch your messages, we\'ll be sending a text with your ValueBoost report shortly!'
       },
       
       boost: {
@@ -428,9 +441,11 @@ function ValueBoostReport({ campaign, variant }) {
         unlockHeadline: 'Get Your FREE OfferBoost Maximum Cash Report',
         unlockSubtext: 'Get your complete cash offer strategy with market insights and opportunities',
         conciergeHeadline: 'Want Expert Help Maximizing Your Cash Offer?',
+        
+        // Timeout/failure message (default for cash campaigns)
+        timeoutHeadline: 'Watch your messages, we\'ll be sending a text with your cash offer shortly!',
 
-
-    checkmark1: '*All OfferBoost cash offer opportunities for your property',
+        checkmark1: '*All OfferBoost cash offer opportunities for your property',
         checkmark2: 'Detailed maximum OfferBoost calculations for maximizing home value',
         checkmark3: 'Customized for your property',
 
@@ -514,6 +529,8 @@ function ValueBoostReport({ campaign, variant }) {
   
   // State declarations
   const [unlocked, setUnlocked] = useState(false); // Track if recommendations are unlocked
+  const [processingTimeout, setProcessingTimeout] = useState(false); // Track if processing has timed out
+  const [processingStartTime] = useState(Date.now()); // Track when processing started
   
   // Debug logging for AI report
   useEffect(() => {
@@ -531,7 +548,7 @@ function ValueBoostReport({ campaign, variant }) {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
-  
+
   // TESTING TOGGLE: Comment/uncomment the lines below to enable/disable dummy data for step 3
   const ENABLE_DUMMY_DATA = false; // Set to true for testing
   const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -546,6 +563,26 @@ function ValueBoostReport({ campaign, variant }) {
     valueIncreasePercentage: 24,
     street: formData.street || '123 Maple Street, Atlanta, GA 30309'
   } : formData;
+
+  // Handle 15-second timeout for processing - placed after testFormData definition
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      // Only set timeout if we still don't have API value and no AI report
+      if (!testFormData.apiEstimatedValue && !aiReport) {
+        console.log('⏰ Processing timeout reached - no API data or AI report after 15 seconds');
+        setProcessingTimeout(true);
+      }
+    }, 15000); // 15 seconds
+
+    // Clear timeout if we get API data or AI report
+    if (testFormData.apiEstimatedValue || aiReport) {
+      clearTimeout(timeout);
+      setProcessingTimeout(false);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [testFormData.apiEstimatedValue, aiReport]);
+
   const [showContactForm, setShowContactForm] = useState(false);
   const [contactInfo, setContactInfo] = useState({
     name: '', // Always start empty - no autofill from step 1
@@ -2133,8 +2170,8 @@ function ValueBoostReport({ campaign, variant }) {
           )}
           */}
 
-          {/* Display recommendations - only show when API data is ready OR timeout expired */}
-          {((testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) || showReportReady) && (
+          {/* TEMPLATE RECOMMENDATIONS SECTION HIDDEN - Show only AI report behind lock screen */}
+          {false && ((testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) || showReportReady) && (
           <div id="recommendations-section" className={`vb-recommendations-section ${!(testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) ? 'no-border' : ''}`}>
             {/* Add section divider when unlocked to separate AI report from template */}
             {unlocked && (
@@ -2566,6 +2603,336 @@ function ValueBoostReport({ campaign, variant }) {
             </div>
           </div>
           )}
+
+          {/* NEW AI REPORT SECTION - Show when API data is ready OR timeout expired */}
+          {((testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) || showReportReady) && (
+          <div id="ai-report-section" className="vb-recommendations-section">
+            
+            {/* AI Report Content */}
+            <div className="vb-recommendations-container" style={{ position: 'relative' }}>
+              
+              {/* Show processing timeout message - only when unlocked */}
+              {processingTimeout && unlocked ? (
+                <div style={{
+                  textAlign: 'center',
+                  padding: '60px 20px',
+                  backgroundColor: '#f0f9ff',
+                  borderRadius: '12px',
+                  border: '1px solid #09a5c8'
+                }}>
+                  <div style={{
+                    fontSize: '48px',
+                    marginBottom: '20px'
+                  }}>
+                    📱
+                  </div>
+                  <div style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#09a5c8',
+                    marginBottom: '15px'
+                  }}>
+                    {dynamicContent.timeoutHeadline || 'Watch your messages, we\'ll be sending a text with your cash offer shortly!'}
+                  </div>
+                  <div style={{
+                    fontSize: '16px',
+                    color: '#666',
+                    lineHeight: '1.6',
+                    maxWidth: '500px',
+                    margin: '0 auto'
+                  }}>
+                    We attempted to generate your AI generated home report but we had trouble retrieving it for display. We'll send a full report in a few moments to the number you provided. We look forward to helping you however we can!
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* ALWAYS show content behind the overlay - either loading message or AI report */}
+                  <div style={{
+                    textAlign: 'center',
+                    padding: '40px 20px',
+                    backgroundColor: '#f8f9fa',
+                    borderRadius: '12px',
+                    border: '1px solid #e9ecef',
+                    filter: unlocked ? 'none' : 'blur(3px)'
+                  }}>
+                    {!aiReport ? (
+                      <>
+                        <div style={{
+                          fontSize: '24px',
+                          fontWeight: 'bold',
+                          color: '#333',
+                          marginBottom: '15px'
+                        }}>
+                          Maximum home value: {testFormData.formattedApiEstimatedValue ? testFormData.formattedApiEstimatedValue : (
+                            <span style={{ color: '#666', fontWeight: 'normal' }}>
+                              Processing
+                              <span style={{
+                                animation: 'dots 1.5s infinite',
+                                display: 'inline-block',
+                                width: '20px',
+                                textAlign: 'left'
+                              }}>
+                                ...
+                              </span>
+                            </span>
+                          )}
+                        </div>
+                        
+                        {/* Modern loader animation */}
+                        <div style={{
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          margin: '30px 0'
+                        }}>
+                          <div style={{
+                            width: '40px',
+                            height: '40px',
+                            border: '4px solid #e9ecef',
+                            borderTop: '4px solid #09a5c8',
+                            borderRadius: '50%',
+                            animation: 'spin 1s linear infinite'
+                          }}></div>
+                        </div>
+                        
+                        <div style={{
+                          fontSize: '18px',
+                          color: '#666',
+                          marginBottom: '10px'
+                        }}>
+                          🤖 AI {dynamicContent.reportHeadline.includes('OfferBoost') ? 'OfferBoost' : 'ValueBoost'} report generating, just a moment...
+                        </div>
+                        <div style={{
+                          fontSize: '14px',
+                          color: '#999'
+                        }}>
+                          Analyzing your property and market data to create your personalized report
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div style={{
+                          fontSize: '20px',
+                          fontWeight: 'bold',
+                          color: '#09a5c8',
+                          marginBottom: '20px',
+                          paddingBottom: '10px'
+                        }}>
+                          🤖 Your Personalized AI Analysis Report
+                        </div>
+                        
+                        <div style={{
+                          whiteSpace: 'pre-wrap',
+                          fontSize: '16px',
+                          lineHeight: '1.6',
+                          textAlign: 'left',
+                          backgroundColor: '#fff',
+                          padding: '20px',
+                          borderRadius: '8px',
+                          border: '1px solid #e9ecef'
+                        }}>
+                          {aiReport}
+                        </div>
+                      </>
+                    )}
+                    
+                    {/* Debug information - only show when NOT in timeout state */}
+                    {(isLocalhost || ENABLE_DUMMY_DATA) && !processingTimeout && (
+                      <div style={{
+                        fontSize: '12px',
+                        color: '#999',
+                        marginTop: '10px',
+                        fontFamily: 'monospace',
+                        textAlign: 'left',
+                        backgroundColor: '#f9f9f9',
+                        padding: '10px',
+                        borderRadius: '4px',
+                        border: '1px solid #eee'
+                      }}>
+                        <div>Debug Info:</div>
+                        <div>• localStorage aiHomeReport = {localStorage.getItem('aiHomeReport') ? 'found' : 'missing'}</div>
+                        <div>• aiReport state = {aiReport ? 'loaded' : 'null'}</div>
+                        <div>• unlocked = {unlocked ? 'true' : 'false'}</div>
+                        <div>• showReportReady = {showReportReady ? 'true' : 'false'}</div>
+                        <div>• apiEstimatedValue = {testFormData.apiEstimatedValue || 'null'}</div>
+                        <div>• processingTimeout = {processingTimeout ? 'true' : 'false'}</div>
+                        <div>• Section condition = {((testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) || showReportReady) ? 'true' : 'false'}</div>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+
+              {/* Locked overlay for AI report - ALWAYS shown when not unlocked */}
+              {!unlocked && (
+                <div className="vb-locked-overlay">
+                  {/* Opaque background wrapper for the unlock section */}
+                  <div className="vb-unlock-section-wrapper">
+                    <div className="vb-unlock-header">
+                      {(() => {
+                        // Check if this is a B2 variant - if so, hide lock icon
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const variant = urlParams.get('variant') || urlParams.get('split_test') || localStorage.getItem('assignedVariant') || 'B2OB2';
+                        const step3Content = variant.substring(3, 5);  // A1, A2, or B2
+                        const isB2Variant = step3Content === 'B2';
+                        
+                        // Only show lock icon if NOT B2 variant
+                        if (!isB2Variant) {
+                          return (
+                            <div className="vb-lock-icon-container">
+                              <div className="vb-lock-icon">
+                                🔒
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
+                      <h3 className="vb-unlock-headline" dangerouslySetInnerHTML={{ 
+                        __html: processingTimeout 
+                          ? (dynamicContent.unlockHeadline.includes('OfferBoost') || dynamicContent.unlockHeadline.includes('Cash') 
+                              ? 'Tell us where to send your cash offer!' 
+                              : 'Tell us where to send your ValueBoost report!')
+                          : dynamicContent.unlockHeadline 
+                      }}>
+                      </h3>
+                    </div>
+                    <div className="vb-features-bubble">
+                      <div className="vb-feature-item">
+                        <div className="vb-feature-icon">✓</div>
+                        <p className="vb-feature-text">
+                          <strong>{dynamicContent.checkmark1}</strong>
+                        </p>
+                      </div>
+                      <div className="vb-feature-item">
+                        <div className="vb-feature-icon">✓</div>
+                        <p className="vb-feature-text">
+                          <strong>{dynamicContent.checkmark2}</strong>
+                        </p>
+                      </div>
+                      <div className="vb-feature-item">
+                        <div className="vb-feature-icon">✓</div>
+                        <p className="vb-feature-text">
+                          <strong>{dynamicContent.checkmark3}</strong>
+                        </p>
+                      </div>
+                    </div>
+
+                    <p className="vb-unlock-subtext">
+                      {dynamicContent.unlockSubtext}
+                    </p>
+
+                    {/* Inline form fields */}
+                    <div className="vb-unlock-form-container">
+                      <div className="vb-optin-form-fields">
+                        {/* Name field - starts empty, no autofill */}
+                        <input
+                          type="text"
+                          name="name"
+                          value={contactInfo.name}
+                          onChange={handleInputChange}
+                          placeholder="Name"
+                          className={`vb-unlock-input ${formErrors.name ? 'vb-unlock-input-error' : ''}`}
+                        />
+                        <input
+                          type="tel"
+                          name="phone"
+                          value={contactInfo.phone}
+                          onChange={handleInputChange}
+                          placeholder="Phone (Get a text copy)"
+                          className={`vb-unlock-input ${formErrors.phone ? 'vb-unlock-input-error' : ''}`}
+                        />
+                      </div>
+                      {formErrors.phone && (
+                        <div className="vb-unlock-form-error">
+                          {formErrors.phone}
+                        </div>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        if (!validateForm()) {
+                          return;
+                        }
+                        setIsSubmitting(true);
+                        
+                        // Clean the input values
+                        console.log("Raw contact info before cleaning (overlay):", contactInfo);
+                        let cleanName = contactInfo.name ? contactInfo.name.trim() : '';
+                        const phoneValidation = validateAndCleanPhone(contactInfo.phone);
+                        const cleanedPhone = phoneValidation.isValid ? phoneValidation.cleaned : contactInfo.phone;
+                        console.log("Cleaned values (overlay):", { cleanName, cleanedPhone, phoneValid: phoneValidation.isValid });
+                        
+                        // If the name had the autofill tag, remove it when user confirms
+                        if (cleanName.includes('(Autofilled by browser)')) {
+                          cleanName = cleanName.replace(' (Autofilled by browser)', '');
+                        }
+                        
+                        // Update formData first and wait for it to complete
+                        console.log("🔥 UPDATING FORM DATA WITH FRESH CONTACT INFO FROM OVERLAY");
+                        updateFormData({
+                          name: cleanName,
+                          phone: cleanedPhone,
+                          email: contactInfo.email,
+                          nameWasAutofilled: false,
+                          leadStage: 'ValueBoost Report Qualified'
+                        });
+                        
+                        // Wait a moment for updateFormData to complete
+                        await new Promise(resolve => setTimeout(resolve, 100));
+
+                        try {
+                          // Submit lead to Firebase with cleaned data
+                          const success = await updateLead({
+                            name: cleanName,
+                            phone: cleanedPhone,
+                            email: contactInfo.email || '',
+                            leadStage: 'ValueBoost Report Qualified'
+                          });
+                          
+                          console.log('Lead update result:', success);
+                          
+                          if (success) {
+                            setSubmitted(true);
+                            setUnlocked(true);
+                            
+                            // Force reload AI report when unlocking (overlay)
+                            setTimeout(() => {
+                              const storedReport = localStorage.getItem('aiHomeReport');
+                              if (storedReport && !aiReport) {
+                                console.log('🔄 Force-loading AI report after overlay unlock');
+                                setAiReport(storedReport);
+                              }
+                            }, 100);
+                            
+                          } else {
+                            console.error('Failed to update lead');
+                            setFormErrors({ submit: 'Failed to submit your information. Please try again.' });
+                          }
+                        } catch (error) {
+                          console.error('Error submitting lead:', error);
+                          setIsSubmitting(false);
+                          setFormErrors({ submit: 'Failed to submit your information. Please try again.' });
+                        }
+                      }}
+                      disabled={isSubmitting}
+                      className="vb-unlock-button vb-button-flare"
+                    >
+                      {isSubmitting ? 'Unlocking...' : dynamicContent.buttonText}
+                    </button>
+
+                    <div className="vb-unlock-security-text">
+                      Your information is secure and we'll never share it with third parties.
+                    </div>
+                  </div>
+                </div>
+              )}
+
+            </div>
+          </div>
+          )}
           
           {/* CTA section - only shown when not already showing contact form and not already submitted */}
           {!showContactForm && !submitted ? (
@@ -2603,7 +2970,8 @@ function ValueBoostReport({ campaign, variant }) {
                 }}
                 onClick={(e) => {
                   e.preventDefault();
-                  setShowContactForm(true);
+                  // Scroll to AI report section since form is now inline
+                  document.getElementById('ai-report-section')?.scrollIntoView({ behavior: 'smooth' });
                 }}
                 onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#236869'}
                 onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#236b6d'}
@@ -2614,8 +2982,8 @@ function ValueBoostReport({ campaign, variant }) {
           ) : null}
 
 
-          {/* Contact form - shown as a modal when user clicks to unlock */}
-          {showContactForm && !submitted ? (
+          {/* OLD MODAL CONTACT FORM REMOVED - Now using inline form in overlay */}
+          {false && showContactForm && !submitted ? (
             <div style={{
               position: 'fixed',
               top: 0,
@@ -2785,6 +3153,29 @@ function ValueBoostReport({ campaign, variant }) {
           )}
         </div>
       </div>
+
+      {/* CSS Animations for loading states */}
+      <style jsx="true">{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes dots {
+          0%, 20% { 
+            opacity: 0;
+          }
+          40% { 
+            opacity: 1;
+          }
+          60% { 
+            opacity: 0;
+          }
+          80%, 100% { 
+            opacity: 1;
+          }
+        }
+      `}</style>
     </div>
   );
 }
