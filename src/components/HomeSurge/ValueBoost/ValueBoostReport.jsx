@@ -512,17 +512,20 @@ function ValueBoostReport({ campaign, variant }) {
     return aiReport ? extractAIIntroduction(aiReport) : null;
   }, [aiReport]);
   
+  // State declarations
+  const [unlocked, setUnlocked] = useState(false); // Track if recommendations are unlocked
+  
   // Debug logging for AI report
   useEffect(() => {
-    if (aiReport) {
-      console.log('🤖 AI report available in ValueBoostReport:', {
-        hasReport: !!aiReport,
-        reportLength: aiReport.length,
-        hasIntroduction: !!aiIntroduction,
-        introductionPreview: aiIntroduction ? aiIntroduction.substring(0, 100) + '...' : null
-      });
-    }
-  }, [aiReport, aiIntroduction]);
+    console.log('🤖 AI report state check in ValueBoostReport:', {
+      hasAiReportState: !!aiReport,
+      aiReportLength: aiReport ? aiReport.length : 0,
+      hasLocalStorage: !!localStorage.getItem('aiHomeReport'),
+      localStorageLength: localStorage.getItem('aiHomeReport') ? localStorage.getItem('aiHomeReport').length : 0,
+      hasIntroduction: !!aiIntroduction,
+      unlocked: unlocked
+    });
+  }, [aiReport, aiIntroduction, unlocked]);
   
   // Scroll to top when component loads
   useEffect(() => {
@@ -551,7 +554,6 @@ function ValueBoostReport({ campaign, variant }) {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [unlocked, setUnlocked] = useState(false); // Track if recommendations are unlocked
   const [formErrors, setFormErrors] = useState({});
   const [reportLoading, setReportLoading] = useState(true);
   const [showReportReady, setShowReportReady] = useState(false);
@@ -563,14 +565,18 @@ function ValueBoostReport({ campaign, variant }) {
   useEffect(() => {
     const loadAIReport = () => {
       const storedReport = localStorage.getItem('aiHomeReport');
-      if (storedReport) {
-        console.log('📄 AI report loaded from localStorage');
+      if (storedReport && storedReport !== aiReport) {
+        console.log('📄 AI report loaded from localStorage:', {
+          reportLength: storedReport.length,
+          preview: storedReport.substring(0, 100) + '...'
+        });
         setAiReport(storedReport);
-      } else {
+      } else if (!storedReport) {
         console.log('📄 No AI report found in localStorage');
       }
     };
     
+    // Load immediately
     loadAIReport();
     
     // Also check periodically in case the report gets generated after component mount
@@ -580,7 +586,7 @@ function ValueBoostReport({ campaign, variant }) {
     setTimeout(() => clearInterval(checkInterval), 30000);
     
     return () => clearInterval(checkInterval);
-  }, []);
+  }, [aiReport]);
 
   // Update contact info when data becomes available - preserve user input
   useEffect(() => {
@@ -1574,6 +1580,15 @@ function ValueBoostReport({ campaign, variant }) {
       setContactFormCompleted(true); // Mark contact form as completed
       localStorage.setItem('valueboost_unlocked', 'true'); // Persist unlocked state
       
+      // Force reload AI report when unlocking
+      setTimeout(() => {
+        const storedReport = localStorage.getItem('aiHomeReport');
+        if (storedReport && !aiReport) {
+          console.log('🔄 Force-loading AI report after unlock');
+          setAiReport(storedReport);
+        }
+      }, 100);
+      
       // Check if we should show address retry option (after form completion, if no API data)
       setTimeout(() => {
         if (!formData.apiEstimatedValue || formData.apiEstimatedValue === 0) {
@@ -1912,6 +1927,15 @@ function ValueBoostReport({ campaign, variant }) {
                       color: '#888'
                     }}>
                       Our AI is putting the finishing touches on your personalized analysis
+                    </div>
+                    {/* Debug info for troubleshooting - remove in production */}
+                    <div style={{
+                      fontSize: '12px',
+                      color: '#999',
+                      marginTop: '10px',
+                      fontFamily: 'monospace'
+                    }}>
+                      Debug: localStorage check = {localStorage.getItem('aiHomeReport') ? 'found' : 'missing'}
                     </div>
                   </div>
                 )}
@@ -2459,6 +2483,15 @@ function ValueBoostReport({ campaign, variant }) {
                           setIsSubmitting(false);
                           setSubmitted(true);
                           setUnlocked(true);
+                          
+                          // Force reload AI report when unlocking (overlay)
+                          setTimeout(() => {
+                            const storedReport = localStorage.getItem('aiHomeReport');
+                            if (storedReport && !aiReport) {
+                              console.log('🔄 Force-loading AI report after overlay unlock');
+                              setAiReport(storedReport);
+                            }
+                          }, 100);
                           
                           // ================================================================================
                           // COMPREHENSIVE TRACKING - MATCHING MAIN FORM FUNNEL (FROM handleSubmit)
