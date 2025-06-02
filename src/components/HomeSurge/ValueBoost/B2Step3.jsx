@@ -39,85 +39,74 @@ function B2Step3({ campaign, variant }) {
         // Disclaimer (at bottom)
         disclaimer: '*URGENT: Example values only. Your cash offer expires soon and will depend on current market conditions and property details. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
-      
-      // FAST B2 - Emergency/urgent sale scenarios
-      fastB2: {
-        // Header content
-        readyHeadline: 'EMERGENCY: Your 7-Day OfferBoost Exit Strategy is Ready!',
-        readySubheadline: 'Your <strong>emergency 7-day sale solution</strong> is ready below. Get immediate cash when you need it most - no delays!',
-        
-        // Unlock form content
-        unlockHeadline: 'Get Your EMERGENCY 7-Day Sale Report',
-        unlockSubtext: 'Critical timeline analysis for immediate property liquidation',
-        
-        // Checkmark lines
-        checkmark1: '<strong><em>EMERGENCY:</em></strong> All <strong>7-day exit strategies</strong> for your property',
-        checkmark2: '<strong><em>CRISIS-PROVEN:</em></strong> Immediate property <strong>liquidation tactics</strong>',
-        checkmark3: '<strong><em>EMERGENCY:</em></strong> <strong>Customized</strong> for your property',
-        
-        // CTA section
-        buttonText: 'EMERGENCY SALE',
-        
-        // Disclaimer (at bottom)
-        disclaimer: '*EMERGENCY: Example values only. Your 7-day exit strategy will depend on urgent market conditions and property details. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. We respect your privacy and will never share your details with anyone. No spam ever.'
-      },
-      
-      // VALUE B2 - Deeper value analysis and insights
-      valueB2: {
-        // Header content
-        readyHeadline: 'DEEP DIVE: Your Advanced ValueBoost Analysis is Ready!',
-        readySubheadline: 'Your <strong>deep value analysis</strong> reveals hidden opportunities below. Discover equity potential others overlook!',
-        
-        // Unlock form content
-        unlockHeadline: 'Get Your DEEP VALUE Discovery Report',
-        unlockSubtext: 'Comprehensive value analysis with hidden equity identification',
-        
-        // Checkmark lines
-        checkmark1: '<strong><em>DEEP DIVE:</em></strong> All <strong>hidden value secrets</strong> for your property',
-        checkmark2: '<strong><em>ADVANCED:</em></strong> Untapped <strong>equity opportunities</strong> others miss',
-        checkmark3: '<strong><em>DEEP VALUE:</em></strong> <strong>Customized</strong> for your property',
-        
-        // CTA section
-        buttonText: 'DISCOVER VALUE',
-        
-        // Disclaimer (at bottom)
-        disclaimer: '*DEEP DIVE: Example values only. Your hidden value potential will depend on advanced analysis of specific property details and market conditions. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. We respect your privacy and will never share your details with anyone. No spam ever.'
-      },
-      
+     
       // WIDE B2 - Enhanced comprehensive hassle-free solutions
       sellB2: {
         // Header content
-        readyHeadline: 'COMPLETE: Your All-Inclusive Property Plan is Ready!',
-        readySubheadline: 'Your <strong>complete all-inclusive solution</strong> is below. Every detail handled with white-glove service!',
-        
+        readyHeadline: 'Next, where do you want us to text your cash offer?',
+        readySubheadline: 'We\'ll send you our strongest <strong><i>no obligation cash offer</i></strong>, and you choose how fast to close! ',        
         // Unlock form content
-        unlockHeadline: 'Get Your COMPLETE All-Inclusive Report',
-        unlockSubtext: 'Total property solution with every detail managed professionally',
+        unlockHeadline: '<i>HomeSurge Cash Offer Benefits:</i>',
+        unlockSubtext: 'Time-sensitive analysis - get your complete cash offer before rates change',
         
         // Checkmark lines
-        checkmark1: '<strong><em>COMPLETE:</em></strong> All-inclusive <strong>solutions</strong> for your property',
-        checkmark2: '<strong><em>WHITE-GLOVE:</em></strong> Every detail <strong>managed professionally</strong>',
-        checkmark3: '<strong><em>COMPREHENSIVE:</em></strong> <strong>Customized</strong> for your property',
+        checkmark1: '<strong>No stress closing!</strong> No repairs, inspections, commision, or closing costs.',
+        checkmark2: '<strong>No hidden fees.</strong> We make an offer, you get the <em><strong>exact amount</strong></em> in cash.',
+        checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
         
         // CTA section
-        buttonText: 'COMPLETE SOLUTION',
+        buttonText: 'GET CASH OFFER',
         
         // Disclaimer (at bottom)
         disclaimer: '*COMPLETE: Example values only. Your all-inclusive solution will depend on comprehensive analysis of specific property details and service requirements. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
-      
+ 
+       // VALUE B2 - Deeper value analysis and insights
+      valueB2: {
+        // Header content
+        readyHeadline: 'Next, where do you want us to text a copy your ValueBoost report?',
+        readySubheadline: 'We\'ll send you a detailed <strong><i>maximum home value<strong><i>, report with FREE AI personalized opportunity recommendations! ',
+        
+          // Unlock form content
+        unlockHeadline: 'Get Your FREE ValueBoost Max Value Report',
+        timeoutUnlockHeadline: 'HomeSurge ValueBoost Report Benefits:',
+        unlockSubtext: 'Unlock your full property value report with all personalized recommendations',
+        
+        // Checkmark lines
+        checkmark1: 'All ValueBoost <strong><i>maximum value<strong><i> opportunities for your property',
+        checkmark2: 'Detailed <strong><i>AI powered<strong><i> recommendations that show you expected ROIs',
+        checkmark3: '<strong><i>Customized for your unique property,<strong><i> down to the smallest detail',
+        
+        // CTA section
+        buttonText: 'GET VALUE REPORT',
+        
+        // Disclaimer (at bottom)
+        disclaimer: '*DEEP DIVE: Example values only. Your hidden value potential will depend on advanced analysis of specific property details and market conditions. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. We respect your privacy and will never share your details with anyone. No spam ever.'
+      },
+
+
+
       // DEFAULT FALLBACK (MATCHES CASH THEME FROM ORIGINAL)
       default: {
-        readyHeadline: 'dYour OfferBoost Highest Cash Offer is Ready!',
-        readySubheadline: 'Check your OfferBoost cash offer below, and unlock your FREE AI powered custom home value and offer optimization report. No obligation, no strings attached.',
-        unlockHeadline: 'Get Your FREE OfferBoost Maximum Cash Report',
-        unlockSubtext: 'Get your complete cash offer strategy with market insights and opportunities',
-        checkmark1: 'All <strong>OfferBoost cash offer</strong> opportunities for your property',
-        checkmark2: 'Detailed <strong>maximum OfferBoost calculations</strong> for maximizing home value',
-        checkmark3: '<strong>Customized</strong> for your property',
-        buttonText: 'CHECK CASH OFFER',
-        disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. We respect your privacy and will never share your details with anyone. No spam ever.'
-      }
+        // Header content
+        readyHeadline: 'Next, where do you want us to text your cash offer?',
+        readySubheadline: 'We\'ll send you our strongest <strong><i>no obligation cash offer</i></strong>, and you choose how fast to close! ',
+        
+        // Unlock form content
+        unlockHeadline: '<i>HomeSurge Cash Offer Benefits:</i>',
+        unlockSubtext: 'Time-sensitive analysis - get your complete cash offer before rates change',
+        
+        // Checkmark lines
+        checkmark1: '<strong>No stress closing!</strong> No repairs, inspections, commision, or closing costs.',
+        checkmark2: '<strong>No hidden fees.</strong> We make an offer, you get the <em><strong>exact amount</strong></em> in cash.',
+        checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
+        
+        // CTA section
+        buttonText: 'GET CASH OFFER',
+        
+        // Disclaimer (at bottom)
+        disclaimer: '*URGENT: Example values only. Your cash offer expires soon and will depend on current market conditions and property details. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. We respect your privacy and will never share your details with anyone. No spam ever.'
+     }
     };
     
     // Campaign matching logic for B2 variants
@@ -126,11 +115,11 @@ function B2Step3({ campaign, variant }) {
       
       // CASH/SELLING CAMPAIGN MATCHING
       if (simplified.includes('cash')) return templates.cashB2;
-      if (simplified.includes('fast')) return templates.fastB2;
       if (simplified.includes('sell')) return templates.sellB2;
       
       // VALUE/IMPROVEMENT CAMPAIGN MATCHING
       if (simplified.includes('value')) return templates.valueB2;
+      if (simplified.includes('equity')) return templates.valueB2; // Use valueB2 for equity campaigns
     }
 
     return templates.default;

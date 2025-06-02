@@ -602,6 +602,7 @@ export function FormProvider({ children }) {
         thankYouHeadline: 'Cash Offer Request Completed!',
         thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!',
         buttonText: 'CHECK OFFER',
+        timeoutUnlockHeadline: 'HomeSurge Cash Offer Benefits:',
         disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase that might be acheived by various home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes. By submitting your address, you agree to send address details and other available autofill information not displayed to HomeSurge.AI for the purpose of contacting you with your requested information. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
       
@@ -613,6 +614,7 @@ export function FormProvider({ children }) {
         thankYouHeadline: 'Request Completed!',
         thankYouSubHeadline: 'You\'ll be receiving your fast sale details at your contact number shortly, thank you!',
         buttonText: 'CHECK OFFER',
+        timeoutUnlockHeadline: 'HomeSurge Fast Sale Benefits:',
         disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase that might be acheived by various home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes. By submitting your address, you agree to send address details and other available autofill information not displayed to HomeSurge.AI for the purpose of contacting you with your requested information. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
       
@@ -624,6 +626,7 @@ export function FormProvider({ children }) {
         thankYouHeadline: 'Home Value Request Completed!',
         thankYouSubHeadline: 'You\'ll be receiving your home value details at your contact number shortly, thank you!',
         buttonText: 'CHECK VALUE',
+        timeoutUnlockHeadline: 'HomeSurge ValueBoost Report Benefits:',
         disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase that might be acheived by various home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes. By submitting your address, you agree to send address details and other available autofill information not displayed to HomeSurge.AI for the purpose of contacting you with your requested information. We respect your privacy and will never share your details with anyone. No spam ever.'
       }
     };
@@ -636,6 +639,7 @@ export function FormProvider({ children }) {
       buttonText: 'CHECK OFFER',
       thankYouHeadline: 'Request Completed!',
       thankYouSubHeadline: 'You\'ll be receiving your requested details at your contact number shortly, thank you!',
+      timeoutUnlockHeadline: 'HomeSurge Cash Offer Benefits:',
       disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase that might be acheived by various home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes. By submitting your address, you agree to send address details and other available autofill information not displayed to HomeSurge.AI for the purpose of contacting you with your requested information. We respect your privacy and will never share your details with anyone. No spam ever.'
     };
     

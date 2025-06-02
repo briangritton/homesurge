@@ -2,6 +2,40 @@
 
 /* Original ValueBoost color scheme */
 
+/* Timeout Message Container */
+.vb-timeout-container {
+  text-align: center;
+  padding: 20px 20px 60px;
+  background-color: #f0f9ff;
+  border-radius: 12px;
+  border: 1px solid #09a5c8;
+}
+
+.vb-timeout-icon {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.vb-timeout-headline {
+  font-size: 24px;
+  font-weight: bold;
+  color: #09a5c8;
+  margin-bottom: 15px;
+}
+
+.vb-timeout-message {
+  font-size: 16px;
+  color: #666;
+  line-height: 1.6;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* Recommendations container positioning */
+.vb-recommendations-container {
+  position: relative;
+}
+
 /* Base styles to match original but with different class names */
 .vb-section {
   display: flex;
@@ -1599,7 +1633,7 @@ padding-top:0%;
 .vb-unlock-headline {
   font-size: 2.2rem;
   font-weight: bold;
-  text-align: left;
+  text-align: center;
   margin: 0;
   background: linear-gradient(135deg, #09a5c8 0%, #236b6d 100%);
   -webkit-background-clip: text;
