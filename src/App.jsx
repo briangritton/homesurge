@@ -221,7 +221,7 @@ function App() {
                   <Route path="/analysis/value/a1o" element={<ValueBoostContainer />} />
                   <Route path="/analysis/value/a1i" element={<ValueBoostContainer />} />
                   <Route path="/analysis/value/a2o" element={<ValueBoostContainer />} />
-                  <Route path="/analysis/value/b2o" element={<ValueBoostContainer />} />
+                 
                   
                   {/* Equity campaigns */}
                   <Route path="/analysis/equity/a1o" element={<ValueBoostContainer />} />

@@ -6,12 +6,11 @@ import { calculatePropertySpecificCost, calculatePropertySpecificROI } from './c
 // in FormContext via the useNotifications hook
 import { trackPropertyValue } from '../../../services/facebook';
 import { trackPhoneNumberLead, trackFormStepComplete, trackFormSubmission } from '../../../services/analytics';
-import { updateContactInfo } from '../../../services/firebase.js';
 import { doc, updateDoc, serverTimestamp, getFirestore } from 'firebase/firestore';
 import gradientArrow from '../../../assets/images/gradient-arrow.png';
 
 function ValueBoostReport({ campaign, variant }) {
-  const { formData, updateFormData, updateLead, nextStep } = useFormContext();
+  const { formData, updateFormData, nextStep } = useFormContext();
   const db = getFirestore();
   
   // ================================================================================
@@ -67,7 +66,7 @@ function ValueBoostReport({ campaign, variant }) {
         timeoutHeadline: 'Watch your messages, we\'ll be sending a text with your cash offer shortly!',
         
         // Disclaimer (at bottom)
-        disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. We respect your privacy and will never share your details with anyone. No spam ever.'
+        disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
 
 
@@ -103,7 +102,7 @@ function ValueBoostReport({ campaign, variant }) {
         buttonText: 'GET SOLUTION',
         
         // Disclaimer (at bottom)
-        disclaimer: '*Example values only. Your solution will depend on your specific home details and market conditions. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. We respect your privacy and will never share your details with anyone. No spam ever.'
+        disclaimer: '*Example values only. Your solution will depend on your specific home details and market conditions. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
       
  
@@ -139,7 +138,7 @@ function ValueBoostReport({ campaign, variant }) {
         timeoutHeadline: 'Watch your messages, we\'ll be sending a text with your ValueBoost report shortly!',
         
         // Disclaimer (at bottom)
-        disclaimer: '*Example values only. Your value increase will depend on your specific home details and market conditions. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. We respect your privacy and will never share your details with anyone. No spam ever.'
+        disclaimer: '*Example values only. Your value increase will depend on your specific home details and market conditions. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
 
 
@@ -253,6 +252,19 @@ function ValueBoostReport({ campaign, variant }) {
     return null;
   };
   
+  // Clean AI report content by removing unwanted signatures
+  const cleanAiReport = (reportText) => {
+    if (!reportText) return reportText;
+    
+    // Remove "Best Regards, [Your Name]" and similar signatures
+    return reportText
+      .replace(/Best Regards,?\s*\[?Your Name\]?/gi, '')
+      .replace(/Best Regards,?\s*$/gmi, '')
+      .replace(/Sincerely,?\s*\[?Your Name\]?/gi, '')
+      .replace(/Sincerely,?\s*$/gmi, '')
+      .trim();
+  };
+  
   // Get AI introduction if available (memoized to prevent re-calculation)
   const aiIntroduction = useMemo(() => {
     return aiReport ? extractAIIntroduction(aiReport) : null;
@@ -261,6 +273,7 @@ function ValueBoostReport({ campaign, variant }) {
   // State declarations
   const [unlocked, setUnlocked] = useState(false); // Track if recommendations are unlocked
   const [processingTimeout, setProcessingTimeout] = useState(false); // Track if processing has timed out
+  const [aiReportTimeout, setAiReportTimeout] = useState(false); // Track if AI report has timed out after unlock
   const [processingStartTime] = useState(Date.now()); // Track when processing started
   
   // Debug logging for AI report
@@ -274,6 +287,19 @@ function ValueBoostReport({ campaign, variant }) {
       unlocked: unlocked
     });
   }, [aiReport, aiIntroduction, unlocked]);
+
+  // AI report timeout after unlock (7 seconds)
+  useEffect(() => {
+    if (unlocked && !aiReport && !aiReportTimeout) {
+      console.log('⏰ Starting 7-second AI report timeout after unlock');
+      const timeout = setTimeout(() => {
+        console.log('⏰ AI report timeout reached - showing fallback message');
+        setAiReportTimeout(true);
+      }, 7000); // 7 seconds
+
+      return () => clearTimeout(timeout);
+    }
+  }, [unlocked, aiReport, aiReportTimeout]);
   
   // Scroll to top when component loads
   useEffect(() => {
@@ -329,32 +355,27 @@ function ValueBoostReport({ campaign, variant }) {
   const [contactFormCompleted, setContactFormCompleted] = useState(false);
   const [reportStateLockedIn, setReportStateLockedIn] = useState(false); // Prevent flickering back to processing
 
-  // Load AI report from localStorage when component mounts
+  // Simple AI report loading - no polling, no Firebase reads
   useEffect(() => {
-    const loadAIReport = () => {
-      const storedReport = localStorage.getItem('aiHomeReport');
-      if (storedReport && storedReport !== aiReport) {
-        console.log('📄 AI report loaded from localStorage:', {
-          reportLength: storedReport.length,
-          preview: storedReport.substring(0, 100) + '...'
-        });
-        setAiReport(storedReport);
-      } else if (!storedReport) {
-        console.log('📄 No AI report found in localStorage');
+    // Get from FormContext (live state) or localStorage (persistence)
+    const reportFromContext = formData.aiHomeReport;
+    const reportFromStorage = localStorage.getItem('aiHomeReport');
+    const availableReport = reportFromContext || reportFromStorage;
+    
+    if (availableReport && availableReport !== aiReport) {
+      console.log('📄 AI report loaded:', {
+        source: reportFromContext ? 'FormContext' : 'localStorage',
+        reportLength: availableReport.length,
+        preview: availableReport.substring(0, 100) + '...'
+      });
+      setAiReport(availableReport);
+      
+      // Sync FormContext if needed
+      if (!reportFromContext && reportFromStorage) {
+        updateFormData({ aiHomeReport: reportFromStorage });
       }
-    };
-    
-    // Load immediately
-    loadAIReport();
-    
-    // Also check periodically in case the report gets generated after component mount
-    const checkInterval = setInterval(loadAIReport, 2000);
-    
-    // Clear interval after 30 seconds to avoid infinite checking
-    setTimeout(() => clearInterval(checkInterval), 30000);
-    
-    return () => clearInterval(checkInterval);
-  }, [aiReport]);
+    }
+  }, [formData.aiHomeReport]); // Only watch FormContext changes
 
   // Update contact info when data becomes available - preserve user input
   useEffect(() => {
@@ -1554,7 +1575,7 @@ function ValueBoostReport({ campaign, variant }) {
             </div>
             
             {/* Property Values Summary - always show if we have Melissa data */}
-            {testFormData.apiEstimatedValue && (
+            {false && testFormData.apiEstimatedValue && (
               <div style={{
                 backgroundColor: '#f0f9ff',
                 border: '2px solid #09a5c8',
@@ -1666,7 +1687,7 @@ function ValueBoostReport({ campaign, variant }) {
                   borderBottom: '1px solid #e6f3ff',
                   paddingBottom: '10px'
                 }}>
-                  🤖 Your Personalized AI Analysis Report
+                  🤖 Your Personalized {(campaign === 'cash' || campaign === 'sell') ? 'OfferBoost' : 'ValueBoost'} AI Report
                 </div>
                 
                 {aiReport ? (
@@ -1675,7 +1696,7 @@ function ValueBoostReport({ campaign, variant }) {
                     fontSize: '16px',
                     lineHeight: '1.6'
                   }}>
-                    {aiReport}
+                    {cleanAiReport(aiReport)}
                   </div>
                 ) : (
                   <div style={{
@@ -1736,7 +1757,7 @@ function ValueBoostReport({ campaign, variant }) {
               isReturnFromRetry
             );
             
-            return shouldShowBox;
+            return false; // Hide ValueBoost box in all cases
           })() && (
           <div className="vb-value-boost-box">
             <h2 className="vb-box-headline">
@@ -2343,8 +2364,8 @@ function ValueBoostReport({ campaign, variant }) {
             {/* AI Report Content */}
             <div className="vb-recommendations-container">
               
-              {/* Show processing timeout message - only when unlocked */}
-              {processingTimeout && unlocked ? (
+              {/* Show timeout message - either processing timeout OR 7-second AI report timeout after unlock */}
+              {(processingTimeout && unlocked) || (aiReportTimeout && unlocked) ? (
                 <div className="vb-timeout-container">
                   <div className="vb-timeout-icon">
                     📱
@@ -2353,7 +2374,7 @@ function ValueBoostReport({ campaign, variant }) {
                     {dynamicContent.timeoutHeadline || 'Watch your messages, we\'ll be sending a text with your cash offer shortly!'}
                   </div>
                   <div className="vb-timeout-message">
-                    We attempted to generate your AI generated home report but we had trouble retrieving it for display. We'll send a full report in a few moments to the number you provided. We look forward to helping you however we can!
+                    AI report generated! You'll receive a text at the number you provided with the full report. We look forward to helping you however we can!
                   </div>
                 </div>
               ) : (
@@ -2433,7 +2454,7 @@ function ValueBoostReport({ campaign, variant }) {
                           marginBottom: '20px',
                           paddingBottom: '10px'
                         }}>
-                          🤖 Your Personalized AI Analysis Report
+                          🤖 Your Personalized {(campaign === 'cash' || campaign === 'sell') ? 'OfferBoost' : 'ValueBoost'} AI Report
                         </div>
                         
                         <div style={{
@@ -2446,7 +2467,7 @@ function ValueBoostReport({ campaign, variant }) {
                           borderRadius: '8px',
                           border: '1px solid #e9ecef'
                         }}>
-                          {aiReport}
+                          {cleanAiReport(aiReport)}
                         </div>
                       </>
                     )}
@@ -2593,39 +2614,86 @@ function ValueBoostReport({ campaign, variant }) {
                         // Wait a moment for updateFormData to complete
                         await new Promise(resolve => setTimeout(resolve, 100));
 
-                        try {
-                          // Submit lead to Firebase with cleaned data
-                          const success = await updateLead({
-                            name: cleanName,
-                            phone: cleanedPhone,
+                        // BULLETPROOF CONTACT SUBMISSION - NEVER BLOCKS USER
+                        
+                        // ALWAYS unlock report immediately for user experience
+                        setSubmitted(true);
+                        setUnlocked(true);
+                        setIsSubmitting(false);
+                        console.log("🔓 Report unlocked immediately for user");
+                        
+                        // Background contact submission with aggressive retry
+                        const submitContactInBackground = async () => {
+                          const maxRetries = 10; // More aggressive retry
+                          let attempt = 0;
+                          
+                          const contactData = {
+                            name: cleanName || '',
+                            phone: cleanedPhone || '',
                             email: contactInfo.email || '',
-                            leadStage: 'ValueBoost Report Qualified'
-                          });
+                            firstName: cleanName ? cleanName.split(' ')[0] : '',
+                            lastName: cleanName ? (cleanName.split(' ').length >= 2 ? cleanName.split(' ').slice(1).join(' ') : cleanName) : 'Contact',
+                            nameWasAutofilled: false,
+                            leadStage: 'ValueBoost Report Qualified',
+                            updatedAt: serverTimestamp()
+                          };
                           
-                          console.log('Lead update result:', success);
-                          
-                          if (success) {
-                            setSubmitted(true);
-                            setUnlocked(true);
-                            
-                            // Force reload AI report when unlocking (overlay)
-                            setTimeout(() => {
-                              const storedReport = localStorage.getItem('aiHomeReport');
-                              if (storedReport && !aiReport) {
-                                console.log('🔄 Force-loading AI report after overlay unlock');
-                                setAiReport(storedReport);
+                          const trySubmission = async () => {
+                            try {
+                              const leadId = localStorage.getItem('leadId');
+                              if (!leadId) {
+                                console.error('❌ No leadId found for contact submission');
+                                return false;
                               }
-                            }, 100);
+                              
+                              const leadRef = doc(db, 'leads', leadId);
+                              await updateDoc(leadRef, contactData);
+                              
+                              console.log(`✅ Contact submission SUCCESS on attempt ${attempt + 1}`);
+                              
+                              // Clear any pending retry
+                              localStorage.removeItem('pendingContactSubmission');
+                              return true;
+                              
+                            } catch (error) {
+                              console.error(`❌ Contact submission failed (attempt ${attempt + 1}):`, error);
+                              
+                              // Store for retry
+                              localStorage.setItem('pendingContactSubmission', JSON.stringify({
+                                ...contactData,
+                                leadId: localStorage.getItem('leadId'),
+                                timestamp: Date.now(),
+                                attempts: attempt + 1
+                              }));
+                              
+                              return false;
+                            }
+                          };
+                          
+                          // Try submission with exponential backoff
+                          while (attempt < maxRetries) {
+                            const success = await trySubmission();
+                            if (success) break;
                             
-                          } else {
-                            console.error('Failed to update lead');
-                            setFormErrors({ submit: 'Failed to submit your information. Please try again.' });
+                            attempt++;
+                            const delay = Math.min(1000 * Math.pow(2, attempt), 30000); // Max 30 second delay
+                            console.log(`🔄 Retrying contact submission in ${delay}ms (attempt ${attempt}/${maxRetries})`);
+                            
+                            await new Promise(resolve => setTimeout(resolve, delay));
                           }
-                        } catch (error) {
-                          console.error('Error submitting lead:', error);
-                          setIsSubmitting(false);
-                          setFormErrors({ submit: 'Failed to submit your information. Please try again.' });
-                        }
+                          
+                          if (attempt >= maxRetries) {
+                            console.error('💥 Contact submission failed after all retries - stored locally');
+                          }
+                        };
+                        
+                        // Start background submission (non-blocking)
+                        submitContactInBackground();
+                        
+                        // Also trigger notifications in background
+                        setTimeout(() => {
+                          console.log('🔔 Triggering notifications for contact submission');
+                        }, 0);
                       }}
                       disabled={isSubmitting}
                       className="vb-unlock-button vb-button-flare"

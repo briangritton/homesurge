@@ -37,7 +37,7 @@ function B2Step3({ campaign, variant }) {
         buttonText: 'GET CASH OFFER',
         
         // Disclaimer (at bottom)
-        disclaimer: '*URGENT: Example values only. Your cash offer expires soon and will depend on current market conditions and property details. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. We respect your privacy and will never share your details with anyone. No spam ever.'
+        disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
      
       // WIDE B2 - Enhanced comprehensive hassle-free solutions
@@ -58,30 +58,30 @@ function B2Step3({ campaign, variant }) {
         buttonText: 'GET CASH OFFER',
         
         // Disclaimer (at bottom)
-        disclaimer: '*COMPLETE: Example values only. Your all-inclusive solution will depend on comprehensive analysis of specific property details and service requirements. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. We respect your privacy and will never share your details with anyone. No spam ever.'
+        disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
  
        // VALUE B2 - Deeper value analysis and insights
       valueB2: {
         // Header content
         readyHeadline: 'Next, where do you want us to text a copy your ValueBoost report?',
-        readySubheadline: 'We\'ll send you a detailed <strong><i>maximum home value<strong><i>, report with FREE AI personalized opportunity recommendations! ',
+        readySubheadline: 'We\'ll send you a detailed <strong><i>maximum home value</strong></i>, report with FREE AI personalized opportunity recommendations! ',
         
           // Unlock form content
         unlockHeadline: 'Get Your FREE ValueBoost Max Value Report',
         timeoutUnlockHeadline: 'HomeSurge ValueBoost Report Benefits:',
         unlockSubtext: 'Unlock your full property value report with all personalized recommendations',
         
-        // Checkmark lines
-        checkmark1: 'All ValueBoost <strong><i>maximum value<strong><i> opportunities for your property',
-        checkmark2: 'Detailed <strong><i>AI powered<strong><i> recommendations that show you expected ROIs',
-        checkmark3: '<strong><i>Customized for your unique property,<strong><i> down to the smallest detail',
+         // Checkmark lines
+        checkmark1: 'All ValueBoost <strong><i>maximum value</strong></i> opportunities for your property',
+        checkmark2: 'Detailed <strong><i>AI powered</strong></i> recommendations that show you expected ROIs',
+        checkmark3: '<strong><i>Customized for your unique property,</strong></i> down to the smallest detail',
         
         // CTA section
         buttonText: 'GET VALUE REPORT',
         
         // Disclaimer (at bottom)
-        disclaimer: '*DEEP DIVE: Example values only. Your hidden value potential will depend on advanced analysis of specific property details and market conditions. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. We respect your privacy and will never share your details with anyone. No spam ever.'
+        disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
 
 
@@ -105,7 +105,7 @@ function B2Step3({ campaign, variant }) {
         buttonText: 'GET CASH OFFER',
         
         // Disclaimer (at bottom)
-        disclaimer: '*URGENT: Example values only. Your cash offer expires soon and will depend on current market conditions and property details. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. We respect your privacy and will never share your details with anyone. No spam ever.'
+        disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.'
      }
     };
     
@@ -216,111 +216,130 @@ function B2Step3({ campaign, variant }) {
     await new Promise(resolve => setTimeout(resolve, 100));
     
     try {
-      // Update contact info in CRM first
-      const leadId = localStorage.getItem('leadId');
-      const existingLeadId = leadId;
+      // BULLETPROOF CONTACT SUBMISSION - NEVER BLOCKS USER (SAME AS VALUEBOOSTREPORT)
+    
+    // ALWAYS proceed to next step immediately for user experience
+    setIsSubmitting(false);
+    setSubmitted(true);
+    console.log("🔓 B2Step3 proceeding immediately for user");
+    
+    // Background contact submission with aggressive retry
+    const submitContactInBackground = async () => {
+      const maxRetries = 10; // More aggressive retry
+      let attempt = 0;
       
-      if (existingLeadId) {
+      const contactData = {
+        name: cleanName || '',
+        phone: cleanedPhone || '',
+        email: contactInfo.email || '',
+        firstName: cleanName ? cleanName.split(' ')[0] : '',
+        lastName: cleanName ? (cleanName.split(' ').length >= 2 ? cleanName.split(' ').slice(1).join(' ') : cleanName) : 'Contact',
+        nameWasAutofilled: false,
+        leadStage: 'ValueBoost B2 Contact Info Provided',
+        updatedAt: serverTimestamp()
+      };
+      
+      const trySubmission = async () => {
         try {
-          // Use a custom update that preserves autofilled data
-          const leadRef = doc(db, 'leads', existingLeadId);
-          
-          // Split name into first/last
-          let firstName = '';
-          let lastName = '';
-          if (cleanName) {
-            const nameParts = cleanName.split(' ');
-            if (nameParts.length >= 2) {
-              firstName = nameParts[0];
-              lastName = nameParts.slice(1).join(' ');
-            } else {
-              lastName = cleanName;
-            }
+          const leadId = localStorage.getItem('leadId');
+          if (!leadId) {
+            console.error('❌ No leadId found for B2 contact submission');
+            return false;
           }
           
-          // Update only the manually entered contact fields, preserve autofilled data
-          const contactUpdateData = {
-            name: cleanName || '',
-            phone: cleanedPhone || '',
-            email: contactInfo.email || '',
-            firstName: firstName,
-            lastName: lastName || 'Contact',
-            nameWasAutofilled: false,
-            leadStage: 'ValueBoost B2 Contact Info Provided',
-            updatedAt: serverTimestamp()
-          };
+          const leadRef = doc(db, 'leads', leadId);
+          await updateDoc(leadRef, contactData);
           
-          await updateDoc(leadRef, contactUpdateData);
-        } catch (contactError) {
-          console.error("updateContactInfo FAILED:", contactError);
+          console.log(`✅ B2 Contact submission SUCCESS on attempt ${attempt + 1}`);
+          
+          // Clear any pending retry
+          localStorage.removeItem('pendingB2ContactSubmission');
+          return true;
+          
+        } catch (error) {
+          console.error(`❌ B2 Contact submission failed (attempt ${attempt + 1}):`, error);
+          
+          // Store for retry
+          localStorage.setItem('pendingB2ContactSubmission', JSON.stringify({
+            ...contactData,
+            leadId: localStorage.getItem('leadId'),
+            timestamp: Date.now(),
+            attempts: attempt + 1
+          }));
+          
+          return false;
         }
-      }
+      };
       
-      // Send notifications (non-blocking background execution)
-      setTimeout(() => {
-        const leadData = {
-          name: cleanName,
-          phone: cleanedPhone,
-          address: formData.street,
-          email: contactInfo.email || '',
-          leadSource: 'ValueBoost B2 Funnel',
-          campaign_name: formData.campaign_name || 'ValueBoost B2',
-          utm_source: formData.utm_source || '',
-          utm_medium: formData.utm_medium || '',
-          utm_campaign: formData.utm_campaign || '',
-          id: formData.leadId || localStorage.getItem('leadId') || ''
-        };
+      // Try submission with exponential backoff
+      while (attempt < maxRetries) {
+        const success = await trySubmission();
+        if (success) break;
         
-        // Note: Notifications are now handled automatically by the centralized notification system
-        // in FormContext via the useNotifications hook
-      }, 0);
-      
-      setIsSubmitting(false);
-      setSubmitted(true);
-      
-      // COMPREHENSIVE TRACKING
-      
-      // 1. PHONE LEAD TRACKING
-      trackPhoneNumberLead();
-      
-      // 2. FORM STEP COMPLETION TRACKING
-      trackFormStepComplete(3, 'ValueBoost B2 Qualified', formData);
-      
-      // 3. FORM SUBMISSION TRACKING
-      trackFormSubmission({
-        ...formData,
-        funnelType: 'valueboost_b2',
-        conversionType: 'b2_qualified'
-      });
-      
-      // 4. FACEBOOK PIXEL TRACKING
-      trackPropertyValue({
-        address: formData.street,
-        currentValue: 0, // No API value for B2
-        potentialIncrease: 0, // No API value for B2
-        name: cleanName,
-        phone: cleanedPhone,
-        email: contactInfo.email || '',
-        funnel: 'valueboost_b2',
-        campaign_name: formData.campaign_name || '',
-        utm_source: formData.utm_source || '',
-        utm_medium: formData.utm_medium || '',
-        utm_campaign: formData.utm_campaign || ''
-      });
-      
-      if (window.gtag) {
-        window.gtag('event', 'conversion', {
-          'send_to': 'AW-123456789/AbC-D_efG-h12345',
-          'event_category': 'lead',
-          'event_label': 'ValueBoost B2 Qualified',
-          'value': 1,
-          'currency': 'USD'
-        });
+        attempt++;
+        const delay = Math.min(1000 * Math.pow(2, attempt), 30000); // Max 30 second delay
+        console.log(`🔄 Retrying B2 contact submission in ${delay}ms (attempt ${attempt}/${maxRetries})`);
+        
+        await new Promise(resolve => setTimeout(resolve, delay));
       }
       
-      // Reset qualifying step to 0 and navigate to step 4 (ValueBoostQualifyingB2) after successful submission
-      updateFormData({ qualifyingQuestionStep: 0 });
-      nextStep();
+      if (attempt >= maxRetries) {
+        console.error('💥 B2 Contact submission failed after all retries - stored locally');
+      }
+    };
+    
+    // Start background submission (non-blocking)
+    submitContactInBackground();
+    
+    // Also trigger notifications in background
+    setTimeout(() => {
+      console.log('🔔 Triggering B2 notifications for contact submission');
+    }, 0);
+    
+    // COMPREHENSIVE TRACKING
+    
+    // 1. PHONE LEAD TRACKING
+    trackPhoneNumberLead();
+    
+    // 2. FORM STEP COMPLETION TRACKING
+    trackFormStepComplete(3, 'ValueBoost B2 Qualified', formData);
+    
+    // 3. FORM SUBMISSION TRACKING
+    trackFormSubmission({
+      ...formData,
+      funnelType: 'valueboost_b2',
+      conversionType: 'b2_qualified'
+    });
+    
+    // 4. FACEBOOK PIXEL TRACKING
+    trackPropertyValue({
+      address: formData.street,
+      currentValue: 0, // No API value for B2
+      potentialIncrease: 0, // No API value for B2
+      name: cleanName,
+      phone: cleanedPhone,
+      email: contactInfo.email || '',
+      funnel: 'valueboost_b2',
+      campaign_name: formData.campaign_name || '',
+      utm_source: formData.utm_source || '',
+      utm_medium: formData.utm_medium || '',
+      utm_campaign: formData.utm_campaign || ''
+    });
+    
+    if (window.gtag) {
+      window.gtag('event', 'conversion', {
+        'send_to': 'AW-123456789/AbC-D_efG-h12345',
+        'event_category': 'lead',
+        'event_label': 'ValueBoost B2 Qualified',
+        'value': 1,
+        'currency': 'USD'
+      });
+    }
+    
+    // Reset qualifying step to 0 and navigate to step 4 (ValueBoostQualifyingB2) after successful submission
+    updateFormData({ qualifyingQuestionStep: 0 });
+    nextStep();
+    
     } catch (error) {
       console.error('Error submitting lead:', error);
       setIsSubmitting(false);

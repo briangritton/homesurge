@@ -103,7 +103,7 @@ function AddressForm({ campaign, variant }) {
         checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
         contactButtonText: 'GET CASH OFFER',
         contactDisclaimer: '*Example values only. Your cash offer expires soon and will depend on current market conditions and property details. ' +
-          'By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. ' +
+          'By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. ' +
           'We respect your privacy and will never share your details with anyone. No spam ever.',
         // Disclaimer split content
         disclaimerMain: '*Example values only. Your offer amount will depend on your specific home details and other factors. ' +
@@ -130,7 +130,7 @@ function AddressForm({ campaign, variant }) {
         checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
         contactButtonText: 'GET CASH OFFER',
         contactDisclaimer: '*Example values only. Your cash offer expires soon and will depend on current market conditions and property details. ' +
-          'By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. ' +
+          'By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. ' +
           'We respect your privacy and will never share your details with anyone. No spam ever.',
         // Disclaimer split content
         disclaimerMain: '*Example values only. Your offer amount will depend on your specific home details and other factors. ' +
@@ -158,7 +158,7 @@ function AddressForm({ campaign, variant }) {
         checkmark3: '<strong><em>DEEP VALUE:</em></strong> <strong>Customized</strong> for your property',
        contactButtonText: 'GET VALUE REPORT',
       contactDisclaimer: '*Example values only. Your value report will depend on current market conditions and property details. ' +
-          'By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. ' +
+          'By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. ' +
           'We respect your privacy and will never share your details with anyone. No spam ever.',
         // Disclaimer split content
         disclaimerMain: '*Example values only. Your value report amount will depend on your specific home details and other factors. ' +
@@ -206,7 +206,7 @@ function AddressForm({ campaign, variant }) {
         checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
         contactButtonText: 'CHECK CASH OFFER',
         contactDisclaimer: '*Example values only. Your cash offer expires soon and will depend on current market conditions and property details. ' +
-          'By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. ' +
+          'By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. ' +
           'We respect your privacy and will never share your details with anyone. No spam ever.',
         disclaimerMain: '*<strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong> ' +
           'By entering your address, you agree to be contacted at the information details provided and send address details and ' +
@@ -232,7 +232,7 @@ function AddressForm({ campaign, variant }) {
         checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
         contactButtonText: 'CHECK CASH OFFER',
         contactDisclaimer: '*Example values only. Your cash offer expires soon and will depend on current market conditions and property details. ' +
-          'By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. ' +
+          'By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. ' +
           'We respect your privacy and will never share your details with anyone. No spam ever.',
   disclaimerMain: '*<strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong> ' +
           'By entering your address, you agree to be contacted at the information details provided and send address details and ' +
@@ -258,7 +258,7 @@ function AddressForm({ campaign, variant }) {
         checkmark3: '<strong><em>DEEP VALUE:</em></strong> <strong>Customized</strong> for your property',
         contactButtonText: 'GET VALUE REPORT',
       contactDisclaimer: '*Example values only. Your value report will depend on current market conditions and property details. ' +
-          'By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. ' +
+          'By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. ' +
           'We respect your privacy and will never share your details with anyone. No spam ever.',
   disclaimerMain: '*<strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong> ' +
           'By entering your address, you agree to be contacted at the information details provided and send address details and ' +
@@ -296,7 +296,7 @@ function AddressForm({ campaign, variant }) {
         checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
         contactButtonText: 'GET CASH OFFER',
         contactDisclaimer: '*Example values only. Your cash offer expires soon and will depend on current market conditions and property details. ' +
-          'By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a Do Not Call list. ' +
+          'By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. ' +
           'We respect your privacy and will never share your details with anyone. No spam ever.',
         // Disclaimer split content
         disclaimerMain: '*Example values only. Your offer amount will depend on your specific home details and other factors. ' +
@@ -1284,6 +1284,9 @@ function AddressForm({ campaign, variant }) {
             
             // Store report in localStorage for Step 3
             localStorage.setItem('aiHomeReport', aiReport);
+            
+            // Store report in FormContext so ValueBoostReport can access it immediately
+            updateFormData({ aiHomeReport: aiReport });
             
             // Update Firebase with AI report (non-blocking)
             if (leadId) {
