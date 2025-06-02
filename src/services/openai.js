@@ -21,10 +21,11 @@ function getOpenAIClient() {
 }
 
 /**
- * Generate an AI-enhanced ValueBoost report based on property data
- * Uses the existing template structure as a guide for OpenAI
+ * Generate an AI-enhanced ValueBoost report that enhances existing template recommendations
+ * @param {Object} propertyContext - Property data from Melissa API
+ * @param {Array} templateRecommendations - Generated template recommendations to enhance
  */
-export async function generateAIValueBoostReport(propertyContext) {
+export async function generateAIValueBoostReport(propertyContext, templateRecommendations = []) {
   try {
     console.log('🤖 Starting OpenAI ValueBoost report generation...');
     
@@ -44,8 +45,15 @@ export async function generateAIValueBoostReport(propertyContext) {
       maximumFractionDigits: 0
     }).format(potentialIncrease || 0);
 
-    // Structured prompt that guides OpenAI to follow our template format
-    const prompt = `You are a professional real estate improvement analyst creating a ValueBoost report. Based on the property data provided, generate a detailed, personalized report that follows this EXACT structure:
+    // Create template recommendations summary for AI enhancement
+    const templateSummary = templateRecommendations.length > 0 
+      ? templateRecommendations.map((rec, index) => 
+          `${index + 1}. ${rec.strategy} (${rec.costEstimate}) - ${rec.description} - Expected ROI: ${rec.roiEstimate}`
+        ).join('\n')
+      : 'No template recommendations provided';
+
+    // Enhanced prompt that personalizes template recommendations
+    const prompt = `You are a professional real estate improvement analyst creating a personalized ValueBoost report. Based on the property data and template recommendations provided, enhance and personalize the content.
 
 PROPERTY DATA:
 - Address: ${address}
@@ -56,62 +64,36 @@ PROPERTY DATA:
 - Square Footage: ${squareFootage || 'Not specified'}
 - Upgrades Needed (1-10 scale): ${upgradesNeeded || 'Not specified'}
 
+TEMPLATE RECOMMENDATIONS TO ENHANCE:
+${templateSummary}
+
 REQUIRED OUTPUT FORMAT (follow this structure exactly):
 
 ValueBoost AI Analysis Report
 
-[START WITH AN INTRODUCTION PARAGRAPH: Write a brief, personalized introduction that explains this is their custom ValueBoost/OfferBoost report, which uses AI analysis to identify specific opportunities to increase their home's value based on their unique property details. Make it welcoming and explain that they're about to see AI-reviewed recommendations tailored specifically to their ${address} property.]
+[PERSONALIZED INTRODUCTION: Write a warm, personalized introduction that explains this is their custom ValueBoost/OfferBoost report. Reference their specific property at ${address} and mention that you've analyzed their ${bedrooms ? bedrooms + '-bedroom' : ''} ${bathrooms ? bathrooms + '-bathroom' : ''} home worth ${formattedValue}. Explain that the AI has identified specific opportunities to potentially increase their home's value by ${formattedIncrease}. Make it personal and welcoming.]
 
-Property: [property address]
-Current Estimated Value: [formatted current value]
-Potential Value Increase: [formatted potential increase]
+Property: ${address}
+Current Estimated Value: ${formattedValue}
+Potential Value Increase: ${formattedIncrease}
 
-TOP RECOMMENDATIONS FOR MAXIMUM ROI:
+AI-ENHANCED RECOMMENDATIONS:
 
-1. [Improvement Category] ([Cost Range])
-   - [Specific recommendation 1]
-   - [Specific recommendation 2]  
-   - [Specific recommendation 3]
-   Expected ROI: [percentage range]
+[Take the template recommendations above and enhance each one with specific, personalized details for this property. Keep the same general categories but make them more specific to the property's characteristics, location, and value range. Add property-specific insights and local market considerations.]
 
-2. [Improvement Category] ([Cost Range])
-   - [Specific recommendation 1]
-   - [Specific recommendation 2]
-   - [Specific recommendation 3]
-   Expected ROI: [percentage range]
-
-3. [Improvement Category] ([Cost Range])
-   - [Specific recommendation 1]
-   - [Specific recommendation 2]
-   - [Specific recommendation 3]
-   Expected ROI: [percentage range]
-
-4. [Improvement Category] ([Cost Range])
-   - [Specific recommendation 1]
-   - [Specific recommendation 2]
-   - [Specific recommendation 3]
-   Expected ROI: [percentage range]
-
-5. [Improvement Category] ([Cost Range])
-   - [Specific recommendation 1]
-   - [Specific recommendation 2]
-   - [Specific recommendation 3]
-   Expected ROI: [percentage range]
-
-[Final analysis paragraph about market conditions and strategy]
+[MARKET STRATEGY SUMMARY: End with a brief paragraph about the local market conditions and overall strategy for maximizing value on this specific property.]
 
 INSTRUCTIONS:
-- Provide 5 specific improvement recommendations ranked by ROI
-- Include realistic cost ranges in parentheses (e.g., $15,000-25,000)
-- Give 3 specific actionable sub-recommendations for each category
-- Provide ROI percentages based on current market conditions
-- Consider the property's specific characteristics (bedrooms, bathrooms, square footage)
-- Tailor recommendations to maximize the ${formattedIncrease} potential increase
-- Use professional real estate improvement language
-- Keep cost ranges realistic for current market conditions
-- End with a brief analysis paragraph about market strategy
+- Enhance and personalize the template recommendations provided above
+- Keep the same general improvement categories but add specific details
+- Reference the property's specific characteristics (bedrooms, bathrooms, square footage, value range)
+- Add insights about the local market for properties in this value range
+- Make cost estimates more specific to the property's value tier
+- Provide property-specific implementation tips
+- Keep the professional tone but make it personal to their home
+- The introduction should feel like it was written specifically for this homeowner
 
-Be creative and insightful while maintaining the exact structure above.`;
+Be insightful and specific while enhancing the existing template structure.`;
 
     const openaiClient = getOpenAIClient();
     const completion = await openaiClient.chat.completions.create({

@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useFormContext } from '../../../contexts/FormContext';
-import { updateLeadInFirebase } from '../../../services/firebase.js';
 import { trackFormStepComplete } from '../../../services/analytics';
-import { generateAIValueBoostReport } from '../../../services/openai';
 import houseIcon from '../../../assets/images/house-icon.png';
 import smallArrow from '../../../assets/images/smallarrow.png';
 
@@ -192,72 +190,17 @@ function AIProcessing({ campaign, variant }) {
     'Value boost report ready!'
   ];
 
-  // Function to generate AI home enhancement report
-  const generateAIReport = async (propertyData) => {
-    try {
-      console.log('🤖 Starting OpenAI report generation...');
-      
-      // Prepare property context for AI
-      const propertyContext = {
-        address: propertyData.street || formData.street,
-        estimatedValue: propertyData.apiEstimatedValue || formData.apiEstimatedValue,
-        bedrooms: propertyData.bedrooms || formData.bedrooms || '',
-        bathrooms: propertyData.bathrooms || formData.bathrooms || '',
-        squareFootage: propertyData.finishedSquareFootage || formData.finishedSquareFootage || '',
-        potentialIncrease: propertyData.potentialValueIncrease || formData.potentialValueIncrease,
-        upgradesNeeded: propertyData.upgradesNeeded || formData.upgradesNeeded || 8
-      };
-
-      // Use actual OpenAI API to generate personalized report
-      const aiReport = await generateAIValueBoostReport(propertyContext);
-      
-      console.log('✅ AI report generated successfully');
-      
-      // Store report in localStorage and formData for Step 3
-      localStorage.setItem('aiHomeReport', aiReport);
-      
-      // Update Firebase with AI report
-      const leadId = localStorage.getItem('leadId');
-      if (leadId) {
-        await updateLeadInFirebase(leadId, {
-          aiHomeReport: aiReport,
-          aiReportGeneratedAt: new Date().toISOString()
-        });
-        console.log('✅ AI report saved to Firebase');
-      }
-      
-      setAiReportGenerated(true);
-      return aiReport;
-      
-    } catch (error) {
-      console.error('❌ Error generating AI report:', error);
-      // Don't block user flow if AI fails
-      setAiReportGenerated(true); // Mark as complete to prevent blocking
-      return null;
-    }
-  };
+  // AIProcessing component is for display only - all AI generation happens in AddressForm
 
 
-  // Monitor for Melissa API data updates
+  // Monitor for Melissa API data updates (but don't generate AI report - that's handled in AddressForm)
   useEffect(() => {
     const checkForMelissaData = () => {
       // Check if we have received Melissa API data
       if (formData.apiEstimatedValue && !melissaDataReceived) {
-        console.log('📊 Melissa API data detected, triggering AI report generation');
+        console.log('📊 Melissa API data detected in AIProcessing (display only)');
         setMelissaDataReceived(true);
-        
-        // Trigger AI report generation now that we have property data (fully non-blocking)
-        if (!aiReportGenerated && !aiReportRef.current) {
-          aiReportRef.current = true; // Prevent duplicate calls
-          
-          // Run in background - never block user flow
-          setTimeout(() => {
-            generateAIReport(formData).catch(error => {
-              console.warn('🤖 AI report generation failed silently:', error);
-              // Silently fail - user flow continues normally
-            });
-          }, 0);
-        }
+        setAiReportGenerated(true); // Mark as complete for UI purposes
       }
     };
 
@@ -268,23 +211,15 @@ function AIProcessing({ campaign, variant }) {
     const interval = setInterval(checkForMelissaData, 500);
     
     return () => clearInterval(interval);
-  }, [formData.apiEstimatedValue, melissaDataReceived, aiReportGenerated]);
+  }, [formData.apiEstimatedValue, melissaDataReceived]);
 
-  // Trigger AI report generation on mount if Melissa data already available
+  // Check if Melissa data already available on mount (no AI generation)
   useEffect(() => {
-    // If Melissa data is already available when component mounts, start AI generation (fully non-blocking)
-    if (formData.apiEstimatedValue && !aiReportGenerated && !aiReportRef.current) {
-      console.log('📊 Melissa data already available, starting AI report generation');
-      aiReportRef.current = true;
+    // If Melissa data is already available when component mounts, mark as ready
+    if (formData.apiEstimatedValue && !melissaDataReceived) {
+      console.log('📊 Melissa data already available on AIProcessing mount');
       setMelissaDataReceived(true);
-      
-      // Run in background - never block user flow
-      setTimeout(() => {
-        generateAIReport(formData).catch(error => {
-          console.warn('🤖 AI report generation failed silently:', error);
-          // Silently fail - user flow continues normally
-        });
-      }, 0);
+      setAiReportGenerated(true); // Mark as complete for UI purposes
     }
   }, []);
 

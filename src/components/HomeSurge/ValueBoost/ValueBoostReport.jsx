@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useFormContext } from '../../../contexts/FormContext';
 import additionalStrategies from './additionalStrategies';
 import { calculatePropertySpecificCost, calculatePropertySpecificROI } from './costCalculator';
@@ -466,7 +466,63 @@ function ValueBoostReport({ campaign, variant }) {
     return templates.default;
   };
   
-  const dynamicContent = getDynamicContent();
+  const dynamicContent = useMemo(() => getDynamicContent(), [campaign, variant]);
+  
+  // State declarations first - moved before usage
+  const [aiReport, setAiReport] = useState(null); // Store AI-generated report content
+  
+  // Extract AI introduction from the generated report
+  const extractAIIntroduction = (reportText) => {
+    if (!reportText) return null;
+    
+    // Look for the introduction paragraph in the AI report
+    // The introduction should be after "ValueBoost AI Analysis Report" and before "Property:"
+    const lines = reportText.split('\n');
+    let introStart = -1;
+    let introEnd = -1;
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      
+      // Find the start of introduction (after the title)
+      if (line.includes('ValueBoost AI Analysis Report') || line.includes('OfferBoost AI Analysis Report')) {
+        introStart = i + 1;
+      }
+      
+      // Find the end of introduction (before property details)
+      if (introStart > -1 && (line.startsWith('Property:') || line.includes('Current Estimated Value:'))) {
+        introEnd = i;
+        break;
+      }
+    }
+    
+    if (introStart > -1 && introEnd > introStart) {
+      const introLines = lines.slice(introStart, introEnd)
+        .filter(line => line.trim().length > 0) // Remove empty lines
+        .map(line => line.trim());
+      
+      return introLines.join(' ');
+    }
+    
+    return null;
+  };
+  
+  // Get AI introduction if available (memoized to prevent re-calculation)
+  const aiIntroduction = useMemo(() => {
+    return aiReport ? extractAIIntroduction(aiReport) : null;
+  }, [aiReport]);
+  
+  // Debug logging for AI report
+  useEffect(() => {
+    if (aiReport) {
+      console.log('🤖 AI report available in ValueBoostReport:', {
+        hasReport: !!aiReport,
+        reportLength: aiReport.length,
+        hasIntroduction: !!aiIntroduction,
+        introductionPreview: aiIntroduction ? aiIntroduction.substring(0, 100) + '...' : null
+      });
+    }
+  }, [aiReport, aiIntroduction]);
   
   // Scroll to top when component loads
   useEffect(() => {
@@ -502,6 +558,29 @@ function ValueBoostReport({ campaign, variant }) {
   const [showAddressRetry, setShowAddressRetry] = useState(false);
   const [contactFormCompleted, setContactFormCompleted] = useState(false);
   const [reportStateLockedIn, setReportStateLockedIn] = useState(false); // Prevent flickering back to processing
+
+  // Load AI report from localStorage when component mounts
+  useEffect(() => {
+    const loadAIReport = () => {
+      const storedReport = localStorage.getItem('aiHomeReport');
+      if (storedReport) {
+        console.log('📄 AI report loaded from localStorage');
+        setAiReport(storedReport);
+      } else {
+        console.log('📄 No AI report found in localStorage');
+      }
+    };
+    
+    loadAIReport();
+    
+    // Also check periodically in case the report gets generated after component mount
+    const checkInterval = setInterval(loadAIReport, 2000);
+    
+    // Clear interval after 30 seconds to avoid infinite checking
+    setTimeout(() => clearInterval(checkInterval), 30000);
+    
+    return () => clearInterval(checkInterval);
+  }, []);
 
   // Update contact info when data becomes available - preserve user input
   useEffect(() => {
@@ -1690,6 +1769,154 @@ function ValueBoostReport({ campaign, variant }) {
             <div className="vb-af1-hero-subheadline " style={{ marginBottom: '10px' }}>
               {cleanAddress(testFormData.street) || '123 Main St'}
             </div>
+            
+            {/* Property Values Summary - always show if we have Melissa data */}
+            {testFormData.apiEstimatedValue && (
+              <div style={{
+                backgroundColor: '#f0f9ff',
+                border: '2px solid #09a5c8',
+                borderRadius: '10px',
+                padding: '20px',
+                margin: '20px 0',
+                textAlign: 'center'
+              }}>
+                <div style={{
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                  color: '#09a5c8',
+                  marginBottom: '15px'
+                }}>
+                  📊 Property Analysis Summary
+                </div>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-around',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: '20px'
+                }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{
+                      fontSize: '24px',
+                      fontWeight: 'bold',
+                      color: '#333',
+                      marginBottom: '5px'
+                    }}>
+                      {testFormData.formattedApiEstimatedValue || `$${testFormData.apiEstimatedValue?.toLocaleString()}`}
+                    </div>
+                    <div style={{
+                      fontSize: '14px',
+                      color: '#666',
+                      fontWeight: '500'
+                    }}>
+                      Current Property Value
+                    </div>
+                  </div>
+                  
+                  {testFormData.potentialValueIncrease && (
+                    <>
+                      <div style={{
+                        fontSize: '30px',
+                        color: '#09a5c8'
+                      }}>
+                        →
+                      </div>
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={{
+                          fontSize: '24px',
+                          fontWeight: 'bold',
+                          color: '#28a745',
+                          marginBottom: '5px'
+                        }}>
+                          {(() => {
+                            const currentValue = testFormData.apiEstimatedValue || 0;
+                            const increase = testFormData.potentialValueIncrease || 0;
+                            const maxValue = currentValue + increase;
+                            return new Intl.NumberFormat('en-US', {
+                              style: 'currency',
+                              currency: 'USD',
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0
+                            }).format(maxValue);
+                          })()}
+                        </div>
+                        <div style={{
+                          fontSize: '14px',
+                          color: '#666',
+                          fontWeight: '500'
+                        }}>
+                          Maximum Property Value
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+                <div style={{
+                  marginTop: '15px',
+                  fontSize: '14px',
+                  color: '#666',
+                  fontStyle: 'italic'
+                }}>
+                  Based on Melissa API property data and market analysis
+                </div>
+              </div>
+            )}
+
+            {/* AI Report Section - Full report when unlocked, loading when not ready */}
+            {unlocked && (
+              <div style={{
+                backgroundColor: '#f8faff',
+                border: '2px solid #e6f3ff',
+                borderRadius: '12px',
+                padding: '20px',
+                margin: '20px 0',
+                fontSize: '16px',
+                lineHeight: '1.6',
+                color: '#333'
+              }}>
+                <div style={{
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                  color: '#09a5c8',
+                  marginBottom: '15px',
+                  textAlign: 'center',
+                  borderBottom: '1px solid #e6f3ff',
+                  paddingBottom: '10px'
+                }}>
+                  🤖 Your Personalized AI Analysis Report
+                </div>
+                
+                {aiReport ? (
+                  <div style={{
+                    whiteSpace: 'pre-wrap',
+                    fontSize: '16px',
+                    lineHeight: '1.6'
+                  }}>
+                    {aiReport}
+                  </div>
+                ) : (
+                  <div style={{
+                    textAlign: 'center',
+                    padding: '20px',
+                    color: '#666',
+                    fontStyle: 'italic'
+                  }}>
+                    <div style={{
+                      fontSize: '16px',
+                      marginBottom: '10px'
+                    }}>
+                      🔄 AI report almost finished, just a moment...
+                    </div>
+                    <div style={{
+                      fontSize: '14px',
+                      color: '#888'
+                    }}>
+                      Our AI is putting the finishing touches on your personalized analysis
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </>
           )}
 
@@ -1700,7 +1927,6 @@ function ValueBoostReport({ campaign, variant }) {
           {(() => {
             // Show value boost box for "1" variants (original layout), hide for "2" variants (streamlined layout)
             const showStep3Box = variant === 'A1O' || variant === 'A1I';
-            console.log(`🎯 ValueBoostReport: variant=${variant}, showStep3Box=${showStep3Box}`);
             
             
             // Check if returning from retry
@@ -1886,6 +2112,33 @@ function ValueBoostReport({ campaign, variant }) {
           {/* Display recommendations - only show when API data is ready OR timeout expired */}
           {((testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) || showReportReady) && (
           <div id="recommendations-section" className={`vb-recommendations-section ${!(testFormData.apiEstimatedValue && testFormData.apiEstimatedValue > 0) ? 'no-border' : ''}`}>
+            {/* Add section divider when unlocked to separate AI report from template */}
+            {unlocked && (
+              <div style={{
+                backgroundColor: '#fafbfc',
+                border: '1px solid #e8ecf0',
+                borderRadius: '8px',
+                padding: '15px',
+                margin: '20px 0',
+                textAlign: 'center'
+              }}>
+                <div style={{
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  color: '#09a5c8',
+                  marginBottom: '5px'
+                }}>
+                  📋 Comprehensive Strategy Guide
+                </div>
+                <div style={{
+                  fontSize: '14px',
+                  color: '#666'
+                }}>
+                  Complete template strategies and additional opportunities
+                </div>
+              </div>
+            )}
+            
             <h2 className="vb-recommendations-title">
               {dynamicContent.recommendationsTitle}
             </h2>

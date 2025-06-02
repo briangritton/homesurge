@@ -7,6 +7,7 @@ import { lookupPropertyInfo } from '../../../services/maps.js';
 import { lookupPhoneNumbers } from '../../../services/batchdata.js';
 import { updateLeadInFirebase } from '../../../services/firebase.js';
 import { generateAIValueBoostReport } from '../../../services/openai';
+import additionalStrategies from './additionalStrategies';
 // Removed formatSubheadline, formatText - using CSS text-wrap: pretty instead
 import gradientArrow from '../../../assets/images/gradient-arrow.png';
 import waveImage from '../../../assets/images/wave.png';
@@ -1239,7 +1240,13 @@ function AddressForm({ campaign, variant }) {
       if (checkForMelissaDataAndGenerateAI() || attempts >= maxAttempts) {
         clearInterval(interval);
         if (attempts >= maxAttempts) {
-          console.log('⚠️ OpenAI generation timeout - Melissa data not received');
+          console.log('⚠️ OpenAI generation timeout - Melissa data not received within 30 seconds');
+          console.log('🔍 Current form data state:', {
+            hasApiValue: !!formData.apiEstimatedValue,
+            apiValue: formData.apiEstimatedValue,
+            hasAddress: !!formData.street,
+            address: formData.street
+          });
         }
       }
     }, 500);
@@ -1248,35 +1255,81 @@ function AddressForm({ campaign, variant }) {
   // Generate AI report in background without blocking UI
   const generateAIReportInBackground = async (propertyData, leadId) => {
     try {
+      // Check if AI report already exists to prevent duplication
+      const existingReport = localStorage.getItem('aiHomeReport');
+      if (existingReport) {
+        console.log('🔄 AI report already exists, skipping generation in AddressForm');
+        return;
+      }
+      
       console.log('🤖 Starting OpenAI report generation in AddressForm...');
       
-      // Prepare property context for AI
+      // Add safety check for required data
+      if (!propertyData || !propertyData.street) {
+        console.warn('⚠️ Missing property data for AI generation');
+        return;
+      }
+      
+      // Prepare property context for AI - ensure we have essential data
+      const estimatedValue = propertyData.apiEstimatedValue || formData.apiEstimatedValue;
+      if (!estimatedValue || estimatedValue <= 0) {
+        throw new Error('No valid estimated value available for AI report generation');
+      }
+      
       const propertyContext = {
         address: propertyData.street || formData.street,
-        estimatedValue: propertyData.apiEstimatedValue || formData.apiEstimatedValue,
+        estimatedValue: estimatedValue,
         bedrooms: propertyData.bedrooms || formData.bedrooms || '',
         bathrooms: propertyData.bathrooms || formData.bathrooms || '',
         squareFootage: propertyData.finishedSquareFootage || formData.finishedSquareFootage || '',
         potentialIncrease: propertyData.potentialValueIncrease || formData.potentialValueIncrease,
         upgradesNeeded: propertyData.upgradesNeeded || formData.upgradesNeeded || 8
       };
+      
+      console.log('🎯 Property context for AI:', {
+        hasAddress: !!propertyContext.address,
+        estimatedValue: propertyContext.estimatedValue,
+        hasRequiredData: !!propertyContext.address && !!propertyContext.estimatedValue
+      });
 
-      // Use actual OpenAI API to generate personalized report
-      const aiReport = await generateAIValueBoostReport(propertyContext);
-      
-      console.log('✅ AI report generated successfully in AddressForm');
-      
-      // Store report in localStorage for Step 3
-      localStorage.setItem('aiHomeReport', aiReport);
-      
-      // Update Firebase with AI report
-      if (leadId) {
-        await updateLeadInFirebase(leadId, {
-          aiHomeReport: aiReport,
-          aiReportGeneratedAt: new Date().toISOString()
-        });
-        console.log('✅ AI report saved to Firebase from AddressForm');
-      }
+      // Start AI generation in background - NEVER await this, NEVER block user flow
+      setTimeout(() => {
+        // Generate template recommendations first (safe fallback)
+        let templateRecommendations = [];
+        try {
+          templateRecommendations = additionalStrategies ? additionalStrategies.slice(0, 10) : [];
+          console.log('📋 Generated template recommendations:', templateRecommendations.length);
+        } catch (error) {
+          console.warn('⚠️ Could not load template recommendations:', error);
+          templateRecommendations = []; // Continue without templates
+        }
+
+        // Use OpenAI API to enhance template recommendations with personalized content
+        // IMPORTANT: Completely in background, never affects user flow
+        generateAIValueBoostReport(propertyContext, templateRecommendations)
+          .then(aiReport => {
+            console.log('✅ AI report generated successfully in AddressForm');
+            
+            // Store report in localStorage for Step 3
+            localStorage.setItem('aiHomeReport', aiReport);
+            
+            // Update Firebase with AI report (non-blocking)
+            if (leadId) {
+              updateLeadInFirebase(leadId, {
+                aiHomeReport: aiReport,
+                aiReportGeneratedAt: new Date().toISOString()
+              }).then(() => {
+                console.log('✅ AI report saved to Firebase from AddressForm');
+              }).catch(error => {
+                console.warn('⚠️ Failed to save AI report to Firebase:', error);
+              });
+            }
+          })
+          .catch(error => {
+            console.warn('⚠️ AI report generation failed, continuing without AI enhancement:', error);
+            // Continue without AI report - user flow is not blocked
+          });
+      }, 0); // Run immediately but asynchronously
       
     } catch (error) {
       console.error('❌ Error generating AI report in AddressForm:', error);
@@ -1821,21 +1874,26 @@ function AddressForm({ campaign, variant }) {
           trackFormStepComplete(1, 'Address Form Completed (Suggestion)', formData);
           
           // ========================================
-          // SPLIT TEST AREA - STEP NAVIGATION
-          // Position 2: A=Show Step 2, B=Skip to Step 3
+          // STEP NAVIGATION - Updated for route-based variants
           // ========================================
-          const urlParams = new URLSearchParams(window.location.search);
-          const splitTest = urlParams.get('split_test') || urlParams.get('variant') || localStorage.getItem('assignedVariant') || 'AAA';
-          const showStep2 = splitTest[2] === 'I'; // Position 2 controls Step 2 interstitial (I=show, O=skip)
+          console.log('🎯 Form progression - current variant:', variant);
           
-          if (showStep2) {
-            nextStep(); // Go to Step 2 (AI Processing)
-          } else {
-            // Skip Step 2, go directly to Step 3
+          try {
+            if (variant === 'A1I') {
+              console.log('🎯 A1I variant - going to AI Processing (Step 2)');
+              nextStep(); // Go to Step 2 (AI Processing)
+            } else {
+              console.log('🎯 A1O/A2O/B2O variant - skipping to Step 3');
+              // A1O, A2O, B2O skip AI Processing, go directly to Step 3
+              updateFormData({ formStep: 3 });
+            }
+          } catch (stepError) {
+            console.error('❌ Error in step navigation:', stepError);
+            // Fallback - always proceed to prevent white screen
             updateFormData({ formStep: 3 });
           }
           // ======================================== 
-          // END SPLIT TEST AREA - STEP NAVIGATION
+          // END STEP NAVIGATION
           // ========================================
           
           // Reset loading state right away
