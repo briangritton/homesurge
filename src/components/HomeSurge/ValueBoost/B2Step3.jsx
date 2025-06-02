@@ -8,6 +8,11 @@ function B2Step3({ campaign, variant }) {
   const { formData, updateFormData, updateLead, nextStep } = useFormContext();
   const db = getFirestore();
   
+  // Auto scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+  
   // ================================================================================
   // DYNAMIC CONTENT SYSTEM - B2 TEMPLATES ONLY
   // ================================================================================
@@ -424,8 +429,7 @@ function B2Step3({ campaign, variant }) {
                   {isSubmitting ? 'Submitting...' : dynamicContent.buttonText}
                 </button>
 
-                <div className="vb-b2-unlock-security-text">
-                  {dynamicContent.disclaimer}
+                <div className="vb-b2-unlock-security-text" dangerouslySetInnerHTML={{ __html: dynamicContent.disclaimer }}>
                 </div>
               </div>
             </div>
