@@ -144,7 +144,7 @@ function AddressForm({ campaign, variant }) {
       
       // ========== VALUE/IMPROVEMENT CAMPAIGNS (Enhanced ValueBoost) ==========
       valueA: {
-        headline: 'Maximize Your Home Value With ValueBoost AI',
+        headline: 'See Your Maximum Home Value Potential With ValueBoost AI',
         subheadline: 'Our ValueBoost AI home scan will generate your <strong><em>maximum home value</em></strong> report with FREE AI personalized opportunity recommendations!',
         buttonText: 'GET VALUE REPORT',
         exampleTag: 'Example ValueBoost Report Increase*',
@@ -152,16 +152,18 @@ function AddressForm({ campaign, variant }) {
         opportunitiesText: '11 ValueBoost opportunities found!',
         percentageText: 'Potential Home Value Increase',
         // Contact section content
-        contactHeadline: 'Get Your DEEP VALUE Discovery Report',
-        checkmark1: '<strong><em>DEEP DIVE:</em></strong> All <strong>hidden value secrets</strong> for your property',
-        checkmark2: '<strong><em>ADVANCED:</em></strong> Untapped <strong>equity opportunities</strong> others miss',
-        checkmark3: '<strong><em>DEEP VALUE:</em></strong> <strong>Customized</strong> for your property',
+        contactHeadline: 'Get Your FREE ValueBoost Max Value Report',
+        // Checkmark lines
+        checkmark1: 'All ValueBoost <strong><i>maximum value</strong></i> opportunities for your property',
+        checkmark2: 'Detailed <strong><i>AI powered</strong></i> recommendations that show you expected ROIs',
+        checkmark3: '<strong><i>Customized for your unique property,</strong></i> down to the smallest detail',
+        
        contactButtonText: 'GET VALUE REPORT',
-      contactDisclaimer: '*Example values only. Your value report will depend on current market conditions and property details. ' +
+     contactDisclaimer: '*Example values only. Your cash offer expires soon and will depend on current market conditions and property details. ' +
           'By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. ' +
           'We respect your privacy and will never share your details with anyone. No spam ever.',
         // Disclaimer split content
-        disclaimerMain: '*Example values only. Your value report amount will depend on your specific home details and other factors. ' +
+        disclaimerMain: '*Example values only. Your offer amount will depend on your specific home details and other factors. ' +
           '<span class="disclaimer-link">See Offerboost details</span>. By entering your address, you agree to be contacted at the information details provided and ' +
           'send address details and other available browser autofill information to HomeSurge.AI for the purpose of contacting you with your requested information. ' +
           '<strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong>',
@@ -244,25 +246,29 @@ function AddressForm({ campaign, variant }) {
       
       // VALUE B - Secondary value content
       valueB2: {
-        headline: 'Maximize Your Home Value With ValueBoost AI',
+        headline: 'See Your Maximum Home Value Potential With ValueBoost AI',
          subheadline: 'Our ValueBoost AI home scan will generate your <strong><em>maximum home value</em></strong> report with FREE AI personalized opportunity recommendations!',
-        buttonText: 'GET VALUE ANALYSIS',
+        buttonText: 'CHECK VALUE REPORT',
         exampleTag: 'Example ValueBoost Report Increase*',
         potentialHeadline: 'Your ValueBoost Potential:',
         opportunitiesText: '11 ValueBoost opportunities found!',
         percentageText: 'Potential Home Value Increase',
         // Contact section content
-        contactHeadline: 'Get Your DEEP VALUE Discovery Report',
-        checkmark1: '<strong><em>DEEP DIVE:</em></strong> All <strong>hidden value secrets</strong> for your property',
-        checkmark2: '<strong><em>ADVANCED:</em></strong> Untapped <strong>equity opportunities</strong> others miss',
-        checkmark3: '<strong><em>DEEP VALUE:</em></strong> <strong>Customized</strong> for your property',
-        contactButtonText: 'GET VALUE REPORT',
-      contactDisclaimer: '*Example values only. Your value report will depend on current market conditions and property details. ' +
+         contactHeadline: 'Get Your FREE ValueBoost Max Value Report',
+        // Checkmark lines
+        checkmark1: 'All ValueBoost <strong><i>maximum value</strong></i> opportunities for your property',
+        checkmark2: 'Detailed <strong><i>AI powered</strong></i> recommendations that show you expected ROIs',
+        checkmark3: '<strong><i>Customized for your unique property,</strong></i> down to the smallest detail',
+        
+       contactButtonText: 'GET VALUE REPORT',
+     contactDisclaimer: '*Example values only. Your cash offer expires soon and will depend on current market conditions and property details. ' +
           'By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. ' +
           'We respect your privacy and will never share your details with anyone. No spam ever.',
-  disclaimerMain: '*<strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong> ' +
-          'By entering your address, you agree to be contacted at the information details provided and send address details and ' +
-          'other available browser autofill information to HomeSurge.AI for the purpose of contacting you with your requested information.',
+        // Disclaimer split content
+        disclaimerMain: '*Example values only. Your offer amount will depend on your specific home details and other factors. ' +
+          '<span class="disclaimer-link">See Offerboost details</span>. By entering your address, you agree to be contacted at the information details provided and ' +
+          'send address details and other available browser autofill information to HomeSurge.AI for the purpose of contacting you with your requested information. ' +
+          '<strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong>',
         disclaimerPopup: 'Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase ' +
           'that might be acheived by various home improvements and other opportunities custom to your specific property. ' +
           'All numbers are for example only and are simply possible outcomes.'
