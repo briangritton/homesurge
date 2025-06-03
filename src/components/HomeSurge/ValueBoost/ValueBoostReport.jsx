@@ -1185,13 +1185,38 @@ function ValueBoostReport({ campaign, variant }) {
     }).format(value);
   };
   
+  // Format phone number as user types
+  const formatPhoneNumber = (value) => {
+    // Remove all non-digit characters
+    const digits = value.replace(/\D/g, '');
+    
+    // Apply formatting based on length
+    if (digits.length <= 3) {
+      return digits;
+    } else if (digits.length <= 6) {
+      return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    } else {
+      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+    }
+  };
+
   // Handle contact form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setContactInfo({
-      ...contactInfo,
-      [name]: value
-    });
+    
+    if (name === 'phone') {
+      // Format phone number as user types
+      const formattedPhone = formatPhoneNumber(value);
+      setContactInfo({
+        ...contactInfo,
+        [name]: formattedPhone
+      });
+    } else {
+      setContactInfo({
+        ...contactInfo,
+        [name]: value
+      });
+    }
   };
   
   // Helper function to validate and clean phone numbers

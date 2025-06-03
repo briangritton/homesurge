@@ -180,11 +180,29 @@ function B2Step3({ campaign, variant }) {
     return Object.keys(errors).length === 0;
   };
   
+  // Format phone number as user types
+  const formatPhoneNumber = (value) => {
+    const digits = value.replace(/\D/g, '');
+    if (digits.length <= 3) {
+      return digits;
+    } else if (digits.length <= 6) {
+      return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    } else {
+      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+    }
+  };
+  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    
+    let processedValue = value;
+    if (name === 'phone') {
+      processedValue = formatPhoneNumber(value);
+    }
+    
     setContactInfo(prev => ({
       ...prev,
-      [name]: value
+      [name]: processedValue
     }));
     
     // Clear errors when user starts typing
@@ -403,6 +421,7 @@ function B2Step3({ campaign, variant }) {
                       value={contactInfo.name}
                       onChange={handleInputChange}
                       placeholder="Name"
+                      autoComplete="name"
                       className={`vb-b2-unlock-input ${formErrors.name ? 'vb-b2-unlock-input-error' : ''}`}
                     />
                     <input
@@ -411,6 +430,7 @@ function B2Step3({ campaign, variant }) {
                       value={contactInfo.phone}
                       onChange={handleInputChange}
                       placeholder="Phone (Get a text copy)"
+                      autoComplete="tel"
                       className={`vb-b2-unlock-input ${formErrors.phone ? 'vb-b2-unlock-input-error' : ''}`}
                     />
                   </div>
