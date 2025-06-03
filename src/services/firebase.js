@@ -104,7 +104,7 @@ export async function createImmediateLead(campaignData) {
       email: '',
       street: '',
       city: '',
-      state: 'GA',
+      state: '',
       zip: '',
       
       // BatchData fields (initialized empty)

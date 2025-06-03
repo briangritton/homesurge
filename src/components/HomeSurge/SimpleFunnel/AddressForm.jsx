@@ -460,7 +460,7 @@ function AddressForm() {
       
       // If we don't have a suggestion yet or there was an error, 
       // show an error message
-      setErrorMessage('Please select an address from the dropdown or wait for suggestions to load');
+      setErrorMessage('Please continue typing and select a valid address from the dropdown suggestions');
       setIsLoading(false);
     } catch (error) {
       console.error('Error handling Enter key:', error);

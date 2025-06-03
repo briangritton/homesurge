@@ -939,7 +939,7 @@ function AddressForm({ campaign, variant }) {
           finishedSquareFootage: propertyData.finishedSquareFootage || 1000,
           // If city/state/zip weren't set by Google, use Melissa data
           city: formData.city || propertyData.city || '',
-          state: formData.state || propertyData.state || 'GA',
+          state: formData.state || propertyData.state || '',
           zip: formData.zip || propertyData.zip || '',
           // Store the full property record for access to all fields
           propertyRecord: propertyData.propertyRecord,
@@ -993,8 +993,10 @@ function AddressForm({ campaign, variant }) {
     
     // Extract address components
     const addressComponents = {
+      streetNumber: '',
+      route: '',
       city: '',
-      state: 'GA',
+      state: '',
       zip: ''
     };
     
@@ -1002,7 +1004,11 @@ function AddressForm({ campaign, variant }) {
       place.address_components.forEach(component => {
         const types = component.types;
         
-        if (types.includes('locality')) {
+        if (types.includes('street_number')) {
+          addressComponents.streetNumber = component.long_name;
+        } else if (types.includes('route')) {
+          addressComponents.route = component.long_name;
+        } else if (types.includes('locality')) {
           addressComponents.city = component.long_name;
         } else if (types.includes('administrative_area_level_1')) {
           addressComponents.state = component.short_name;
@@ -1012,6 +1018,11 @@ function AddressForm({ campaign, variant }) {
       });
     }
     
+    // Construct proper street address (just street number + route)
+    const streetAddress = [addressComponents.streetNumber, addressComponents.route]
+      .filter(Boolean)
+      .join(' ') || place.formatted_address;
+    
     // Get location data if available
     const location = place.geometry?.location ? {
       lat: place.geometry.location.lat(),
@@ -1020,7 +1031,7 @@ function AddressForm({ campaign, variant }) {
     
     // Update form data with selected place - preserve name, phone, and email if they exist
     updateFormData({
-      street: place.formatted_address,
+      street: streetAddress,
       city: addressComponents.city,
       state: addressComponents.state,
       zip: addressComponents.zip,
@@ -1035,7 +1046,7 @@ function AddressForm({ campaign, variant }) {
     
     // Ensure inputRef has the correct value
     if (inputRef.current) {
-      inputRef.current.value = place.formatted_address;
+      inputRef.current.value = streetAddress;
     }
     
     // After a place is selected, we're done with this session token
@@ -1072,7 +1083,7 @@ function AddressForm({ campaign, variant }) {
       // Prepare data for the lead - COPIED FROM MAIN FORM
       const finalSelectionData = {
         // Use the proper field names that will map to Firebase
-        street: place.formatted_address,
+        street: streetAddress,
         city: addressComponents.city,
         state: addressComponents.state,
         zip: addressComponents.zip,
@@ -1187,17 +1198,38 @@ function AddressForm({ campaign, variant }) {
       if (placeDetails && placeDetails.formatted_address) {
         console.log('✅ Got enhanced address details:', placeDetails.formatted_address);
         
+        // Extract street address from place details
+        const enhancedAddressComponents = {
+          streetNumber: '',
+          route: ''
+        };
+        
+        if (placeDetails.address_components && placeDetails.address_components.length > 0) {
+          placeDetails.address_components.forEach(component => {
+            const types = component.types;
+            if (types.includes('street_number')) {
+              enhancedAddressComponents.streetNumber = component.long_name;
+            } else if (types.includes('route')) {
+              enhancedAddressComponents.route = component.long_name;
+            }
+          });
+        }
+        
+        const enhancedStreetAddress = [enhancedAddressComponents.streetNumber, enhancedAddressComponents.route]
+          .filter(Boolean)
+          .join(' ') || placeDetails.formatted_address;
+        
         // Update form data with enhanced address for better property API results
         updateFormData({
-          street: placeDetails.formatted_address,
+          street: enhancedStreetAddress,
           selectedSuggestionAddress: placeDetails.formatted_address,
           userTypedAddress: lastTypedAddress,
           addressSelectionType: 'ButtonClick'
         });
         
-        // Update the input field with enhanced address
+        // Update the input field with enhanced street address
         if (inputRef.current) {
-          inputRef.current.value = placeDetails.formatted_address;
+          inputRef.current.value = enhancedStreetAddress;
         }
         
         // Step 2: Process address selection (Firebase + Property APIs) - non-blocking
@@ -1492,65 +1524,17 @@ function AddressForm({ campaign, variant }) {
     setIsLoading(true);
     
     try {
-      // Make sure we have enough characters to get suggestions
-      if (formData.street.length < 2) {
-        setErrorMessage('Please enter a valid address');
+      // Check for empty field first
+      if (!formData.street || formData.street.trim() === '') {
+        setErrorMessage('Please continue typing and select a valid address from the dropdown suggestions');
         setIsLoading(false);
         return;
       }
       
-      // If we already have a first suggestion, use it
-      if (firstSuggestion && firstSuggestion.place_id) {
-        console.log('Using first suggestion:', firstSuggestion.description);
-        
-        // Update form data immediately with suggestion description
-        updateFormData({
-          street: firstSuggestion.description,
-          selectedSuggestionAddress: firstSuggestion.description,
-          userTypedAddress: lastTypedAddress,
-          addressSelectionType: 'EnterKey'
-        });
-        
-        // Proceed to next step immediately - don't wait for APIs
-        trackFormStepComplete(1, 'Address Form Completed (Enter Key)', formData);
-        
-        // Navigate to next step based on variant
-        handleStepNavigation();
-        setIsLoading(false);
-        
-        // Start background API processing - prioritize for property valuation
-        processAddressInBackground(firstSuggestion);
-        
-        return;
-      }
-      
-      // If address text is reasonable length, allow form to proceed anyway
-      // This provides a fallback if Google Places API fails
-      if (formData.street && formData.street.length > 15 && validateAddress(formData.street)) {
-        console.log('No suggestion available, but address text is reasonable - proceeding anyway');
-        
-        // Start API call in background
-        const addressComponents = {
-          city: '',
-          state: 'GA',
-          zip: ''
-        };
-        const leadId = localStorage.getItem('leadId');
-        if (leadId) {
-          fetchPropertyDataInBackground(formData.street, leadId, addressComponents);
-        }
-        trackFormStepComplete(1, 'Address Form Completed (Fallback)', formData);
-        
-        // Navigate to next step based on variant
-        handleStepNavigation();
-        setIsLoading(false);
-        
-        return;
-      } else {
-        // Only show error for short addresses
-        setErrorMessage('Please enter a complete address or select from dropdown suggestions');
-        setIsLoading(false);
-      }
+      // REQUIRE GOOGLE PLACES SELECTION - Block all manual submissions
+      setErrorMessage('Please continue typing and select a valid address from the dropdown suggestions');
+      setIsLoading(false);
+      return;
     } catch (error) {
       console.error('Error handling Enter key:', error);
       setIsLoading(false);
@@ -1573,105 +1557,17 @@ function AddressForm({ campaign, variant }) {
     setIsLoading(true);
     
     try {
-      // Make sure we have enough characters to get suggestions
-      if (formData.street.length < 2) {
-        setErrorMessage('Please enter a valid address');
+      // Check for empty field first
+      if (!formData.street || formData.street.trim() === '') {
+        setErrorMessage('Please continue typing and select a valid address from the dropdown suggestions');
         setIsLoading(false);
         return;
       }
       
-      // If we have a first suggestion, use it
-      if (firstSuggestion && firstSuggestion.place_id) {
-        console.log('Using first suggestion:', firstSuggestion.description);
-        
-        // Update form data immediately with suggestion description
-        updateFormData({
-          street: firstSuggestion.description,
-          selectedSuggestionAddress: firstSuggestion.description,
-          userTypedAddress: lastTypedAddress,
-          addressSelectionType: 'ButtonClick'
-        });
-        
-        // Proceed to next step immediately - don't wait for APIs
-        trackFormStepComplete(1, 'Address Form Completed (Google Suggestion)', formData);
-        
-        // Navigate to next step based on variant
-        handleStepNavigation();
-        setIsLoading(false);
-        
-        // Start background API processing - prioritize for property valuation
-        processAddressInBackground(firstSuggestion);
-        
-        return;
-      }
-      
-      // If no suggestion and address validation passes, proceed with what we have
-      if (validateAddress(formData.street)) {
-        console.log('No suggestion available, but address validates');
-        
-        // Track and proceed immediately (Option B behavior)
-        trackFormStepComplete(1, 'Address Form Completed (Manual)', formData);
-        
-        // Navigate to next step based on variant
-        handleStepNavigation();
-        setIsLoading(false);
-        
-        // Create lead in background for manual address - this should ALWAYS happen
-        (async () => {
-          try {
-            const addressComponents = {
-              city: '',
-              state: 'GA',
-              zip: ''
-            };
-            
-            let leadId = localStorage.getItem('leadId');
-            
-            if (!leadId) {
-              console.log('Creating lead for manual address with autofilled contact info:', {
-                address: formData.street,
-                name: formData.name || formData.autoFilledName || '',
-                phone: formData.phone || formData.autoFilledPhone || '',
-                email: formData.email || formData.autoFilledEmail || '',
-                nameWasAutofilled: formData.nameWasAutofilled
-              });
-              
-              // Create a fallback place object for manual addresses (same structure as processAddressSelection)
-              const manualPlace = {
-                formatted_address: formData.street,
-                address_components: []
-              };
-              
-              // Use the same processAddressSelection logic but non-blocking
-              processAddressSelectionNonBlocking(manualPlace);
-            } else {
-              // If lead exists, update it with autofilled contact info, then start property data fetch
-              console.log('Updating existing lead with autofilled contact info:', {
-                leadId: leadId,
-                address: formData.street,
-                name: formData.name || formData.autoFilledName || '',
-                phone: formData.phone || formData.autoFilledPhone || '',
-                email: formData.email || formData.autoFilledEmail || ''
-              });
-              
-              // Create a fallback place object for manual addresses
-              const manualPlace = {
-                formatted_address: formData.street,
-                address_components: []
-              };
-              
-              // Update the existing lead with autofilled data AND address
-              processAddressSelectionNonBlocking(manualPlace);
-            }
-          } catch (error) {
-            console.error('Background lead creation for manual address failed:', error);
-          }
-        })();
-      } else {
-        // Address doesn't validate
-        setErrorMessage('Please enter a valid address');
-        setIsLoading(false);
-      }
+      // REQUIRE GOOGLE PLACES SELECTION - Block all manual submissions
+      setErrorMessage('Please continue typing and select a valid address from the dropdown suggestions');
+      setIsLoading(false);
+      return;
     } catch (error) {
       console.error('Error handling button click:', error);
       setIsLoading(false);
@@ -1691,8 +1587,8 @@ function AddressForm({ campaign, variant }) {
       return window.googleMapsPromise;
     }
     
-    // Get API key from environment variable
-    const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+    // Get API key from environment variable with local testing fallback
+    const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY || 'AIzaSyAVFFu1WoxN5ghygdz0JJYV9pJgSp08y8I';
     
     // Check if API key is available
     if (!apiKey) {
@@ -2318,6 +2214,12 @@ function AddressForm({ campaign, variant }) {
             e.preventDefault();
             handleButtonClick(e);
           }} ref={formRef}>
+            
+            {/* Error message moved above the input field */}
+            {errorMessage && (
+              <div className="vb-af1-error-message">{errorMessage}</div>
+            )}
+            
             <input
               ref={inputRef}
               type="text"
@@ -2330,7 +2232,6 @@ function AddressForm({ campaign, variant }) {
               onFocus={(e) => e.target.placeholder = ''}
               onBlur={(e) => e.target.placeholder = 'Street address...'}
               disabled={isLoading}
-              required
             />
             
             {/* Visually hidden name field - autofill temporarily disabled */}
@@ -2377,9 +2278,6 @@ function AddressForm({ campaign, variant }) {
             */}
 
 
-{errorMessage && (
-            <div className="vb-af1-error-message">{errorMessage}</div>
-          )}
 
 
 

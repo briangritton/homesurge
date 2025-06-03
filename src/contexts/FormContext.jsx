@@ -21,7 +21,7 @@ const initialFormState = {
   street: '',
   city: '',
   zip: '',
-  state: 'GA',
+  state: '',
   
   // Address suggestion tracking fields
   userTypedAddress: '',

@@ -39,7 +39,7 @@ export function initializeGoogleMapsAutocomplete(inputRef, onPlaceSelected) {
         // Extract address components
         const addressComponents = {
           city: '',
-          state: 'GA', // Default
+          state: '',
           zip: ''
         };
         
@@ -227,7 +227,7 @@ export async function lookupPropertyInfo(address) {
     // Get address components with safe defaults
     const city = record.PropertyAddress?.City || '';
     const zip = record.PropertyAddress?.Zip?.split('-')[0] || '';
-    const state = record.PropertyAddress?.State || 'GA';
+    const state = record.PropertyAddress?.State || '';
     
     // Create result object with all the needed data
     const result = {
