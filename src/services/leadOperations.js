@@ -307,16 +307,21 @@ class LeadOperationsService {
       return false;
     }
 
+    // Transform BatchData structure to match Firebase field names
     const updateData = {
-      ...batchData,
-      leadStage: 'BatchData Retrieved',
-      batchDataSavedAt: new Date().toISOString()
+      batchDataPhoneNumbers: batchData.phoneNumbers || [],
+      batchDataEmails: batchData.emails || [],
+      batchDataReport: batchData.rawData || null,
+      batchDataReady: true,
+      batchDataProcessedAt: new Date().toISOString(),
+      leadStage: 'BatchData Retrieved'
     };
 
     console.log('📞 Saving BatchData to CRM:', {
       leadId,
       phoneCount: batchData.phoneNumbers?.length || 0,
-      emailCount: batchData.emails?.length || 0
+      emailCount: batchData.emails?.length || 0,
+      transformedFields: Object.keys(updateData)
     });
 
     return this.updateLead(leadId, updateData);
