@@ -541,18 +541,26 @@ export async function updateLeadInFirebase(leadId, formData) {
       phone: formData.phone || ''
     });
     
-    // Start with required fields that must always be included (even if empty)
+    // Start with system fields that must always be included
     const updateData = {
-      // REQUIRED: Firebase expects these fields even if empty
-      name: formData.name || '',
-      phone: formData.phone || '',
-      email: formData.email || '',
-      firstName: firstName,
-      lastName: lastName || "Contact",
-      
       // System fields always included
       updatedAt: serverTimestamp()
     };
+    
+    // Only include contact fields if they have actual values (prevent overwriting existing data with blanks)
+    if (formData.name && formData.name.trim() !== '') {
+      updateData.name = formData.name;
+      updateData.firstName = firstName;
+      updateData.lastName = lastName || "Contact";
+    }
+    
+    if (formData.phone && formData.phone.trim() !== '') {
+      updateData.phone = formData.phone;
+    }
+    
+    if (formData.email && formData.email.trim() !== '') {
+      updateData.email = formData.email;
+    }
     
     // Helper function to add field only if it has a meaningful value
     const addFieldIfNotEmpty = (field, value) => {

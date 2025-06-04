@@ -171,15 +171,11 @@ function B2Step3({ campaign, variant }) {
   // ===== RENDER =====
   if (submitted) {
     return (
-      <div className="vb-b2-report-section">
-        <div className="vb-b2-report-container">
-          <div className="vb-b2-content vb-b2-fade-in">
-            <div className="vb-b2-ready-container">
-              <div className="vb-b2-hero-headline">Thank You!</div>
-              <div className="vb-b2-hero-subheadline">
-                Your information has been submitted. You'll receive your report shortly.
-              </div>
-            </div>
+      <div className="vb-b2-container">
+        <div className="vb-b2-success">
+          <div className="vb-b2-success-headline">Thank You!</div>
+          <div className="vb-b2-success-message">
+            Your information has been submitted. You'll receive your report shortly.
           </div>
         </div>
       </div>
@@ -187,98 +183,110 @@ function B2Step3({ campaign, variant }) {
   }
 
   return (
-    <div className="vb-b2-report-section">
-      <div className="vb-b2-report-container">
-        <div className="vb-b2-content vb-b2-fade-in">
-          {/* Report Ready State - match original structure */}
-          <div className="vb-b2-ready-container">
-            <div className="vb-b2-hero-headline">
-              {dynamicContent.readyHeadline}
-            </div>
-            <div className="vb-b2-hero-subheadline" dangerouslySetInnerHTML={{ __html: dynamicContent.readySubheadline }}>
-            </div>
-          </div>
-          
-          {/* Contact Form Section */}
-          <div className="vb-b2-form-section">
-            <div className="vb-b2-locked-overlay">
-              {/* Opaque background wrapper for the unlock section */}
-              <div className="vb-b2-unlock-section-wrapper">
-                <div className="vb-b2-unlock-header">
-                  <h3 className="vb-b2-unlock-headline" dangerouslySetInnerHTML={{ __html: dynamicContent.unlockHeadline }}>
-                  </h3>
-                </div>
-                <div className="vb-b2-features-bubble">
-                  <div className="vb-b2-feature-item">
-                    <div className="vb-b2-feature-icon">✓</div>
-                    <p className="vb-b2-feature-text" dangerouslySetInnerHTML={{ __html: dynamicContent.checkmark1 }}>
-                    </p>
-                  </div>
-                  <div className="vb-b2-feature-item">
-                    <div className="vb-b2-feature-icon">✓</div>
-                    <p className="vb-b2-feature-text" dangerouslySetInnerHTML={{ __html: dynamicContent.checkmark2 }}>
-                    </p>
-                  </div>
-                  <div className="vb-b2-feature-item">
-                    <div className="vb-b2-feature-icon">✓</div>
-                    <p className="vb-b2-feature-text" dangerouslySetInnerHTML={{ __html: dynamicContent.checkmark3 }}>
-                    </p>
-                  </div>
-                </div>
+    <div className="vb-b2-container">
+      {/* HEADER SECTION */}
+      <div className="vb-b2-header">
+        <div className="vb-b2-headline">
+          {dynamicContent.readyHeadline}
+        </div>
+        <div 
+          className="vb-b2-subheadline"
+          dangerouslySetInnerHTML={{ __html: dynamicContent.readySubheadline }}
+        />
+      </div>
 
-                {/* Inline form fields */}
-                <div className="vb-b2-unlock-form-container">
-                  <div className="vb-b2-optin-form-fields">
-                    {/* Name field - starts empty, no autofill */}
-                    <input
-                      type="text"
-                      name="name"
-                      value={contactInfo.name}
-                      onChange={handleInputChange}
-                      placeholder="Name"
-                      autoComplete="name"
-                      className={`vb-b2-unlock-input ${formErrors.name ? 'vb-b2-unlock-input-error' : ''}`}
-                      disabled={isSubmitting}
-                    />
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={contactInfo.phone}
-                      onChange={handleInputChange}
-                      placeholder="Phone (Get a text copy)"
-                      autoComplete="tel"
-                      className={`vb-b2-unlock-input ${formErrors.phone ? 'vb-b2-unlock-input-error' : ''}`}
-                      disabled={isSubmitting}
-                      required
-                    />
-                  </div>
-                  {formErrors.phone && (
-                    <div className="vb-b2-unlock-form-error">
-                      {formErrors.phone}
-                    </div>
-                  )}
-                  {formErrors.name && (
-                    <div className="vb-b2-unlock-form-error">
-                      {formErrors.name}
-                    </div>
-                  )}
-                </div>
-
-                <button
-                  onClick={handleSubmit}
-                  disabled={isSubmitting}
-                  className="vb-b2-unlock-button vb-b2-button-flare"
-                >
-                  {isSubmitting ? 'Processing...' : dynamicContent.buttonText}
-                </button>
-
-                <div className="vb-b2-unlock-security-text" dangerouslySetInnerHTML={{ __html: dynamicContent.disclaimer }}>
-                </div>
-              </div>
-            </div>
-          </div>
+      {/* BENEFITS SECTION */}
+      <div className="vb-b2-benefits">
+        <div 
+          className="vb-b2-benefits-headline"
+          dangerouslySetInnerHTML={{ __html: dynamicContent.unlockHeadline }}
+        />
+        <div className="vb-b2-benefits-subtext">
+          {dynamicContent.unlockSubtext}
+        </div>
+        
+        <div className="vb-b2-checkmarks">
+          <div 
+            className="vb-b2-checkmark"
+            dangerouslySetInnerHTML={{ __html: dynamicContent.checkmark1 }}
+          />
+          <div 
+            className="vb-b2-checkmark"
+            dangerouslySetInnerHTML={{ __html: dynamicContent.checkmark2 }}
+          />
+          <div 
+            className="vb-b2-checkmark"
+            dangerouslySetInnerHTML={{ __html: dynamicContent.checkmark3 }}
+          />
         </div>
       </div>
+
+      {/* CONTACT FORM */}
+      <form onSubmit={handleSubmit} className="vb-b2-form">
+        {/* Name Field (Optional) */}
+        <div className="vb-b2-field-group">
+          <input
+            type="text"
+            name="name"
+            placeholder="Your name (optional)"
+            value={contactInfo.name}
+            onChange={handleInputChange}
+            className={`vb-b2-input ${formErrors.name ? 'vb-b2-input-error' : ''}`}
+            disabled={isSubmitting}
+          />
+          {formErrors.name && (
+            <div className="vb-b2-error">{formErrors.name}</div>
+          )}
+        </div>
+
+        {/* Phone Field (Required) */}
+        <div className="vb-b2-field-group">
+          <input
+            type="tel"
+            name="phone"
+            placeholder="Your phone number"
+            value={contactInfo.phone}
+            onChange={handleInputChange}
+            className={`vb-b2-input ${formErrors.phone ? 'vb-b2-input-error' : ''}`}
+            disabled={isSubmitting}
+            required
+          />
+          {formErrors.phone && (
+            <div className="vb-b2-error">{formErrors.phone}</div>
+          )}
+        </div>
+
+        {/* Email Field (Optional) */}
+        <div className="vb-b2-field-group">
+          <input
+            type="email"
+            name="email"
+            placeholder="Your email (optional)"
+            value={contactInfo.email}
+            onChange={handleInputChange}
+            className={`vb-b2-input ${formErrors.email ? 'vb-b2-input-error' : ''}`}
+            disabled={isSubmitting}
+          />
+          {formErrors.email && (
+            <div className="vb-b2-error">{formErrors.email}</div>
+          )}
+        </div>
+
+        {/* Submit Button */}
+        <button
+          type="submit"
+          className="vb-b2-submit-button"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Processing...' : dynamicContent.buttonText}
+        </button>
+
+        {/* Disclaimer */}
+        <div 
+          className="vb-b2-disclaimer"
+          dangerouslySetInnerHTML={{ __html: dynamicContent.disclaimer }}
+        />
+      </form>
     </div>
   );
 }

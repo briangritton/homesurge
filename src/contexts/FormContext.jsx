@@ -33,6 +33,13 @@ const initialFormState = {
   suggestionFive: '',
   leadStage: 'New',
   
+  // Autofilled contact data tracking
+  autoFilledName: '',
+  autoFilledPhone: '',
+  autoFilledEmail: '',
+  nameWasAutofilled: false,
+  addressSelectionType: '',
+  
   // Meta information
   userId: '',
   formStep: 1,

@@ -1,0 +1,1021 @@
+/* ValueBoost Funnel - custom styles with vibrant colors */
+
+/* Original ValueBoost color scheme */
+
+/* ========== B2STEP3 COMPONENT STYLES ========== */
+.vb-b2-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: calc(100vh - 80px);
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.vb-b2-header {
+  text-align: center;
+  margin-bottom: 40px;
+  max-width: 600px;
+}
+
+.vb-b2-headline {
+  font-size: 32px;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+
+.vb-b2-subheadline {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.4;
+}
+
+.vb-b2-benefits {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 30px;
+  margin-bottom: 30px;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.vb-b2-benefits-headline {
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15px;
+  line-height: 1.3;
+}
+
+.vb-b2-benefits-subtext {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 25px;
+  line-height: 1.4;
+}
+
+.vb-b2-checkmarks {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+
+.vb-b2-checkmark {
+  display: flex;
+  align-items: flex-start;
+  font-size: 16px;
+  color: #333;
+  line-height: 1.4;
+}
+
+.vb-b2-checkmark::before {
+  content: "✓";
+  color: #00b8e6;
+  font-weight: bold;
+  margin-right: 10px;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.vb-b2-form {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 30px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.vb-b2-field-group {
+  margin-bottom: 20px;
+}
+
+.vb-b2-input {
+  width: 100%;
+  padding: 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.vb-b2-input:focus {
+  outline: none;
+  border-color: #00b8e6;
+}
+
+.vb-b2-input-error {
+  border-color: #e74c3c;
+}
+
+.vb-b2-error {
+  color: #e74c3c;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.vb-b2-submit-button {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, #00b8e6 0%, #0099cc 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 20px;
+}
+
+.vb-b2-submit-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 184, 230, 0.3);
+}
+
+.vb-b2-submit-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.vb-b2-disclaimer {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.vb-b2-success {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 40px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.vb-b2-success-headline {
+  font-size: 24px;
+  font-weight: bold;
+  color: #27ae60;
+  margin-bottom: 15px;
+}
+
+.vb-b2-success-message {
+  font-size: 16px;
+  color: #666;
+  line-height: 1.5;
+}
+
+/* Mobile Responsive for B2Step3 */
+@media (max-width: 768px) {
+  .vb-b2-container {
+    padding: 20px 15px;
+  }
+  
+  .vb-b2-headline {
+    font-size: 26px;
+  }
+  
+  .vb-b2-benefits,
+  .vb-b2-form {
+    padding: 20px;
+  }
+  
+  .vb-b2-checkmarks {
+    text-align: left;
+  }
+}
+
+/* ========== VALUEBOOST REPORT COMPONENT STYLES ========== */
+
+/* Main Container */
+.vb-report-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  align-items: center;
+}
+
+/* Loading State */
+.vb-report-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+}
+
+.vb-report-loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #fff;
+  border-radius: 50%;
+  animation: vb-report-spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+.vb-report-loading-text {
+  font-size: 18px;
+  color: white;
+  font-weight: 500;
+}
+
+@keyframes vb-report-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Timeout State */
+.vb-report-timeout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+  max-width: 600px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.vb-report-timeout-headline {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.vb-report-timeout-message {
+  font-size: 16px;
+  color: #666;
+  line-height: 1.5;
+}
+
+/* Header Section */
+.vb-report-header {
+  text-align: center;
+  margin-bottom: 40px;
+  max-width: 800px;
+  width: 100%;
+}
+
+.vb-report-headline {
+  font-size: 32px;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+
+.vb-report-subheadline {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.4;
+}
+
+/* Value Display Section */
+.vb-report-value-section {
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 40px;
+}
+
+.vb-report-value-container {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.vb-report-potential-headline {
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.vb-report-value-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.vb-report-current-value {
+  font-size: 18px;
+  color: #666;
+  font-weight: 500;
+}
+
+.vb-report-boost-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.vb-report-arrow {
+  height: 20px;
+  width: auto;
+}
+
+.vb-report-boost-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: #00b8e6;
+}
+
+.vb-report-boost-percentage {
+  font-size: 18px;
+  color: #666;
+  font-weight: 500;
+}
+
+/* Contact Form Section */
+.vb-report-contact-section {
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 40px;
+}
+
+.vb-report-unlock-content {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 30px;
+  margin-bottom: 20px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.vb-report-unlock-headline {
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+  line-height: 1.3;
+}
+
+.vb-report-checkmarks {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+
+.vb-report-checkmark {
+  display: flex;
+  align-items: flex-start;
+  font-size: 16px;
+  color: #333;
+  line-height: 1.4;
+}
+
+.vb-report-checkmark::before {
+  content: "✓";
+  color: #00b8e6;
+  font-weight: bold;
+  margin-right: 10px;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* Contact Form */
+.vb-report-contact-form {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.vb-report-field-group {
+  margin-bottom: 20px;
+}
+
+.vb-report-input {
+  width: 100%;
+  padding: 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.vb-report-input:focus {
+  outline: none;
+  border-color: #00b8e6;
+}
+
+.vb-report-input-error {
+  border-color: #e74c3c;
+}
+
+.vb-report-error {
+  color: #e74c3c;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.vb-report-unlock-button {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, #00b8e6 0%, #0099cc 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 20px;
+}
+
+.vb-report-unlock-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 184, 230, 0.3);
+}
+
+.vb-report-unlock-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.vb-report-disclaimer {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* Unlocked Content */
+.vb-report-unlocked {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.vb-report-property-address {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  font-size: 18px;
+  color: #333;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Recommendations Section */
+.vb-report-recommendations {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.vb-report-recommendations-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.vb-report-recommendations-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.vb-report-recommendations-subtitle {
+  font-size: 16px;
+  color: #666;
+  line-height: 1.4;
+}
+
+.vb-report-recommendations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.vb-report-recommendation-item {
+  border: 2px solid #f0f0f0;
+  border-radius: 12px;
+  padding: 20px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.vb-report-recommendation-item:hover {
+  border-color: #00b8e6;
+  box-shadow: 0 4px 16px rgba(0, 184, 230, 0.1);
+}
+
+.vb-report-recommendation-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.vb-report-recommendation-number {
+  background: #00b8e6;
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.vb-report-recommendation-strategy {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  flex-grow: 1;
+}
+
+.vb-report-recommendation-description {
+  font-size: 15px;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 15px;
+}
+
+.vb-report-recommendation-details {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.vb-report-recommendation-cost,
+.vb-report-recommendation-roi {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: #f8f9fa;
+  color: #333;
+}
+
+/* AI Report Section */
+.vb-report-ai-section {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.vb-report-ai-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.vb-report-ai-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+.vb-report-ai-introduction {
+  font-size: 16px;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #00b8e6;
+}
+
+.vb-report-ai-content {
+  margin-top: 20px;
+}
+
+.vb-report-ai-text {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-x: auto;
+}
+
+/* Success Message */
+.vb-report-success {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 2px solid #27ae60;
+}
+
+.vb-report-success-headline {
+  font-size: 22px;
+  font-weight: bold;
+  color: #27ae60;
+  margin-bottom: 10px;
+}
+
+.vb-report-success-message {
+  font-size: 16px;
+  color: #666;
+  line-height: 1.5;
+}
+
+/* Mobile Responsive for Report */
+@media (max-width: 768px) {
+  .vb-report-container {
+    padding: 15px;
+  }
+  
+  .vb-report-headline {
+    font-size: 26px;
+  }
+  
+  .vb-report-subheadline {
+    font-size: 16px;
+  }
+  
+  .vb-report-boost-container {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .vb-report-boost-value {
+    font-size: 24px;
+  }
+  
+  .vb-report-recommendation-details {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .vb-report-recommendation-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .vb-report-ai-text {
+    font-size: 13px;
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .vb-report-headline {
+    font-size: 22px;
+  }
+  
+  .vb-report-unlock-content,
+  .vb-report-contact-form,
+  .vb-report-recommendations {
+    padding: 20px;
+  }
+  
+  .vb-report-input {
+    padding: 12px;
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+  
+  .vb-report-unlock-button {
+    padding: 12px;
+    font-size: 16px;
+  }
+}
+
+/* ========== AIPROCESSING COMPONENT STYLES ========== */
+.vb-ai-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  align-items: center;
+}
+
+.vb-ai-content {
+  text-align: center;
+  margin-bottom: 40px;
+  max-width: 800px;
+  width: 100%;
+}
+
+.vb-ai-headline {
+  font-size: 32px;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+
+.vb-ai-subheadline {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.4;
+  margin-bottom: 30px;
+  min-height: 50px;
+}
+
+.vb-ai-value-container {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 30px;
+  margin: 20px 0;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.vb-ai-value-display {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  line-height: 1.3;
+}
+
+.vb-ai-percentage-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 32px;
+  color: #00b8e6;
+}
+
+.vb-ai-arrow {
+  height: 19.2px;
+  width: auto;
+  margin-left: 2px;
+}
+
+.vb-ai-processing-container {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  height: 400px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.vb-ai-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, #f8faff 0%, #e6f3ff 100%);
+  border-radius: 12px;
+}
+
+.vb-ai-map {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.vb-ai-map-loaded {
+  opacity: 0.3;
+}
+
+.vb-ai-map-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  border-radius: 12px;
+}
+
+.vb-ai-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 102, 204, 0.2);
+  border-top: 3px solid #236b6d;
+  animation: vb-spin 1s linear infinite;
+}
+
+.vb-ai-loading-text {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #0e98b4;
+  font-weight: bold;
+}
+
+.vb-ai-house-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+}
+
+.vb-ai-house-icon {
+  width: 60px;
+  height: 60px;
+  animation: vb-ai-pulse 2s ease-in-out infinite;
+}
+
+.vb-ai-orbs {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.vb-ai-orb {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 184, 230, 0.8) 0%, rgba(35, 107, 109, 0.4) 100%);
+  animation: vb-ai-orbit 4s linear infinite;
+}
+
+.vb-ai-orb-tiny {
+  width: 4px;
+  height: 4px;
+}
+
+.vb-ai-orb-small {
+  width: 8px;
+  height: 8px;
+}
+
+.vb-ai-orb-medium {
+  width: 6px;
+  height: 6px;
+}
+
+.vb-ai-orb-large {
+  width: 10px;
+  height: 10px;
+}
+
+.vb-ai-orb-extra-large {
+  width: 12px;
+  height: 12px;
+}
+
+.vb-ai-scan-line {
+  position: absolute;
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(90deg, transparent 0%, #00b8e6 20%, #0099cc 50%, #00b8e6 80%, transparent 100%);
+  box-shadow: 0 0 20px 4px rgba(0, 184, 230, 0.4), 0 0 40px 8px rgba(0, 184, 230, 0.2);
+  left: 0;
+  transition: top 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: vb-ai-scan-glow 2s ease-in-out infinite alternate;
+  z-index: 10;
+  border-radius: 2px;
+}
+
+.vb-ai-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.vb-ai-particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #00b8e6;
+  border-radius: 50%;
+  animation: vb-ai-particle-float 2s ease-in-out infinite;
+  opacity: 0.7;
+}
+
+.vb-ai-ripples {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.vb-ai-ripple {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border: 1px solid rgba(0, 184, 230, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: vb-ai-ripple-expand 4s ease-out infinite;
+  pointer-events: none;
+}
+
+/* AI Processing Animations */
+@keyframes vb-ai-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes vb-ai-orbit {
+  0% { transform: translate(-50%, -50%) rotate(0deg) translateX(var(--orb-distance, 60px)) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg) translateX(var(--orb-distance, 60px)) rotate(-360deg); }
+}
+
+@keyframes vb-ai-scan-glow {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+@keyframes vb-ai-particle-float {
+  0%, 100% { transform: translateY(0px); opacity: 0.7; }
+  50% { transform: translateY(-20px); opacity: 1; }
+}
+
+@keyframes vb-ai-ripple-expand {
+  0% { width: 0; height: 0; opacity: 1; }
+  100% { width: 200px; height: 200px; opacity: 0; }
+}
+
+@keyframes vb-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Mobile Responsive for AI Processing */
+@media (max-width: 768px) {
+  .vb-ai-container {
+    padding: 15px;
+  }
+  
+  .vb-ai-headline {
+    font-size: 26px;
+  }
+  
+  .vb-ai-subheadline {
+    font-size: 16px;
+  }
+  
+  .vb-ai-processing-container {
+    height: 300px;
+  }
+  
+  .vb-ai-house-icon {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+@media (max-width: 480px) {
+  .vb-ai-headline {
+    font-size: 22px;
+  }
+  
+  .vb-ai-value-container {
+    padding: 20px;
+  }
+  
+  .vb-ai-percentage-container {
+    font-size: 28px;
+  }
+}
