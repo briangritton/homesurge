@@ -1187,16 +1187,28 @@ function ValueBoostReport({ campaign, variant }) {
   
   // Format phone number as user types
   const formatPhoneNumber = (value) => {
-    // Remove all non-digit characters
+    if (!value) return '';
+
+    // If already formatted, return as-is
+    if (value.includes('(') && value.includes(')') && value.includes('-')) {
+      return value;
+    }
+
+    // Remove all non-digits
     const digits = value.replace(/\D/g, '');
     
-    // Apply formatting based on length
-    if (digits.length <= 3) {
-      return digits;
-    } else if (digits.length <= 6) {
-      return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    // Handle 11-digit numbers by taking last 10 digits
+    const workingDigits = digits.length === 11 && digits[0] === '1' 
+      ? digits.slice(1) 
+      : digits.slice(0, 10);
+    
+    // Format progressively as user types
+    if (workingDigits.length <= 3) {
+      return workingDigits;
+    } else if (workingDigits.length <= 6) {
+      return `(${workingDigits.slice(0, 3)}) ${workingDigits.slice(3)}`;
     } else {
-      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+      return `(${workingDigits.slice(0, 3)}) ${workingDigits.slice(3, 6)}-${workingDigits.slice(6)}`;
     }
   };
 

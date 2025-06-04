@@ -116,7 +116,9 @@ function ValueBoostReport({ campaign, variant }) {
     
     // Real-time phone formatting
     if (name === 'phone') {
+      console.log('🔍 ValueBoostReport phone formatting:', { original: value, name });
       processedValue = contactFormService.formatPhoneAsTyping(value);
+      console.log('🔍 ValueBoostReport formatted result:', processedValue);
     }
     
     setContactInfo(prev => ({

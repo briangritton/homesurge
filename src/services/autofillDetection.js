@@ -153,7 +153,22 @@ class AutofillDetectionService {
         fieldData.nameWasAutofilled = true;
         break;
       case 'tel':
-        fieldData.autoFilledPhone = value;
+        // Clean phone number: remove leading 1 if it's an 11-digit US number
+        let cleanPhone = value;
+        if (cleanPhone) {
+          const digits = cleanPhone.replace(/\D/g, '');
+          console.log('🔍 Autofill phone debug:', { original: value, digits, length: digits.length });
+          
+          if (digits.length === 11 && digits[0] === '1') {
+            // Strip the leading 1 for US country code
+            cleanPhone = digits.slice(1);
+            console.log('🔍 Stripped leading 1:', cleanPhone);
+          } else {
+            // Keep original for 10-digit numbers or other formats
+            cleanPhone = digits;
+          }
+        }
+        fieldData.autoFilledPhone = cleanPhone;
         break;
       case 'address-line1':
         fieldData.street = value;
@@ -161,6 +176,9 @@ class AutofillDetectionService {
         break;
       case 'email':
         fieldData.autoFilledEmail = value;
+        break;
+      default:
+        // Unknown field, no processing needed
         break;
     }
 

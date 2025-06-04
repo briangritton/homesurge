@@ -67,19 +67,26 @@ class ContactFormService {
   static formatPhoneAsTyping(value) {
     if (!value) return '';
 
+    // If already formatted, return as-is
+    if (value.includes('(') && value.includes(')') && value.includes('-')) {
+      return value;
+    }
+
     // Remove all non-digits
     const digits = value.replace(/\D/g, '');
     
-    // Limit to 10 digits (US phone numbers)
-    const limitedDigits = digits.slice(0, 10);
+    // Handle 11-digit numbers by taking last 10 digits
+    const workingDigits = digits.length === 11 && digits[0] === '1' 
+      ? digits.slice(1) 
+      : digits.slice(0, 10);
     
     // Format progressively as user types
-    if (limitedDigits.length <= 3) {
-      return limitedDigits;
-    } else if (limitedDigits.length <= 6) {
-      return `(${limitedDigits.slice(0, 3)}) ${limitedDigits.slice(3)}`;
+    if (workingDigits.length <= 3) {
+      return workingDigits;
+    } else if (workingDigits.length <= 6) {
+      return `(${workingDigits.slice(0, 3)}) ${workingDigits.slice(3)}`;
     } else {
-      return `(${limitedDigits.slice(0, 3)}) ${limitedDigits.slice(3, 6)}-${limitedDigits.slice(6)}`;
+      return `(${workingDigits.slice(0, 3)}) ${workingDigits.slice(3, 6)}-${workingDigits.slice(6)}`;
     }
   }
 
