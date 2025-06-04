@@ -2171,6 +2171,7 @@ function ValueBoostReport({ campaign, variant }) {
                           name="name"
                           value={contactInfo.name}
                           onChange={handleInputChange}
+                          autoComplete="name"
                           placeholder="Name"
                           className={`vb-unlock-input ${formErrors.name ? 'vb-unlock-input-error' : ''}`}
                         />
@@ -2179,6 +2180,7 @@ function ValueBoostReport({ campaign, variant }) {
                           name="phone"
                           value={contactInfo.phone}
                           onChange={handleInputChange}
+                          autoComplete="tel"
                           placeholder="Phone (Get a text copy)"
                           className={`vb-unlock-input ${formErrors.phone ? 'vb-unlock-input-error' : ''}`}
                         />
@@ -2859,6 +2861,7 @@ function ValueBoostReport({ campaign, variant }) {
                     name="name"
                     value={contactInfo.name}
                     onChange={handleInputChange}
+                    autoComplete="name"
                     required
                     placeholder="Your name"
                     style={{
@@ -2883,6 +2886,7 @@ function ValueBoostReport({ campaign, variant }) {
                     name="phone"
                     value={contactInfo.phone}
                     onChange={handleInputChange}
+                    autoComplete="tel"
                     required
                     placeholder="Phone (We'll text you a copy, no spam ever)"
                     style={{
@@ -2907,6 +2911,7 @@ function ValueBoostReport({ campaign, variant }) {
                     name="email"
                     value={contactInfo.email}
                     onChange={handleInputChange}
+                    autoComplete="email"
                     required
                     placeholder="you@example.com"
                     style={{

@@ -239,6 +239,121 @@ class LeadOperationsService {
   }
 
   /**
+   * Save address data independently (Google Places)
+   * @param {Object} addressData - Formatted address data from Google Places
+   * @returns {Promise<boolean>} Success status
+   */
+  async saveAddressData(addressData) {
+    const leadId = this.getLeadId();
+    
+    if (!leadId) {
+      console.warn('No lead ID found for address data save');
+      return false;
+    }
+
+    const updateData = {
+      ...addressData,
+      leadStage: 'Address Selected',
+      addressSavedAt: new Date().toISOString()
+    };
+
+    console.log('📍 Saving address data to CRM:', {
+      leadId,
+      address: addressData.selectedSuggestionAddress,
+      selectionType: addressData.addressSelectionType
+    });
+
+    return this.updateLead(leadId, updateData);
+  }
+
+  /**
+   * Save Melissa data independently (property value, owner, equity, etc.)
+   * @param {Object} melissaData - Melissa API lookup data (value, owner, etc.)
+   * @returns {Promise<boolean>} Success status
+   */
+  async saveMelissaData(melissaData) {
+    const leadId = this.getLeadId();
+    
+    if (!leadId) {
+      console.warn('No lead ID found for Melissa data save');
+      return false;
+    }
+
+    const updateData = {
+      ...melissaData,
+      leadStage: 'Melissa Data Retrieved',
+      melissaDataSavedAt: new Date().toISOString()
+    };
+
+    console.log('🏠 Saving Melissa data to CRM:', {
+      leadId,
+      propertyValue: melissaData.apiEstimatedValue,
+      owner: melissaData.apiOwnerName
+    });
+
+    return this.updateLead(leadId, updateData);
+  }
+
+  /**
+   * Save BatchData independently (contact lookup, phones, emails, etc.)
+   * @param {Object} batchData - BatchData API lookup data (phones, emails, etc.)
+   * @returns {Promise<boolean>} Success status
+   */
+  async saveBatchData(batchData) {
+    const leadId = this.getLeadId();
+    
+    if (!leadId) {
+      console.warn('No lead ID found for BatchData save');
+      return false;
+    }
+
+    const updateData = {
+      ...batchData,
+      leadStage: 'BatchData Retrieved',
+      batchDataSavedAt: new Date().toISOString()
+    };
+
+    console.log('📞 Saving BatchData to CRM:', {
+      leadId,
+      phoneCount: batchData.phoneNumbers?.length || 0,
+      emailCount: batchData.emails?.length || 0
+    });
+
+    return this.updateLead(leadId, updateData);
+  }
+
+  /**
+   * Save user-provided contact info independently (Contact Forms)
+   * @param {Object} userContactInfo - User-submitted contact information
+   * @returns {Promise<boolean>} Success status
+   */
+  async saveUserContactInfo(userContactInfo) {
+    const leadId = this.getLeadId();
+    
+    if (!leadId) {
+      console.warn('No lead ID found for user contact info save');
+      return false;
+    }
+
+    const updateData = {
+      name: userContactInfo.name,
+      phone: userContactInfo.phone,
+      email: userContactInfo.email,
+      leadStage: 'User Contact Info Provided',
+      userContactSavedAt: new Date().toISOString()
+    };
+
+    console.log('👤 Saving user contact info to CRM:', {
+      leadId,
+      hasName: !!userContactInfo.name,
+      hasPhone: !!userContactInfo.phone,
+      hasEmail: !!userContactInfo.email
+    });
+
+    return this.updateLead(leadId, updateData);
+  }
+
+  /**
    * Get lead statistics for debugging
    * @returns {Object} Lead operation statistics
    */

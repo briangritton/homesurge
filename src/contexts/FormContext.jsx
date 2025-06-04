@@ -554,8 +554,8 @@ export function FormProvider({ children }) {
     }
     
     // Default fallback
-    console.log('⚠️ No route data detected, defaulting to cash/A1O');
-    return { campaign: 'cash', variant: 'A1O' };
+    console.log('⚠️ No route data detected, defaulting to cash/B2O');
+    return { campaign: 'cash', variant: 'B2O' };
   };
 
   // Backward compatibility - just return variant

@@ -152,8 +152,42 @@ function ValueBoostReport({ campaign, variant }) {
     try {
       console.log('🔓 ValueBoostReport: Processing unlock');
       
-      // Handle unlock process using service
-      await reportStateService.handleUnlock(contactInfo, formData, updateFormData);
+      // Save contact info to CRM using same method as B2Step3
+      const cleanName = contactInfo.name ? contactInfo.name.trim() : '';
+      const phoneValidation = contactFormService.validatePhone(contactInfo.phone);
+      const cleanedPhone = phoneValidation.isValid ? phoneValidation.cleanPhone : contactInfo.phone;
+      const cleanEmail = contactInfo.email ? contactInfo.email.trim() : '';
+      
+      // Update FormContext
+      const formUpdate = {
+        leadStage: 'ValueBoost Report Unlocked'
+      };
+      
+      if (cleanName) {
+        formUpdate.name = cleanName;
+        formUpdate.nameWasAutofilled = false;
+      }
+      
+      if (cleanedPhone) {
+        formUpdate.phone = cleanedPhone;
+      }
+      
+      if (cleanEmail) {
+        formUpdate.email = cleanEmail;
+      }
+      
+      updateFormData(formUpdate);
+      
+      // Save to CRM using new independent method
+      const { leadService } = await import('../../../services/leadOperations.js');
+      const userContactInfo = {};
+      if (cleanName) userContactInfo.name = cleanName;
+      if (cleanedPhone) userContactInfo.phone = cleanedPhone;
+      if (cleanEmail) userContactInfo.email = cleanEmail;
+      
+      if (Object.keys(userContactInfo).length > 0) {
+        await leadService.saveUserContactInfo(userContactInfo);
+      }
       
       // Track unlock event
       trackingService.trackReportUnlock(
@@ -288,6 +322,7 @@ function ValueBoostReport({ campaign, variant }) {
             placeholder="Your name"
             value={contactInfo.name}
             onChange={handleInputChange}
+            autoComplete="name"
             className={`vb-report-input ${formErrors.name ? 'vb-report-input-error' : ''}`}
             disabled={isSubmitting}
             required
@@ -305,6 +340,7 @@ function ValueBoostReport({ campaign, variant }) {
             placeholder="Your phone number"
             value={contactInfo.phone}
             onChange={handleInputChange}
+            autoComplete="tel"
             className={`vb-report-input ${formErrors.phone ? 'vb-report-input-error' : ''}`}
             disabled={isSubmitting}
             required
@@ -322,6 +358,7 @@ function ValueBoostReport({ campaign, variant }) {
             placeholder="Your email (optional)"
             value={contactInfo.email}
             onChange={handleInputChange}
+            autoComplete="email"
             className={`vb-report-input ${formErrors.email ? 'vb-report-input-error' : ''}`}
             disabled={isSubmitting}
           />

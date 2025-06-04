@@ -186,6 +186,71 @@ function AddressForm({ campaign, variant }) {
       // 5. Update FormContext
       updateFormData(updateData);
       
+      // 6. Save address and autofilled contact data to CRM with timeout
+      try {
+        console.log('🕐 Starting address + autofill CRM save with 5-second timeout...');
+        
+        // Combine address data with autofilled contact data
+        const combinedData = {
+          ...addressData,
+          autoFilledName: formData.autoFilledName,
+          autoFilledPhone: formData.autoFilledPhone,
+          nameWasAutofilled: formData.nameWasAutofilled
+        };
+        
+        // Create a promise that resolves with address CRM save or times out after 5 seconds
+        const crmSavePromise = leadService.saveAddressData(combinedData);
+        
+        const timeoutPromise = new Promise((resolve) => {
+          setTimeout(() => {
+            console.log('⏰ Address CRM save timeout reached (5 seconds) - proceeding with navigation');
+            resolve('timeout');
+          }, 5000);
+        });
+        
+        // Wait for either address CRM save to complete OR timeout (whichever comes first)
+        const result = await Promise.race([crmSavePromise, timeoutPromise]);
+        
+        if (result === 'timeout') {
+          console.log('⏰ Navigation proceeding due to timeout');
+        } else {
+          console.log('✅ Address + autofill CRM save completed successfully before timeout');
+        }
+        
+      } catch (error) {
+        console.error('❌ Address + autofill CRM save failed:', error);
+      }
+
+      // 7. Start independent API lookups in background (non-blocking)
+      (async () => {
+        try {
+          // Import services
+          const { melissaService } = await import('../../../services/melissa.js');
+          const { lookupAndSave: batchDataLookupAndSave } = await import('../../../services/batchdata.js');
+          
+          // Start both lookups independently in parallel
+          const [melissaData, batchData] = await Promise.allSettled([
+            melissaService.lookupAndSave(placeDetails.formatted_address),
+            batchDataLookupAndSave(placeDetails.formatted_address)
+          ]);
+          
+          // Analytics tracking
+          trackAddressSelected(addressData.addressSelectionType);
+          
+          // Track property value if Melissa returned data
+          if (melissaData.status === 'fulfilled' && melissaData.value?.apiEstimatedValue) {
+            trackPropertyValue(melissaData.value);
+          }
+          
+          console.log('✅ Independent API lookups completed in background:', {
+            melissa: melissaData.status,
+            batchData: batchData.status
+          });
+        } catch (error) {
+          console.error('❌ Independent API lookups failed:', error);
+        }
+      })();
+      
     
       
 
@@ -205,22 +270,6 @@ function AddressForm({ campaign, variant }) {
 
 
 
-  // 6. Save to CRM
-      await leadService.saveFinalSelection(
-        addressData,
-        null, // Property data will be saved when APIs complete
-        {
-          campaign_name: formData.campaign_name,
-          campaign_id: formData.campaign_id,
-          keyword: formData.keyword,
-          traffic_source: formData.traffic_source
-        },
-        {
-          autoFilledName: formData.autoFilledName,
-          autoFilledPhone: formData.autoFilledPhone,
-          nameWasAutofilled: formData.nameWasAutofilled
-        }
-      );
 
 
 

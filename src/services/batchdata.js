@@ -114,6 +114,68 @@ export async function lookupPhoneNumbers(address) {
 }
 
 /**
+ * Lookup contact information and save to CRM independently
+ * @param {string} address - The validated property address from Google Places
+ * @returns {Promise<Object|null>} Contact information or null if not found/error
+ */
+export async function lookupAndSave(address) {
+  try {
+    console.log('🔍 BatchData: Starting lookup and save for:', address);
+    
+    // Parse address into components for BatchData API
+    const addressParts = parseAddressForBatchData(address);
+    if (!addressParts) {
+      console.log('⚠️ BatchData: Could not parse address components');
+      return null;
+    }
+    
+    // Do the contact lookup
+    const batchData = await lookupPhoneNumbers(addressParts);
+    
+    if (batchData) {
+      // Save to CRM independently
+      const { leadService } = await import('./leadOperations.js');
+      await leadService.saveBatchData(batchData);
+      console.log('✅ BatchData: Contact data retrieved and saved to CRM');
+    } else {
+      console.log('⚠️ BatchData: No contact data found for address');
+    }
+    
+    return batchData;
+  } catch (error) {
+    console.error('❌ BatchData: Lookup and save failed:', error);
+    return null;
+  }
+}
+
+/**
+ * Parse Google Places formatted address into components for BatchData
+ * @param {string} address - Formatted address string
+ * @returns {Object|null} Address components or null if parsing fails
+ */
+function parseAddressForBatchData(address) {
+  try {
+    // Simple parsing for "123 Main St, City, State 12345" format
+    const parts = address.split(',').map(part => part.trim());
+    
+    if (parts.length >= 3) {
+      const street = parts[0];
+      const city = parts[1];
+      const stateZip = parts[2].split(' ');
+      const state = stateZip[0];
+      const zip = stateZip[1];
+      
+      return { street, city, state, zip };
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error parsing address for BatchData:', error);
+    return null;
+  }
+}
+
+/**
  * Format a phone number to standard format (XXX) XXX-XXXX
  * @param {string} phoneNumber - Raw phone number
  * @returns {string} - Formatted phone number

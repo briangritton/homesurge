@@ -63,18 +63,19 @@ function ValueBoostFunnel() {
         return <AIProcessing campaign={campaign} variant={variant} />;
       case 3:
         // Route based on variant type
-        if (variant === 'B2O') {
+        // B2O and all "1" variants (A1O, A1I) go to B2Step3
+        if (variant === 'B2O' || variant?.includes('1')) {
           return <B2Step3 campaign={campaign} variant={variant} />;
         }
         
-        // A1O, A1I, A2O all go to ValueBoostReport
+        // Only A2O goes to ValueBoostReport now
         return <ValueBoostReport campaign={campaign} variant={variant} />;
       case 4:
-        // Only B2O variant goes to qualifying form, A variants end at step 3
-        if (variant === 'B2O') {
+        // B2O and all "1" variants go to qualifying form
+        if (variant === 'B2O' || variant?.includes('1')) {
           return <ValueBoostQualifyingB2 campaign={campaign} variant={variant} />;
         }
-        // A variants should not reach step 4 - redirect back to step 3
+        // Only A2O should redirect back to ValueBoostReport
         return <ValueBoostReport campaign={campaign} variant={variant} />;
       case 5:
         return <AddressRetry campaign={campaign} variant={variant} />;

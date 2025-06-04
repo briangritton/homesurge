@@ -13,7 +13,7 @@ import { trackingService } from '../../../services/trackingService';
 
 function B2Step3({ campaign, variant }) {
   // ===== FORM CONTEXT =====
-  const { formData, updateFormData } = useFormContext();
+  const { formData, updateFormData, nextStep } = useFormContext();
   
   // ===== STATE (Minimal) =====
   const [contactInfo, setContactInfo] = useState({
@@ -102,8 +102,10 @@ function B2Step3({ campaign, variant }) {
       // Small delay to ensure FormContext updates
       await new Promise(resolve => setTimeout(resolve, 100));
       
-      // 2. Submit to CRM with retry logic (non-blocking)
-      const submissionResult = await contactFormService.submitWithRetry(
+      // 2. Submit to CRM with retry logic and 5-second timeout protection
+      console.log('🕐 B2Step3: Starting CRM save with 5-second timeout...');
+      
+      const crmSavePromise = contactFormService.submitWithRetry(
         {
           name: cleanName,
           phone: cleanedPhone,
@@ -117,9 +119,27 @@ function B2Step3({ campaign, variant }) {
         }
       );
       
-      // 3. Always proceed for user experience (even if CRM submission failed)
-      setSubmitted(true);
-      console.log('✅ B2Step3: User proceeding immediately');
+      const timeoutPromise = new Promise((resolve) => {
+        setTimeout(() => {
+          console.log('⏰ B2Step3: CRM save timeout reached (5 seconds) - proceeding with navigation');
+          resolve({ success: false, timeout: true, message: 'CRM save timed out' });
+        }, 5000);
+      });
+      
+      // Wait for either CRM save to complete OR timeout (whichever comes first)
+      const submissionResult = await Promise.race([crmSavePromise, timeoutPromise]);
+      
+      if (submissionResult.timeout) {
+        console.log('⏰ B2Step3: Navigation proceeding due to timeout');
+      } else if (submissionResult.success) {
+        console.log('✅ B2Step3: CRM save completed successfully before timeout');
+      } else {
+        console.log('❌ B2Step3: CRM save failed before timeout');
+      }
+      
+      // 3. Navigate to step 4 (ValueBoostQualifyingB2)
+      nextStep();
+      console.log('✅ B2Step3: Navigating to ValueBoostQualifyingB2');
       
       // 4. Comprehensive tracking
       trackingService.trackPhoneSubmission(
@@ -161,8 +181,8 @@ function B2Step3({ campaign, variant }) {
         formData
       );
       
-      // Still mark as submitted so user can proceed
-      setSubmitted(true);
+      // Still navigate so user can proceed
+      nextStep();
     } finally {
       setIsSubmitting(false);
     }

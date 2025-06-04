@@ -164,6 +164,34 @@ class MelissaService {
       return null;
     }
   }
+
+  /**
+   * Lookup property information and save to CRM independently
+   * @param {string} address - The validated property address from Google Places
+   * @returns {Promise<Object|null>} Property information or null if not found/error
+   */
+  async lookupAndSave(address) {
+    try {
+      console.log('🔍 Melissa: Starting lookup and save for:', address);
+      
+      // Do the property lookup
+      const melissaData = await this.lookupPropertyInfo(address);
+      
+      if (melissaData) {
+        // Save to CRM independently
+        const { leadService } = await import('./leadOperations.js');
+        await leadService.saveMelissaData(melissaData);
+        console.log('✅ Melissa: Data retrieved and saved to CRM');
+      } else {
+        console.log('⚠️ Melissa: No property data found for address');
+      }
+      
+      return melissaData;
+    } catch (error) {
+      console.error('❌ Melissa: Lookup and save failed:', error);
+      return null;
+    }
+  }
 }
 
 // Export singleton instance
