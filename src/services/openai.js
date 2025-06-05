@@ -21,10 +21,12 @@ function getOpenAIClient() {
 }
 
 /**
- * Generate a comprehensive AI ValueBoost report using complete property data
+ * Generate a comprehensive AI property report using complete property data
+ * Report type varies by campaign: value, cash, fsbo, sell, or buy
  * @param {Object} melissaData - Complete Melissa API property data
+ * @param {string} campaignType - Campaign type: 'value', 'cash', 'fsbo', 'sell', or 'buy'
  */
-export async function generateAIValueBoostReport(melissaData) {
+export async function generateAIValueBoostReport(melissaData, campaignType = 'value') {
   try {
     console.log('🤖 Starting comprehensive OpenAI ValueBoost report generation...');
     
@@ -51,86 +53,11 @@ export async function generateAIValueBoostReport(melissaData) {
     const porchSize = parseInt(record.ExtAmenities?.PorchArea || 0);
     const lotSize = parseFloat(record.PropertySize?.AreaLotAcres || 0);
 
-    // Enhanced prompt with comprehensive property data
-    const prompt = `You are a professional real estate improvement analyst creating a comprehensive ValueBoost report. Analyze this property data and provide specific, actionable improvement recommendations with realistic costs and ROI calculations.
-
-PROPERTY DETAILS:
-- Address: ${address}
-- Current Estimated Value: ${formattedValue}
-- Year Built: ${record.PropertyUseInfo?.YearBuilt || 'Unknown'} (${propertyAge} years old)
-- Square Footage: ${record.PropertySize?.AreaBuilding || 'Unknown'} sq ft
-- Bedrooms: ${record.IntRoomInfo?.BedroomsCount || 'Unknown'}
-- Bathrooms: ${record.IntRoomInfo?.BathCount || 'Unknown'} full, ${record.IntRoomInfo?.BathPartialCount || 0} partial
-- Stories: ${record.IntRoomInfo?.StoriesCount || 'Unknown'}
-- Construction: ${record.IntStructInfo?.Construction || 'Unknown'}
-- Exterior Material: ${record.ExtStructInfo?.Exterior1Code || 'Unknown'}
-- Roof Material: ${record.ExtStructInfo?.RoofMaterial || 'Unknown'}
-- Architectural Style: ${record.ExtStructInfo?.StructureStyle || 'Unknown'}
-- Heating System: ${record.Utilities?.HVACHeatingDetail || 'Unknown'} (${record.Utilities?.HVACHeatingFuel || 'Unknown'})
-- Garage: ${record.PropertySize?.ParkingGarage || 'Unknown'} (${record.Parking?.ParkingSpaceCount || 0} spaces)
-- Basement: ${hasBasement ? `Yes, ${record.PropertySize?.BasementArea} sq ft` : 'No'} ${basementFinished ? '(Finished)' : hasBasement ? '(Unfinished)' : ''}
-- Fireplace: ${hasFireplace ? 'Yes' : 'No'}
-- Porch: ${hasPorch ? `Yes, ${porchSize} sq ft` : 'No'}
-- Lot Size: ${lotSize} acres (${record.PropertySize?.AreaLotSF || 'Unknown'} sq ft)
-- Topography: ${record.YardGardenInfo?.TopographyCode || 'Unknown'}
-- Market Value: ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(record.Tax?.MarketValueTotal || 0)} (Tax Assessment)
-- Confidence Score: ${record.EstimatedValue?.ConfidenceScore || 'Unknown'}%
-
-ANALYSIS REQUIREMENTS:
-1. Consider the property's age (${propertyAge} years) when recommending improvements
-2. Factor in the ${record.ExtStructInfo?.Exterior1Code || 'unknown'} exterior and ${record.ExtStructInfo?.StructureStyle || 'unknown'} style
-3. Address the ${record.Utilities?.HVACHeatingDetail || 'unknown'} heating system efficiency
-4. ${hasBasement && !basementFinished ? 'Evaluate basement finishing potential' : ''}
-5. Consider lot size (${lotSize} acres) for outdoor improvements
-6. Provide specific cost estimates based on the ${formattedValue} home value tier
-7. Calculate realistic ROI percentages for each recommendation
-
-ENHANCED MARKET & INVESTMENT ANALYSIS:
-8. Analyze recent sale trends - Last sold ${record.SaleInfo?.DeedLastSaleDate ? new Date(record.SaleInfo.DeedLastSaleDate.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3')).getFullYear() : 'Unknown'} for ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(record.SaleInfo?.DeedLastSalePrice || 0)} vs current ${formattedValue}
-9. Consider tax assessment gap - Market value ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(record.Tax?.MarketValueTotal || 0)} vs estimated ${formattedValue}
-10. Factor in ${record.PropertyAddress?.City || 'local'}, ${record.PropertyAddress?.State || ''} market conditions and ${record.Parcel?.CBSAName || 'metro area'} trends
-11. Owner-occupied property - prioritize livability improvements alongside ROI
-12. High equity position (${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(melissaData.apiEquity || 0)}) enables larger investment opportunities
-13. Multi-story layout (${record.IntRoomInfo?.StoriesCount || 'multi-level'}) creates vertical space optimization potential
-14. Large lot (${lotSize} acres) offers significant outdoor development and landscaping value-add opportunities
-15. ${record.IntStructInfo?.Construction || 'Current'} construction requires material-specific improvement approaches
-16. Georgia climate considerations for energy efficiency and seasonal optimization improvements
-17. ${record.Utilities?.HVACHeatingFuel || 'Current'} heating system and utility cost reduction strategies
-18. Confidence score of ${record.EstimatedValue?.ConfidenceScore || 'Unknown'}% suggests ${parseInt(record.EstimatedValue?.ConfidenceScore || 0) > 85 ? 'reliable' : 'moderate'} ROI prediction accuracy
-
-REQUIRED OUTPUT FORMAT (follow this structure exactly):
-
-ValueBoost AI Analysis Report
-
-[PERSONALIZED INTRODUCTION: Write a warm, personalized introduction explaining this is their custom property analysis. Reference specific details like the ${propertyAge}-year-old ${record.ExtStructInfo?.StructureStyle || 'home'} with ${record.ExtStructInfo?.Exterior1Code || 'exterior'} exterior. Mention analyzing their ${record.IntRoomInfo?.BedroomsCount || 'multi'}-bedroom, ${record.IntRoomInfo?.BathCount || 'multi'}-bathroom home worth ${formattedValue}. Keep it personal and professional.]
-
-Property Analysis: ${address}
-Current Estimated Value: ${formattedValue}
-Year Built: ${record.PropertyUseInfo?.YearBuilt || 'Unknown'} (${propertyAge} years old)
-Property Type: ${record.ExtStructInfo?.StructureStyle || 'Residential'} with ${record.ExtStructInfo?.Exterior1Code || 'Standard'} exterior
-
-TOP IMPROVEMENT OPPORTUNITIES:
-
-[Generate 5-7 specific improvement recommendations based on the property details provided. Consider:
-- Age-appropriate upgrades for a ${propertyAge}-year-old home
-- Exterior material maintenance/enhancement for ${record.ExtStructInfo?.Exterior1Code || 'the current'} exterior
-- HVAC efficiency improvements for the ${record.Utilities?.HVACHeatingDetail || 'current'} system
-- ${hasBasement && !basementFinished ? 'Basement finishing opportunity with ' + record.PropertySize?.BasementArea + ' sq ft of space' : ''}
-- ${hasPorch ? 'Porch enhancement/expansion options with current ' + porchSize + ' sq ft' : 'Outdoor living space additions'}
-- Kitchen and bathroom modernization appropriate for the home's value tier
-- Energy efficiency improvements for a ${propertyAge}-year-old home
-
-For each recommendation, provide:
-- Specific improvement description
-- Estimated cost range
-- Expected ROI percentage
-- Implementation timeline
-- Why this improvement makes sense for THIS specific property]
-
-MARKET STRATEGY SUMMARY:
-[Brief paragraph about maximizing value for this specific property type, age, and location. Consider the home's ${formattedValue} value tier and ${record.PropertyAddress?.City}, ${record.PropertyAddress?.State} market.]
-
-Make every recommendation specific to the property's actual characteristics, age, and features.`;
+    // =================================================================
+    // CAMPAIGN-SPECIFIC PROMPTS AND ANALYSIS
+    // =================================================================
+    
+    const prompt = getCampaignSpecificPrompt(campaignType, record, melissaData, address, formattedValue, propertyAge, hasBasement, basementFinished, hasFireplace, hasPorch, porchSize, lotSize);
 
     const openaiClient = getOpenAIClient();
     const completion = await openaiClient.chat.completions.create({
@@ -263,4 +190,265 @@ TOP IMPROVEMENT OPPORTUNITIES:
    Expected ROI: 50-60%
 
 Please provide your property details for a more specific analysis.`;
+}
+
+// =================================================================
+// CAMPAIGN-SPECIFIC PROMPT GENERATOR
+// =================================================================
+
+/**
+ * Generate campaign-specific prompts for different report types
+ */
+function getCampaignSpecificPrompt(campaignType, record, melissaData, address, formattedValue, propertyAge, hasBasement, basementFinished, hasFireplace, hasPorch, porchSize, lotSize) {
+  
+  // Common property details section used by all campaigns
+  const propertyDetails = `
+PROPERTY DETAILS:
+- Address: ${address}
+- Current Estimated Value: ${formattedValue}
+- Year Built: ${record.PropertyUseInfo?.YearBuilt || 'Unknown'} (${propertyAge} years old)
+- Square Footage: ${record.PropertySize?.AreaBuilding || 'Unknown'} sq ft
+- Bedrooms: ${record.IntRoomInfo?.BedroomsCount || 'Unknown'}
+- Bathrooms: ${record.IntRoomInfo?.BathCount || 'Unknown'} full, ${record.IntRoomInfo?.BathPartialCount || 0} partial
+- Stories: ${record.IntRoomInfo?.StoriesCount || 'Unknown'}
+- Construction: ${record.IntStructInfo?.Construction || 'Unknown'}
+- Exterior Material: ${record.ExtStructInfo?.Exterior1Code || 'Unknown'}
+- Roof Material: ${record.ExtStructInfo?.RoofMaterial || 'Unknown'}
+- Architectural Style: ${record.ExtStructInfo?.StructureStyle || 'Unknown'}
+- Heating System: ${record.Utilities?.HVACHeatingDetail || 'Unknown'} (${record.Utilities?.HVACHeatingFuel || 'Unknown'})
+- Garage: ${record.PropertySize?.ParkingGarage || 'Unknown'} (${record.Parking?.ParkingSpaceCount || 0} spaces)
+- Basement: ${hasBasement ? `Yes, ${record.PropertySize?.BasementArea} sq ft` : 'No'} ${basementFinished ? '(Finished)' : hasBasement ? '(Unfinished)' : ''}
+- Fireplace: ${hasFireplace ? 'Yes' : 'No'}
+- Porch: ${hasPorch ? `Yes, ${porchSize} sq ft` : 'No'}
+- Lot Size: ${lotSize} acres (${record.PropertySize?.AreaLotSF || 'Unknown'} sq ft)
+- Topography: ${record.YardGardenInfo?.TopographyCode || 'Unknown'}
+- Market Value: ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(record.Tax?.MarketValueTotal || 0)} (Tax Assessment)
+- Confidence Score: ${record.EstimatedValue?.ConfidenceScore || 'Unknown'}%
+- Equity Position: ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(melissaData.apiEquity || 0)}
+- Last Sale: ${record.SaleInfo?.DeedLastSaleDate ? new Date(record.SaleInfo.DeedLastSaleDate.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3')).getFullYear() : 'Unknown'} for ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(record.SaleInfo?.DeedLastSalePrice || 0)}`;
+
+  switch (campaignType.toLowerCase()) {
+    
+    // =================================================================
+    // 1. VALUE CAMPAIGN - PROPERTY IMPROVEMENT RECOMMENDATIONS
+    // =================================================================
+    case 'value':
+      return `You are a professional real estate improvement analyst creating a comprehensive ValueBoost report. Analyze this property data and provide specific, actionable improvement recommendations with realistic costs and ROI calculations.
+
+${propertyDetails}
+
+ANALYSIS REQUIREMENTS:
+1. Consider the property's age (${propertyAge} years) when recommending improvements
+2. Factor in the ${record.ExtStructInfo?.Exterior1Code || 'unknown'} exterior and ${record.ExtStructInfo?.StructureStyle || 'unknown'} style
+3. Address the ${record.Utilities?.HVACHeatingDetail || 'unknown'} heating system efficiency
+4. ${hasBasement && !basementFinished ? 'Evaluate basement finishing potential' : ''}
+5. Consider lot size (${lotSize} acres) for outdoor improvements
+6. Provide specific cost estimates based on the ${formattedValue} home value tier
+7. Calculate realistic ROI percentages for each recommendation
+
+REQUIRED OUTPUT FORMAT:
+ValueBoost AI Analysis Report
+
+[PERSONALIZED INTRODUCTION: Reference the ${propertyAge}-year-old ${record.ExtStructInfo?.StructureStyle || 'home'} with ${record.ExtStructInfo?.Exterior1Code || 'exterior'} exterior worth ${formattedValue}]
+
+Property Analysis: ${address}
+Current Estimated Value: ${formattedValue}
+
+TOP IMPROVEMENT OPPORTUNITIES:
+[Generate 5-7 specific improvement recommendations with costs, ROI, and timelines]
+
+MARKET STRATEGY SUMMARY:
+[Brief paragraph about maximizing value for this property type and location]`;
+
+    // =================================================================
+    // 2. CASH CAMPAIGN - MAXIMUM CASH OFFER NEGOTIATION GUIDE
+    // =================================================================
+    case 'cash':
+      return `You are a real estate negotiation expert creating a Maximum Cash Offer Guide. Help this homeowner leverage their property's strengths to negotiate the highest possible cash offer from investors and cash buyers.
+
+${propertyDetails}
+
+CASH OFFER NEGOTIATION STRATEGY:
+Focus on what makes this property attractive to cash buyers and investors:
+
+1. PROPERTY LEVERAGE POINTS:
+- High equity position (${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(melissaData.apiEquity || 0)}) provides strong negotiating position
+- ${propertyAge}-year-old property ${propertyAge > 30 ? 'offers value-add renovation opportunities investors seek' : 'is in prime condition for rental or flip potential'}
+- ${lotSize} acre lot ${lotSize > 0.25 ? 'provides expansion opportunities and higher investor appeal' : 'offers standard development potential'}
+- ${record.PropertyAddress?.City}, ${record.PropertyAddress?.State} market trends and investor demand
+
+2. CASH BUYER PSYCHOLOGY:
+- What investors look for in ${record.ExtStructInfo?.StructureStyle || 'this property type'}
+- How to highlight the property's renovation potential vs. current condition
+- Timing strategies for maximum leverage
+- Multiple offer scenarios and competitive bidding
+
+REQUIRED OUTPUT FORMAT:
+Maximum Cash Offer Negotiation Guide
+
+[PERSONALIZED INTRODUCTION: Address their ${propertyAge}-year-old property with strong equity position]
+
+Property Analysis: ${address}
+Current Estimated Value: ${formattedValue}
+Equity Position: ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(melissaData.apiEquity || 0)}
+
+YOUR NEGOTIATION ADVANTAGES:
+[List 5-7 specific property features that increase cash offer potential]
+
+CASH BUYER NEGOTIATION TACTICS:
+[Specific strategies for maximizing offers from investors]
+
+MARKET LEVERAGE STRATEGY:
+[How to use market conditions and property characteristics for maximum cash offers]`;
+
+    // =================================================================
+    // 3. FSBO CAMPAIGN - FOR SALE BY OWNER COMPLETE GUIDE
+    // =================================================================
+    case 'fsbo':
+      return `You are a FSBO (For Sale By Owner) expert creating a comprehensive DIY selling guide. Provide step-by-step guidance for selling this property without an agent, including legal requirements, marketing, and negotiation strategies.
+
+${propertyDetails}
+
+FSBO STRATEGY FOR THIS PROPERTY:
+Consider the property's characteristics for self-selling approach:
+
+1. PROPERTY PREPARATION FOR FSBO:
+- ${propertyAge}-year-old ${record.ExtStructInfo?.StructureStyle || 'home'} specific preparation needs
+- Quick fixes vs. major improvements for ${formattedValue} price point
+- Staging strategies for ${record.IntRoomInfo?.BedroomsCount || 'multi'}-bedroom layout
+
+2. LEGAL AND DOCUMENTATION REQUIREMENTS:
+- ${record.PropertyAddress?.State || 'State'}-specific disclosure requirements
+- Required paperwork and contracts for FSBO sales
+- Title and escrow process without agent representation
+- Inspection and appraisal coordination
+
+3. MARKETING AND PRICING STRATEGY:
+- Competitive pricing analysis for ${record.PropertyAddress?.City} market
+- DIY photography and listing creation
+- FSBO-specific marketing channels and platforms
+
+REQUIRED OUTPUT FORMAT:
+Complete FSBO Selling Guide
+
+[PERSONALIZED INTRODUCTION: Address their decision to sell their ${formattedValue} ${record.ExtStructInfo?.StructureStyle || 'home'} themselves]
+
+Property Analysis: ${address}
+Current Estimated Value: ${formattedValue}
+
+FSBO PREPARATION CHECKLIST:
+[Step-by-step property preparation specific to this home]
+
+LEGAL AND PAPERWORK REQUIREMENTS:
+[${record.PropertyAddress?.State || 'State'}-specific legal requirements and documentation]
+
+DIY MARKETING STRATEGY:
+[Complete marketing plan for FSBO success]
+
+NEGOTIATION AND CLOSING GUIDE:
+[How to handle offers, negotiations, and closing without an agent]`;
+
+    // =================================================================
+    // 4. SELL CAMPAIGN - GENERAL SELLER'S MAXIMIZATION GUIDE
+    // =================================================================
+    case 'sell':
+      return `You are a real estate selling strategist creating a comprehensive seller's guide. Provide strategies for maximizing sale price and finding the best selling approach, whether with an agent or FSBO.
+
+${propertyDetails}
+
+SELLING STRATEGY FOR THIS PROPERTY:
+Analyze the best approach for selling this specific property:
+
+1. QUICK FIXES FOR IMMEDIATE IMPACT:
+- ${propertyAge}-year-old home specific quick improvements
+- Low-cost, high-impact updates for ${formattedValue} price range
+- Staging and presentation strategies for ${record.IntRoomInfo?.BedroomsCount || 'multi'}-bedroom home
+
+2. MAJOR IMPROVEMENTS FOR MAXIMUM RETURN:
+- Strategic renovations that maximize sale price for this property type
+- ROI analysis for major improvements in ${record.PropertyAddress?.City} market
+- When to improve vs. sell as-is analysis
+
+3. AGENT SELECTION AND WORKING RELATIONSHIP:
+- How to find the best selling agent for ${record.ExtStructInfo?.StructureStyle || 'this property type'}
+- Interview questions and criteria for agent selection
+- Commission negotiation and service expectations
+- When FSBO might be better vs. using an agent
+
+REQUIRED OUTPUT FORMAT:
+Complete Seller's Maximization Guide
+
+[PERSONALIZED INTRODUCTION: Address selling their ${propertyAge}-year-old ${formattedValue} ${record.ExtStructInfo?.StructureStyle || 'home'}]
+
+Property Analysis: ${address}
+Current Estimated Value: ${formattedValue}
+
+QUICK WINS FOR IMMEDIATE IMPACT:
+[5-7 quick, low-cost improvements specific to this property]
+
+MAJOR IMPROVEMENTS ANALYSIS:
+[Strategic renovation recommendations with ROI analysis]
+
+SELLING APPROACH RECOMMENDATIONS:
+[Agent vs. FSBO analysis for this specific property and market]
+
+AGENT SELECTION GUIDE:
+[How to find and work with the best selling agent for maximum results]`;
+
+    // =================================================================
+    // 5. BUY CAMPAIGN - HOME BUYER'S MAXIMIZATION GUIDE
+    // =================================================================
+    case 'buy':
+      return `You are a home buying strategist creating a comprehensive buyer's guide. Help maximize buying power, minimize costs, and get the most house for their money using this property as a case study.
+
+${propertyDetails}
+
+BUYER MAXIMIZATION STRATEGY:
+Use this property as an example for buying optimization:
+
+1. BUYING POWER MAXIMIZATION:
+- Credit optimization strategies to qualify for better rates
+- Down payment strategies and assistance programs
+- Pre-approval tactics for maximum loan amount
+- Debt-to-income optimization techniques
+
+2. COST MINIMIZATION STRATEGIES:
+- Interest rate negotiation and lender shopping
+- Closing cost reduction techniques
+- PMI removal strategies and alternatives
+- Long-term cost analysis (15 vs 30-year mortgages)
+
+3. PROPERTY VALUE MAXIMIZATION:
+- How to identify undervalued properties like this ${propertyAge}-year-old ${record.ExtStructInfo?.StructureStyle || 'home'}
+- Negotiation tactics for properties with ${record.EstimatedValue?.ConfidenceScore || 'unknown'}% confidence score
+- Future appreciation potential analysis for ${record.PropertyAddress?.City} area
+- Hidden value opportunities in older properties
+
+REQUIRED OUTPUT FORMAT:
+Complete Home Buyer's Maximization Guide
+
+[PERSONALIZED INTRODUCTION: Using this ${formattedValue} property as an example of smart buying strategies]
+
+Property Case Study: ${address}
+Estimated Value: ${formattedValue}
+Market Analysis: ${record.PropertyAddress?.City}, ${record.PropertyAddress?.State}
+
+MAXIMIZE YOUR BUYING POWER:
+[Specific strategies to qualify for more house/better rates]
+
+MINIMIZE YOUR COSTS:
+[Tactics to reduce interest rates, fees, and long-term costs]
+
+SMART PROPERTY SELECTION:
+[How to identify the best value properties like this example]
+
+NEGOTIATION AND CLOSING STRATEGIES:
+[Advanced tactics for getting the best deal and terms]`;
+
+    // =================================================================
+    // DEFAULT CASE - VALUE CAMPAIGN
+    // =================================================================
+    default:
+      return getCampaignSpecificPrompt('value', record, melissaData, address, formattedValue, propertyAge, hasBasement, basementFinished, hasFireplace, hasPorch, porchSize, lotSize);
+  }
 }

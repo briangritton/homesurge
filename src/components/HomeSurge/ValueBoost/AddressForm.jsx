@@ -213,8 +213,14 @@ function AddressForm({ campaign, variant }) {
                 const { generateAIValueBoostReport } = await import('../../../services/openai');
                 
                 // Race between AI generation and timeout
+                // Extract campaign type from current route/context for appropriate report type
+                const currentCampaign = window.location.pathname.includes('/cash') ? 'cash' :
+                                       window.location.pathname.includes('/sell') ? 'sell' :
+                                       window.location.pathname.includes('/fsbo') ? 'fsbo' :
+                                       window.location.pathname.includes('/buy') ? 'buy' : 'value';
+                
                 const generatedReport = await Promise.race([
-                  generateAIValueBoostReport(melissaData.value),
+                  generateAIValueBoostReport(melissaData.value, currentCampaign),
                   aiTimeout
                 ]);
                 
