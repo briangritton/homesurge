@@ -5,7 +5,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useFormContext } from '../../../contexts/FormContext';
-import { trackAddressSelected, trackFormStepComplete, trackFormError } from '../../../services/analytics';
+import { trackAddressSelected, trackFormStepComplete, trackFormError, trackPropertyApiValue } from '../../../services/analytics';
 import { trackPropertyValue } from '../../../services/facebook';
 import gradientArrow from '../../../assets/images/gradient-arrow.png';
 import waveImage from '../../../assets/images/wave.png';
@@ -194,6 +194,9 @@ function AddressForm({ campaign, variant }) {
           // Track property value if Melissa returned data
           if (melissaData.status === 'fulfilled' && melissaData.value?.apiEstimatedValue) {
             trackPropertyValue(melissaData.value);
+            
+            // GTM tracking for "api_value" event (exact copy from original)
+            trackPropertyApiValue(melissaData.value, placeDetails.formatted_address, formData);
           }
           
           // Generate AI report in background if Melissa data is available

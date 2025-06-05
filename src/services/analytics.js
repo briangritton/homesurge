@@ -374,6 +374,62 @@ export function trackAddressSelected(addressType) {
   });
 }
 
+// Track property API value received - exact implementation from original AddressForm
+export function trackPropertyApiValue(propertyData, address, formData) {
+  if (isDebug) console.log('Analytics - Property API Value:', propertyData.apiEstimatedValue, address);
+  
+  // GTM tracking for "api_value" event (exact copy from original)
+  if (window.dataLayer) {
+    const formattedValue = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(propertyData.apiEstimatedValue);
+
+    console.log('%c SENDING API_VALUE EVENT TO GTM', 'background: #4CAF50; color: white; font-weight: bold; padding: 4px;', {
+      apiEstimatedValue: propertyData.apiEstimatedValue,
+      address: address
+    });
+
+    // Create dataLayer event with the confirmed working format (exact copy from original)
+    const dataLayerEvent = {
+      event: 'api_value', // This exact name is expected by GTM trigger
+      apiValue: propertyData.apiEstimatedValue,
+      propertyAddress: address,
+      formattedValue: formattedValue,
+      propertyEquity: propertyData.apiEquity || 0,
+      propertyEquityPercentage: propertyData.apiPercentage || 0,
+      
+      // Campaign parameters at top level for GTM variables
+      campaign_name: formData.campaign_name || '',
+      campaign_id: formData.campaign_id || '',
+      adgroup_name: formData.adgroup_name || '',
+      adgroup_id: formData.adgroup_id || '',
+      keyword: formData.keyword || '',
+      matchtype: formData.matchtype || '',
+      gclid: formData.gclid || '',
+      device: formData.device || '',
+      traffic_source: formData.traffic_source || 'Direct',
+      template_type: formData.template_type || ''
+    };
+    
+    // Push event IMMEDIATELY with no delay
+    console.log('Pushing api_value event to dataLayer:', dataLayerEvent);
+    window.dataLayer.push(dataLayerEvent);
+    
+    // Log campaign data for debugging
+    console.log('CAMPAIGN DATA IN API_VALUE EVENT:', {
+      campaign_name: formData.campaign_name || '',
+      campaign_id: formData.campaign_id || '',
+      keyword: formData.keyword || '',
+      matchtype: formData.matchtype || '',
+      adgroup_name: formData.adgroup_name || '',
+      adgroup_id: formData.adgroup_id || ''
+    });
+  }
+}
+
 // Export debugging tool for use in development
 export function debugCampaignTracking() {
   return debugCampaignData();

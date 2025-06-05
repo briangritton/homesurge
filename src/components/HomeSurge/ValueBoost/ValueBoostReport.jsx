@@ -633,7 +633,7 @@ function ValueBoostReport({ campaign, variant }) {
       <div className="vb-sticky-popup-overlay">
         <div className="vb-sticky-popup">
           <div className="vb-sticky-popup-message">
-            Let's see if your home qualifies to have these value add upgrades done <em>ABSOLUTELY FREE! </em>Give me a call or shoot me a text!
+            Selling and want to see if your home qualifies to have these value add upgrades done <em>ABSOLUTELY FREE? </em>Give me a call or shoot me a text!
           </div>
           <div className="vb-sticky-popup-profile">
             <div className="vb-sticky-popup-image">
