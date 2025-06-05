@@ -102,7 +102,7 @@ function AddressForm({ campaign, variant }) {
       leadStage: 'Address Typing'
     });
 
-    // Clear error message
+    // Clear error message when user starts typing
     if (errorMessage) {
       setErrorMessage('');
     }
@@ -319,8 +319,10 @@ function AddressForm({ campaign, variant }) {
     // BLOCK MANUAL SUBMISSIONS - Force Google Places selection like original
     setErrorMessage('Please continue typing and select a valid address from the dropdown suggestions');
     
-    // Scroll to top to show error
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Keep focus on the input field instead of scrolling
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
   };
 
   // ===== ENTER KEY HANDLER =====
@@ -331,8 +333,10 @@ function AddressForm({ campaign, variant }) {
       // BLOCK MANUAL SUBMISSIONS - Force Google Places selection like original  
       setErrorMessage('Please continue typing and select a valid address from the dropdown suggestions');
       
-      // Scroll to top to show error
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Keep focus on the input field instead of scrolling
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
     }
   };
 
@@ -426,24 +430,29 @@ function AddressForm({ campaign, variant }) {
           {/* FORM SECTION - Using original class names */}
           <form className="vb-af1-form-container" ref={formRef} onSubmit={(e) => e.preventDefault()}>
             
-            {/* Error message */}
-            {errorMessage && (
-              <div className="vb-af1-error-message">{errorMessage}</div>
-            )}
-            
-            <input
-              ref={inputRef}
-              type="text"
-              name="address-line1"
-              autoComplete="off"
-              placeholder="Enter your property address"
-              className={errorMessage ? 'vb-af1-address-input-invalid' : 'vb-af1-address-input'}
-              onChange={(e) => handleAddressInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              onFocus={(e) => e.target.placeholder = ''}
-              onBlur={(e) => e.target.placeholder = 'Enter your property address'}
-              disabled={isLoading}
-            />
+            {/* Input container with inline error */}
+            <div className="vb-af1-input-container">
+              <input
+                ref={inputRef}
+                type="text"
+                name="address-line1"
+                autoComplete="off"
+                placeholder="Enter your property address"
+                className={errorMessage ? 'vb-af1-address-input-invalid' : 'vb-af1-address-input'}
+                onChange={(e) => handleAddressInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                onFocus={(e) => e.target.placeholder = ''}
+                onBlur={(e) => e.target.placeholder = 'Enter your property address'}
+                disabled={isLoading}
+              />
+              
+              {/* Inline error message */}
+              {errorMessage && (
+                <div className="vb-af1-inline-error">
+                  Please keep typing and select from the drop down
+                </div>
+              )}
+            </div>
 
             {/* HIDDEN AUTOFILL FIELDS - DISABLED */}
 

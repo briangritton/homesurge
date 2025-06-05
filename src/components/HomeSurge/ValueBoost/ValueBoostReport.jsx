@@ -42,10 +42,28 @@ function ValueBoostReport({ campaign, variant }) {
     return templateService.getTemplate(campaign, variant, 'report');
   }, [campaign, variant]);
   
-  // ===== AUTO SCROLL =====
+  // ===== AUTO SCROLL TO TOP =====
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Immediate scroll to top
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    
+    // Also scroll again after a brief delay to ensure content has loaded
+    const scrollTimer = setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
+    
+    return () => clearTimeout(scrollTimer);
   }, []);
+
+  // ===== SCROLL TO TOP WHEN REPORT STATE CHANGES =====
+  useEffect(() => {
+    // Scroll to top when transitioning to unlocked state (when report becomes visible)
+    if (submitted || reportState === 'unlocked') {
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 200);
+    }
+  }, [submitted, reportState]);
 
   // ===== STICKY POPUP FOR VALUE CAMPAIGNS =====
   useEffect(() => {
@@ -599,8 +617,9 @@ function ValueBoostReport({ campaign, variant }) {
         </div>
         <div className="vb-contact-info">
           <div className="vb-contact-name">Spencer Gritton</div>
+           <div className="vb-contact-phone">(480) 519-0554</div>
           <div className="vb-contact-title">Licensed Real Estate Agent</div>
-          <div className="vb-contact-phone">(480) 519-0554</div>
+         
           <div className="vb-contact-agency">HomeSmart Realty Partners</div>
         </div>
       </div>
@@ -613,15 +632,8 @@ function ValueBoostReport({ campaign, variant }) {
     return (
       <div className="vb-sticky-popup-overlay">
         <div className="vb-sticky-popup">
-          <button 
-            className="vb-sticky-popup-close"
-            onClick={() => setShowStickyPopup(false)}
-            aria-label="Close popup"
-          >
-            ×
-          </button>
           <div className="vb-sticky-popup-message">
-            Let's see if your home qualifies to have these upgrades done <em>ABSOLUTELY FREE!</em>Give me a call or shoot me a text!
+            Let's see if your home qualifies to have these value add upgrades done <em>ABSOLUTELY FREE! </em>Give me a call or shoot me a text!
           </div>
           <div className="vb-sticky-popup-profile">
             <div className="vb-sticky-popup-image">
@@ -654,9 +666,8 @@ function ValueBoostReport({ campaign, variant }) {
     lines.forEach((line) => {
       const trimmedLine = line.trim();
       
-      // Skip empty lines
+      // Skip empty lines completely - don't add anything for empty lines
       if (!trimmedLine) {
-        formattedContent += '\n';
         return;
       }
       
@@ -759,8 +770,8 @@ function ValueBoostReport({ campaign, variant }) {
             className="vb-ai-report-content"
             dangerouslySetInnerHTML={{ __html: formatAiReportContent(aiReport) }}
           />
-          {/* Contact Section at bottom of every report */}
-          {renderContactSection()}
+          {/* Contact Section at bottom of every report - COMMENTED OUT (using sticky popup instead) */}
+          {/* {renderContactSection()} */}
         </div>
       </div>
     );
@@ -829,7 +840,7 @@ function ValueBoostReport({ campaign, variant }) {
                   }).format(formData.apiEstimatedValue);
                   
                   // Extract potential value increase from AI report if available
-                  let potentialValue = "See AI recommendations below";
+                  let potentialValue = "Pending..";
                   if (aiReport) {
                     // Look for "Total Potential Value Increase: $XX,XXX" pattern
                     const valueIncreaseMatch = aiReport.match(/Total Potential Value Increase:\s*\$([0-9,]+)/i);
@@ -879,7 +890,7 @@ function ValueBoostReport({ campaign, variant }) {
                             {potentialValue}
                           </div>
                           <div className="vb-report-value-label">
-                            ValueBoost Potential Value
+                            ValueBoost Estimate
                           </div>
                         </div>
                       </div>
