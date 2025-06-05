@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { submitLeadToFirebase, updateLeadInFirebase, updateContactInfo, createImmediateLead } from '../services/firebase';
 import { useNotifications } from '../hooks/useNotifications';
+import { templateService } from '../services/templateEngine';
 
 // Custom hook to use the form context
 export function useFormContext() {
@@ -581,180 +582,61 @@ export function FormProvider({ children }) {
   //
   // ================================================================================
   
-  // Simplified dynamic content handler based only on campaign name
+  // Dynamic content handler using templateService (like AddressForm)
   const setDynamicContent = (keyword, campaign_id, adgroup_id, passedCampaignName, passedVariant) => {
     // Use passed campaign name first, then fall back to form state
     let campaignName = passedCampaignName || formData.campaign_name || '';
+    let variant = passedVariant || 'A1O'; // Default variant
     
-    // Log information about the current campaign name we'll use for matching
-    console.log('Using campaign name for template selection:', campaignName);
+    // Extract campaign type from route (like AddressForm does)
+    const path = window.location.pathname;
+    let routeCampaign = 'cash'; // default
     
-    // ================================================================================
-    // CAMPAIGN TEMPLATES - ADD NEW TEMPLATES HERE
-    // ================================================================================
-    // 
-    // EDITING INSTRUCTIONS:
-    // - To add a new template, copy an existing template and modify the content
-    // - Template key should match the keyword you want to detect in campaign names
-    // - All templates should include: headline, subHeadline, buttonText, thankYou messages
-    //
-    // ================================================================================
-    
-    const campaignTemplates = {
-      // CASH TEMPLATE - Triggered by "cash" in campaign name
-      "cash": {
-        type: 'CASH',
-        headline: 'Need to Sell Your Home For Cash Fast?',
-        subHeadline: 'Get a great cash offer today. Close in 7 days. No showings, no repairs, no stress',
-        thankYouHeadline: 'Cash Offer Request Completed!',
-        thankYouSubHeadline: 'You\'ll be receiving your no obligation cash offer at your contact number shortly, thank you!',
-        buttonText: 'CHECK OFFER',
-        timeoutUnlockHeadline: 'HomeSurge Cash Offer Benefits:',
-        disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase that might be acheived by various home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes. By submitting your address, you agree to send address details and other available autofill information not displayed to HomeSurge.AI for the purpose of contacting you with your requested information. We respect your privacy and will never share your details with anyone. No spam ever.'
-      },
-      
-      // FAST TEMPLATE - Triggered by "fast" in campaign name  
-      "fast": {
-        type: 'FAST',
-        headline: 'Sell Your Home In 10 Days or Less',
-        subHeadline: 'Skip the repairs and listings. Get a no-obligation cash offer today and close on your terms. No fees, no stress',
-        thankYouHeadline: 'Request Completed!',
-        thankYouSubHeadline: 'You\'ll be receiving your fast sale details at your contact number shortly, thank you!',
-        buttonText: 'CHECK OFFER',
-        timeoutUnlockHeadline: 'HomeSurge Fast Sale Benefits:',
-        disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase that might be acheived by various home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes. By submitting your address, you agree to send address details and other available autofill information not displayed to HomeSurge.AI for the purpose of contacting you with your requested information. We respect your privacy and will never share your details with anyone. No spam ever.'
-      },
-      
-      // VALUE TEMPLATE - Triggered by "value" in campaign name
-      "value": {
-        type: 'VALUE',
-        headline: 'Need to Check Your Home Value Fast?',
-        subHeadline: 'Find out how much equity you have now.',
-        thankYouHeadline: 'Home Value Request Completed!',
-        thankYouSubHeadline: 'You\'ll be receiving your home value details at your contact number shortly, thank you!',
-        buttonText: 'CHECK VALUE',
-        timeoutUnlockHeadline: 'HomeSurge ValueBoost Report Benefits:',
-        disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase that might be acheived by various home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes. By submitting your address, you agree to send address details and other available autofill information not displayed to HomeSurge.AI for the purpose of contacting you with your requested information. We respect your privacy and will never share your details with anyone. No spam ever.'
+    if (path.includes('/analysis/')) {
+      const pathParts = path.split('/');
+      if (pathParts[2]) {
+        routeCampaign = pathParts[2]; // cash, sell, value, buy, fsbo
       }
-    };
-    
-    // Default content if no campaign matches
-    const defaultContent = {
-      type: 'DEFAULT',
-      headline: 'Need to Sell Your House Extremely Fast?',
-      subHeadline: 'Get a great cash offer today. Close in 7 days. No showings, no repairs, no stress',
-      buttonText: 'CHECK OFFER',
-      thankYouHeadline: 'Request Completed!',
-      thankYouSubHeadline: 'You\'ll be receiving your requested details at your contact number shortly, thank you!',
-      timeoutUnlockHeadline: 'HomeSurge Cash Offer Benefits:',
-      disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase that might be acheived by various home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes. By submitting your address, you agree to send address details and other available autofill information not displayed to HomeSurge.AI for the purpose of contacting you with your requested information. We respect your privacy and will never share your details with anyone. No spam ever.'
-    };
-    
-    // Use passed variant or fallback to assigned variant
-    const variant = passedVariant || getAssignedVariant();
-    console.log('Split test variant being used:', variant);
-    
-    // Parse variant for step 1 (position 1-2) and step 3 (position 4-5)
-    // Format: A1IA1 = A1(step1) I(step2) A1(step3)
-    const step1Variant = variant.substring(0, 2);  // A1, A2, B1, or B2
-    const step2Control = variant.substring(2, 3);  // I or O
-    const step3Variant = variant.substring(3, 5);  // A1, A2, B1, or B2
-    
-    console.log('Variant breakdown:', {
-      full: variant,
-      step1: step1Variant,
-      step2: step2Control,
-      step3: step3Variant
-    });
-    
-    // Identify which template to use based on campaign name
-    let contentTemplate = null;
-    let templateType = 'DEFAULT'; // For debugging
-    
-    if (campaignName) {
-      // Clean the campaign name to handle any encoding issues or special characters
-      const cleanCampaignName = campaignName
-        .replace(/[^\x20-\x7E]/g, '') // Remove non-ASCII characters
-        .trim();                      // Remove leading/trailing whitespace
-      
-      // Simplify campaign name for matching (remove spaces, convert to lowercase)
-      const simplifiedCampaignName = cleanCampaignName.toLowerCase().replace(/[\s\-_\.]/g, '');
-      
-      // Log each step of the process 
-      console.log('Original campaign name:', campaignName);
-      console.log('Cleaned campaign name:', cleanCampaignName);
-      console.log('Simplified campaign name for matching:', simplifiedCampaignName);
-      
-      // Simple keyword checks on the simplified name 
-      const hasCash = simplifiedCampaignName.includes('cash');
-      const hasFast = simplifiedCampaignName.includes('fast');
-      const hasValue = simplifiedCampaignName.includes('value');
-       
-      console.log('Contains "cash":', hasCash);
-      console.log('Contains "fast":', hasFast);
-      console.log('Contains "value":', hasValue);
-       
-      // Simple, straightforward content selection by keyword in campaign name
-      // Priority: cash > value > fast (as requested)
-      if (hasCash) {
-        console.log('Campaign name contains "cash" - using CASH template');
-        contentTemplate = campaignTemplates.cash;
-        templateType = 'CASH';
-      } 
-      else if (hasValue) {
-        console.log('Campaign name contains "value" - using VALUE template');
-        contentTemplate = campaignTemplates.value;
-        templateType = 'VALUE';
-      } 
-      else if (hasFast) {
-        console.log('Campaign name contains "fast" - using FAST template');
-        contentTemplate = campaignTemplates.fast;
-        templateType = 'FAST';
-      } 
-      else {
-        // No keyword match
-        console.log('No matching keyword in campaign name - using default template');
-        contentTemplate = defaultContent;
-      }
-      
-      console.log('Selected template type:', templateType);
     } else {
-      // No campaign name at all
-      console.log('No campaign name available - using default template');
-      contentTemplate = defaultContent;
+      // Fallback: extract from campaign name
+      if (campaignName.toLowerCase().includes('sell')) routeCampaign = 'sell';
+      else if (campaignName.toLowerCase().includes('value')) routeCampaign = 'value';
+      else if (campaignName.toLowerCase().includes('buy')) routeCampaign = 'buy';
+      else if (campaignName.toLowerCase().includes('fsbo')) routeCampaign = 'fsbo';
+      else routeCampaign = 'cash';
     }
     
-    // If we still don't have a template, use default
-    if (!contentTemplate) {
-      console.log('No template match found - using default content');
-      contentTemplate = defaultContent;
-    }
+    // Get template from templateService (same as AddressForm)
+    const templateData = templateService.getTemplate(routeCampaign, variant);
+    console.log('FormContext: Got template data:', { templateData, routeCampaign, variant });
     
-    // Apply the selected template and update form state
-    console.log('Applying content template:', contentTemplate);
+    // Convert templateService format to FormContext format
+    const contentTemplate = {
+      type: routeCampaign.toUpperCase(),
+      headline: templateData.headline,
+      subHeadline: templateData.subheadline,
+      buttonText: templateData.buttonText,
+      thankYouHeadline: `${routeCampaign.charAt(0).toUpperCase() + routeCampaign.slice(1)} Request Completed!`,
+      thankYouSubHeadline: 'You\'ll be receiving your requested details at your contact number shortly, thank you!',
+      timeoutUnlockHeadline: templateData.contactHeadline || 'HomeSurge Benefits:',
+      disclaimer: templateData.disclaimerMain || '*Example values only. All numbers are for example only and are simply possible outcomes.'
+    };
     
-    // Create a summary of the decision process
-    console.log('Template selection summary:', {
-      campaignName,
-      matchedKeywords: {
-        cash: campaignName && campaignName.toLowerCase().includes('cash'),
-        fast: campaignName && campaignName.toLowerCase().includes('fast'),
-        value: campaignName && campaignName.toLowerCase().includes('value')
-      },
-      selectedTemplate: templateType
-    });
+    // Get passed variant or fallback to assigned variant  
+    const finalVariant = passedVariant || getAssignedVariant();
+    console.log('FormContext: Using variant:', finalVariant);
     
     setFormData(prevData => ({
       ...prevData,
       // Ensure campaign name is stored in form state
       campaign_name: campaignName || prevData.campaign_name,
-      // Set dynamic content
+      // Set dynamic content from templateService
       dynamicHeadline: contentTemplate.headline,
       dynamicSubHeadline: contentTemplate.subHeadline,
-      thankYouHeadline: contentTemplate.thankYouHeadline || 'Request Completed!',
-      thankYouSubHeadline: contentTemplate.thankYouSubHeadline || 'You\'ll be receiving your requested details at your contact number shortly, thank you!',
-      buttonText: contentTemplate.buttonText || 'CHECK OFFER',
-      templateType: templateType // Store template type for debugging
+      thankYouHeadline: contentTemplate.thankYouHeadline,
+      thankYouSubHeadline: contentTemplate.thankYouSubHeadline,
+      buttonText: contentTemplate.buttonText,
+      templateType: contentTemplate.type // Store template type for debugging
     }));
   };
   
