@@ -621,7 +621,7 @@ function ValueBoostReport({ campaign, variant }) {
             ×
           </button>
           <div className="vb-sticky-popup-message">
-            Let's see if your home qualifies to have these upgrades done <em>ABSOLUTELY FREE</em>! Give me a call or shoot me a text!
+            Let's see if your home qualifies to have these upgrades done <em>ABSOLUTELY FREE!</em>Give me a call or shoot me a text!
           </div>
           <div className="vb-sticky-popup-profile">
             <div className="vb-sticky-popup-image">
@@ -629,8 +629,9 @@ function ValueBoostReport({ campaign, variant }) {
             </div>
             <div className="vb-sticky-popup-info">
               <div className="vb-sticky-popup-name">Spencer Gritton</div>
-              <div className="vb-sticky-popup-title">Licensed Real Estate Agent</div>
               <div className="vb-sticky-popup-phone">(480) 519-0554</div>
+              <div className="vb-sticky-popup-title">Licensed Real Estate Agent</div>
+              
               <div className="vb-sticky-popup-agency">HomeSmart Realty Partners</div>
             </div>
           </div>
@@ -659,18 +660,16 @@ function ValueBoostReport({ campaign, variant }) {
         return;
       }
       
-      // Check if this is a headline (starts with caps, ends with colon, or is all caps section headers)
+      // Check if this is a headline (only major section headers, NOT numbered items)
       const isHeadline = (
-        // Section headers like "TOP IMPROVEMENT OPPORTUNITIES:"
-        /^[A-Z][A-Z\s]+:?\s*$/.test(trimmedLine) ||
+        // Section headers like "TOP IMPROVEMENT OPPORTUNITIES:" (all caps with colon)
+        /^[A-Z][A-Z\s]+:\s*$/.test(trimmedLine) ||
         // Report title
-        /^ValueBoost\s/i.test(trimmedLine) ||
+        /^ValueBoost\s+AI\s+Analysis\s+Report/i.test(trimmedLine) ||
         // Property Analysis header
         /^Property\s+Analysis:/i.test(trimmedLine) ||
-        // Other major section headers
-        /^(TOTAL\s+IMPROVEMENT|MARKET\s+STRATEGY|TOP\s+IMPROVEMENT)/i.test(trimmedLine) ||
-        // Numbered improvement items (1., 2., etc.)
-        /^\d+\.\s+[A-Z]/.test(trimmedLine)
+        // Other major section headers (all caps with optional colon)
+        /^(TOTAL\s+IMPROVEMENT\s+VALUE\s+CALCULATION|MARKET\s+STRATEGY\s+SUMMARY):\s*$/i.test(trimmedLine)
       );
       
       if (isHeadline) {
