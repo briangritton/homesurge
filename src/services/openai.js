@@ -21,79 +21,116 @@ function getOpenAIClient() {
 }
 
 /**
- * Generate an AI-enhanced ValueBoost report that enhances existing template recommendations
- * @param {Object} propertyContext - Property data from Melissa API
- * @param {Array} templateRecommendations - Generated template recommendations to enhance
+ * Generate a comprehensive AI ValueBoost report using complete property data
+ * @param {Object} melissaData - Complete Melissa API property data
  */
-export async function generateAIValueBoostReport(propertyContext, templateRecommendations = []) {
+export async function generateAIValueBoostReport(melissaData) {
   try {
-    console.log('🤖 Starting OpenAI ValueBoost report generation...');
+    console.log('🤖 Starting comprehensive OpenAI ValueBoost report generation...');
     
-    const { address, estimatedValue, bedrooms, bathrooms, squareFootage, potentialIncrease, upgradesNeeded } = propertyContext;
+    if (!melissaData || !melissaData.propertyRecord) {
+      throw new Error('No property data provided for AI analysis');
+    }
+
+    const record = melissaData.propertyRecord;
+    const address = record.PropertyAddress?.Address + ', ' + record.PropertyAddress?.City + ', ' + record.PropertyAddress?.State;
     
     const formattedValue = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
-    }).format(estimatedValue || 0);
+    }).format(melissaData.apiEstimatedValue || 0);
 
-    const formattedIncrease = new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(potentialIncrease || 0);
+    // Extract top 20 most relevant property details for AI analysis
+    const propertyAge = new Date().getFullYear() - parseInt(record.PropertyUseInfo?.YearBuilt || 1980);
+    const hasBasement = parseInt(record.PropertySize?.BasementArea || 0) > 0;
+    const basementFinished = parseInt(record.PropertySize?.BasementAreaFinished || 0) > 0;
+    const hasFireplace = record.IntAmenities?.Fireplace === 'Yes';
+    const hasPorch = record.ExtAmenities?.PorchCode === 'Porch';
+    const porchSize = parseInt(record.ExtAmenities?.PorchArea || 0);
+    const lotSize = parseFloat(record.PropertySize?.AreaLotAcres || 0);
 
-    // Create template recommendations summary for AI enhancement
-    const templateSummary = templateRecommendations.length > 0 
-      ? templateRecommendations.map((rec, index) => 
-          `${index + 1}. ${rec.strategy} (${rec.costEstimate}) - ${rec.description} - Expected ROI: ${rec.roiEstimate}`
-        ).join('\n')
-      : 'No template recommendations provided';
+    // Enhanced prompt with comprehensive property data
+    const prompt = `You are a professional real estate improvement analyst creating a comprehensive ValueBoost report. Analyze this property data and provide specific, actionable improvement recommendations with realistic costs and ROI calculations.
 
-    // Enhanced prompt that personalizes template recommendations
-    const prompt = `You are a professional real estate improvement analyst creating a personalized ValueBoost report. Based on the property data and template recommendations provided, enhance and personalize the content.
-
-PROPERTY DATA:
+PROPERTY DETAILS:
 - Address: ${address}
 - Current Estimated Value: ${formattedValue}
-- Potential Value Increase: ${formattedIncrease}
-- Bedrooms: ${bedrooms || 'Not specified'}
-- Bathrooms: ${bathrooms || 'Not specified'}
-- Square Footage: ${squareFootage || 'Not specified'}
-- Upgrades Needed (1-10 scale): ${upgradesNeeded || 'Not specified'}
+- Year Built: ${record.PropertyUseInfo?.YearBuilt || 'Unknown'} (${propertyAge} years old)
+- Square Footage: ${record.PropertySize?.AreaBuilding || 'Unknown'} sq ft
+- Bedrooms: ${record.IntRoomInfo?.BedroomsCount || 'Unknown'}
+- Bathrooms: ${record.IntRoomInfo?.BathCount || 'Unknown'} full, ${record.IntRoomInfo?.BathPartialCount || 0} partial
+- Stories: ${record.IntRoomInfo?.StoriesCount || 'Unknown'}
+- Construction: ${record.IntStructInfo?.Construction || 'Unknown'}
+- Exterior Material: ${record.ExtStructInfo?.Exterior1Code || 'Unknown'}
+- Roof Material: ${record.ExtStructInfo?.RoofMaterial || 'Unknown'}
+- Architectural Style: ${record.ExtStructInfo?.StructureStyle || 'Unknown'}
+- Heating System: ${record.Utilities?.HVACHeatingDetail || 'Unknown'} (${record.Utilities?.HVACHeatingFuel || 'Unknown'})
+- Garage: ${record.PropertySize?.ParkingGarage || 'Unknown'} (${record.Parking?.ParkingSpaceCount || 0} spaces)
+- Basement: ${hasBasement ? `Yes, ${record.PropertySize?.BasementArea} sq ft` : 'No'} ${basementFinished ? '(Finished)' : hasBasement ? '(Unfinished)' : ''}
+- Fireplace: ${hasFireplace ? 'Yes' : 'No'}
+- Porch: ${hasPorch ? `Yes, ${porchSize} sq ft` : 'No'}
+- Lot Size: ${lotSize} acres (${record.PropertySize?.AreaLotSF || 'Unknown'} sq ft)
+- Topography: ${record.YardGardenInfo?.TopographyCode || 'Unknown'}
+- Market Value: ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(record.Tax?.MarketValueTotal || 0)} (Tax Assessment)
+- Confidence Score: ${record.EstimatedValue?.ConfidenceScore || 'Unknown'}%
 
-TEMPLATE RECOMMENDATIONS TO ENHANCE:
-${templateSummary}
+ANALYSIS REQUIREMENTS:
+1. Consider the property's age (${propertyAge} years) when recommending improvements
+2. Factor in the ${record.ExtStructInfo?.Exterior1Code || 'unknown'} exterior and ${record.ExtStructInfo?.StructureStyle || 'unknown'} style
+3. Address the ${record.Utilities?.HVACHeatingDetail || 'unknown'} heating system efficiency
+4. ${hasBasement && !basementFinished ? 'Evaluate basement finishing potential' : ''}
+5. Consider lot size (${lotSize} acres) for outdoor improvements
+6. Provide specific cost estimates based on the ${formattedValue} home value tier
+7. Calculate realistic ROI percentages for each recommendation
+
+ENHANCED MARKET & INVESTMENT ANALYSIS:
+8. Analyze recent sale trends - Last sold ${record.SaleInfo?.DeedLastSaleDate ? new Date(record.SaleInfo.DeedLastSaleDate.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3')).getFullYear() : 'Unknown'} for ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(record.SaleInfo?.DeedLastSalePrice || 0)} vs current ${formattedValue}
+9. Consider tax assessment gap - Market value ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(record.Tax?.MarketValueTotal || 0)} vs estimated ${formattedValue}
+10. Factor in ${record.PropertyAddress?.City || 'local'}, ${record.PropertyAddress?.State || ''} market conditions and ${record.Parcel?.CBSAName || 'metro area'} trends
+11. Owner-occupied property - prioritize livability improvements alongside ROI
+12. High equity position (${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(melissaData.apiEquity || 0)}) enables larger investment opportunities
+13. Multi-story layout (${record.IntRoomInfo?.StoriesCount || 'multi-level'}) creates vertical space optimization potential
+14. Large lot (${lotSize} acres) offers significant outdoor development and landscaping value-add opportunities
+15. ${record.IntStructInfo?.Construction || 'Current'} construction requires material-specific improvement approaches
+16. Georgia climate considerations for energy efficiency and seasonal optimization improvements
+17. ${record.Utilities?.HVACHeatingFuel || 'Current'} heating system and utility cost reduction strategies
+18. Confidence score of ${record.EstimatedValue?.ConfidenceScore || 'Unknown'}% suggests ${parseInt(record.EstimatedValue?.ConfidenceScore || 0) > 85 ? 'reliable' : 'moderate'} ROI prediction accuracy
 
 REQUIRED OUTPUT FORMAT (follow this structure exactly):
 
 ValueBoost AI Analysis Report
 
-[PERSONALIZED INTRODUCTION: Write a warm, personalized introduction that explains this is their custom ValueBoost/OfferBoost report. Reference their specific property at ${address} and mention that you've analyzed their ${bedrooms ? bedrooms + '-bedroom' : ''} ${bathrooms ? bathrooms + '-bathroom' : ''} home worth ${formattedValue}. Explain that the AI has identified specific opportunities to potentially increase their home's value by ${formattedIncrease}. Make it personal and welcoming.]
+[PERSONALIZED INTRODUCTION: Write a warm, personalized introduction explaining this is their custom property analysis. Reference specific details like the ${propertyAge}-year-old ${record.ExtStructInfo?.StructureStyle || 'home'} with ${record.ExtStructInfo?.Exterior1Code || 'exterior'} exterior. Mention analyzing their ${record.IntRoomInfo?.BedroomsCount || 'multi'}-bedroom, ${record.IntRoomInfo?.BathCount || 'multi'}-bathroom home worth ${formattedValue}. Keep it personal and professional.]
 
-Property: ${address}
+Property Analysis: ${address}
 Current Estimated Value: ${formattedValue}
-Potential Value Increase: ${formattedIncrease}
+Year Built: ${record.PropertyUseInfo?.YearBuilt || 'Unknown'} (${propertyAge} years old)
+Property Type: ${record.ExtStructInfo?.StructureStyle || 'Residential'} with ${record.ExtStructInfo?.Exterior1Code || 'Standard'} exterior
 
-AI-ENHANCED RECOMMENDATIONS:
+TOP IMPROVEMENT OPPORTUNITIES:
 
-[Take the template recommendations above and enhance each one with specific, personalized details for this property. Keep the same general categories but make them more specific to the property's characteristics, location, and value range. Add property-specific insights and local market considerations.]
+[Generate 5-7 specific improvement recommendations based on the property details provided. Consider:
+- Age-appropriate upgrades for a ${propertyAge}-year-old home
+- Exterior material maintenance/enhancement for ${record.ExtStructInfo?.Exterior1Code || 'the current'} exterior
+- HVAC efficiency improvements for the ${record.Utilities?.HVACHeatingDetail || 'current'} system
+- ${hasBasement && !basementFinished ? 'Basement finishing opportunity with ' + record.PropertySize?.BasementArea + ' sq ft of space' : ''}
+- ${hasPorch ? 'Porch enhancement/expansion options with current ' + porchSize + ' sq ft' : 'Outdoor living space additions'}
+- Kitchen and bathroom modernization appropriate for the home's value tier
+- Energy efficiency improvements for a ${propertyAge}-year-old home
 
-[MARKET STRATEGY SUMMARY: End with a brief paragraph about the local market conditions and overall strategy for maximizing value on this specific property.]
+For each recommendation, provide:
+- Specific improvement description
+- Estimated cost range
+- Expected ROI percentage
+- Implementation timeline
+- Why this improvement makes sense for THIS specific property]
 
-INSTRUCTIONS:
-- Enhance and personalize the template recommendations provided above
-- Keep the same general improvement categories but add specific details
-- Reference the property's specific characteristics (bedrooms, bathrooms, square footage, value range)
-- Add insights about the local market for properties in this value range
-- Make cost estimates more specific to the property's value tier
-- Provide property-specific implementation tips
-- Keep the professional tone but make it personal to their home
-- The introduction should feel like it was written specifically for this homeowner
+MARKET STRATEGY SUMMARY:
+[Brief paragraph about maximizing value for this specific property type, age, and location. Consider the home's ${formattedValue} value tier and ${record.PropertyAddress?.City}, ${record.PropertyAddress?.State} market.]
 
-Be insightful and specific while enhancing the existing template structure.`;
+Make every recommendation specific to the property's actual characteristics, age, and features.`;
 
     const openaiClient = getOpenAIClient();
     const completion = await openaiClient.chat.completions.create({
@@ -128,70 +165,102 @@ Be insightful and specific while enhancing the existing template structure.`;
     console.error('❌ Error generating OpenAI ValueBoost report:', error);
     
     // Return fallback template if OpenAI fails
-    return generateFallbackReport(propertyContext);
+    return generateFallbackReport(melissaData);
   }
 }
 
 /**
  * Fallback template report in case OpenAI fails
- * Uses the original template structure
+ * Uses property-specific data when available
  */
-function generateFallbackReport(propertyContext) {
-  console.log('🔄 Using fallback template report');
+function generateFallbackReport(melissaData) {
+  console.log('🔄 Using fallback template report with property data');
   
-  const { address, estimatedValue, bedrooms, bathrooms, squareFootage, potentialIncrease, upgradesNeeded } = propertyContext;
-  
+  if (!melissaData || !melissaData.propertyRecord) {
+    return generateBasicFallbackReport();
+  }
+
+  const record = melissaData.propertyRecord;
+  const address = record.PropertyAddress?.Address + ', ' + record.PropertyAddress?.City + ', ' + record.PropertyAddress?.State;
+  const propertyAge = new Date().getFullYear() - parseInt(record.PropertyUseInfo?.YearBuilt || 1980);
+  const hasBasement = parseInt(record.PropertySize?.BasementArea || 0) > 0;
+  const basementFinished = parseInt(record.PropertySize?.BasementAreaFinished || 0) > 0;
+
   const formattedValue = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0
-  }).format(estimatedValue || 0);
-
-  const formattedIncrease = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(potentialIncrease || 0);
+  }).format(melissaData.apiEstimatedValue || 0);
 
   return `ValueBoost AI Analysis Report
 
-Welcome to your personalized ValueBoost report for ${address}! This AI-powered analysis has been specifically tailored to your unique property characteristics to identify the most effective opportunities for increasing your home's value. Using advanced market data and proven renovation strategies, we've compiled strategic recommendations that are optimized for your specific property type and location.
+Welcome to your personalized property analysis for your ${propertyAge}-year-old ${record.ExtStructInfo?.StructureStyle || 'home'} at ${address}. Based on comprehensive analysis of your ${record.IntRoomInfo?.BedroomsCount || ''}-bedroom, ${record.IntRoomInfo?.BathCount || ''}-bathroom property worth ${formattedValue}, we've identified strategic improvement opportunities tailored to your home's specific characteristics.
 
-Property: ${address}
+Property Analysis: ${address}
 Current Estimated Value: ${formattedValue}
-Potential Value Increase: ${formattedIncrease}
+Year Built: ${record.PropertyUseInfo?.YearBuilt || 'Unknown'} (${propertyAge} years old)
+Property Type: ${record.ExtStructInfo?.StructureStyle || 'Residential'} with ${record.ExtStructInfo?.Exterior1Code || 'Standard'} exterior
 
-TOP RECOMMENDATIONS FOR MAXIMUM ROI:
+TOP IMPROVEMENT OPPORTUNITIES:
+
+1. Kitchen Modernization ($${propertyAge > 20 ? '18,000-30,000' : '12,000-22,000'})
+   - Age-appropriate cabinet updates for ${propertyAge}-year-old home
+   - Countertop upgrade to match property value tier
+   - Energy-efficient appliance package
+   Expected ROI: ${propertyAge > 30 ? '85-90%' : '75-80%'}
+
+2. ${record.ExtStructInfo?.Exterior1Code === 'Brick' ? 'Brick Maintenance & Enhancement' : 'Exterior Upgrade'} ($${record.ExtStructInfo?.Exterior1Code === 'Brick' ? '3,000-8,000' : '8,000-15,000'})
+   - ${record.ExtStructInfo?.Exterior1Code || 'Exterior'} specific maintenance and improvements
+   - ${record.ExtStructInfo?.StructureStyle || 'Architectural'} style enhancements
+   Expected ROI: 70-75%
+
+3. HVAC System ${propertyAge > 25 ? 'Replacement' : 'Optimization'} ($${propertyAge > 25 ? '8,000-15,000' : '3,000-8,000'})
+   - ${record.Utilities?.HVACHeatingDetail || 'Current'} system ${propertyAge > 25 ? 'replacement' : 'efficiency improvements'}
+   - ${record.Utilities?.HVACHeatingFuel || 'Energy'} efficiency upgrades
+   Expected ROI: ${propertyAge > 25 ? '65-70%' : '50-60%'}
+
+${hasBasement && !basementFinished ? `4. Basement Finishing Opportunity ($15,000-35,000)
+   - Transform ${record.PropertySize?.BasementArea || 'basement'} sq ft of unfinished space
+   - Additional living/recreation area
+   - Significant square footage value addition
+   Expected ROI: 60-75%
+
+` : ''}4. Bathroom ${propertyAge > 30 ? 'Renovation' : 'Updates'} ($${propertyAge > 30 ? '12,000-20,000' : '6,000-12,000'})
+   - Age-appropriate fixture and finish updates
+   - ${record.IntRoomInfo?.BathPartialCount > 0 ? 'Consider powder room enhancement' : 'Modern functionality improvements'}
+   Expected ROI: 70-80%
+
+5. Energy Efficiency Package ($4,000-12,000)
+   - ${propertyAge}-year-old home specific efficiency improvements
+   - Insulation and weatherization upgrades
+   - Smart home technology integration
+   Expected ROI: 50-65%
+
+This analysis considers your property's ${propertyAge}-year age, ${record.ExtStructInfo?.StructureStyle || 'architectural'} style, and ${record.PropertyAddress?.City}, ${record.PropertyAddress?.State} market conditions.`;
+}
+
+/**
+ * Basic fallback when no property data is available
+ */
+function generateBasicFallbackReport() {
+  return `ValueBoost AI Analysis Report
+
+We're preparing your personalized property analysis. While we gather comprehensive data about your home, here are general improvement opportunities that typically provide strong returns on investment:
+
+TOP IMPROVEMENT OPPORTUNITIES:
 
 1. Kitchen Modernization ($15,000-25,000)
-   - Update cabinets with soft-close hardware
-   - Install quartz countertops
-   - Upgrade to stainless steel appliances
    Expected ROI: 80-85%
 
 2. Bathroom Renovation ($8,000-15,000)
-   - Modern vanity and fixtures
-   - Tile shower upgrade
-   - Improved lighting and ventilation
    Expected ROI: 70-75%
 
-3. Flooring Enhancement ($5,000-12,000)
-   - Luxury vinyl plank or hardwood
-   - Consistent flooring throughout main areas
+3. Exterior Improvements ($5,000-12,000)
    Expected ROI: 65-70%
 
-4. Exterior Curb Appeal ($3,000-8,000)
-   - Fresh paint (exterior)
-   - Landscaping improvements
-   - Front door and hardware upgrade
-   Expected ROI: 60-70%
-
-5. HVAC System Optimization ($4,000-10,000)
-   - Energy-efficient HVAC upgrade
-   - Smart thermostat installation
+4. HVAC Optimization ($4,000-10,000)
    Expected ROI: 50-60%
 
-This analysis is based on current market conditions, comparable sales, and proven value-add strategies for your area.`;
+Please provide your property details for a more specific analysis.`;
 }

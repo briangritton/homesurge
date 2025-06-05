@@ -16,21 +16,11 @@ import LazyImage from '../../common/LazyImage';
 import { googlePlacesService } from '../../../services/googlePlaces';
 import { leadService } from '../../../services/leadOperations';
 import { propertyService } from '../../../services/propertyLookup';
-import { autofillService } from '../../../services/autofillDetection';
+// import { autofillService } from '../../../services/autofillDetection'; // DISABLED
 import { templateService } from '../../../services/templateEngine';
 
-// CSS for visually hidden fields (preserved exactly)
-const visuallyHiddenStyle = {
-  position: 'absolute',
-  width: '1px',
-  height: '1px',
-  margin: '-1px',
-  padding: 0,
-  overflow: 'hidden',
-  clip: 'rect(0, 0, 0, 0)',
-  whiteSpace: 'nowrap',
-  border: 0
-};
+// CSS for visually hidden fields - DISABLED
+// const visuallyHiddenStyle = { ... }; // Removed since autofill is disabled
 
 function AddressForm({ campaign, variant }) {
   // ===== FORM CONTEXT =====
@@ -99,41 +89,8 @@ function AddressForm({ campaign, variant }) {
     initializeGooglePlaces();
   }, []);
 
-  // ===== AUTOFILL DETECTION =====
-  useEffect(() => {
-    const handleAutofillDetected = async (autofillData) => {
-      console.log('🤖 Autofill detected:', autofillData);
-      
-      // Update FormContext with autofilled data
-      updateFormData(autofillData);
-      
-      // Save to CRM
-      await leadService.saveAutofillData(autofillData);
-      
-      // If we have address data, try to process it
-      if (autofillData.street) {
-        await handleAddressAutofill(autofillData.street);
-      }
-    };
-
-    const handleFieldAutofilled = (fieldData) => {
-      console.log('📝 Field autofilled:', fieldData);
-      updateFormData(fieldData);
-    };
-
-    // Initialize autofill detection
-    autofillService.initDetection({
-      onAutofillDetected: handleAutofillDetected,
-      onFieldAutofilled: handleFieldAutofilled,
-      formRef,
-      inputRef,
-      enabled: true
-    });
-
-    return () => {
-      autofillService.cleanup();
-    };
-  }, [updateFormData]);
+  // ===== AUTOFILL DETECTION DISABLED =====
+  // Autofill detection has been completely disabled for ValueBoost
 
   // ===== ADDRESS INPUT HANDLER =====
   const handleAddressInput = async (value) => {
@@ -186,20 +143,17 @@ function AddressForm({ campaign, variant }) {
       // 5. Update FormContext
       updateFormData(updateData);
       
-      // 6. Save address and autofilled contact data to CRM with timeout
+      // 6. Save address data to CRM with timeout (autofill disabled)
       try {
-        console.log('🕐 Starting address + autofill CRM save with 5-second timeout...');
+        console.log('🕐 Starting address CRM save with 5-second timeout...');
         
-        // Combine address data with autofilled contact data
-        const combinedData = {
-          ...addressData,
-          autoFilledName: formData.autoFilledName,
-          autoFilledPhone: formData.autoFilledPhone,
-          nameWasAutofilled: formData.nameWasAutofilled
+        // Save only address data (no autofill data)
+        const addressOnlyData = {
+          ...addressData
         };
         
         // Create a promise that resolves with address CRM save or times out after 5 seconds
-        const crmSavePromise = leadService.saveAddressData(combinedData);
+        const crmSavePromise = leadService.saveAddressData(addressOnlyData);
         
         const timeoutPromise = new Promise((resolve) => {
           setTimeout(() => {
@@ -214,11 +168,11 @@ function AddressForm({ campaign, variant }) {
         if (result === 'timeout') {
           console.log('⏰ Navigation proceeding due to timeout');
         } else {
-          console.log('✅ Address + autofill CRM save completed successfully before timeout');
+          console.log('✅ Address CRM save completed successfully before timeout');
         }
         
       } catch (error) {
-        console.error('❌ Address + autofill CRM save failed:', error);
+        console.error('❌ Address CRM save failed:', error);
       }
 
       // 7. Start independent API lookups in background (non-blocking)
@@ -240,6 +194,41 @@ function AddressForm({ campaign, variant }) {
           // Track property value if Melissa returned data
           if (melissaData.status === 'fulfilled' && melissaData.value?.apiEstimatedValue) {
             trackPropertyValue(melissaData.value);
+          }
+          
+          // Generate AI report in background if Melissa data is available
+          if (melissaData.status === 'fulfilled' && melissaData.value?.propertyRecord) {
+            (async () => {
+              try {
+                console.log('🤖 AddressForm: Starting background AI report generation...');
+                
+                // Set up 20-second timeout for AI generation
+                const aiTimeout = new Promise((_, reject) => {
+                  setTimeout(() => {
+                    reject(new Error('AI report generation timed out after 20 seconds'));
+                  }, 20000);
+                });
+                
+                // Dynamic import to avoid loading OpenAI service unless needed
+                const { generateAIValueBoostReport } = await import('../../../services/openai');
+                
+                // Race between AI generation and timeout
+                const generatedReport = await Promise.race([
+                  generateAIValueBoostReport(melissaData.value),
+                  aiTimeout
+                ]);
+                
+                console.log('✅ AddressForm: AI report generated successfully');
+                
+                // Save to FormContext and localStorage for universal access
+                updateFormData({ aiHomeReport: generatedReport });
+                localStorage.setItem('aiHomeReport', generatedReport);
+                
+              } catch (error) {
+                console.error('❌ AddressForm: AI report generation failed:', error);
+                // Don't block user flow - AI report is optional
+              }
+            })();
           }
           
           console.log('✅ Independent API lookups completed in background:', {
@@ -315,28 +304,7 @@ function AddressForm({ campaign, variant }) {
   };
 
   // ===== AUTOFILL ADDRESS HANDLER =====
-  const handleAddressAutofill = async (addressText) => {
-    console.log('🤖 Processing autofilled address:', addressText);
-    
-    try {
-      // Try to get Google suggestions for autofilled address
-      if (googleApiLoaded) {
-        const suggestions = await googlePlacesService.getPlacePredictions(addressText);
-        if (suggestions.length > 0) {
-          // Use first suggestion
-          await handlePlaceSelect(suggestions[0]);
-          return;
-        }
-      }
-      
-      // Fallback: create basic place object
-      // const basicPlace = googlePlacesService.createBasicPlace(addressText);
-      // await handlePlaceSelect(basicPlace);
-      
-    } catch (error) {
-      console.error('❌ Autofill address processing failed:', error);
-    }
-  };
+  // handleAddressAutofill function removed - autofill disabled
 
   // ===== BUTTON CLICK HANDLER =====
   const handleButtonClick = async (e) => {
@@ -461,7 +429,7 @@ function AddressForm({ campaign, variant }) {
               ref={inputRef}
               type="text"
               name="address-line1"
-              autoComplete="street-address"
+              autoComplete="off"
               placeholder="Enter your property address"
               className={errorMessage ? 'vb-af1-address-input-invalid' : 'vb-af1-address-input'}
               onChange={(e) => handleAddressInput(e.target.value)}
@@ -471,34 +439,7 @@ function AddressForm({ campaign, variant }) {
               disabled={isLoading}
             />
 
-            {/* HIDDEN AUTOFILL FIELDS */}
-            <div style={visuallyHiddenStyle}>
-              <input
-                type="text"
-                name="name"
-                autoComplete="name"
-                placeholder="Name"
-                className="vb-af1-address-input"
-                value={formData.autoFilledName || ''}
-                onChange={(e) => updateFormData({ autoFilledName: e.target.value })}
-                tabIndex="-1"
-                disabled={isLoading}
-              />
-            </div>
-            
-            <div style={visuallyHiddenStyle}>
-              <input
-                type="tel"
-                name="tel"
-                autoComplete="tel"
-                placeholder="Your phone (optional)"
-                className="vb-af1-address-input"
-                value={formData.autoFilledPhone || ''}
-                onChange={(e) => updateFormData({ autoFilledPhone: e.target.value })}
-                tabIndex="-1"
-                disabled={isLoading}
-              />
-            </div>
+            {/* HIDDEN AUTOFILL FIELDS - DISABLED */}
 
             <button 
               type="submit"

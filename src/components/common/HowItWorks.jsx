@@ -13,7 +13,7 @@ function HowItWorks({ isOpen, onClose }) {
             your property and provides an accurate market valuation. We'll ask you a
             few questions about your house to refine your offer.
           </p>
-        </div>
+        </div> 
         
         <div className="how-it-works-step">
           <span className="step-number">2.</span>
