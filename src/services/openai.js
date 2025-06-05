@@ -245,17 +245,26 @@ ANALYSIS REQUIREMENTS:
 5. Consider lot size (${lotSize} acres) for outdoor improvements
 6. Provide specific cost estimates based on the ${formattedValue} home value tier
 7. Calculate realistic ROI percentages for each recommendation
+8. IMPORTANT: Calculate the total potential value increase by adding up all recommendation values
 
 REQUIRED OUTPUT FORMAT:
 ValueBoost AI Analysis Report
 
-[PERSONALIZED INTRODUCTION: Reference the ${propertyAge}-year-old ${record.ExtStructInfo?.StructureStyle || 'home'} with ${record.ExtStructInfo?.Exterior1Code || 'exterior'} exterior worth ${formattedValue}]
+[PERSONALIZED INTRODUCTION: 
+If architectural style and exterior details are available, use: "Let's cover your ValueBoost potential for your ${propertyAge}-year-old ${record.ExtStructInfo?.StructureStyle || 'home'} at ${address} with ${record.ExtStructInfo?.Exterior1Code || 'standard'} exterior, currently valued at ${formattedValue}."
+
+If architectural style OR exterior details are missing/unknown/not classified, use this simplified version instead: "Let's cover your ValueBoost potential improvements for ${address}!"
+
+Do NOT use phrases like "As you already know" or mention "not explicitly classified" or "not classified" - keep it positive and straightforward.]
 
 Property Analysis: ${address}
 Current Estimated Value: ${formattedValue}
 
 TOP IMPROVEMENT OPPORTUNITIES:
 [Generate 5-7 specific improvement recommendations with costs, ROI, and timelines]
+
+TOTAL IMPROVEMENT VALUE CALCULATION:
+[Add up all the recommended improvement costs and calculate the total potential value increase. Format as: "Total Investment Required: $XX,XXX" and "Total Potential Value Increase: $XX,XXX"]
 
 MARKET STRATEGY SUMMARY:
 [Brief paragraph about maximizing value for this property type and location]`;

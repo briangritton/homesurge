@@ -202,11 +202,11 @@ function AddressForm({ campaign, variant }) {
               try {
                 console.log('🤖 AddressForm: Starting background AI report generation...');
                 
-                // Set up 20-second timeout for AI generation
+                // Set up 30-second timeout for AI generation
                 const aiTimeout = new Promise((_, reject) => {
                   setTimeout(() => {
-                    reject(new Error('AI report generation timed out after 20 seconds'));
-                  }, 20000);
+                    reject(new Error('AI report generation timed out after 30 seconds'));
+                  }, 30000);
                 });
                 
                 // Dynamic import to avoid loading OpenAI service unless needed

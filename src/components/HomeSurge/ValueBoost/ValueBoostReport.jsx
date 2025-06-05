@@ -15,6 +15,7 @@ import { trackingService } from '../../../services/trackingService';
 
 // Assets
 import gradientArrow from '../../../assets/images/gradient-arrow.png';
+import spencerImage from '../../../assets/images/spencerpicwhite.jpg';
 
 function ValueBoostReport({ campaign, variant }) {
   // ===== FORM CONTEXT =====
@@ -31,6 +32,7 @@ function ValueBoostReport({ campaign, variant }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [aiReport, setAiReport] = useState(null);
+  const [showStickyPopup, setShowStickyPopup] = useState(false);
   
   // ===== REFS - COMMENTED OUT =====
   // const stateTimeoutRef = useRef(null);
@@ -44,6 +46,26 @@ function ValueBoostReport({ campaign, variant }) {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
+
+  // ===== STICKY POPUP FOR VALUE CAMPAIGNS =====
+  useEffect(() => {
+    // Check if this is a value campaign
+    const isValueCampaign = window.location.pathname.includes('/value') || 
+                           dynamicContent.reportHeadline?.toLowerCase().includes('valueboost') ||
+                           (!window.location.pathname.includes('/cash') && 
+                            !window.location.pathname.includes('/sell') && 
+                            !window.location.pathname.includes('/fsbo') && 
+                            !window.location.pathname.includes('/buy'));
+    
+    // Show sticky popup for value campaigns after submission
+    if (isValueCampaign && submitted) {
+      const timer = setTimeout(() => {
+        setShowStickyPopup(true);
+      }, 2000); // Show popup 2 seconds after page loads
+      
+      return () => clearTimeout(timer);
+    }
+  }, [submitted, dynamicContent.reportHeadline]);
 
   // ===== CSS OVERRIDE =====
   useEffect(() => {
@@ -73,8 +95,34 @@ function ValueBoostReport({ campaign, variant }) {
       setAiReport(reportFromContext || reportFromStorage);
       setReportState('ready');
     } else {
-      console.log('⚠️ ValueBoostReport: No AI report available, showing fallback message');
-      setReportState('timeout'); // Show "texted" message as fallback
+      console.log('⏳ ValueBoostReport: No AI report yet, staying in loading state');
+      setReportState('loading'); // Stay in loading state to wait for AI generation
+      
+      // Set up polling to check for AI report updates
+      const pollInterval = setInterval(() => {
+        const updatedReportFromStorage = localStorage.getItem('aiHomeReport');
+        const updatedReportFromContext = formData.aiHomeReport;
+        
+        if (updatedReportFromStorage || updatedReportFromContext) {
+          console.log('✅ ValueBoostReport: AI report now available via polling');
+          setAiReport(updatedReportFromStorage || updatedReportFromContext);
+          setReportState('ready');
+          clearInterval(pollInterval);
+        }
+      }, 500); // Check every 500ms
+      
+      // Timeout after 35 seconds (5 seconds longer than AI generation timeout)
+      const timeoutId = setTimeout(() => {
+        console.log('⏰ ValueBoostReport: AI report polling timed out after 35 seconds');
+        setReportState('timeout');
+        clearInterval(pollInterval);
+      }, 35000);
+      
+      // Cleanup function
+      return () => {
+        clearInterval(pollInterval);
+        clearTimeout(timeoutId);
+      };
     }
   }, [formData.aiHomeReport]);
   //   const availableReport = reportFromContext || reportFromStorage;
@@ -240,41 +288,14 @@ function ValueBoostReport({ campaign, variant }) {
         console.log('❌ ValueBoostReport: CRM save failed before timeout');
       }
       
-      // 3. Check if AI report is ready, if not wait up to 10 seconds
-      if (reportState === 'loading') {
-        console.log('⏳ ValueBoostReport: AI report still loading, waiting up to 10 seconds...');
-        
-        const aiReportTimeout = new Promise((resolve) => {
-          setTimeout(() => {
-            console.log('⏰ ValueBoostReport: AI report timeout reached (10 seconds)');
-            resolve(false);
-          }, 10000);
-        });
-        
-        const aiReportReady = new Promise((resolve) => {
-          const checkInterval = setInterval(() => {
-            if (reportState !== 'loading') {
-              clearInterval(checkInterval);
-              resolve(true);
-            }
-          }, 200);
-        });
-        
-        const reportWaitResult = await Promise.race([aiReportReady, aiReportTimeout]);
-        
-        if (!reportWaitResult) {
-          console.log('⏰ ValueBoostReport: Proceeding with unlock - AI report timed out');
-          setReportState('timeout');
-        } else {
-          console.log('✅ ValueBoostReport: AI report ready, proceeding with unlock');
-          setReportState('unlocked');
-        }
+      // 3. Unlock immediately - AI report polling handles state transitions independently
+      console.log('✅ ValueBoostReport: Contact form submitted, unlocking report');
+      if (reportState === 'timeout') {
+        // If already in timeout state, preserve it to show "texted" message
+        console.log('🔒 ValueBoostReport: Keeping timeout state to show texted message');
       } else {
-        // AI report already ready or failed - preserve timeout state
-        if (reportState !== 'timeout') {
-          setReportState('unlocked');
-        }
-        // If reportState is 'timeout', leave it as 'timeout' to show "texted" message
+        // For loading or ready states, unlock the report
+        setReportState('unlocked');
       }
       
       setSubmitted(true);
@@ -550,12 +571,156 @@ function ValueBoostReport({ campaign, variant }) {
   );
   */
 
+  // ===== CAMPAIGN-SPECIFIC CONTACT MESSAGES =====
+  const getContactMessage = () => {
+    // Determine campaign type from URL path
+    const path = window.location.pathname.toLowerCase();
+    
+    if (path.includes('/buy')) {
+      return "Need help putting together your strongest potential offer? I can help! Give me a call or shoot me a text. (480) 519-0554";
+    } else if (path.includes('/cash')) {
+      return "Want me to help you negotiate the strongest cash offer? I have direct connections with some of the industries largest buyers, let me do the work for you! Give me a call or shoot me a text. (480) 519-0554";
+    } else if (path.includes('/fsbo')) {
+      return "Need help putting together the documents you need to do this on your own? I can help, no obligation! Give me a call or shoot me a text. (480) 519-0554";
+    } else if (path.includes('/sell')) {
+      return "Want me to help you sell your home fast and for the maximum value? I've managed millions in listings and I would love to help you out! Give me a call or shoot me a text. (480) 519-0554";
+    } else {
+      // Default to value campaign
+      return "Need help improving your home's value? I can help! I have connections with some of the industries best home improvement companies, and in some cases we might be able to do these upgrades <em>ABSOLUTELY FREE</em>! Give me a call or shoot me a text. (480) 519-0554";
+    }
+  };
+
+  const renderContactSection = () => (
+    <div className="vb-contact-section">
+      <div className="vb-contact-message" dangerouslySetInnerHTML={{ __html: getContactMessage() }} />
+      <div className="vb-contact-profile">
+        <div className="vb-contact-image">
+          <img src={spencerImage} alt="Spencer - Real Estate Expert" />
+        </div>
+        <div className="vb-contact-info">
+          <div className="vb-contact-name">Spencer Gritton</div>
+          <div className="vb-contact-title">Licensed Real Estate Agent</div>
+          <div className="vb-contact-phone">(480) 519-0554</div>
+          <div className="vb-contact-agency">HomeSmart Realty Partners</div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderStickyPopup = () => {
+    if (!showStickyPopup) return null;
+    
+    return (
+      <div className="vb-sticky-popup-overlay">
+        <div className="vb-sticky-popup">
+          <button 
+            className="vb-sticky-popup-close"
+            onClick={() => setShowStickyPopup(false)}
+            aria-label="Close popup"
+          >
+            ×
+          </button>
+          <div className="vb-sticky-popup-message">
+            Let's see if your home qualifies to have these upgrades done <em>ABSOLUTELY FREE</em>! Give me a call or shoot me a text!
+          </div>
+          <div className="vb-sticky-popup-profile">
+            <div className="vb-sticky-popup-image">
+              <img src={spencerImage} alt="Spencer - Real Estate Expert" />
+            </div>
+            <div className="vb-sticky-popup-info">
+              <div className="vb-sticky-popup-name">Spencer Gritton</div>
+              <div className="vb-sticky-popup-title">Licensed Real Estate Agent</div>
+              <div className="vb-sticky-popup-phone">(480) 519-0554</div>
+              <div className="vb-sticky-popup-agency">HomeSmart Realty Partners</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // ===== AI REPORT FORMATTING =====
+  const formatAiReportContent = (content) => {
+    if (!content) return '';
+    
+    // Clean up the content
+    const cleanContent = content.replace(/Best Regards,?\s*\[?Your Name\]?/gi, '').trim();
+    
+    // Split content into lines and process each line
+    const lines = cleanContent.split('\n');
+    let formattedContent = '';
+    
+    lines.forEach((line) => {
+      const trimmedLine = line.trim();
+      
+      // Skip empty lines
+      if (!trimmedLine) {
+        formattedContent += '\n';
+        return;
+      }
+      
+      // Check if this is a headline (starts with caps, ends with colon, or is all caps section headers)
+      const isHeadline = (
+        // Section headers like "TOP IMPROVEMENT OPPORTUNITIES:"
+        /^[A-Z][A-Z\s]+:?\s*$/.test(trimmedLine) ||
+        // Report title
+        /^ValueBoost\s/i.test(trimmedLine) ||
+        // Property Analysis header
+        /^Property\s+Analysis:/i.test(trimmedLine) ||
+        // Other major section headers
+        /^(TOTAL\s+IMPROVEMENT|MARKET\s+STRATEGY|TOP\s+IMPROVEMENT)/i.test(trimmedLine) ||
+        // Numbered improvement items (1., 2., etc.)
+        /^\d+\.\s+[A-Z]/.test(trimmedLine)
+      );
+      
+      if (isHeadline) {
+        formattedContent += `<div class="vb-ai-report-headline">${trimmedLine}</div>\n`;
+      } else {
+        // Regular text content
+        formattedContent += `<div class="vb-ai-report-text">${trimmedLine}</div>\n`;
+      }
+    });
+    
+    return formattedContent;
+  };
+
   const renderAiReport = () => {
     console.log('🐛 renderAiReport - reportState:', reportState, 'aiReport:', !!aiReport);
     
     if (reportState === 'timeout') {
+      // Check if this is a value campaign for timeout display
+      const isValueCampaignTimeout = window.location.pathname.includes('/value') || 
+                                   dynamicContent.reportHeadline?.toLowerCase().includes('valueboost') ||
+                                   (!window.location.pathname.includes('/cash') && 
+                                    !window.location.pathname.includes('/sell') && 
+                                    !window.location.pathname.includes('/fsbo') && 
+                                    !window.location.pathname.includes('/buy'));
+      
       return (
         <div className="vb-timeout-container">
+          {/* Value Display for Value Campaigns Only */}
+          {isValueCampaignTimeout && formData.apiEstimatedValue && (
+            <div className="vb-timeout-value-section">
+              <div className="vb-timeout-value-container">
+                <div className="vb-timeout-value-item">
+                  <div className="vb-timeout-value-label">Estimated home value:</div>
+                  <div className="vb-timeout-value-amount">
+                    {new Intl.NumberFormat('en-US', {
+                      style: 'currency',
+                      currency: 'USD',
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0
+                    }).format(formData.apiEstimatedValue)}
+                  </div>
+                </div>
+                <div className="vb-timeout-value-item">
+                  <div className="vb-timeout-value-label">ValueBoost home value:</div>
+                  <div className="vb-timeout-value-amount">Check text for report</div>
+                </div>
+              </div>
+            </div>
+          )}
+          
           <div className="vb-timeout-icon">
             📱
           </div>
@@ -570,12 +735,18 @@ function ValueBoostReport({ campaign, variant }) {
     }
 
     if (!aiReport) {
+      // Determine report type from campaign
+      const campaignType = dynamicContent.reportHeadline?.includes('OfferBoost') ? 'OfferBoost' :
+                          dynamicContent.reportHeadline?.includes('ValueBoost') ? 'ValueBoost' :
+                          dynamicContent.reportHeadline?.includes('SellerBoost') ? 'SellerBoost' : 'AI';
+      
       return (
         <div className="vb-ai-report-section">
           <div className="vb-ai-report-container vb-ai-report-loading">
             <div className="vb-ai-report-content">
-              <h3>Preparing Your Property Analysis...</h3>
-              <p>We're analyzing your property data to provide customized improvement recommendations.</p>
+              <h3>{campaignType} Report Generating...</h3>
+              <p>We're creating your personalized {campaignType.toLowerCase()} analysis. This could take up to 30 seconds as we analyze your property's unique characteristics and market conditions.</p>
+              <p>Please wait while we generate your customized recommendations...</p>
             </div>
           </div>
         </div>
@@ -585,9 +756,12 @@ function ValueBoostReport({ campaign, variant }) {
     return (
       <div className="vb-ai-report-section">
         <div className="vb-ai-report-container vb-ai-report-ready">
-          <div className="vb-ai-report-content">
-            {aiReport.replace(/Best Regards,?\s*\[?Your Name\]?/gi, '').trim()}
-          </div>
+          <div 
+            className="vb-ai-report-content"
+            dangerouslySetInnerHTML={{ __html: formatAiReportContent(aiReport) }}
+          />
+          {/* Contact Section at bottom of every report */}
+          {renderContactSection()}
         </div>
       </div>
     );
@@ -637,12 +811,98 @@ function ValueBoostReport({ campaign, variant }) {
                 </div>
               )}
 
+              {/* Value Headline for Value Campaign Only */}
+              {(() => {
+                // Check if this is a value campaign by looking at the URL or campaign context
+                const isValueCampaign = window.location.pathname.includes('/value') || 
+                                       dynamicContent.reportHeadline?.toLowerCase().includes('valueboost') ||
+                                       (!window.location.pathname.includes('/cash') && 
+                                        !window.location.pathname.includes('/sell') && 
+                                        !window.location.pathname.includes('/fsbo') && 
+                                        !window.location.pathname.includes('/buy'));
+                
+                if (isValueCampaign && formData.apiEstimatedValue) {
+                  const currentValue = new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                  }).format(formData.apiEstimatedValue);
+                  
+                  // Extract potential value increase from AI report if available
+                  let potentialValue = "See AI recommendations below";
+                  if (aiReport) {
+                    // Look for "Total Potential Value Increase: $XX,XXX" pattern
+                    const valueIncreaseMatch = aiReport.match(/Total Potential Value Increase:\s*\$([0-9,]+)/i);
+                    if (valueIncreaseMatch) {
+                      const increaseAmount = parseInt(valueIncreaseMatch[1].replace(/,/g, ''));
+                      const currentValueNumber = parseInt(formData.apiEstimatedValue);
+                      const totalPotentialValue = currentValueNumber + increaseAmount;
+                      potentialValue = new Intl.NumberFormat('en-US', {
+                        style: 'currency',
+                        currency: 'USD',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                      }).format(totalPotentialValue);
+                    }
+                  }
+                  
+                  return (
+                    <div className="vb-report-value-boost-box">
+                      <div className="vb-report-value-container">
+                        {/* Current Value */}
+                        <div className="vb-report-value-item">
+                          <div className="vb-report-value-amount vb-report-current-value">
+                            {currentValue}
+                          </div>
+                          <div className="vb-report-value-label">
+                            Your Current Value
+                          </div>
+                        </div>
+
+                        {/* Arrow - responsive */}
+                        <div className="vb-report-value-arrow">
+                          <img 
+                            src={gradientArrow} 
+                            alt="value increase arrow" 
+                            className="vb-report-arrow-horizontal"
+                          />
+                          <img 
+                            src={gradientArrow} 
+                            alt="value increase arrow" 
+                            className="vb-report-arrow-vertical"
+                          />
+                        </div>
+
+                        {/* ValueBoost Potential */}
+                        <div className="vb-report-value-item">
+                          <div className="vb-report-value-amount vb-report-boost-value">
+                            {potentialValue}
+                          </div>
+                          <div className="vb-report-value-label">
+                            ValueBoost Potential Value
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="vb-report-value-disclaimer">
+                        <em>Values are estimates only, this is not an appraisal.</em>
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
+
               {/* AI Report */}
               {renderAiReport()}
             </div>
           )}
         </div>
       </div>
+      
+      {/* Sticky Popup for Value Campaigns */}
+      {renderStickyPopup()}
     </div>
   );
 }
