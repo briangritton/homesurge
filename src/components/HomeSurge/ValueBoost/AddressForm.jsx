@@ -143,7 +143,11 @@ function AddressForm({ campaign, variant }) {
       // 5. Update FormContext
       updateFormData(updateData);
       
-      // 6. Save address data to CRM with timeout (autofill disabled)
+      // 6. Track address selection IMMEDIATELY (before any async operations)
+      trackAddressSelected(addressData.addressSelectionType);
+      console.log('✅ GTM addressSelected event fired immediately');
+      
+      // 7. Save address data to CRM with timeout (autofill disabled)
       try {
         console.log('🕐 Starting address CRM save with 5-second timeout...');
         
@@ -182,68 +186,80 @@ function AddressForm({ campaign, variant }) {
           const { melissaService } = await import('../../../services/melissa.js');
           const { lookupAndSave: batchDataLookupAndSave } = await import('../../../services/batchdata.js');
           
-          // Start both lookups independently in parallel
-          const [melissaData, batchData] = await Promise.allSettled([
-            melissaService.lookupAndSave(placeDetails.formatted_address),
-            batchDataLookupAndSave(placeDetails.formatted_address)
-          ]);
-          
-          // Analytics tracking
-          trackAddressSelected(addressData.addressSelectionType);
-          
-          // Track property value if Melissa returned data
-          if (melissaData.status === 'fulfilled' && melissaData.value?.apiEstimatedValue) {
-            trackPropertyValue(melissaData.value);
-            
-            // GTM tracking for "api_value" event (exact copy from original)
-            trackPropertyApiValue(melissaData.value, placeDetails.formatted_address, formData);
-          }
-          
-          // Generate AI report in background if Melissa data is available
-          if (melissaData.status === 'fulfilled' && melissaData.value?.propertyRecord) {
-            (async () => {
-              try {
-                console.log('🤖 AddressForm: Starting background AI report generation...');
+          // Start Melissa lookup independently and fire GTM event immediately when it returns
+          melissaService.lookupAndSave(placeDetails.formatted_address)
+            .then(melissaData => {
+              console.log('🔍 Melissa returned data:', {
+                hasData: !!melissaData,
+                apiEstimatedValue: melissaData?.apiEstimatedValue,
+                dataStructure: melissaData ? Object.keys(melissaData) : 'null'
+              });
+              
+              if (melissaData?.apiEstimatedValue) {
+                console.log('🔥 Melissa returned data - firing GTM api_value event immediately');
                 
-                // Set up 30-second timeout for AI generation
-                const aiTimeout = new Promise((_, reject) => {
-                  setTimeout(() => {
-                    reject(new Error('AI report generation timed out after 30 seconds'));
-                  }, 30000);
-                });
+                // Track Facebook property value
+                trackPropertyValue(melissaData);
                 
-                // Dynamic import to avoid loading OpenAI service unless needed
-                const { generateAIValueBoostReport } = await import('../../../services/openai');
-                
-                // Race between AI generation and timeout
-                // Extract campaign type from current route/context for appropriate report type
-                const currentCampaign = window.location.pathname.includes('/cash') ? 'cash' :
-                                       window.location.pathname.includes('/sell') ? 'sell' :
-                                       window.location.pathname.includes('/fsbo') ? 'fsbo' :
-                                       window.location.pathname.includes('/buy') ? 'buy' : 'value';
-                
-                const generatedReport = await Promise.race([
-                  generateAIValueBoostReport(melissaData.value, currentCampaign),
-                  aiTimeout
-                ]);
-                
-                console.log('✅ AddressForm: AI report generated successfully');
-                
-                // Save to FormContext and localStorage for universal access
-                updateFormData({ aiHomeReport: generatedReport });
-                localStorage.setItem('aiHomeReport', generatedReport);
-                
-              } catch (error) {
-                console.error('❌ AddressForm: AI report generation failed:', error);
-                // Don't block user flow - AI report is optional
+                // GTM tracking for "api_value" event (exact copy from original) - IMMEDIATE
+                trackPropertyApiValue(melissaData, placeDetails.formatted_address, formData);
+              } else {
+                console.log('⚠️ Melissa data missing apiEstimatedValue - not firing GTM event', melissaData);
               }
-            })();
-          }
+                
+              // Generate AI report in background if property record is available
+              if (melissaData?.propertyRecord) {
+                (async () => {
+                  try {
+                    console.log('🤖 AddressForm: Starting background AI report generation...');
+                    
+                    // Set up 30-second timeout for AI generation
+                    const aiTimeout = new Promise((_, reject) => {
+                      setTimeout(() => {
+                        reject(new Error('AI report generation timed out after 30 seconds'));
+                      }, 30000);
+                    });
+                    
+                    // Dynamic import to avoid loading OpenAI service unless needed
+                    const { generateAIValueBoostReport } = await import('../../../services/openai');
+                    
+                    // Race between AI generation and timeout
+                    // Extract campaign type from current route/context for appropriate report type
+                    const currentCampaign = window.location.pathname.includes('/cash') ? 'cash' :
+                                           window.location.pathname.includes('/sell') ? 'sell' :
+                                           window.location.pathname.includes('/fsbo') ? 'fsbo' :
+                                           window.location.pathname.includes('/buy') ? 'buy' : 'value';
+                    
+                    const generatedReport = await Promise.race([
+                      generateAIValueBoostReport(melissaData, currentCampaign),
+                      aiTimeout
+                    ]);
+                    
+                    console.log('✅ AddressForm: AI report generated successfully');
+                    
+                    // Save to FormContext and localStorage for universal access
+                    updateFormData({ aiHomeReport: generatedReport });
+                    localStorage.setItem('aiHomeReport', generatedReport);
+                    
+                  } catch (error) {
+                    console.error('❌ AddressForm: AI report generation failed:', error);
+                    // Don't block user flow - AI report is optional
+                  }
+                })();
+              }
+            })
+            .catch(error => {
+              console.error('❌ Melissa lookup failed:', error);
+            });
           
-          console.log('✅ Independent API lookups completed in background:', {
-            melissa: melissaData.status,
-            batchData: batchData.status
-          });
+          // Start BatchData lookup independently (doesn't block GTM events)
+          batchDataLookupAndSave(placeDetails.formatted_address)
+            .then(() => {
+              console.log('✅ BatchData lookup completed');
+            })
+            .catch(error => {
+              console.error('❌ BatchData lookup failed:', error);
+            });
         } catch (error) {
           console.error('❌ Independent API lookups failed:', error);
         }

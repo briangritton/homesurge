@@ -114,6 +114,20 @@ export default function PriorityInfoFields({ lead }) {
         </div>
       )}
       
+      {shouldShowField(lead.dynamicHeadline) && (
+        <div style={styles.fieldGroup} className="field-group">
+          <div style={styles.fieldLabel} className="field-label">Dynamic Headline</div>
+          <div style={styles.fieldValue} className="field-value">{lead.dynamicHeadline}</div>
+        </div>
+      )}
+      
+      {shouldShowField(lead.dynamicSubHeadline) && (
+        <div style={styles.fieldGroup} className="field-group">
+          <div style={styles.fieldLabel} className="field-label">Dynamic Subheadline</div>
+          <div style={styles.fieldValue} className="field-value">{lead.dynamicSubHeadline}</div>
+        </div>
+      )}
+      
       {shouldShowField(lead.matchtype) && (
         <div style={styles.fieldGroup} className="field-group">
           <div style={styles.fieldLabel} className="field-label">Match Type</div>
