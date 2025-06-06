@@ -494,9 +494,10 @@ function ValueBoostReport({ campaign, variant }) {
 
   const renderValueDisplay = () => (
     <div className="vb-value-boost-box">
-      <h2 className="vb-box-headline">
-        {dynamicContent.potentialHeadline || 'Your ValueBoost Potential:'}
-      </h2>
+      <h2 
+        className="vb-box-headline"
+        dangerouslySetInnerHTML={{ __html: dynamicContent.potentialHeadline || 'Your ValueBoost Potential:' }}
+      />
 
       {/* Responsive container for values */}
       <div className="vb-value-container">
@@ -555,9 +556,10 @@ function ValueBoostReport({ campaign, variant }) {
   /*
   const renderRecommendations = () => (
     <div className="vb-recommendations-section">
-      <h2 className="vb-recommendations-title">
-        {dynamicContent.recommendationsTitle || 'Your Top 10 ValueBoost Recommendations'}
-      </h2>
+      <h2 
+        className="vb-recommendations-title"
+        dangerouslySetInnerHTML={{ __html: dynamicContent.recommendationsTitle || 'Your Top 10 ValueBoost Recommendations' }}
+      />
       <p className="vb-recommendations-subtitle">
         {dynamicContent.recommendationsSubtitle || 'AI-powered strategies to maximize your home value'}
       </p>
@@ -792,9 +794,10 @@ function ValueBoostReport({ campaign, variant }) {
       <div className="vb-report-container">
         {/* Header Section - Always Visible */}
         <div className="vb-ready-container">
-          <div className="vb-af1-hero-headline">
-            {submitted ? dynamicContent.reportHeadline : dynamicContent.readyHeadline}
-          </div>
+          <div 
+            className="vb-af1-hero-headline"
+            dangerouslySetInnerHTML={{ __html: submitted ? dynamicContent.reportHeadline : dynamicContent.readyHeadline }}
+          />
           
           {!submitted && (
             <div 

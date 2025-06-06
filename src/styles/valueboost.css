@@ -91,11 +91,12 @@
 
 /* Timeout Message Container */
 .vb-timeout-container {
-  text-align: center;
-  padding: 20px 20px 60px;
-  background-color: #f0f9ff;
-  border-radius: 12px;
-  border: 1px solid var(--brand-primary);
+    margin-top: 20px;
+    text-align: center;
+    padding: 20px 20px 60px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    border: 1px solid var(--brand-primary);
 }
 
 .vb-timeout-icon {

@@ -360,7 +360,10 @@ function AddressForm({ campaign, variant }) {
         <div className="vb-af1-example-section">
           <div className="vb-af1-example-tag">{dynamicContent.exampleTag}</div>
           <div className="vb-af1-potential-container">
-            <div className="vb-af1-potential-headline">{dynamicContent.potentialHeadline}</div>
+            <div 
+              className="vb-af1-potential-headline"
+              dangerouslySetInnerHTML={{ __html: dynamicContent.potentialHeadline }}
+            />
             <div className="vb-af1-opportunities">{dynamicContent.opportunitiesText}</div>
             <div className="vb-af1-percentage-container">
               <div className="vb-af1-percentage">22%</div>

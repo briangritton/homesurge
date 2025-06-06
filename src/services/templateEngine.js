@@ -36,7 +36,7 @@ class TemplateEngineService {
     const templates = {
       // ========== CASH/SELLING CAMPAIGNS A TEMPLATES ==========
       cashA: {
-        headline: 'Want To Increase Your Cash Offer? Get Your OfferBoost AI Home Report to View Your Options',
+        headline: 'Want To Increase Your Cash Offer? Get Your FREE OfferBoost AI Home Report to View Your Options',
         // headline: 'WANT TO INCREASE YOUR CASH OFFER? Get Your OfferBoost AI Home Report to View Your Options',
 
 
@@ -171,8 +171,7 @@ class TemplateEngineService {
       
       // ========== DEFAULT FALLBACK ==========
       defaultA: {
-        headline: 'Want To Increase Your Cash Offer? Get Your OfferBoost AI Home Report to View Your Options',
-        // headline: 'WANT TO INCREASE YOUR CASH OFFER? Get Your OfferBoost AI Home Report to View Your Options',
+ headline: 'Want To Increase Your Cash Offer? Get Your FREE OfferBoost AI Home Report to View Your Options',        // headline: 'WANT TO INCREASE YOUR CASH OFFER? Get Your OfferBoost AI Home Report to View Your Options',
 
 
         subheadline: 'Our <strong><em>FREE</strong></i> OfferBoost AI home tool will generate your <strong><em>highest cash offer</em></strong> strategy report. Get your highest possible offer. <strong><i>Don\'t take less than you deserve.</strong></i>',
@@ -439,27 +438,28 @@ class TemplateEngineService {
   getReportTemplate(campaign) {
     const templates = {
       cashA: {
-        readyHeadline: 'Next, where do you want us to text your cash offer and FREE OfferBoost report?',
-        reportHeadline: 'Your OfferBoost Highest Cash Offer Is Ready!:',
-        readySubheadline: 'We\'ll send you our strongest <strong><i>no obligation cash offer</i></strong>, and you choose how fast to close! No obligation, no strings attached AND get your <strong><i>FREE OfferBoost report</i></strong> below, with our most powerful AI recommendations for increasing your cash offer potential!',
-        loadingMessage: 'Processing Your Cash Offer Details...',
+        readyHeadline: 'Next, where do you want us to send your <strong><i>FREE OfferBoost report?</strong></i>',
+        reportHeadline: 'Your OfferBoost Report is Processing',
+        readySubheadline: 'We\'ll send you your OfferBoost AI <strong><em>highest cash offer</em></strong> strategy report. Get your highest possible offer. <strong><i>Don\'t take less than you deserve.</strong></i>',
+
+        loadingMessage: 'Processing Your OfferBoost Report Details...',
         potentialHeadline: 'Your OfferBoost Potential:',
         recommendationsTitle: 'Your Top 10 OfferBoost Strategies',
         recommendationsSubtitle: 'Maximize your cash offer with these proven strategies',
-        unlockHeadline: '<i>HomeSurge Cash Offer Benefits:</i>',
-        timeoutUnlockHeadline: 'HomeSurge Cash Offer Benefits:',
-        checkmark1: '<strong>No stress closing!</strong> No repairs, inspections, commision, or closing costs.',
-        checkmark2: '<strong>No hidden fees.</strong> We make an offer, you get the <em><strong>exact amount</strong></em> in cash.',
+        unlockHeadline: '<i>HomeSurge OfferBoost Report Benefits</i>',
+        timeoutUnlockHeadline: 'HomeSurge OfferBoost Report Benefits',
+        checkmark1: '<strong>Higher potential offers!</strong> Learn how you can leverage the highest cash offer',
+        checkmark2: '<strong>No hidden fees.</strong> See how to structure offers so that you get the <em><strong>exact amount</strong></em> in cash.',
         checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
         conciergeHeadline: 'Want Expert Help Maximizing Your Cash Offer?',
-        buttonText: 'GET CASH OFFER',
-        timeoutHeadline: 'Watch your messages, we\'ll be sending a text with your cash offer shortly!',
-        disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.'
+        buttonText: 'GET FREE REPORT',
+        timeoutHeadline: 'Report Generated! Watch your messages, we\'ll be sending a text with your OfferBoost report shortly!',
+        disclaimer: 'By submitting your information, you consent to receive your OfferBoost details via call, text, or email from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
 
       sellA: {
         readyHeadline: 'Next, where do you want us to text your cash offer and FREE OfferBoost report?',
-        reportHeadline: 'Your OfferBoost Highest Cash Offer Is Ready!:',
+        reportHeadline: 'Your OfferBoost Highest Cash Offer Is Ready!',
         readySubheadline: 'We\'ll send you our strongest <strong><i>no obligation cash offer</i></strong>, and you choose how fast to close! No obligation, no strings attached AND get your <strong><i>FREE OfferBoost report</i></strong> below, with our most powerful AI recommendations for increasing your cash offer potential!',
         loadingMessage: 'Processing Your Cash Offer Details...',
         potentialHeadline: 'Your OfferBoost Potential:',
@@ -472,8 +472,8 @@ class TemplateEngineService {
         checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
         conciergeHeadline: 'Want Expert Help Maximizing Your Cash Offer?',
         buttonText: 'GET CASH OFFER',
-        timeoutHeadline: 'Watch your messages, we\'ll be sending a text with your cash offer shortly!',
-        disclaimer: '*Example values only. Your offer amount will depend on your specific home details and other factors. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.'
+        timeoutHeadline: 'Report generated! Watch your messages, we\'ll be sending a text with your cash offer shortly!',
+        disclaimer: 'By submitting your information, you consent to receive your OfferBoost details via call, text, or email from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
 
       valueA: {
@@ -490,8 +490,8 @@ class TemplateEngineService {
         checkmark2: 'Detailed <strong><i>AI powered</strong></i> recommendations that show you expected ROIs',
         checkmark3: '<strong><i>Customized for your unique property,</strong></i> down to the smallest detail',
         buttonText: 'GET VALUE REPORT',
-        timeoutHeadline: 'Watch your messages, we\'ll be sending a text with your ValueBoost report shortly!',
-        disclaimer: '*Example values only. Your value increase will depend on your specific home details and market conditions. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.'
+        timeoutHeadline: 'Report generated! Watch your messages, we\'ll be sending a text with your ValueBoost report shortly!',
+        disclaimer: 'By submitting your information, you consent to receive your ValueBoost details via call, text, or email from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.'
       },
 
       equity: {
@@ -510,22 +510,23 @@ class TemplateEngineService {
       },
 
       default: {
-        reportHeadline: 'Your OfferBoost Highest Cash Offer Is Ready!:',
+        readyHeadline: 'Next, where do you want us to send your <strong><i>FREE OfferBoost report?</strong></i>',
+        reportHeadline: 'Your OfferBoost Report is Processing',
+        readySubheadline: 'We\'ll send you your OfferBoost AI <strong><em>highest cash offer</em></strong> strategy report. Get your highest possible offer. <strong><i>Don\'t take less than you deserve.</strong></i>',
+
+        loadingMessage: 'Processing Your OfferBoost Report Details...',
         potentialHeadline: 'Your OfferBoost Potential:',
         recommendationsTitle: 'Your Top 10 OfferBoost Strategies',
         recommendationsSubtitle: 'Maximize your cash offer with these proven strategies',
-        unlockHeadline: 'Get Your FREE OfferBoost Maximum Cash Report',
-        timeoutUnlockHeadline: 'HomeSurge Cash Offer Benefits:',
-        unlockSubtext: 'Get your complete cash offer strategy with market insights and opportunities',
+        unlockHeadline: '<i>HomeSurge OfferBoost Report Benefits</i>',
+        timeoutUnlockHeadline: 'HomeSurge OfferBoost Report Benefits',
+        checkmark1: '<strong><i>Higher potential offers!</i></strong> Learn how you can leverage the highest cash offer',
+        checkmark2: '<strong><i>No hidden fees.</i></strong> See how to structure offers so that you get the <em><strong>exact amount</strong></em> in cash.',
+        checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
         conciergeHeadline: 'Want Expert Help Maximizing Your Cash Offer?',
-        timeoutHeadline: 'Watch your messages, we\'ll be sending a text with your cash offer shortly!',
-        checkmark1: '*All OfferBoost cash offer opportunities for your property',
-        checkmark2: 'Detailed maximum OfferBoost calculations for maximizing home value',
-        checkmark3: 'Customized for your property',
-        buttonText: 'CHECK CASH OFFER',
-        readySubheadline: 'Check your OfferBoost cash offer below, and unlock your FREE AI powered custom home value and offer optimization report. No obligation, no strings attached.',
-        loadingMessage: 'Processing Your OfferBoost Cash Offer Analysis...',
-        readyHeadline: 'Your OfferBoost Highest Cash Offer is Ready!'
+        buttonText: 'GET FREE REPORT',
+        timeoutHeadline: 'Report Generated! Watch your messages, we\'ll be sending a text with your OfferBoost report shortly!',
+        disclaimer: 'By submitting your information, you consent to receive your OfferBoost details via call, text, or email from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.'
       }
     };
     

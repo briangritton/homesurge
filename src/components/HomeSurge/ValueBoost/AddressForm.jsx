@@ -379,9 +379,10 @@ function AddressForm({ campaign, variant }) {
                 {dynamicContent.exampleTag}
               </div>
 
-              <h2 className="vb-box-headline">
-                {dynamicContent.potentialHeadline}
-              </h2>
+              <h2 
+                className="vb-box-headline"
+                dangerouslySetInnerHTML={{ __html: dynamicContent.potentialHeadline }}
+              />
 
               {/* Responsive container for values */}
               <div className="vb-value-container">
