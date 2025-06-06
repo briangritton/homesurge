@@ -1,3 +1,17 @@
+/* === CSS CUSTOM PROPERTIES (DESIGN TOKENS) === */
+:root {
+  /* Brand Colors */
+  --brand-primary: #0d5461;
+  --brand-primary-dark: #0a454f;
+  --brand-primary-darker: #083e47;
+  --brand-primary-light: #1a6b7a;
+  --brand-primary-alpha: #0d546119; /* 10% opacity */
+  
+  /* Legacy color mappings (for reference) */
+  /* Old: var(--brand-primary) -> New: #0d5461 */
+  /* Old: var(--brand-primary-dark) -> New: #0a454f */
+}
+
 /* === GENERAL STYLES === */ 
 @font-face {
   font-family: "AgencyBold";
@@ -39,7 +53,7 @@ body {
   text-align: center;
   margin-bottom: 15px;
   display: block;
-  color: #16899d;
+  color: var(--brand-primary);
 }
 
 
@@ -105,7 +119,7 @@ body {
   align-items: center;
   display: none;
   margin-right: 5px;
-  color: #2e7b7d;
+  color: var(--brand-primary-dark);
   }
   .header-call-number {
     color: #000000;
@@ -285,7 +299,7 @@ color:#444444;
   text-align: center;
   font-weight: bold;
   padding-top: 50px;
-  color: #16899d;
+  color: var(--brand-primary);
   line-height: 1.2;
 }
  
@@ -329,7 +343,7 @@ color:#444444;
 
 
 .address-input:focus {
-  border-color: #2e7b7d;
+  border-color: var(--brand-primary-dark);
   box-shadow: 0 0 0 2px rgba(52, 144, 209, 0.25);
   outline: none;
 }
@@ -356,10 +370,10 @@ color:#444444;
 }
 
 .submit-button {
-  background: linear-gradient(135deg, #09a5c8 0%, #236b6d 100%);
+  background: var(--brand-primary);
   border: none;
   border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0, 184, 230, 0.3);
+  box-shadow: 0 8px 20px var(--brand-primary-alpha);
   color: white;
   flex-shrink: 0;
   font-size: 1.3rem;
@@ -376,8 +390,8 @@ color:#444444;
   }
 
 .submit-button:hover {
-  background: linear-gradient(135deg, #0099cc 0%, #1a5b5d 100%);
-  box-shadow: 0 12px 25px rgba(0, 184, 230, 0.4);
+  background: var(--brand-primary-light);
+  box-shadow: 0 12px 25px var(--brand-primary-alpha);
 }
 
 /* Flare effect for submit-button */
@@ -437,7 +451,7 @@ color:#444444;
   text-align: center;
   margin-bottom: 25px;
   font-size: 2.2rem;
-  color: #16899d;
+  color: var(--brand-primary);
   font-weight: bold;
 }
 
@@ -482,7 +496,7 @@ color:#444444;
 }
 
 .registration-button {
-  background: linear-gradient(135deg, #09a5c8 0%, #236b6d 100%);
+  background: var(--brand-primary);
   border: none;
   color: white;
   font-weight: bold;
@@ -492,7 +506,7 @@ color:#444444;
   height: 60px;
   border-radius: 12px;
   cursor: pointer !important;
-  box-shadow: 0 8px 20px rgba(0, 184, 230, 0.3);
+  box-shadow: 0 8px 20px var(--brand-primary-alpha);
   transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -507,8 +521,8 @@ color:#444444;
 }
 
 .registration-button:hover {
-  background: linear-gradient(135deg, #0099cc 0%, #1a5b5d 100%);
-  box-shadow: 0 12px 25px rgba(0, 184, 230, 0.4);
+  background: var(--brand-primary-light);
+  box-shadow: 0 12px 25px var(--brand-primary-alpha);
 }
 
 /* Flare effect for registration-button */
@@ -544,7 +558,7 @@ color:#444444;
   text-align: center;
   margin-bottom: 15px;
   display: none; /* Hide the original headline */
-  color: #16899d;
+  color: var(--brand-primary);
 }
 
 .simple-address-display {
@@ -572,7 +586,7 @@ color:#444444;
 }
 
 .hero-middle-map-submit-button {
-  background: linear-gradient(135deg, #09a5c8 0%, #236b6d 100%);
+  background: var(--brand-primary);
   color: white;
   font-weight: bold;
   text-align: center;
@@ -585,7 +599,7 @@ color:#444444;
   padding: 0 30px;
   margin: 10px;
   min-width: 200px;
-  box-shadow: 0 8px 20px rgba(0, 184, 230, 0.3);
+  box-shadow: 0 8px 20px var(--brand-primary-alpha);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -616,8 +630,8 @@ color:#444444;
 }
 
 .hero-middle-map-submit-button:hover {
-  background: linear-gradient(135deg, #0bb5da 0%, #2a7a7d 100%);
-  box-shadow: 0 12px 30px rgba(0, 184, 230, 0.4);
+  background: var(--brand-primary-light);
+  box-shadow: 0 12px 30px var(--brand-primary-alpha);
   transform: translateY(-2px);
 }
 
@@ -647,10 +661,10 @@ color:#444444;
   }
 
 .hero-property-estimate {
-  background-color: #2e7b7d1a;
+  background-color: var(--brand-primary-dark)1a;
   border-radius: 8px;
   box-shadow: 0 1px 3px #0000001a;
-  color: #2e7b7d;
+  color: var(--brand-primary-dark);
   display: inline-block;
   font-size: 2rem;
   font-weight: 700;
@@ -678,7 +692,7 @@ color:#444444;
 .qualifying-headline {
   font-size: 2.5rem;
   font-weight: bold;
-  color: #16899d;
+  color: var(--brand-primary);
   text-align: center;
 }
 
@@ -720,12 +734,12 @@ color:#444444;
   width: 150px;
   text-align: center;
   justify-content: center;
-  background: linear-gradient(135deg, #09a5c8 0%, #236b6d 100%);
+  background: var(--brand-primary);
   color: white;
   border: none;
   border-radius: 12px 0px 0px 12px;
   cursor: pointer !important;
-  box-shadow: 0 8px 20px rgba(0, 184, 230, 0.3);
+  box-shadow: 0 8px 20px var(--brand-primary-alpha);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -739,12 +753,12 @@ color:#444444;
   width: 150px;
   text-align: center;
   justify-content: center;
-  background: linear-gradient(135deg, #09a5c8 0%, #236b6d 100%);
+  background: var(--brand-primary);
   color: white;
   border: none;
   border-radius: 0px 12px 12px 0px;
   cursor: pointer !important;
-  box-shadow: 0 8px 20px rgba(0, 184, 230, 0.3);
+  box-shadow: 0 8px 20px var(--brand-primary-alpha);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -807,28 +821,28 @@ color:#444444;
 
 /* Hover effects for deselected buttons - fade towards selected state */
 .qualifying-toggle-deselected-left:hover {
-  background: linear-gradient(135deg, rgba(9, 165, 200, 0.1) 0%, rgba(35, 107, 109, 0.1) 100%);
-  border-color: #09a5c8;
-  color: #09a5c8;
-  box-shadow: 0 4px 12px rgba(0, 184, 230, 0.2);
+  background: linear-gradient(135deg, var(--brand-primary-alpha) 0%, rgba(35, 107, 109, 0.1) 100%);
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+  box-shadow: 0 4px 12px var(--brand-primary-alpha);
 }
 
 .qualifying-toggle-deselected-right:hover {
-  background: linear-gradient(135deg, rgba(9, 165, 200, 0.1) 0%, rgba(35, 107, 109, 0.1) 100%);
-  border-color: #09a5c8;
-  color: #09a5c8;
-  box-shadow: 0 4px 12px rgba(0, 184, 230, 0.2);
+  background: linear-gradient(135deg, var(--brand-primary-alpha) 0%, rgba(35, 107, 109, 0.1) 100%);
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+  box-shadow: 0 4px 12px var(--brand-primary-alpha);
 }
 
 /* Hover effects for selected buttons - fade towards deselected state */
 .qualifying-toggle-selected-left:hover {
-  background: linear-gradient(135deg, rgba(9, 165, 200, 0.8) 0%, rgba(35, 107, 109, 0.8) 100%);
-  box-shadow: 0 4px 12px rgba(0, 184, 230, 0.2);
+  background: linear-gradient(135deg, var(--brand-primary) 0%, rgba(35, 107, 109, 0.8) 100%);
+  box-shadow: 0 4px 12px var(--brand-primary-alpha);
 }
 
 .qualifying-toggle-selected-right:hover {
-  background: linear-gradient(135deg, rgba(9, 165, 200, 0.8) 0%, rgba(35, 107, 109, 0.8) 100%);
-  box-shadow: 0 4px 12px rgba(0, 184, 230, 0.2);
+  background: linear-gradient(135deg, var(--brand-primary) 0%, rgba(35, 107, 109, 0.8) 100%);
+  box-shadow: 0 4px 12px var(--brand-primary-alpha);
 }
 
 .qualifying-slider-container {
@@ -843,7 +857,7 @@ color:#444444;
   font-size: 1.8rem;
   margin-bottom: 10px;
   font-weight: bold;
-  color: #2e7b7d;
+  color: var(--brand-primary-dark);
 }
 
 .qualifying-slider {
@@ -864,10 +878,10 @@ color:#444444;
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #09a5c8 0%, #236b6d 100%);
+  background: var(--brand-primary);
   cursor: pointer;
   border-style: solid;
-  border-color: #09a5c8;
+  border-color: var(--brand-primary);
   border-width: 1px;
   box-shadow: 0px 1px 4px 0px #0000004d;
 }
@@ -876,7 +890,7 @@ color:#444444;
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #09a5c8 0%, #236b6d 100%);
+  background: var(--brand-primary);
   cursor: pointer;
   border-style: solid;
   border-color: #236869;
@@ -915,16 +929,16 @@ color:#444444;
   white-space: nowrap;
   padding: 0px 50px;
   margin-left: -3px;
-  background: linear-gradient(135deg, #09a5c8 0%, #236b6d 100%);
-  box-shadow: 0 8px 20px rgba(0, 184, 230, 0.3);
+  background: var(--brand-primary);
+  box-shadow: 0 8px 20px var(--brand-primary-alpha);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
 }
 
 .qualifying-button:hover {
-  background: linear-gradient(135deg, #0bb5da 0%, #2a7a7d 100%);
-  box-shadow: 0 12px 30px rgba(0, 184, 230, 0.4);
+  background: var(--brand-primary-light);
+  box-shadow: 0 12px 30px var(--brand-primary-alpha);
   transform: translateY(-2px);
   transition: all 0.3s ease;
 }
@@ -1031,7 +1045,7 @@ color:#444444;
   font-size: 2.8rem;
   line-height: 2.8rem;
   font-weight: bold;
-  color: #16899d;
+  color: var(--brand-primary);
 }
 
 .thank-you-text {
@@ -1138,7 +1152,7 @@ color:#444444;
     width: 100%;
     font-weight: bold;
     font-size: 1.6rem;
-    color: #2e7b7d;
+    color: var(--brand-primary-dark);
     font-size: 2.3rem;
 }
 /* Hidden Google Maps UI elements */
@@ -1173,7 +1187,7 @@ color:#444444;
 .v1-hero-property-estimate {
   font-size: 2.3rem;
   font-weight: bold;
-  color: #2e7b7d;
+  color: var(--brand-primary-dark);
   text-align: center;
 }
 
@@ -1192,8 +1206,8 @@ color:#444444;
 }
 
 .v1-input-field:focus {
-  border-color: #09a5c8;
-  box-shadow: 0 0 0 2px rgba(9, 165, 200, 0.25);
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px var(--brand-primary-alpha);
   outline: none;
 }
 
@@ -1205,7 +1219,7 @@ color:#444444;
 .v1-volume-estimate-label
 {
   
-    color: #2e7b7d;
+    color: var(--brand-primary-dark);
     font-size: 2.3rem;
     font-weight: 700;
     text-align: center;
@@ -1217,7 +1231,7 @@ color:#444444;
 .v1-submit-button {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #09a5c8 0%, #236b6d 100%);
+  background: var(--brand-primary);
   color: white;
   border: none;
   border-radius: 12px;
@@ -1225,7 +1239,7 @@ color:#444444;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 8px 20px rgba(0, 184, 230, 0.3);
+  box-shadow: 0 8px 20px var(--brand-primary-alpha);
   text-transform: uppercase;
   letter-spacing: 1px;
   position: relative;
@@ -1233,8 +1247,8 @@ color:#444444;
 }
 
 .v1-submit-button:hover {
-  background: linear-gradient(135deg, #0099cc 0%, #1a5b5d 100%);
-  box-shadow: 0 12px 25px rgba(0, 184, 230, 0.4);
+  background: var(--brand-primary-light);
+  box-shadow: 0 12px 25px var(--brand-primary-alpha);
 }
 
 /* Flare effect for v1-submit-button */
@@ -1713,7 +1727,7 @@ font-size:1.8rem;
 .af1-hero-section .af1-hero-headline {
         font-size: 1.7rem;
         line-height: 1.2;
-        color: #16899d;
+        color: var(--brand-primary);
         font-weight: bold;
     }
 
@@ -1784,7 +1798,7 @@ font-size:1.8rem;
   
 .address-input-invalid {
  
-  border: 1px solid #2e7b7d;
+  border: 1px solid var(--brand-primary-dark);
   box-shadow: 0 1px 3px rgba(255, 0, 0, 0.2);
   background-color: rgb(52 144 209 / 10%);
   font-size: 1.2rem;
@@ -2027,7 +2041,7 @@ min-width:100%;
   margin-top: 10px;
   font-size: 1.5rem;
   font-weight: bold;
-  color: #2e7b7d;
+  color: var(--brand-primary-dark);
   padding: 10px 20px;
   background-color: rgba(52, 144, 209, 0.1);
   border-radius: 8px;
@@ -2097,7 +2111,7 @@ button:disabled,
 .nav-links li a:hover,
 .nav-links li div:hover {
   text-decoration: none;
-  color: #2e7b7d;
+  color: var(--brand-primary-dark);
 }
 
 /* Sales Page Styles */
@@ -2137,7 +2151,7 @@ button:disabled,
 
 .error-message {
   /* background-color: #f8d7da; */
-  color: #2e7b7d;
+  color: var(--brand-primary-dark);
 }
 
 .error-message, .success-message {
@@ -2207,7 +2221,7 @@ button:disabled,
 .form-title {
   text-align: center;
   margin-bottom: 30px;
-  color: #16899d;
+  color: var(--brand-primary);
   font-size: 2rem;
   font-weight: bold;
 } 
@@ -2328,6 +2342,67 @@ button:disabled,
   animation: none;
   left: 100%;
   transition: left 0.5s;
+}
+
+/* ===================================================================
+   COMPREHENSIVE MOBILE HEADLINES - HEADLINES & SUBHEADLINES UNDER 768PX
+   =================================================================== */
+@media only screen and (max-width: 768px) {
+  /* MAIN HEADLINES - 1.3rem */
+  h1, h2, h3, h4, h5, h6,
+  
+  /* Main.css headlines */
+  .confirmation-header,
+  .hero-headline,
+  .hero-middle-map-headline,
+  .overlay-form-headline,
+  .qualifying-headline,
+  .thank-you-headline,
+  
+  /* ValueBoost headlines */
+  .vb-af1-hero-headline,
+  .vb-b2-headline,
+  .vb-b2-benefits-headline,
+  .vb-report-headline,
+  .vb-report-potential-headline,
+  .vb-report-unlock-headline,
+  .vb-report-timeout-headline,
+  .vb-report-recommendations-title,
+  .vb-report-ai-title,
+  .vb-report-success-headline,
+  .vb-ai-headline,
+  
+  /* BelowFold headlines */
+  .bf-section-title,
+  .bf-card-title,
+  .bf-tool-title,
+  .bf-cta-title,
+  .bf-process-title,
+  
+  /* CRM headlines */
+  .crm-title,
+  .crm-lead-title,
+  .crm-section-title,
+  .crm-login-title,
+  .crm-title-text,
+  
+  /* Popup headlines */
+  .popup-header h2,
+  .step-title,
+  .benefit-title {
+    font-size: 1.3rem !important;
+  }
+
+  /* SUBHEADLINES - 1.1rem */
+  .hero-subheadline,
+  .vb-af1-hero-subheadline,
+  .vb-b2-subheadline,
+  .vb-report-subheadline,
+  .vb-ai-subheadline,
+  .bf-section-subtitle,
+  .bf-tool-subtitle {
+    font-size: 1.1rem !important;
+  }
 }
 
  

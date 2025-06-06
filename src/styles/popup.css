@@ -90,7 +90,7 @@
 
 .step-number, 
 .benefit-number {
-  color: #0097e6;
+  color: var(--brand-primary);
   display: inline-block;
   font-size: 1.8rem;
   font-style: italic;

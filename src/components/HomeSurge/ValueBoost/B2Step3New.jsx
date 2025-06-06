@@ -186,9 +186,10 @@ function B2Step3({ campaign, variant }) {
     <div className="vb-b2-container">
       {/* HEADER SECTION */}
       <div className="vb-b2-header">
-        <div className="vb-b2-headline">
-          {dynamicContent.readyHeadline}
-        </div>
+        <div 
+          className="vb-b2-headline"
+          dangerouslySetInnerHTML={{ __html: dynamicContent.readyHeadline }}
+        />
         <div 
           className="vb-b2-subheadline"
           dangerouslySetInnerHTML={{ __html: dynamicContent.readySubheadline }}

@@ -267,7 +267,7 @@ function ValueBoostQualifyingB2({ campaign, variant }) {
         // Welcome message step
         return (
           <div className="vb-q-option-column">
-            <div className="vb-q-question" style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#16899d', marginBottom: '20px' }}>
+            <div className="vb-q-question" style={{ fontSize: '1.8rem', fontWeight: 'bold', color: 'var(--brand-primary)', marginBottom: '20px' }}>
               Your offer is on its way!
             </div>
             <div className="vb-q-question" style={{ fontSize: '1.3rem', marginBottom: '30px' }}>

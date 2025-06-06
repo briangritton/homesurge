@@ -147,36 +147,29 @@ function AddressForm({ campaign, variant }) {
       trackAddressSelected(addressData.addressSelectionType);
       console.log('✅ GTM addressSelected event fired immediately');
       
-      // 7. Save address data to CRM with timeout (autofill disabled)
+      // 7. Start address CRM save in background (non-blocking for instant navigation)
       try {
-        console.log('🕐 Starting address CRM save with 5-second timeout...');
+        console.log('🚀 Starting background address CRM save - navigating instantly...');
         
         // Save only address data (no autofill data)
         const addressOnlyData = {
           ...addressData
         };
         
-        // Create a promise that resolves with address CRM save or times out after 5 seconds
-        const crmSavePromise = leadService.saveAddressData(addressOnlyData);
-        
-        const timeoutPromise = new Promise((resolve) => {
-          setTimeout(() => {
-            console.log('⏰ Address CRM save timeout reached (5 seconds) - proceeding with navigation');
-            resolve('timeout');
-          }, 5000);
+        // Start CRM save in background - doesn't block navigation
+        // Using a detached promise that won't be cancelled by component unmount
+        Promise.resolve().then(async () => {
+          try {
+            await leadService.saveAddressData(addressOnlyData);
+            console.log('✅ Background address CRM save completed successfully');
+          } catch (error) {
+            console.error('❌ Background address CRM save failed:', error);
+            // Could retry or queue for later if needed
+          }
         });
         
-        // Wait for either address CRM save to complete OR timeout (whichever comes first)
-        const result = await Promise.race([crmSavePromise, timeoutPromise]);
-        
-        if (result === 'timeout') {
-          console.log('⏰ Navigation proceeding due to timeout');
-        } else {
-          console.log('✅ Address CRM save completed successfully before timeout');
-        }
-        
       } catch (error) {
-        console.error('❌ Address CRM save failed:', error);
+        console.error('❌ Address CRM save initialization failed:', error);
       }
 
       // 7. Start independent API lookups in background (non-blocking)
@@ -468,7 +461,7 @@ function AddressForm({ campaign, variant }) {
               {/* Inline error message */}
               {errorMessage && (
                 <div className="vb-af1-inline-error">
-                  Please keep typing and select from the drop down
+                  Please continue typing and select from the drop down
                 </div>
               )}
             </div>

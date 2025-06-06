@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import logo from '../../assets/images/logo.png';
+import logo from '../../assets/images/homesurge.png';
 
 // CSS for the login page
 const styles = {

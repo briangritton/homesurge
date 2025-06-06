@@ -1,6 +1,6 @@
 import React from 'react';
 import { BsTelephoneFill } from 'react-icons/bs';
-import logo from '../../../src/assets/images/logo.png';
+import logo from '../../../src/assets/images/homesurge.png';
 
 function Header() {
   return (

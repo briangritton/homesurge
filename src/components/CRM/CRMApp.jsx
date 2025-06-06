@@ -6,7 +6,7 @@ import LeadList from '../Admin/LeadList';
 import LeadDetail from '../Admin/LeadDetail';
 import SalesRepDashboard from '../SalesRep/Dashboard';
 import Login from './Login';
-import logo from '../../assets/images/logo.png';
+import logo from '../../assets/images/homesurge.png';
 
 // CSS for the CRM app
 const styles = {

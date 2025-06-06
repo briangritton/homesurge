@@ -212,9 +212,10 @@ function B2Step3({ campaign, variant }) {
         <div className="vb-b2-content vb-b2-fade-in">
           {/* Report Ready State - match original structure */}
           <div className="vb-b2-ready-container">
-            <div className="vb-b2-hero-headline">
-              {dynamicContent.readyHeadline}
-            </div>
+            <div 
+              className="vb-b2-hero-headline"
+              dangerouslySetInnerHTML={{ __html: dynamicContent.readyHeadline }}
+            />
             <div className="vb-b2-hero-subheadline" dangerouslySetInnerHTML={{ __html: dynamicContent.readySubheadline }}>
             </div>
           </div>

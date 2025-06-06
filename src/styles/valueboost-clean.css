@@ -77,7 +77,7 @@
 
 .vb-b2-checkmark::before {
   content: "✓";
-  color: #00b8e6;
+  color: var(--brand-primary);
   font-weight: bold;
   margin-right: 10px;
   font-size: 18px;
@@ -100,7 +100,7 @@
 .vb-b2-input {
   width: 100%;
   padding: 15px;
-  border: 2px solid #e0e0e0;
+  border: 1px solid #e0e0e0;
   border-radius: 8px;
   font-size: 16px;
   transition: border-color 0.3s ease;
@@ -109,7 +109,7 @@
 
 .vb-b2-input:focus {
   outline: none;
-  border-color: #00b8e6;
+  border-color: var(--brand-primary);
 }
 
 .vb-b2-input-error {
@@ -125,7 +125,7 @@
 .vb-b2-submit-button {
   width: 100%;
   padding: 15px;
-  background: linear-gradient(135deg, #00b8e6 0%, #0099cc 100%);
+  background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary) 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -138,7 +138,7 @@
 
 .vb-b2-submit-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 184, 230, 0.3);
+  box-shadow: 0 8px 20px var(--brand-primary-alpha);
 }
 
 .vb-b2-submit-button:disabled {
@@ -341,7 +341,7 @@
 .vb-report-boost-value {
   font-size: 28px;
   font-weight: bold;
-  color: #00b8e6;
+  color: var(--brand-primary);
 }
 
 .vb-report-boost-percentage {
@@ -391,7 +391,7 @@
 
 .vb-report-checkmark::before {
   content: "✓";
-  color: #00b8e6;
+  color: var(--brand-primary);
   font-weight: bold;
   margin-right: 10px;
   font-size: 18px;
@@ -413,7 +413,7 @@
 .vb-report-input {
   width: 100%;
   padding: 15px;
-  border: 2px solid #e0e0e0;
+  border: 1px solid #e0e0e0;
   border-radius: 8px;
   font-size: 16px;
   transition: border-color 0.3s ease;
@@ -422,7 +422,7 @@
 
 .vb-report-input:focus {
   outline: none;
-  border-color: #00b8e6;
+  border-color: var(--brand-primary);
 }
 
 .vb-report-input-error {
@@ -438,7 +438,7 @@
 .vb-report-unlock-button {
   width: 100%;
   padding: 15px;
-  background: linear-gradient(135deg, #00b8e6 0%, #0099cc 100%);
+  background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary) 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -451,7 +451,7 @@
 
 .vb-report-unlock-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 184, 230, 0.3);
+  box-shadow: 0 8px 20px var(--brand-primary-alpha);
 }
 
 .vb-report-unlock-button:disabled {
@@ -518,15 +518,15 @@
 }
 
 .vb-report-recommendation-item {
-  border: 2px solid #f0f0f0;
+  border: 1px solid #f0f0f0;
   border-radius: 12px;
   padding: 20px;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .vb-report-recommendation-item:hover {
-  border-color: #00b8e6;
-  box-shadow: 0 4px 16px rgba(0, 184, 230, 0.1);
+  border-color: var(--brand-primary);
+  box-shadow: 0 4px 16px var(--brand-primary-alpha);
 }
 
 .vb-report-recommendation-header {
@@ -537,7 +537,7 @@
 }
 
 .vb-report-recommendation-number {
-  background: #00b8e6;
+  background: var(--brand-primary);
   color: white;
   width: 30px;
   height: 30px;
@@ -607,7 +607,7 @@
   padding: 20px;
   background: #f8f9fa;
   border-radius: 8px;
-  border-left: 4px solid #00b8e6;
+  border-left: 4px solid var(--brand-primary);
 }
 
 .vb-report-ai-content {
@@ -634,7 +634,7 @@
   padding: 30px;
   text-align: center;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 2px solid #27ae60;
+  border: 1px solid #27ae60;
 }
 
 .vb-report-success-headline {
@@ -768,7 +768,7 @@
   gap: 8px;
   margin-top: 10px;
   font-size: 32px;
-  color: #00b8e6;
+  color: var(--brand-primary);
 }
 
 .vb-ai-arrow {
@@ -831,14 +831,14 @@
   height: 40px;
   border-radius: 50%;
   border: 3px solid rgba(0, 102, 204, 0.2);
-  border-top: 3px solid #236b6d;
+  border-top: 3px solid var(--brand-primary-darker);
   animation: vb-spin 1s linear infinite;
 }
 
 .vb-ai-loading-text {
   margin-top: 10px;
   font-size: 14px;
-  color: #0e98b4;
+  color: var(--brand-primary);
   font-weight: bold;
 }
 
@@ -870,7 +870,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(0, 184, 230, 0.8) 0%, rgba(35, 107, 109, 0.4) 100%);
+  background: radial-gradient(circle, var(--brand-primary) 0%, rgba(35, 107, 109, 0.4) 100%);
   animation: vb-ai-orbit 4s linear infinite;
 }
 
@@ -903,8 +903,8 @@
   position: absolute;
   height: 3px;
   width: 100%;
-  background: linear-gradient(90deg, transparent 0%, #00b8e6 20%, #0099cc 50%, #00b8e6 80%, transparent 100%);
-  box-shadow: 0 0 20px 4px rgba(0, 184, 230, 0.4), 0 0 40px 8px rgba(0, 184, 230, 0.2);
+  background: linear-gradient(90deg, transparent 0%, var(--brand-primary) 20%, var(--brand-primary) 50%, var(--brand-primary) 80%, transparent 100%);
+  box-shadow: 0 0 20px 4px var(--brand-primary-alpha), 0 0 40px 8px var(--brand-primary-alpha);
   left: 0;
   transition: top 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   animation: vb-ai-scan-glow 2s ease-in-out infinite alternate;
@@ -925,7 +925,7 @@
   position: absolute;
   width: 2px;
   height: 2px;
-  background: #00b8e6;
+  background: var(--brand-primary);
   border-radius: 50%;
   animation: vb-ai-particle-float 2s ease-in-out infinite;
   opacity: 0.7;
@@ -944,7 +944,7 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  border: 1px solid rgba(0, 184, 230, 0.2);
+  border: 1px solid var(--brand-primary-alpha);
   border-radius: 50%;
   transform: translate(-50%, -50%);
   animation: vb-ai-ripple-expand 4s ease-out infinite;

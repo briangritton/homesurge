@@ -2766,7 +2766,7 @@ function ValueBoostReport({ campaign, variant }) {
               boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
               display: unlocked ? 'block' : 'none' // Only show when recommendations are unlocked
             }}>
-              <h3 style={{ margin: '0 0 15px 0', fontSize: '22px', color: '#16899d' }}>
+              <h3 style={{ margin: '0 0 15px 0', fontSize: '22px', color: 'var(--brand-primary)' }}>
                 Want These Upgrades Done At No Upfront Cost?
               </h3>
               <p style={{ margin: '0 0 20px 0', fontSize: '16px' }}>
@@ -2845,7 +2845,7 @@ function ValueBoostReport({ campaign, variant }) {
               >
                 ×
               </button>
-              <h3 style={{ margin: '0 0 20px 0', fontSize: '22px', color: '#16899d', textAlign: 'center' }}>
+              <h3 style={{ margin: '0 0 20px 0', fontSize: '22px', color: 'var(--brand-primary)', textAlign: 'center' }}>
                 Create Your Free Account
               </h3>
               <p style={{ margin: '0 0 25px 0', fontSize: '16px', textAlign: 'center', color: '#555' }}>

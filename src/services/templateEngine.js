@@ -36,21 +36,24 @@ class TemplateEngineService {
     const templates = {
       // ========== CASH/SELLING CAMPAIGNS A TEMPLATES ==========
       cashA: {
-        headline: 'Get an Instant Cash Offer Today and Sell Fast!',
-        subheadline: 'Our OfferBoost AI home scan will generate our <strong><em>highest cash offer</em></strong> and opportunity report. Close in 7 days. No showings, no repairs, no stress',
-        buttonText: 'CHECK CASH OFFER',
+        headline: 'Want To Increase Your Cash Offer? Get Your OfferBoost AI Home Report to View Your Options',
+        // headline: 'WANT TO INCREASE YOUR CASH OFFER? Get Your OfferBoost AI Home Report to View Your Options',
+
+
+        subheadline: 'Our <strong><em>FREE</strong></i> OfferBoost AI home tool will generate your <strong><em>highest cash offer</em></strong> strategy report. Get your highest possible offer. <strong><i>Don\'t take less than you deserve.</strong></i>',
+        buttonText: 'GET FREE REPORT',
         exampleTag: 'Example OfferBoost Report Increase*',
         potentialHeadline: 'Your OfferBoost Potential:',
         opportunitiesText: '11 OfferBoost opportunities found!',
         percentageText: 'Potential Cash Offer Increase',
-        contactHeadline: '<i>HomeSurge Cash Offer Benefits:</i>',
-        checkmark1: '<strong>No stress closing!</strong> No repairs, inspections, commision, or closing costs.',
-        checkmark2: '<strong>No hidden fees.</strong> We make an offer, you get the <em><strong>exact amount</strong></em> in cash.',
-        checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
-        contactButtonText: 'GET CASH OFFER',
+        contactHeadline: '<i>HomeSurge OfferBoost Benefits:</i>',
+        checkmark1: '<strong>Don\'t accept lowball offers!</strong> See how to increase your cash offer potential.',
+        checkmark2: '<strong>No hidden fees.</strong> You accept an offer, you get the <em><strong>exact amount</strong></em> in cash.',
+        checkmark3: 'See how to close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
+        contactButtonText: 'GET FREE REPORT',
         contactDisclaimer: '*Example values only. Your cash offer expires soon and will depend on current market conditions and property details. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.',
-        disclaimerMain: '*Example values only. Your offer amount will depend on your specific home details and other factors. <span class="disclaimer-link">See Offerboost details</span>. By entering your address, you agree to be contacted at the information details provided and send address details and other available browser autofill information to HomeSurge.AI for the purpose of contacting you with your requested information. <strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong>',
-        disclaimerPopup: 'Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase that might be acheived by various home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes.'
+        disclaimerMain: '*Example values only. Your offer amount will depend on your specific home details and other factors. <span class="disclaimer-link">See Offerboost details</span>.',
+        disclaimerPopup: 'Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible offer increase that might be acheived by various negotiation tactics, market factors, home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes.'
       },
 
       sellA: {
@@ -67,9 +70,9 @@ class TemplateEngineService {
         checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
         contactButtonText: 'GET CASH OFFER',
         contactDisclaimer: '*Example values only. Your cash offer expires soon and will depend on current market conditions and property details. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.',
-        disclaimerMain: '*Example values only. Your offer amount will depend on your specific home details and other factors. <span class="disclaimer-link">See Offerboost details</span>. By entering your address, you agree to be contacted at the information details provided and send address details and other available browser autofill information to HomeSurge.AI for the purpose of contacting you with your requested information. <strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong>',
-        disclaimerPopup: 'Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase that might be acheived by various home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes.'
-      },
+       disclaimerMain: '*Example values only. Your offer amount will depend on your specific home details and other factors. <span class="disclaimer-link">See Offerboost details</span>.',
+        disclaimerPopup: 'Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible offer increase that might be acheived by various negotiation tactics, market factors, home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes.'
+        },
       
       valueA: {
         headline: 'See Your Maximum Home Value Potential With ValueBoost AI',
@@ -85,8 +88,8 @@ class TemplateEngineService {
         checkmark3: '<strong><i>Customized for your unique property,</strong></i> down to the smallest detail',
         contactButtonText: 'GET VALUE REPORT',
         contactDisclaimer: '*Example values only. Your cash offer expires soon and will depend on current market conditions and property details. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.',
-        disclaimerMain: '*Example values only. Your offer amount will depend on your specific home details and other factors. <span class="disclaimer-link">See Offerboost details</span>. By entering your address, you agree to be contacted at the information details provided and send address details and other available browser autofill information to HomeSurge.AI for the purpose of contacting you with your requested information. <strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong>',
-        disclaimerPopup: 'Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase that might be acheived by various home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes.'
+        disclaimerMain: '*Example values only. Your value will depend on your specific home details and other factors. <span class="disclaimer-link">See ValueBoost details</span>.',
+        disclaimerPopup: 'Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible offer increase that might be acheived by various negotiation tactics, market factors, home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes.'
       },
       
       equityA: {
@@ -116,7 +119,7 @@ class TemplateEngineService {
         checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
         contactButtonText: 'CHECK CASH OFFER',
         contactDisclaimer: '*Example values only. Your cash offer expires soon and will depend on current market conditions and property details. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.',
-        disclaimerMain: '*<strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong> By entering your address, you agree to be contacted at the information details provided and send address details and other available browser autofill information to HomeSurge.AI for the purpose of contacting you with your requested information.',
+        disclaimerMain: '',
         disclaimerPopup: 'Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase that might be acheived by various home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes.'
       },
       
@@ -134,7 +137,7 @@ class TemplateEngineService {
         checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
         contactButtonText: 'CHECK CASH OFFER',
         contactDisclaimer: '*Example values only. Your cash offer expires soon and will depend on current market conditions and property details. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.',
-        disclaimerMain: '*<strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong> By entering your address, you agree to be contacted at the information details provided and send address details and other available browser autofill information to HomeSurge.AI for the purpose of contacting you with your requested information.',
+        disclaimerMain: '',
         disclaimerPopup: 'Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase that might be acheived by various home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes.'
       },
       
@@ -152,9 +155,9 @@ class TemplateEngineService {
         checkmark3: '<strong><i>Customized for your unique property,</strong></i> down to the smallest detail',
         contactButtonText: 'GET VALUE REPORT',
         contactDisclaimer: '*Example values only. Your cash offer expires soon and will depend on current market conditions and property details. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.',
-        disclaimerMain: '*Example values only. Your offer amount will depend on your specific home details and other factors. <span class="disclaimer-link">See Offerboost details</span>. By entering your address, you agree to be contacted at the information details provided and send address details and other available browser autofill information to HomeSurge.AI for the purpose of contacting you with your requested information. <strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong>',
-        disclaimerPopup: 'Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase that might be acheived by various home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes.'
-      },
+        disclaimerMain: '*Example values only. Your offer amount will depend on your specific home details and other factors. <span class="disclaimer-link">See Offerboost details</span>.',
+        disclaimerPopup: 'Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible offer increase that might be acheived by various negotiation tactics, market factors, home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes.'
+        },
       
       equityB2: {
         headline: 'Discover Hidden Home Wealth',
@@ -168,21 +171,24 @@ class TemplateEngineService {
       
       // ========== DEFAULT FALLBACK ==========
       defaultA: {
-        headline: 'Get an Instant Cash Offer Today and Sell Fast!',
-        subheadline: 'Our OfferBoost AI home scan will generate our <strong><em>highest cash offer</em></strong> and opportunity report. Close in 7 days. No showings, no repairs, no stress',
-        buttonText: 'CHECK CASH OFFER',
+        headline: 'Want To Increase Your Cash Offer? Get Your OfferBoost AI Home Report to View Your Options',
+        // headline: 'WANT TO INCREASE YOUR CASH OFFER? Get Your OfferBoost AI Home Report to View Your Options',
+
+
+        subheadline: 'Our <strong><em>FREE</strong></i> OfferBoost AI home tool will generate your <strong><em>highest cash offer</em></strong> strategy report. Get your highest possible offer. <strong><i>Don\'t take less than you deserve.</strong></i>',
+        buttonText: 'GET FREE REPORT',
         exampleTag: 'Example OfferBoost Report Increase*',
         potentialHeadline: 'Your OfferBoost Potential:',
         opportunitiesText: '11 OfferBoost opportunities found!',
         percentageText: 'Potential Cash Offer Increase',
-        contactHeadline: '<i>HomeSurge Cash Offer Benefits:</i>',
-        checkmark1: '<strong>No stress closing!</strong> No repairs, inspections, commision, or closing costs.',
-        checkmark2: '<strong>No hidden fees.</strong> We make an offer, you get the <em><strong>exact amount</strong></em> in cash.',
-        checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
-        contactButtonText: 'GET CASH OFFER',
+        contactHeadline: '<i>HomeSurge OfferBoost Benefits:</i>',
+        checkmark1: '<strong>Don\'t accept lowball offers!</strong> See how to increase your cash offer potential.',
+        checkmark2: '<strong>No hidden fees.</strong> You accept an offer, you get the <em><strong>exact amount</strong></em> in cash.',
+        checkmark3: 'See how to close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
+        contactButtonText: 'GET FREE REPORT',
         contactDisclaimer: '*Example values only. Your cash offer expires soon and will depend on current market conditions and property details. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.',
-        disclaimerMain: '*Example values only. Your offer amount will depend on your specific home details and other factors. <span class="disclaimer-link">See Offerboost details</span>. By entering your address, you agree to be contacted at the information details provided and send address details and other available browser autofill information to HomeSurge.AI for the purpose of contacting you with your requested information. <strong>We respect your privacy and will never share your details with anyone. No spam ever.</strong>',
-        disclaimerPopup: 'Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible home value increase that might be acheived by various home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes.'
+        disclaimerMain: '*Example values only. Your offer amount will depend on your specific home details and other factors. <span class="disclaimer-link">See Offerboost details</span>.',
+        disclaimerPopup: 'Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible offer increase that might be acheived by various negotiation tactics, market factors, home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes.'
       }
     };
     
@@ -360,31 +366,31 @@ class TemplateEngineService {
   getB2Step3Template(campaign) {
     const templates = {
       cashB2: {
-        readyHeadline: 'Next, where do you want us to text your cash offer?',
-        readySubheadline: 'We\'ll send you our strongest <strong><i>no obligation cash offer</i></strong>, and you choose how fast to close! ',
+        readyHeadline: 'Next, where do you want us to send your <strong><i>no obligation cash offer?</i></strong> ',
+        readySubheadline: 'We\'ll send you our highest possible offer, and you choose how fast to close! <strong><i>No spam ever, and we\'ll never share your details </strong></i>',
         unlockHeadline: '<i>HomeSurge Cash Offer Benefits:</i>',
         unlockSubtext: 'Time-sensitive analysis - get your complete cash offer before rates change',
-        checkmark1: '<strong>No stress closing!</strong> No repairs, inspections, commision, or closing costs.',
-        checkmark2: '<strong>No hidden fees.</strong> We make an offer, you get the <em><strong>exact amount</strong></em> in cash.',
+        checkmark1: '<strong><i>No stress closing!</i></strong> No repairs, inspections, commision, or closing costs.',
+        checkmark2: '<strong><i>No hidden fees.</i></strong> We make an offer, you get the <em><strong>exact amount</strong></em> in cash.',
         checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
         buttonText: 'GET CASH OFFER',
-        disclaimer: '<strong> No spam ever. </strong>We respect your privacy and will never share your details with anyone. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list.'
+        disclaimer: '<strong> No spam ever. </strong>We respect your privacy and will never share your details with anyone. By submitting your information, you consent to receive offer details via calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list.'
       },
       
       sellB2: {
-        readyHeadline: 'Next, where do you want us to text your cash offer?',
-        readySubheadline: 'We\'ll send you our strongest <strong><i>no obligation cash offer</i></strong>, and you choose how fast to close! ',        
+        readyHeadline: 'Next, where do you want us to send your <strong><i>no obligation cash offer?</i></strong> ',
+        readySubheadline: 'We\'ll send you our highest possible offer, and you choose how fast to close! <strong><i>No spam ever, and we\'ll never share your details </strong></i>',
         unlockHeadline: '<i>HomeSurge Cash Offer Benefits:</i>',
         unlockSubtext: 'Time-sensitive analysis - get your complete cash offer before rates change',
-        checkmark1: '<strong>No stress closing!</strong> No repairs, inspections, commision, or closing costs.',
-        checkmark2: '<strong>No hidden fees.</strong> We make an offer, you get the <em><strong>exact amount</strong></em> in cash.',
+        checkmark1: '<strong><i>No stress closing!</i></strong> No repairs, inspections, commision, or closing costs.',
+        checkmark2: '<strong><i>No hidden fees.</i></strong> We make an offer, you get the <em><strong>exact amount</strong></em> in cash.',
         checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
         buttonText: 'GET CASH OFFER',
-        disclaimer: '<strong> No spam ever. </strong>We respect your privacy and will never share your details with anyone. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list.'
+        disclaimer: '<strong> No spam ever. </strong>We respect your privacy and will never share your details with anyone. By submitting your information, you consent to receive offer details via calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list.'
       },
       
       valueB2: {
-        readyHeadline: 'Next, where do you want us to text a copy your ValueBoost report?',
+        readyHeadline: 'Next, where do you want us to send your ValueBoost report?',
         readySubheadline: 'We\'ll send you a detailed <strong><i>maximum home value</strong></i>, report with FREE AI personalized opportunity recommendations! ',
         unlockHeadline: 'Get Your FREE ValueBoost Max Value Report',
         timeoutUnlockHeadline: 'HomeSurge ValueBoost Report Benefits:',
@@ -397,15 +403,15 @@ class TemplateEngineService {
       },
       
       default: {
-        readyHeadline: 'Next, where do you want us to text your cash offer?',
-        readySubheadline: 'We\'ll send you our strongest <strong><i>no obligation cash offer</i></strong>, and you choose how fast to close! ',
+        readyHeadline: 'Next, where do you want us to send your <strong><i>no obligation cash offer?</i></strong> ',
+        readySubheadline: 'We\'ll send you our highest possible offer, and you choose how fast to close! <strong><i>No spam ever, and we\'ll never share your details </strong></i>',
         unlockHeadline: '<i>HomeSurge Cash Offer Benefits:</i>',
         unlockSubtext: 'Time-sensitive analysis - get your complete cash offer before rates change',
-        checkmark1: '<strong>No stress closing!</strong> No repairs, inspections, commision, or closing costs.',
-        checkmark2: '<strong>No hidden fees.</strong> We make an offer, you get the <em><strong>exact amount</strong></em> in cash.',
+        checkmark1: '<strong><i>No stress closing!</i></strong> No repairs, inspections, commision, or closing costs.',
+        checkmark2: '<strong><i>No hidden fees.</i></strong> We make an offer, you get the <em><strong>exact amount</strong></em> in cash.',
         checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
         buttonText: 'GET CASH OFFER',
-        disclaimer: '<strong> No spam ever. </strong>We respect your privacy and will never share your details with anyone. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list.'
+        disclaimer: '<strong> No spam ever. </strong>We respect your privacy and will never share your details with anyone. By submitting your information, you consent to receive offer details via calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list.'
       }
     };
     
