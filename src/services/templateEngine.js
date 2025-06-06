@@ -453,8 +453,9 @@ class TemplateEngineService {
         checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
         conciergeHeadline: 'Want Expert Help Maximizing Your Cash Offer?',
         buttonText: 'GET FREE REPORT',
-        timeoutHeadline: 'Report Generated! Watch your messages, we\'ll be sending a text with your OfferBoost report shortly!',
-        disclaimer: 'By submitting your information, you consent to receive your OfferBoost details via call, text, or email from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.'
+        timeoutHeadline: 'Report generated! Watch your messages, we\'ll be sending a text with your OfferBoost report shortly!',
+        disclaimer: 'By submitting your information, you consent to receive your OfferBoost details via call, text, or email from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.',
+        stickyPopupMessage: 'Want to maximize your cash offer? I have connections with some of the industry\'s best negotiation experts and can help you leverage the <em><strong>highest possible offer.</strong></em> Give me a call or shoot me a text!'
       },
 
       sellA: {
@@ -473,7 +474,8 @@ class TemplateEngineService {
         conciergeHeadline: 'Want Expert Help Maximizing Your Cash Offer?',
         buttonText: 'GET CASH OFFER',
         timeoutHeadline: 'Report generated! Watch your messages, we\'ll be sending a text with your cash offer shortly!',
-        disclaimer: 'By submitting your information, you consent to receive your OfferBoost details via call, text, or email from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.'
+        disclaimer: 'By submitting your information, you consent to receive your OfferBoost details via call, text, or email from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.',
+        stickyPopupMessage: 'Want to sell fast and get the highest possible offer? I have connections with cash buyers and can help expedite your sale while maximizing your return. Give me a call or shoot me a text!'
       },
 
       valueA: {
@@ -491,7 +493,8 @@ class TemplateEngineService {
         checkmark3: '<strong><i>Customized for your unique property,</strong></i> down to the smallest detail',
         buttonText: 'GET VALUE REPORT',
         timeoutHeadline: 'Report generated! Watch your messages, we\'ll be sending a text with your ValueBoost report shortly!',
-        disclaimer: 'By submitting your information, you consent to receive your ValueBoost details via call, text, or email from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.'
+        disclaimer: 'By submitting your information, you consent to receive your ValueBoost details via call, text, or email from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.',
+        stickyPopupMessage: 'Selling and want to see if your home qualifies to have these value add upgrades done <em>ABSOLUTELY FREE?</em> Give me a call or shoot me a text!'
       },
 
       equity: {
@@ -525,8 +528,9 @@ class TemplateEngineService {
         checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
         conciergeHeadline: 'Want Expert Help Maximizing Your Cash Offer?',
         buttonText: 'GET FREE REPORT',
-        timeoutHeadline: 'Report Generated! Watch your messages, we\'ll be sending a text with your OfferBoost report shortly!',
-        disclaimer: 'By submitting your information, you consent to receive your OfferBoost details via call, text, or email from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.'
+        timeoutHeadline: 'Report generated! Watch your messages, we\'ll be sending a text with your OfferBoost report shortly!',
+        disclaimer: 'By submitting your information, you consent to receive your OfferBoost details via call, text, or email from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.',
+        stickyPopupMessage: 'Want to maximize your cash offer? I have connections with some of the industry\'s best negotiation experts and can help you leverage the highest possible offer. Give me a call or shoot me a text!'
       }
     };
     

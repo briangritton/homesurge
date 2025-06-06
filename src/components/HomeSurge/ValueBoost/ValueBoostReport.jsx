@@ -75,11 +75,11 @@ function ValueBoostReport({ campaign, variant }) {
                             !window.location.pathname.includes('/fsbo') && 
                             !window.location.pathname.includes('/buy'));
     
-    // Show sticky popup for value campaigns after submission
-    if (isValueCampaign && submitted) {
+    // Show sticky popup for ALL campaigns 1 second after report starts generating
+    if (submitted && !showStickyPopup) {
       const timer = setTimeout(() => {
         setShowStickyPopup(true);
-      }, 2000); // Show popup 2 seconds after page loads
+      }, 1000); // Show popup 1 second after report generation starts
       
       return () => clearTimeout(timer);
     }
@@ -634,9 +634,10 @@ function ValueBoostReport({ campaign, variant }) {
     return (
       <div className="vb-sticky-popup-overlay">
         <div className="vb-sticky-popup">
-          <div className="vb-sticky-popup-message">
-            Selling and want to see if your home qualifies to have these value add upgrades done <em>ABSOLUTELY FREE? </em>Give me a call or shoot me a text!
-          </div>
+          <div 
+            className="vb-sticky-popup-message"
+            dangerouslySetInnerHTML={{ __html: dynamicContent.stickyPopupMessage || 'Want to maximize your results? Give me a call or shoot me a text!' }}
+          />
           <div className="vb-sticky-popup-profile">
             <div className="vb-sticky-popup-image">
               <img src={spencerImage} alt="Spencer - Real Estate Expert" />
@@ -708,10 +709,20 @@ function ValueBoostReport({ campaign, variant }) {
                                     !window.location.pathname.includes('/fsbo') && 
                                     !window.location.pathname.includes('/buy'));
       
+      // Debug the values causing the "0" issue
+      console.log('🐛 TIMEOUT DEBUG:', {
+        isValueCampaignTimeout,
+        apiEstimatedValue: formData.apiEstimatedValue,
+        apiEstimatedValueType: typeof formData.apiEstimatedValue,
+        shouldShowValueSection: isValueCampaignTimeout && formData.apiEstimatedValue && formData.apiEstimatedValue > 0
+      });
+      
+      // Sticky popup should already be showing from initial trigger during loading
+      
       return (
         <div className="vb-timeout-container">
           {/* Value Display for Value Campaigns Only */}
-          {isValueCampaignTimeout && formData.apiEstimatedValue && (
+          {Boolean(isValueCampaignTimeout && formData.apiEstimatedValue && formData.apiEstimatedValue > 0) && (
             <div className="vb-timeout-value-section">
               <div className="vb-timeout-value-container">
                 <div className="vb-timeout-value-item">
@@ -834,7 +845,7 @@ function ValueBoostReport({ campaign, variant }) {
                                         !window.location.pathname.includes('/fsbo') && 
                                         !window.location.pathname.includes('/buy'));
                 
-                if (isValueCampaign && formData.apiEstimatedValue) {
+                if (isValueCampaign && formData.apiEstimatedValue && formData.apiEstimatedValue > 0) {
                   const currentValue = new Intl.NumberFormat('en-US', {
                     style: 'currency',
                     currency: 'USD',

@@ -137,7 +137,12 @@ function AddressForm({ campaign, variant }) {
       const updateData = {
         ...addressData,
         // ...propertyData,
-        leadStage: 'Address Selected'
+        leadStage: 'Address Selected',
+        // Add route-based campaign data for CRM consistency with dynamic content
+        routeBasedCampaign: campaign,    // What drives the dynamic headlines (cash, sell, value)
+        routeBasedVariant: variant,      // What drives the dynamic content (A1O, B2O, etc.)
+        displayedHeadline: dynamicContent.headline,  // Exact headline shown to user
+        displayedSubheadline: dynamicContent.subheadline // Exact subheadline shown to user
       };
       
       // 5. Update FormContext

@@ -250,7 +250,7 @@ ANALYSIS REQUIREMENTS:
 REQUIRED OUTPUT FORMAT:
 ValueBoost AI Analysis Report
 
-[PERSONALIZED INTRODUCTION: 
+// [PERSONALIZED INTRODUCTION: 
 If architectural style and exterior details are available, use: "Let's cover your ValueBoost potential for your ${propertyAge}-year-old ${record.ExtStructInfo?.StructureStyle || 'home'} at ${address} with ${record.ExtStructInfo?.Exterior1Code || 'standard'} exterior, currently valued at ${formattedValue}."
 
 If architectural style OR exterior details are missing/unknown/not classified, use this simplified version instead: "Let's cover your ValueBoost potential improvements for ${address}!"
@@ -295,7 +295,7 @@ Focus on what makes this property attractive to cash buyers and investors:
 REQUIRED OUTPUT FORMAT:
 Maximum Cash Offer Negotiation Guide
 
-[PERSONALIZED INTRODUCTION: Address their ${propertyAge}-year-old property with strong equity position]
+Begin with a personalized introduction that addresses their ${propertyAge}-year-old property with strong equity position - DO NOT include brackets or placeholder text.
 
 Property Analysis: ${address}
 Current Estimated Value: ${formattedValue}
@@ -340,7 +340,7 @@ Consider the property's characteristics for self-selling approach:
 REQUIRED OUTPUT FORMAT:
 Complete FSBO Selling Guide
 
-[PERSONALIZED INTRODUCTION: Address their decision to sell their ${formattedValue} ${record.ExtStructInfo?.StructureStyle || 'home'} themselves]
+Begin with a personalized introduction that addresses their decision to sell their ${formattedValue} ${record.ExtStructInfo?.StructureStyle || 'home'} themselves - DO NOT include brackets or placeholder text.
 
 Property Analysis: ${address}
 Current Estimated Value: ${formattedValue}
@@ -387,7 +387,7 @@ Analyze the best approach for selling this specific property:
 REQUIRED OUTPUT FORMAT:
 Complete Seller's Maximization Guide
 
-[PERSONALIZED INTRODUCTION: Address selling their ${propertyAge}-year-old ${formattedValue} ${record.ExtStructInfo?.StructureStyle || 'home'}]
+Begin with a personalized introduction that addresses selling their ${propertyAge}-year-old ${formattedValue} ${record.ExtStructInfo?.StructureStyle || 'home'} - DO NOT include brackets or placeholder text.
 
 Property Analysis: ${address}
 Current Estimated Value: ${formattedValue}
@@ -436,7 +436,7 @@ Use this property as an example for buying optimization:
 REQUIRED OUTPUT FORMAT:
 Complete Home Buyer's Maximization Guide
 
-[PERSONALIZED INTRODUCTION: Using this ${formattedValue} property as an example of smart buying strategies]
+Begin with a personalized introduction using this ${formattedValue} property as an example of smart buying strategies - DO NOT include brackets or placeholder text.
 
 Property Case Study: ${address}
 Estimated Value: ${formattedValue}

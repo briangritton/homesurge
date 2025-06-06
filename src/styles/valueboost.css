@@ -21,7 +21,7 @@
 }
 
 .vb-ai-report-loading {
-  background-color: #f0f9ff;
+  background-color: #ffffff;
   border: 1px solid var(--brand-primary);
   text-align: center;
 }
@@ -3854,7 +3854,7 @@ padding-top:0%;
 }
 
 .vb-sticky-popup {
-  background: linear-gradient(135deg, var(--brand-primary) 0%, #0891b3 100%);
+  background: var(--brand-primary);
   color: white;
   padding: 20px;
   margin: 0 15px 15px 15px;
@@ -3864,6 +3864,7 @@ padding-top:0%;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
+  animation: slideUp 0.5s ease-out, periodicBounce 6s ease-in-out 5s infinite;
 }
 
 .vb-sticky-popup-close {
@@ -3895,6 +3896,8 @@ padding-top:0%;
   text-align: center;
   margin-bottom: 15px;
   line-height: 1.4;
+  orphans: 3;
+  widows: 3;
 }
 
 .vb-sticky-popup-message em {
@@ -3907,7 +3910,7 @@ padding-top:0%;
   display: flex;
   align-items: center;
   gap: 15px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--brand-primary-light);
   padding: 12px;
   border-radius: 8px;
 }
@@ -3964,6 +3967,16 @@ padding-top:0%;
     transform: translateY(0);
     opacity: 1;
   }
+}
+
+/* Periodic bounce animation - bounces once then waits */
+@keyframes periodicBounce {
+  0% { transform: translateY(0); }
+  2% { transform: translateY(-8px); }
+  4% { transform: translateY(-4px); }
+  6% { transform: translateY(-2px); }
+  8% { transform: translateY(0); }
+  10%, 100% { transform: translateY(0); }
 }
 
 /* Mobile responsive styles for sticky popup */
