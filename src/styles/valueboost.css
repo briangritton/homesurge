@@ -2425,6 +2425,22 @@ padding-top:0%;
   max-width: 750px;
 }
 
+.vb-b2-value-estimate-label{
+
+
+}
+
+.vb-b2-property-estimate {
+
+}
+
+
+.vb-b2-address-display {
+
+  font-size: 1.3rem;
+}
+
+
 .vb-b2-ready-container {
   align-items: center;
   display: flex;
@@ -2677,7 +2693,23 @@ padding-top:0%;
     min-height: 1000px;
     justify-content: flex-start;
   }
-  
+
+
+.vb-b2-value-estimate-label{
+
+  font-size: 1.1rem;
+}
+
+.vb-b2-property-estimate {
+    font-size: 1.1rem;
+    font-weight:bold;
+    color:#1a5052;
+}
+
+  .vb-b2-address-display {
+
+  font-size: 1.1rem;
+}
   .vb-b2-hero-headline {
     color: var(--brand-primary) !important;
     padding-left: 20px;

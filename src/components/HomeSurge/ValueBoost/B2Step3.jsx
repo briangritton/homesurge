@@ -84,7 +84,7 @@ function B2Step3({ campaign, variant }) {
     try {
       console.log('📋 B2Step3: Processing contact submission');
       
-      // 1. Update FormContext with contact data
+      // 1. Update FormContext with contact data (synchronous, immediate)
       const cleanName = contactInfo.name ? contactInfo.name.trim() : '';
       const phoneValidation = contactFormService.validatePhone(contactInfo.phone);
       const cleanedPhone = phoneValidation.isValid ? phoneValidation.cleanPhone : contactInfo.phone;
@@ -99,49 +99,11 @@ function B2Step3({ campaign, variant }) {
       
       updateFormData(formUpdate);
       
-      // Small delay to ensure FormContext updates
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // 2. Submit to CRM with retry logic and 5-second timeout protection
-      console.log('🕐 B2Step3: Starting CRM save with 5-second timeout...');
-      
-      const crmSavePromise = contactFormService.submitWithRetry(
-        {
-          name: cleanName,
-          phone: cleanedPhone,
-          email: contactInfo.email || ''
-        },
-        { ...formData, ...formUpdate },
-        {
-          component: 'B2Step3',
-          leadStage: 'ValueBoost B2 Contact Info Provided',
-          maxRetries: 10 // Aggressive retry for B2
-        }
-      );
-      
-      const timeoutPromise = new Promise((resolve) => {
-        setTimeout(() => {
-          console.log('⏰ B2Step3: CRM save timeout reached (5 seconds) - proceeding with navigation');
-          resolve({ success: false, timeout: true, message: 'CRM save timed out' });
-        }, 5000);
-      });
-      
-      // Wait for either CRM save to complete OR timeout (whichever comes first)
-      const submissionResult = await Promise.race([crmSavePromise, timeoutPromise]);
-      
-      if (submissionResult.timeout) {
-        console.log('⏰ B2Step3: Navigation proceeding due to timeout');
-      } else if (submissionResult.success) {
-        console.log('✅ B2Step3: CRM save completed successfully before timeout');
-      } else {
-        console.log('❌ B2Step3: CRM save failed before timeout');
-      }
-      
-      // 3. Navigate to step 4 (ValueBoostQualifyingB2)
+      // 2. Navigate immediately - don't wait for CRM
+      console.log('🚀 B2Step3: Instant navigation - proceeding to next step');
       nextStep();
-      console.log('✅ B2Step3: Navigating to ValueBoostQualifyingB2');
       
-      // 4. Comprehensive tracking
+      // 3. Immediate tracking (synchronous)
       trackingService.trackPhoneSubmission(
         { ...formData, ...formUpdate },
         'B2Step3',
@@ -150,12 +112,11 @@ function B2Step3({ campaign, variant }) {
             funnelType: 'valueboost_b2',
             conversionType: 'b2_qualified',
             campaign_name: formData.campaign_name || '',
-            submissionSuccess: submissionResult.success
+            submissionSuccess: 'pending' // CRM submission happening in background
           }
         }
       );
       
-      // 5. Track complete form submission
       trackingService.trackCompleteFormSubmission(
         { ...formData, ...formUpdate },
         'ValueBoost B2 Qualified',
@@ -169,7 +130,49 @@ function B2Step3({ campaign, variant }) {
         }
       );
       
-      console.log('✅ B2Step3: All tracking completed');
+      console.log('✅ B2Step3: Instant navigation and tracking completed');
+      
+      // 4. Fire-and-forget CRM submission with background retries
+      setTimeout(() => {
+        console.log('🔄 B2Step3: Starting background CRM submission with retries...');
+        
+        contactFormService.submitWithRetry(
+          {
+            name: cleanName,
+            phone: cleanedPhone,
+            email: contactInfo.email || ''
+          },
+          { ...formData, ...formUpdate },
+          {
+            component: 'B2Step3',
+            leadStage: 'ValueBoost B2 Contact Info Provided',
+            maxRetries: 10 // Aggressive retry for B2
+          }
+        ).then(result => {
+          if (result.success) {
+            console.log('✅ B2Step3: Background CRM submission successful');
+          } else {
+            console.error('❌ B2Step3: Background CRM submission failed after all retries:', result.error);
+            // Could store in localStorage for later retry if needed
+            localStorage.setItem('pendingB2Step3Submission', JSON.stringify({
+              contactData: { name: cleanName, phone: cleanedPhone, email: contactInfo.email || '' },
+              formData: { ...formData, ...formUpdate },
+              timestamp: new Date().toISOString(),
+              component: 'B2Step3'
+            }));
+          }
+        }).catch(error => {
+          console.error('❌ B2Step3: Background CRM submission error:', error);
+          // Store for potential later retry
+          localStorage.setItem('pendingB2Step3Submission', JSON.stringify({
+            contactData: { name: cleanName, phone: cleanedPhone, email: contactInfo.email || '' },
+            formData: { ...formData, ...formUpdate },
+            timestamp: new Date().toISOString(),
+            component: 'B2Step3',
+            error: error.message
+          }));
+        });
+      }, 0); // setTimeout with 0ms = next event loop (non-blocking)
       
     } catch (error) {
       console.error('❌ B2Step3: Submission error:', error);
@@ -210,6 +213,71 @@ function B2Step3({ campaign, variant }) {
     <div className="vb-b2-report-section">
       <div className="vb-b2-report-container">
         <div className="vb-b2-content vb-b2-fade-in">
+          {/* Address Display - Only show when valid API data is available and fully loaded */}
+          {((formData.apiMaxHomeValue > 0) || (formData.apiEstimatedValue > 0)) && formData.street && !formData.apiLoading && (
+            <div className="vb-b2-address-display">
+              {(() => {
+                const parts = formData.street.split(',');
+                
+                // Check if we have enough parts for the expected format
+                if (parts.length >= 3) {
+                  // Format with street part + city, state
+                  return (
+                    <>
+                      {parts.slice(0, -2).join(',')},
+                      <span className="vb-b2-nowrap-phrase">
+                        {parts.slice(-2).join(',').replace(/, USA$/, '')}
+                      </span>
+                    </>
+                  );
+                } else if (parts.length === 2) {
+                  // Format with just two parts (likely street + city/state)
+                  return (
+                    <>
+                      {parts[0]},
+                      <span className="vb-b2-nowrap-phrase">
+                        {parts[1].replace(/, USA$/, '')}
+                      </span>
+                    </>
+                  );
+                } else {
+                  // Just display the address as is if only one part
+                  return formData.street.replace(/, USA$/, '');
+                }
+              })()}
+            </div>
+          )}
+
+          {/* Value Estimate Display - Only show when API data is available and fully loaded */}
+          {formData.apiMaxHomeValue > 0 && !formData.apiLoading ? (
+            <div className="vb-b2-estimate-container">
+              <span className="vb-b2-value-estimate-label">Value Estimate:</span>
+              <span className="vb-b2-property-estimate">
+                {new Intl.NumberFormat('en-US', {
+                  style: 'currency',
+                  currency: 'USD',
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0
+                }).format(formData.apiMaxHomeValue)}
+              </span>
+            </div>
+          ) : formData.apiEstimatedValue > 0 && !formData.apiLoading ? (
+            <div className="vb-b2-estimate-container">
+              <span className="vb-b2-value-estimate-label">Value Estimate:</span>
+              <span className="vb-b2-property-estimate">
+                {formData.formattedApiEstimatedValue && formData.formattedApiEstimatedValue !== '$0' 
+                  ? formData.formattedApiEstimatedValue 
+                  : new Intl.NumberFormat('en-US', {
+                      style: 'currency',
+                      currency: 'USD',
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0
+                    }).format(formData.apiEstimatedValue)
+                }
+              </span>
+            </div>
+          ) : null}
+
           {/* Report Ready State - match original structure */}
           <div className="vb-b2-ready-container">
             <div 

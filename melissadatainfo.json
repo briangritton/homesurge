@@ -42,10 +42,10 @@
     "Unit": ""
   },
   "PropertyAddress": {
-    "Address": "6318 Station Mill Dr",
-    "City": "Peachtree Corners",
+    "Address": "1234 Example St",
+    "City": "Atlanta",
     "State": "GA",
-    "Zip": "30092-1873",
+    "Zip": "30309-1234",
     "CarrierRoute": "C084",
     "AddressKey": "30092187318",
     "MAK": "3356314833",
@@ -55,10 +55,10 @@
     "PrivacyInfo": ""
   },
   "ParsedPropertyAddress": {
-    "Range": "6318",
+    "Range": "1234",
     "PreDirectional": "",
-    "StreetName": "Station Mill",
-    "Suffix": "Dr",
+    "StreetName": "Example",
+    "Suffix": "St",
     "PostDirectional": "",
     "SuiteName": "",
     "SuiteRange": ""
@@ -95,10 +95,10 @@
     "Type": ""
   },
   "OwnerAddress": {
-    "Address": "6318 Station Mill Dr",
-    "City": "Peachtree Corners",
+    "Address": "1234 Example St",
+    "City": "Atlanta",
     "State": "GA",
-    "Zip": "30092-1873",
+    "Zip": "30309-1234",
     "CarrierRoute": "C084",
     "MAK": "3356314833",
     "BaseMAK": "",

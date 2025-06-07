@@ -253,7 +253,7 @@ function ValueBoostReport({ campaign, variant }) {
     try {
       console.log('🔓 ValueBoostReport: Processing contact submission');
       
-      // 1. Update FormContext with contact data (same as B2Step3)
+      // 1. Update FormContext with contact data (synchronous, immediate)
       const cleanName = contactInfo.name ? contactInfo.name.trim() : '';
       const phoneValidation = contactFormService.validatePhone(contactInfo.phone);
       const cleanedPhone = phoneValidation.isValid ? phoneValidation.cleanPhone : contactInfo.phone;
@@ -268,58 +268,20 @@ function ValueBoostReport({ campaign, variant }) {
       
       updateFormData(formUpdate);
       
-      // Small delay to ensure FormContext updates
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // 2. Submit to CRM with retry logic and 5-second timeout protection (same as B2Step3)
-      console.log('🕐 ValueBoostReport: Starting CRM save with 5-second timeout...');
-      
-      const crmSavePromise = contactFormService.submitWithRetry(
-        {
-          name: cleanName,
-          phone: cleanedPhone,
-          email: contactInfo.email || ''
-        },
-        { ...formData, ...formUpdate },
-        {
-          component: 'ValueBoostReport',
-          leadStage: 'ValueBoost Report Contact Info Provided',
-          maxRetries: 3 // Less aggressive than B2
-        }
-      );
-      
-      const timeoutPromise = new Promise((resolve) => {
-        setTimeout(() => {
-          console.log('⏰ ValueBoostReport: CRM save timeout reached (5 seconds) - proceeding with unlock');
-          resolve({ success: false, timeout: true, message: 'CRM save timed out' });
-        }, 5000);
-      });
-      
-      // Wait for either CRM save to complete OR timeout (whichever comes first)
-      const submissionResult = await Promise.race([crmSavePromise, timeoutPromise]);
-      
-      if (submissionResult.timeout) {
-        console.log('⏰ ValueBoostReport: Unlock proceeding due to timeout');
-      } else if (submissionResult.success) {
-        console.log('✅ ValueBoostReport: CRM save completed successfully before timeout');
-      } else {
-        console.log('❌ ValueBoostReport: CRM save failed before timeout');
-      }
-      
-      // 3. Unlock immediately - AI report polling handles state transitions independently
-      console.log('✅ ValueBoostReport: Contact form submitted, unlocking report');
+      // 2. Unlock immediately - don't wait for CRM
+      console.log('🚀 ValueBoostReport: Instant unlock - proceeding to show report');
       if (reportState === 'timeout') {
         // If already in timeout state, preserve it to show "texted" message
         console.log('🔒 ValueBoostReport: Keeping timeout state to show texted message');
       } else {
-        // For loading or ready states, unlock the report
+        // For loading or ready states, unlock the report immediately
         setReportState('unlocked');
       }
       
       setSubmitted(true);
-      console.log('✅ ValueBoostReport: Report unlocked successfully');
+      console.log('✅ ValueBoostReport: Report unlocked instantly');
       
-      // 4. Comprehensive tracking (similar to B2Step3)
+      // 3. Immediate tracking (synchronous)
       trackingService.trackPhoneSubmission(
         { ...formData, ...formUpdate },
         'ValueBoostReport',
@@ -328,10 +290,54 @@ function ValueBoostReport({ campaign, variant }) {
             funnelType: 'valueboost_report',
             conversionType: 'report_unlocked',
             campaign_name: formData.campaign_name || '',
-            submissionSuccess: submissionResult.success
+            submissionSuccess: 'pending' // CRM submission happening in background
           }
         }
       );
+      
+      console.log('✅ ValueBoostReport: Instant unlock and tracking completed');
+      
+      // 4. Fire-and-forget CRM submission with background retries
+      setTimeout(() => {
+        console.log('🔄 ValueBoostReport: Starting background CRM submission with retries...');
+        
+        contactFormService.submitWithRetry(
+          {
+            name: cleanName,
+            phone: cleanedPhone,
+            email: contactInfo.email || ''
+          },
+          { ...formData, ...formUpdate },
+          {
+            component: 'ValueBoostReport',
+            leadStage: 'ValueBoost Report Contact Info Provided',
+            maxRetries: 5 // Moderate retry for report unlock
+          }
+        ).then(result => {
+          if (result.success) {
+            console.log('✅ ValueBoostReport: Background CRM submission successful');
+          } else {
+            console.error('❌ ValueBoostReport: Background CRM submission failed after all retries:', result.error);
+            // Store in localStorage for later retry if needed
+            localStorage.setItem('pendingValueBoostReportSubmission', JSON.stringify({
+              contactData: { name: cleanName, phone: cleanedPhone, email: contactInfo.email || '' },
+              formData: { ...formData, ...formUpdate },
+              timestamp: new Date().toISOString(),
+              component: 'ValueBoostReport'
+            }));
+          }
+        }).catch(error => {
+          console.error('❌ ValueBoostReport: Background CRM submission error:', error);
+          // Store for potential later retry
+          localStorage.setItem('pendingValueBoostReportSubmission', JSON.stringify({
+            contactData: { name: cleanName, phone: cleanedPhone, email: contactInfo.email || '' },
+            formData: { ...formData, ...formUpdate },
+            timestamp: new Date().toISOString(),
+            component: 'ValueBoostReport',
+            error: error.message
+          }));
+        });
+      }, 0); // setTimeout with 0ms = next event loop (non-blocking)
       
     } catch (error) {
       console.error('❌ ValueBoostReport: Unlock error:', error);
@@ -344,7 +350,7 @@ function ValueBoostReport({ campaign, variant }) {
       );
       
       // Still unlock for user experience
-      // setReportState('unlocked'); // COMMENTED OUT
+      setReportState('unlocked');
       setSubmitted(true);
     } finally {
       setIsSubmitting(false);
