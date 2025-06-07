@@ -2431,11 +2431,13 @@ padding-top:0%;
 
 .vb-b2-value-estimate-label{
 
-
+font-size:1.3rem;
 }
 
 .vb-b2-property-estimate {
-
+color: #1a5052;
+        font-size: 1.3rem;
+        font-weight: 700;
 }
 
 

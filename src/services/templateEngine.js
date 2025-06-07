@@ -57,21 +57,21 @@ class TemplateEngineService {
       },
 
       sellA: {
-        headline: 'Want to Sell Your House Fast, Without Repairs?',
-        subheadline: 'Our OfferBoost AI home scan will generate our <strong><em>highest cash offer</em></strong> and opportunity report. Close in 7 days. No showings, no repairs, no stress',
-        buttonText: 'CHECK CASH OFFER',
-        exampleTag: 'Example OfferBoost Report Increase*',
+        headline: 'Don\'t Leave Money on the Table When You Sell! Get Your FREE OfferBoost Strategy Report',
+        subheadline: 'Our <strong><em>FREE</strong></em> OfferBoost AI Report will generate your personalized <strong><em>maximum selling price strategy</em></strong>. Learn how to sell for the <strong><i>highest possible price</i></strong> and get <strong><i>multiple offers fast!</i></strong> <strong><i>Don\'t undersell your home.</strong></i>',
+        buttonText: 'GET FREE REPORT',
+        exampleTag: 'Example OfferBoost Strategy Increase*',
         potentialHeadline: 'Your OfferBoost Potential:',
-        opportunitiesText: '11 OfferBoost opportunities found!',
-        percentageText: 'Potential Cash Offer Increase',
-        contactHeadline: '<i>HomeSurge Cash Offer Benefits:</i>',
-        checkmark1: '<strong>No stress closing!</strong> No repairs, inspections, commision, or closing costs.',
-        checkmark2: '<strong>No hidden fees.</strong> We make an offer, you get the <em><strong>exact amount</strong></em> in cash.',
-        checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
-        contactButtonText: 'GET CASH OFFER',
-        contactDisclaimer: '*Example values only. Your cash offer expires soon and will depend on current market conditions and property details. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.',
-       disclaimerMain: '*Example values only. Your offer amount will depend on your specific home details and other factors. <span class="disclaimer-link">See Offerboost details</span>.',
-        disclaimerPopup: 'Offerboost and Valueboost by HomeSurge.AI scan your home using various data resources, and project a possible offer increase that might be acheived by various negotiation tactics, market factors, home improvements and other opportunities custom to your specific property. All numbers are for example only and are simply possible outcomes.'
+        opportunitiesText: '15 OfferBoost opportunities found!',
+        percentageText: 'Potential Selling Price Increase',
+        contactHeadline: '<i>HomeSurge OfferBoost Benefits:</i>',
+        checkmark1: '<strong>Don\'t undersell your home!</strong> Learn the exact steps to <strong><em>maximize your selling price</em></strong>.',
+        checkmark2: '<strong>Get multiple offers fast!</strong> Our proven strategies help you <strong><em>create bidding wars</em></strong>.',
+        checkmark3: '<strong>Sell prepared, not panicked!</strong> Know exactly what to do <strong><em>before you list</em></strong> to maximize profit.',
+        contactButtonText: 'GET FREE REPORT',
+        contactDisclaimer: '*Example strategies only. Your selling results will depend on current market conditions, property details, and strategy implementation. By submitting your information, you consent to receive calls, texts, and emails from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.',
+       disclaimerMain: '*Example values only. Your selling price will depend on your specific home details, market conditions, and strategy implementation. <span class="disclaimer-link">See OfferBoost details</span>.',
+        disclaimerPopup: 'OfferBoost by HomeSurge.AI analyzes your home using various data resources, and provides personalized selling strategies that might help maximize your selling price through proper preparation, timing, pricing, and marketing tactics custom to your specific property and local market. All numbers are for example only and represent possible outcomes.'
         },
       
       valueA: {
@@ -242,6 +242,13 @@ class TemplateEngineService {
         estimateLabel: 'OfferBoost Estimate:'
       },
       
+      sell: {
+        headline: 'Generating Your OfferBoost Strategy...',
+        subheadline: 'AI is analyzing your home to create your personalized selling strategy',
+        completionText: 'OfferBoost Strategy Complete!',
+        estimateLabel: 'OfferBoost Estimate:'
+      },
+      
       sellfast: {
         headline: 'Lightning-Fast OfferBoost Analysis...',
         subheadline: 'Calculating your instant cash offer potential',
@@ -290,6 +297,13 @@ class TemplateEngineService {
         headline: 'Analyzing Your OfferBoost Maximum Offer...',
         subheadline: 'Our AI is calculating your optimal cash offer and timeline',
         completionText: 'OfferBoost Analysis Complete!',
+        estimateLabel: 'OfferBoost Estimate:'
+      },
+      
+      sellB2: {
+        headline: 'Creating Your Selling Strategy...',
+        subheadline: 'AI is building your custom strategy to sell for maximum price',
+        completionText: 'OfferBoost Strategy Ready!',
         estimateLabel: 'OfferBoost Estimate:'
       },
       
@@ -346,6 +360,7 @@ class TemplateEngineService {
       // CASH/SELLING CAMPAIGN MATCHING (Highest priority)
       if (simplified.includes('cash')) return variant === 'B2O' ? templates.cashB2 : templates.cash;
       if (simplified.includes('sellfast') || simplified.includes('sell_fast')) return variant === 'B2O' ? templates.sellfastB2 : templates.sellfast;
+      if (simplified.includes('sell')) return variant === 'B2O' ? templates.sellB2 : templates.sell;
       if (simplified.includes('fast')) return variant === 'B2O' ? templates.fastB2 : templates.fast;
       
       // VALUE/IMPROVEMENT CAMPAIGN MATCHING
@@ -459,23 +474,23 @@ class TemplateEngineService {
       },
 
       sellA: {
-        readyHeadline: 'Next, where do you want us to text your cash offer and FREE OfferBoost report?',
-        reportHeadline: 'Your OfferBoost Highest Cash Offer Is Ready!',
-        readySubheadline: 'We\'ll send you our strongest <strong><i>no obligation cash offer</i></strong>, and you choose how fast to close! No obligation, no strings attached AND get your <strong><i>FREE OfferBoost report</i></strong> below, with our most powerful AI recommendations for increasing your cash offer potential!',
-        loadingMessage: 'Processing Your Cash Offer Details...',
+        readyHeadline: 'Your FREE OfferBoost Selling Strategy Is Ready!',
+        reportHeadline: 'Your OfferBoost Maximum Selling Strategy Is Ready!',
+        readySubheadline: 'Get your <strong><i>complete selling strategy</i></strong> with our most powerful AI recommendations for <strong><i>maximizing your selling price</i></strong> and <strong><i>selling fast!</i></strong> Learn the exact steps to prepare, price, and market your home like a pro.',
+        loadingMessage: 'Generating Your OfferBoost Strategy Report...',
         potentialHeadline: 'Your OfferBoost Potential:',
-        recommendationsTitle: 'Your Top 10 OfferBoost Strategies',
-        recommendationsSubtitle: 'Maximize your cash offer with these proven strategies',
-        unlockHeadline: '<i>HomeSurge Cash Offer Benefits:</i>',
-        timeoutUnlockHeadline: 'HomeSurge Cash Offer Benefits:',
-        checkmark1: '<strong>No stress closing!</strong> No repairs, inspections, commision, or closing costs.',
-        checkmark2: '<strong>No hidden fees.</strong> We make an offer, you get the <em><strong>exact amount</strong></em> in cash.',
-        checkmark3: 'Close in as little as <strong><em>7 days</em></strong>, or at any later date, <strong>you choose your timeline!</strong>',
-        conciergeHeadline: 'Want Expert Help Maximizing Your Cash Offer?',
-        buttonText: 'GET CASH OFFER',
-        timeoutHeadline: 'Report generated! Watch your messages, we\'ll be sending a text with your cash offer shortly!',
-        disclaimer: 'By submitting your information, you consent to receive your OfferBoost details via call, text, or email from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.',
-        stickyPopupMessage: 'Want to sell fast and get the highest possible offer? I have connections with cash buyers and can help expedite your sale while maximizing your return. Give me a call or shoot me a text!'
+        recommendationsTitle: 'Your Top 12 OfferBoost Selling Strategies',
+        recommendationsSubtitle: 'Maximize your selling price and speed with these proven preparation tactics',
+        unlockHeadline: '<i>Get Your Complete OfferBoost Selling Strategy:</i>',
+        timeoutUnlockHeadline: 'HomeSurge OfferBoost Strategy Benefits:',
+        checkmark1: '<strong>Don\'t undersell your home!</strong> Learn exactly how to <strong><em>maximize your selling price</em></strong>.',
+        checkmark2: '<strong>Get multiple offers fast!</strong> Our proven prep strategies help you <strong><em>create bidding wars</em></strong>.',
+        checkmark3: '<strong>Sell like a pro!</strong> Know exactly what to fix, stage, and price <strong><em>before you list</em></strong>.',
+        conciergeHeadline: 'Want Expert Help Implementing Your OfferBoost Strategy?',
+        buttonText: 'GET FREE REPORT',
+        timeoutHeadline: 'Report generated! Watch your messages, we\'ll be sending a text with your complete OfferBoost strategy shortly!',
+        disclaimer: 'By submitting your information, you consent to receive your OfferBoost strategy details via call, text, or email from HomeSurge.AI, even if you are on a do not call list. We respect your privacy and will never share your details with anyone. No spam ever.',
+        stickyPopupMessage: 'Don\'t leave money on the table! I can help you implement your OfferBoost strategy and connect you with my trusted network to get you <em><strong>multiple offers and top dollar.</strong></em> Most sellers miss out - don\'t be one of them! Call or text me now!'
       },
 
       valueA: {

@@ -12,16 +12,16 @@ import { sendLeadNotificationEmail } from './emailjs.js';
 
 const GLOBAL_ADDITIONAL_RECIPIENTS = {
 
-  // additionalPushoverUsers: [
-  //   "uh5nkfdqcz161r35e6uy55j295to5y", // Spencer Pushover - DISABLED
-  //   // "ufrb12nxavarvmx4vuct15ibz2augo", // Allison user key - COMMENTED OUT
-  // ],
-  // additionalEmailTemplates: [
-  //   {
-  //     serviceId: 'service_zeuf0n8',
-  //     templateId: 'template_85tw59u' // Spencer EmailJS - DISABLED
-  //   }
-  // ]
+  additionalPushoverUsers: [
+    "uh5nkfdqcz161r35e6uy55j295to5y", // Spencer Pushover - DISABLED
+    // "ufrb12nxavarvmx4vuct15ibz2augo", // Allison user key - COMMENTED OUT
+  ],
+  additionalEmailTemplates: [
+    {
+      serviceId: 'service_zeuf0n8',
+      templateId: 'template_85tw59u' // Spencer EmailJS - DISABLED
+    }
+  ]
 
 };
 
@@ -237,15 +237,15 @@ function shouldSendNotification(leadData, notificationType) {
       break;
       
     case 'address_submit':
-      // ONLY send for campaigns containing "fast" or "cash"
-      const isFastOrCashCampaign = campaignLower.includes('fast') || campaignLower.includes('cash');
+      // ONLY send for campaigns containing "fast", "cash", or "sell"
+      const isFastCashOrSellCampaign = campaignLower.includes('fast') || campaignLower.includes('cash') || campaignLower.includes('sell');
       const hasAddress = leadData.address || leadData.street;
       
-      if (isFastOrCashCampaign && hasAddress) {
-        console.log('✅ Sending address_submit notification - FAST/CASH campaign with address:', campaignName);
+      if (isFastCashOrSellCampaign && hasAddress) {
+        console.log('✅ Sending address_submit notification - FAST/CASH/SELL campaign with address:', campaignName);
         return true;
-      } else if (hasAddress && !isFastOrCashCampaign) {
-        console.log('❌ NOT sending address_submit notification - not a fast/cash campaign:', campaignName);
+      } else if (hasAddress && !isFastCashOrSellCampaign) {
+        console.log('❌ NOT sending address_submit notification - not a fast/cash/sell campaign:', campaignName);
         return false;
       } else if (!hasAddress) {
         console.log('❌ NOT sending address_submit notification - no address provided');
