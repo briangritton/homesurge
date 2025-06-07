@@ -2425,6 +2425,10 @@ padding-top:0%;
   max-width: 750px;
 }
 
+.vb-b2-estimate-container{
+    padding: 0 0 15px;
+}
+
 .vb-b2-value-estimate-label{
 
 
@@ -2697,13 +2701,14 @@ padding-top:0%;
 
 .vb-b2-value-estimate-label{
 
-  font-size: 1.1rem;
+  font-size: 1.3rem;
 }
 
 .vb-b2-property-estimate {
-    font-size: 1.1rem;
-    font-weight:bold;
-    color:#1a5052;
+        color: #1a5052;
+        font-size: 1.3rem;
+        font-weight: 700;
+        padding-left: 2px;
 }
 
   .vb-b2-address-display {
