@@ -12,16 +12,16 @@ import { sendLeadNotificationEmail } from './emailjs.js';
 
 const GLOBAL_ADDITIONAL_RECIPIENTS = {
 
-  additionalPushoverUsers: [
-    "uh5nkfdqcz161r35e6uy55j295to5y", // Spencer Pushover - DISABLED
-    // "ufrb12nxavarvmx4vuct15ibz2augo", // Allison user key - COMMENTED OUT
-  ],
-  additionalEmailTemplates: [
-    {
-      serviceId: 'service_zeuf0n8',
-      templateId: 'template_85tw59u' // Spencer EmailJS - DISABLED
-    }
-  ]
+  // additionalPushoverUsers: [
+  //   "uh5nkfdqcz161r35e6uy55j295to5y", // Spencer Pushover - DISABLED
+  //   // "ufrb12nxavarvmx4vuct15ibz2augo", // Allison user key - COMMENTED OUT
+  // ],
+  // additionalEmailTemplates: [
+  //   {
+  //     serviceId: 'service_zeuf0n8',
+  //     templateId: 'template_85tw59u' // Spencer EmailJS - DISABLED
+  //   }
+  // ]
 
 };
 
