@@ -16,6 +16,7 @@ import Privacy from './components/common/Privacy';
 import ZohoTest from './components/ZohoTest';
 import SalesPage from './components/SalesPage';
 import ValueBoostContainer from './components/HomeSurge/ValueBoost/ValueBoostContainer';
+import RealEstateChatbot from './components/RealEstateChatbot';
 // import DebugDisplay from './components/common/DebugDisplay';
 import { CRMApp } from './components/CRM';
 
@@ -237,6 +238,9 @@ function App() {
                   
                   {/* Redirect root to default analysis route */}
                   <Route path="/" element={<ValueBoostContainer />} />
+                  
+                  {/* Real Estate Chatbot Route */}
+                  <Route path="/chat-help" element={<RealEstateChatbot />} />
                   
                   {/* Specific routes for other funnels */}
                   <Route path="/form" element={<FormContainer />} />

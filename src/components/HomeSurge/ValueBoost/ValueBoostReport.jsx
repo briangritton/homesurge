@@ -626,7 +626,7 @@ function ValueBoostReport({ campaign, variant }) {
         <div className="vb-contact-info">
           <div className="vb-contact-name">Spencer Gritton</div>
            <div className="vb-contact-phone">(480) 519-0554</div>
-          <div className="vb-contact-title">Licensed Real Estate Agent</div>
+          <div className="vb-contact-title">NMLS# 407111</div>
          
           <div className="vb-contact-agency">HomeSmart Realty Partners</div>
         </div>
@@ -651,7 +651,7 @@ function ValueBoostReport({ campaign, variant }) {
             <div className="vb-sticky-popup-info">
               <div className="vb-sticky-popup-name">Spencer Gritton</div>
               <div className="vb-sticky-popup-phone">(480) 519-0554</div>
-              <div className="vb-sticky-popup-title">Licensed Real Estate Agent</div>
+              <div className="vb-sticky-popup-title">NMLS# 407111</div>
               
               <div className="vb-sticky-popup-agency">HomeSmart Realty Partners</div>
             </div>

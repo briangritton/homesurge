@@ -169,6 +169,34 @@ export function FormProvider({ children }) {
         console.error('Error parsing stored form data:', e);
       }
     }
+
+    // Restore formStep from localStorage (indefinite session persistence)
+    const savedFormStep = localStorage.getItem('formStep');
+    if (savedFormStep) {
+      try {
+        const step = parseInt(savedFormStep, 10);
+        if (step > 1 && step <= 5) {
+          console.log('🔄 Restoring user session from localStorage - Step:', step);
+          console.log('🔄 User returning to saved progress after potential ad click or page refresh');
+          setFormData(prev => ({ 
+            ...prev, 
+            formStep: step 
+          }));
+          
+          // Log session restoration details for debugging
+          setTimeout(() => {
+            const restoredData = {
+              step,
+              hasAddress: !!(localStorage.getItem('formData') && JSON.parse(localStorage.getItem('formData') || '{}').street),
+              hasApiValue: !!(localStorage.getItem('formData') && JSON.parse(localStorage.getItem('formData') || '{}').apiEstimatedValue)
+            };
+            console.log('✅ Session restoration complete:', restoredData);
+          }, 100);
+        }
+      } catch (e) {
+        console.error('Error parsing saved formStep:', e);
+      }
+    }
   }, []);
 
   // Handle form updates with tracking of interacted fields
@@ -191,15 +219,20 @@ export function FormProvider({ children }) {
       };
     });
     
-    // If there are important property data updates, store them
-    if (updates.propertyRecord || updates.apiEstimatedValue || updates.apiOwnerName || 
-        updates.apiEquity || updates.apiPercentage || updates.needsRepairs || 
-        updates.selectedAppointmentTime || updates.selectedAppointmentDate ||
+    // Enhanced data persistence - store important form data for session restoration
+    if (updates.propertyRecord || updates.apiEstimatedValue || updates.apiMaxHomeValue || 
+        updates.apiOwnerName || updates.apiEquity || updates.apiPercentage || 
+        updates.needsRepairs || updates.selectedAppointmentTime || updates.selectedAppointmentDate ||
         updates.userTypedAddress || updates.selectedSuggestionAddress ||
-        updates.suggestionOne || updates.suggestionTwo || updates.leadStage) {
-      console.log("Storing important data updates in localStorage:", {
+        updates.suggestionOne || updates.suggestionTwo || updates.leadStage ||
+        updates.street || updates.name || updates.phone || updates.email ||
+        updates.formattedApiEstimatedValue) {
+      
+      console.log("💾 Storing important data updates in localStorage for session persistence:", {
         apiOwnerName: updates.apiOwnerName,
         apiEstimatedValue: updates.apiEstimatedValue,
+        apiMaxHomeValue: updates.apiMaxHomeValue,
+        formattedApiEstimatedValue: updates.formattedApiEstimatedValue,
         apiEquity: updates.apiEquity,
         apiPercentage: updates.apiPercentage,
         needsRepairs: updates.needsRepairs,
@@ -209,8 +242,22 @@ export function FormProvider({ children }) {
         selectedSuggestionAddress: updates.selectedSuggestionAddress,
         suggestionOne: updates.suggestionOne,
         leadStage: updates.leadStage,
+        street: updates.street,
+        name: updates.name,
+        phone: updates.phone,
+        email: updates.email,
         propertyRecord: updates.propertyRecord ? "Available" : "Not available"
       });
+
+      // Store the complete updated form data for session restoration
+      setTimeout(() => {
+        setFormData(currentFormData => {
+          const updatedFormData = { ...currentFormData, ...updates };
+          localStorage.setItem('formData', JSON.stringify(updatedFormData));
+          console.log('💾 Form data saved to localStorage for session persistence');
+          return currentFormData; // Return unchanged since we're just persisting
+        });
+      }, 0);
     }
     
     // SECONDARY SYNC: Auto-sync campaign data to Firebase when it gets updated

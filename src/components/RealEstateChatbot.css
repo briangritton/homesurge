@@ -1,0 +1,624 @@
+/* RealEstateChatbot.css */
+
+/* Ensure document and body are full height */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Page wrapper */
+.re-page-wrapper {
+  background-color: #fff;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Main container */
+.re-container {
+  display: flex;
+  flex: 1 0 auto;
+  background-color: #fff;
+  min-height: 100vh;
+  justify-content: center;
+}
+
+/* Left side with headline and content */
+.re-left-panel {
+  width: 40%;
+  padding: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 800px;
+}
+
+/* Right side with chat interface */
+.re-right-panel {
+  width: 60%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: -2%;
+  max-width: 800px;
+}
+
+.re-bot-content {
+  text-align: left;
+}
+
+/* Headline styling */
+.re-headline {
+  color: #365164;
+  font-weight: 800;
+  font-size: 45px;
+  letter-spacing: -2px;
+  line-height: 50px;
+  margin-bottom: 20px;
+}
+
+/* Subheadline styling */
+.re-subheadline {
+  color: #365164;
+  font-size: 22px;
+  font-weight: 300;
+  line-height: 30px;
+  margin-bottom: 30px;
+}
+
+/* Chat container */
+.re-chat-interface {
+  border: 1px solid #c7c7c7;
+  display: flex;
+  flex-direction: column;
+  height: 85vh;
+  max-width: 700px;
+  margin-right: 20px;
+}
+
+/* Chat header */
+.re-chat-header {
+  padding: 15px;
+  border-bottom: 1px solid #e4e4e4;
+}
+
+.re-header-container {
+  display: flex;
+  align-items: center;
+}
+
+.re-header-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.re-header-title {
+  font-weight: 600;
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Chat conversation area */
+.re-conversation-container {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px;
+  background-color: #f8f9fa;
+  max-height: calc(85vh - 160px);
+  contain: strict;
+}
+
+.re-conversation {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Message styling */
+.re-bot-message-container {
+  display: flex;
+  margin-bottom: 25px;
+  align-items: flex-start;
+}
+
+.re-bot-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.re-bot-name {
+  color: rgba(102, 102, 102, 0.94);
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.re-bot-message {
+  background-color: #fff;
+  padding: 12px 15px;
+  border-radius: 0 18px 18px 18px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  max-width: 80%;
+}
+
+.re-message-text {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+/* User message styling */
+.re-user-message {
+  align-self: flex-end;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  text-align: left;
+}
+
+.re-user-message-bubble {
+  background-color: #e6f2ff;
+  color: #333;
+  padding: 12px 15px;
+  border-radius: 18px 0 18px 18px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  max-width: 80%;
+  font-weight: normal;
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+/* Typing indicator */
+.re-typing-indicator {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.re-typing-text {
+  color: #666;
+  font-size: 18px;
+  margin-right: 5px;
+}
+
+.re-typing-dots {
+  color: #666;
+  font-size: 18px;
+}
+
+/* Typing animation */
+@keyframes re-typing-dots {
+  0%, 20% {
+    content: ".";
+  }
+  40% {
+    content: "..";
+  }
+  60% {
+    content: "...";
+  }
+  80%, 100% {
+    content: "";
+  }
+}
+
+.re-typing-indicator .re-typing-dots::after {
+  content: "";
+  animation: re-typing-dots 1.5s steps(5, end) infinite;
+}
+
+/* Chat input area */
+.re-input-container {
+  border-top: 1px solid #e4e4e4;
+  padding: 15px;
+  background-color: #fff;
+}
+
+.re-input-wrapper {
+  position: relative;
+  display: flex;
+}
+
+.re-text-input-box {
+  position: relative;
+  flex-grow: 1;
+  width: 100%;
+}
+
+.re-textarea {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-size: 18px;
+  height: 100px;
+  padding: 15px 90px 15px 15px;
+  resize: none;
+  width: 100%;
+}
+
+.re-input-actions {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(0%);
+  z-index: 2;
+}
+
+.re-send-button {
+  background-color: #c1720c;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 22px;
+  font-weight: 500;
+  padding: 8px 20px;
+  transition: background-color .2s;
+  white-space: nowrap;
+}
+
+.re-send-button:hover:not(:disabled) {
+  background-color: #a05e0a;
+}
+
+.re-send-button:disabled {
+  cursor: not-allowed;
+}
+
+/* Action buttons styling */
+.re-action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.re-action-button {
+  padding: 12px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.re-text-button {
+  background-color: #25d366;
+  color: white;
+}
+
+.re-text-button:hover {
+  background-color: #22c55e;
+}
+
+.re-call-button {
+  background-color: #c1720c;
+  color: white;
+}
+
+.re-call-button:hover {
+  background-color: #a05e0a;
+}
+
+.re-review-button {
+  background-color: #6366f1;
+  color: white;
+}
+
+.re-review-button:hover {
+  background-color: #4f46e5;
+}
+
+/* Review link styling */
+.re-review-link {
+  color: #6366f1;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+  display: block;
+  text-align: center;
+}
+
+.re-review-link:hover {
+  color: #4f46e5;
+  text-decoration: none;
+}
+
+/* Spencer Contact Card */
+.re-contact-card {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e4e4e4;
+}
+
+.re-contact-profile {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.re-contact-image {
+  flex-shrink: 0;
+}
+
+.re-contact-image img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.re-contact-info {
+  flex: 1;
+}
+
+.re-contact-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.re-contact-phone {
+  font-size: 16px;
+  font-weight: 500;
+  color: #c1720c;
+  margin-bottom: 4px;
+}
+
+.re-contact-title {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 2px;
+}
+
+.re-contact-agency {
+  font-size: 14px;
+  color: #666;
+}
+
+.re-contact-score {
+  margin-bottom: 8px;
+}
+
+.re-score-label {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.re-score-stars {
+  display: flex;
+  gap: 2px;
+}
+
+.re-star {
+  font-size: 14px;
+  color: #ffd700;
+}
+
+/* Phone input styling */
+.re-phone-input {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-size: 18px;
+  height: 100px;
+  padding: 15px 90px 15px 15px;
+  resize: none;
+  width: 100%;
+  font-family: inherit;
+}
+
+/* Address input styling */
+.re-address-input {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-size: 18px;
+  height: 100px;
+  padding: 15px 150px 15px 15px;
+  width: 100%;
+  font-family: inherit;
+}
+
+.re-address-input:focus {
+  outline: none;
+  border-color: #c1720c;
+}
+
+/* Input hint styling */
+.re-input-hint {
+  color: #666;
+  font-size: 14px;
+  font-style: italic;
+  padding: 10px 15px;
+  white-space: nowrap;
+}
+
+/* Address suggestions popup */
+.re-suggestions-popup {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 -4px 8px rgba(0,0,0,0.1);
+  z-index: 1000;
+  margin-bottom: 5px;
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.re-suggestion-item {
+  padding: 12px 15px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s ease;
+  text-align: left;
+}
+
+.re-suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.re-suggestion-item:hover {
+  background-color: #f8f9fa;
+}
+
+.re-suggestion-first {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  font-weight: bold;
+  text-align: left;
+}
+
+.re-suggestion-text {
+  font-size: 16px;
+  color: #333;
+  line-height: 1.3;
+}
+
+.re-address-container {
+  position: relative;
+}
+
+/* Fullscreen mobile styles */
+.re-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  background: white;
+}
+
+.re-fullscreen .re-container {
+  padding: 0;
+  height: 100vh;
+}
+
+.re-fullscreen-chat {
+  width: 100% !important;
+  margin: 0 !important;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.re-fullscreen .re-chat-interface {
+  height: 100vh !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+.re-fullscreen .re-conversation-container {
+  max-height: calc(100vh - 160px) !important;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .re-container {
+    flex-direction: column;
+    padding: 10px;
+    min-height: 100vh;
+  }
+  
+  .re-left-panel,
+  .re-right-panel {
+    width: 100%;
+  }
+  
+  .re-left-panel {
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .re-headline {
+    font-size: 32px;
+    line-height: 38px;
+  }
+  
+  .re-subheadline {
+    font-size: 18px;
+    line-height: 24px;
+  }
+
+  .re-chat-interface {
+    margin-right: 0;
+    height: calc(100vh - 200px);
+    min-height: 500px;
+  }
+
+  .re-conversation-container {
+    max-height: calc(100vh - 360px);
+    min-height: 300px;
+  }
+  
+  /* Ensure input container is always visible */
+  .re-input-container {
+    position: relative;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .re-headline {
+    font-size: 28px;
+    line-height: 34px;
+  }
+  
+  .re-subheadline {
+    font-size: 16px;
+    line-height: 22px;
+  }
+
+  .re-chat-interface {
+    height: calc(100vh - 150px);
+    min-height: 400px;
+  }
+
+  .re-conversation-container {
+    max-height: calc(100vh - 300px);
+    min-height: 250px;
+  }
+
+  .re-textarea,
+  .re-phone-input,
+  .re-address-input {
+    height: 60px;
+    font-size: 14px;
+  }
+
+  .re-send-button {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+  .re-action-button {
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+  
+  /* Ensure input container has proper spacing on very small screens */
+  .re-input-container {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+  }
+}

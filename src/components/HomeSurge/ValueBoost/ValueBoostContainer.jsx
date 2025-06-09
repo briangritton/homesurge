@@ -56,6 +56,18 @@ function ValueBoostFunnel() {
     const currentStep = formData?.formStep || 1;
     const { campaign, variant } = getRouteData();
 
+    // Log session restoration details for user experience insights
+    if (currentStep > 1) {
+      console.log('🎯 User session active:', {
+        currentStep,
+        campaign,
+        variant,
+        hasAddress: !!formData.street,
+        hasHomeValue: !!(formData.apiEstimatedValue || formData.apiMaxHomeValue),
+        sessionType: 'returning_user'
+      });
+    }
+
     switch (currentStep) {
       case 1:
         return <AddressForm campaign={campaign} variant={variant} />;
