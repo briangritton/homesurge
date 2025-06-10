@@ -579,6 +579,15 @@ html, body {
 }
 
 @media (max-width: 480px) {
+    .re-container {
+     
+        padding: 0px;
+       
+    }
+
+
+
+
   .re-headline {
     font-size: 28px;
     line-height: 34px;
@@ -588,6 +597,8 @@ html, body {
     font-size: 16px;
     line-height: 22px;
   }
+
+
 
   .re-chat-interface {
     height: calc(100vh - 150px);
@@ -603,22 +614,80 @@ html, body {
   .re-phone-input,
   .re-address-input {
     height: 60px;
-    font-size: 14px;
+    font-size: 16px;
   }
 
   .re-send-button {
-    font-size: 14px;
-    padding: 8px 16px;
+    font-size: 16px;
+    padding: 12px 18px;
   }
 
   .re-action-button {
-    font-size: 14px;
-    padding: 10px 12px;
+    font-size: 16px;
+    padding: 12px 16px;
+  }
+
+  /* Chat message text should be larger on mobile */
+  .re-message-text {
+    font-size: 18px;
+    line-height: 1.5;
+  }
+
+  .re-bot-name {
+    font-size: 16px;
   }
   
   /* Ensure input container has proper spacing on very small screens */
   .re-input-container {
     margin-bottom: 10px;
     padding-bottom: 10px;
+  }
+
+  /* Mobile bot message layout - stack vertically */
+  .re-bot-message-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .re-bot-avatar {
+    width: 32px;
+    height: 32px;
+    margin-right: 8px;
+    margin-bottom: 0;
+  }
+
+  .re-bot-content {
+    width: 100%;
+    margin-top: 0;
+  }
+
+  .re-bot-name {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    width: 100%;
+  }
+
+  .re-bot-name::before {
+    content: '';
+    background-image: url('../assets/images/helprpfp.png');
+    background-size: cover;
+    background-position: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+
+  .re-bot-message {
+    /* width: 100%; */
+    max-width: 100%;
+    margin-left: 0;
+  }
+
+  /* Hide the separate avatar since we're showing it in the name */
+  .re-bot-message-container .re-bot-avatar {
+    display: none;
   }
 }
