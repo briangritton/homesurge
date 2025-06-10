@@ -180,6 +180,85 @@ class TrackingService {
   }
 
   /**
+   * Track phone call conversions
+   * @param {Object} callData - Call data object
+   * @param {Object} options - Additional tracking options
+   */
+  static trackPhoneCall(callData, options = {}) {
+    console.log('📞 TrackingService: Phone call tracking:', callData);
+
+    try {
+      // GA4 phone call event
+      if (window.gtag) {
+        window.gtag('event', 'phone_call_conversion', {
+          event_category: 'engagement',
+          event_label: 'phone_call',
+          phone_number: callData.phoneNumber,
+          call_duration: callData.duration,
+          value: 1,
+          currency: 'USD'
+        });
+      }
+
+      // Facebook conversion event
+      if (callData.duration >= 30) { // Only track longer calls as quality leads
+        trackPropertyValue({
+          value: 500, // Estimated lead value for phone calls
+          phone: callData.phoneNumber,
+          eventType: 'phone_call_lead',
+          callDuration: callData.duration,
+          ...options.leadData
+        });
+      }
+
+      // Track as form step completion for consistency
+      trackFormStepComplete('phone_call', 'Phone Call Received', {
+        phoneNumber: callData.phoneNumber,
+        callDuration: callData.duration,
+        ...callData
+      });
+
+      console.log('✅ TrackingService: Phone call tracking successful');
+    } catch (error) {
+      console.error('❌ TrackingService: Phone call tracking failed:', error);
+      this.trackError(`Phone call tracking error: ${error.message}`, 'Phone Call');
+    }
+  }
+
+  /**
+   * Capture and store GCLID for phone call attribution
+   * @param {string} phoneNumber - The tracking phone number
+   */
+  static captureCallTrackingData(phoneNumber = '(888) 874-3302') {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const gclid = urlParams.get('gclid');
+      const fbclid = urlParams.get('fbclid');
+      const utmSource = urlParams.get('utm_source');
+      const utmCampaign = urlParams.get('utm_campaign');
+      
+      if (gclid || fbclid || utmSource) {
+        const trackingData = {
+          gclid,
+          fbclid,
+          utmSource,
+          utmCampaign,
+          phoneNumber: phoneNumber.replace(/[^\d]/g, ''), // Clean phone number
+          timestamp: Date.now(),
+          url: window.location.href,
+          referrer: document.referrer
+        };
+
+        // Store for later attribution when call comes in
+        localStorage.setItem('phone_call_attribution', JSON.stringify(trackingData));
+        console.log('📞 Call tracking data captured:', trackingData);
+      }
+    } catch (error) {
+      console.error('❌ Call tracking data capture failed:', error);
+    }
+  }
+
+  /**
    * Get tracking statistics for debugging
    * @returns {Object} Tracking statistics
    */
@@ -194,6 +273,8 @@ class TrackingService {
         'trackReportUnlock',
         'trackAddressSelection',
         'trackProcessingComplete',
+        'trackPhoneCall',
+        'captureCallTrackingData',
         'trackError'
       ]
     };

@@ -40,6 +40,11 @@ function ValueBoostFunnel() {
       
       // Initialize dynamic content from URL parameters
       initFromUrlParams();
+      
+      // Initialize call tracking data capture
+      const { trackingService } = require('../../../services/trackingService');
+      trackingService.captureCallTrackingData('(888) 874-3302');
+      
     } catch (error) {
       console.error('Failed to initialize services:', error);
       // Continue loading the form even if analytics fails
