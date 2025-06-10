@@ -3,7 +3,7 @@
  * Uses exact original CSS classes and structure
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useFormContext } from '../../../contexts/FormContext';
 import { trackingService } from '../../../services/trackingService';
 import { templateService } from '../../../services/templateEngine';
@@ -25,17 +25,19 @@ function AIProcessing({ campaign, variant }) {
   const mapContainerRef = useRef(null);
   const animationRef = useRef(null);
   
-  // ===== DYNAMIC CONTENT =====
-  const dynamicContent = templateService.getTemplate(campaign, variant, 'aiprocessing');
+  // ===== DYNAMIC CONTENT (MEMOIZED) =====
+  const dynamicContent = useMemo(() => {
+    return templateService.getTemplate(campaign, variant, 'aiprocessing');
+  }, [campaign, variant]);
   
-  // ===== PROCESSING STEPS =====
-  const processingSteps = [
+  // ===== PROCESSING STEPS (MEMOIZED) =====
+  const processingSteps = useMemo(() => [
     'Initializing AI analysis and property scan...',
     'Evaluating current market conditions...',
     'Identifying highest ROI hidden opportunities...',
     'Building customized value boost plan...',
     dynamicContent.completionText || 'Value boost report ready!'
-  ];
+  ], [dynamicContent.completionText]);
 
   // ===== AUTO SCROLL =====
   useEffect(() => {
@@ -43,47 +45,47 @@ function AIProcessing({ campaign, variant }) {
   }, []);
 
   // ===== GOOGLE MAPS INITIALIZATION =====
-  const initializeMap = () => {
-    if (!formData.location?.lat || !formData.location?.lng || !window.google) {
-      setMapError(true);
-      return;
-    }
-
-    try {
-      const map = new window.google.maps.Map(mapContainerRef.current, {
-        center: { lat: formData.location.lat, lng: formData.location.lng },
-        zoom: 18,
-        mapTypeId: 'satellite',
-        disableDefaultUI: true,
-        gestureHandling: 'none',
-        draggable: false,
-        scrollwheel: false,
-        styles: [
-          {
-            featureType: 'all',
-            elementType: 'labels',
-            stylers: [{ visibility: 'off' }]
-          }
-        ]
-      });
-
-      const marker = new window.google.maps.Marker({
-        position: { lat: formData.location.lat, lng: formData.location.lng },
-        map: map,
-        icon: {
-          url: houseIcon,
-          scaledSize: new window.google.maps.Size(30, 30)
-        }
-      });
-
-      setTimeout(() => setMapLoaded(true), 1000);
-    } catch (error) {
-      console.error('Map initialization failed:', error);
-      setMapError(true);
-    }
-  };
-
   useEffect(() => {
+    const initializeMap = () => {
+      if (!formData.location?.lat || !formData.location?.lng || !window.google) {
+        setMapError(true);
+        return;
+      }
+
+      try {
+        const map = new window.google.maps.Map(mapContainerRef.current, {
+          center: { lat: formData.location.lat, lng: formData.location.lng },
+          zoom: 18,
+          mapTypeId: 'satellite',
+          disableDefaultUI: true,
+          gestureHandling: 'none',
+          draggable: false,
+          scrollwheel: false,
+          styles: [
+            {
+              featureType: 'all',
+              elementType: 'labels',
+              stylers: [{ visibility: 'off' }]
+            }
+          ]
+        });
+
+        new window.google.maps.Marker({
+          position: { lat: formData.location.lat, lng: formData.location.lng },
+          map: map,
+          icon: {
+            url: houseIcon,
+            scaledSize: new window.google.maps.Size(30, 30)
+          }
+        });
+
+        setTimeout(() => setMapLoaded(true), 1000);
+      } catch (error) {
+        console.error('Map initialization failed:', error);
+        setMapError(true);
+      }
+    };
+
     const checkGoogleAPI = () => {
       if (window.google && window.google.maps) {
         initializeMap();
@@ -99,6 +101,7 @@ function AIProcessing({ campaign, variant }) {
   useEffect(() => {
     let stepTimer;
     let percentageTimer;
+    let safetyTimer;
     
     const startProcessing = () => {
       // Step progression
@@ -110,7 +113,7 @@ function AIProcessing({ campaign, variant }) {
             clearInterval(stepTimer);
             // Navigate to next step after completion
             setTimeout(() => {
-              trackingService.trackEvent('AI Processing Complete', { 
+              trackingService.trackProcessingComplete({ 
                 campaign, 
                 variant,
                 finalStep: processingSteps[processingSteps.length - 1]
@@ -122,17 +125,39 @@ function AIProcessing({ campaign, variant }) {
         });
       }, 2000);
 
-      // Percentage animation
+      // Smooth percentage animation with predictable increments
       let currentPercentage = 0;
+      const targetPercentage = 22;
+      const totalDuration = 8000; // 8 seconds total
+      const incrementInterval = 150; // Update every 150ms
+      const totalIncrements = totalDuration / incrementInterval;
+      const incrementSize = targetPercentage / totalIncrements;
+      
       percentageTimer = setInterval(() => {
-        currentPercentage += Math.random() * 3 + 1;
-        if (currentPercentage >= 22) {
-          currentPercentage = 22;
+        currentPercentage += incrementSize;
+        if (currentPercentage >= targetPercentage) {
+          currentPercentage = targetPercentage;
           setShowArrow(true);
           clearInterval(percentageTimer);
         }
         setAnimatedPercentage(Math.floor(currentPercentage));
-      }, 200);
+      }, incrementInterval);
+      
+      // Safety timeout - force completion after 5 seconds if not done
+      safetyTimer = setTimeout(() => {
+        console.log('Safety timeout triggered - proceeding to next step');
+        clearInterval(stepTimer);
+        clearInterval(percentageTimer);
+        setAnimatedPercentage(targetPercentage);
+        setShowArrow(true);
+        trackingService.trackProcessingComplete({ 
+          campaign, 
+          variant,
+          timeoutAfter: 5000,
+          safetyTimeout: true
+        });
+        nextStep();
+      }, 5000);
     };
 
     const timer = setTimeout(startProcessing, 1000);
@@ -141,6 +166,7 @@ function AIProcessing({ campaign, variant }) {
       clearTimeout(timer);
       clearInterval(stepTimer);
       clearInterval(percentageTimer);
+      clearTimeout(safetyTimer);
     };
   }, [campaign, variant, nextStep, processingSteps]);
 

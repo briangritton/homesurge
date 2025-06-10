@@ -1019,3 +1019,337 @@
     font-size: 28px;
   }
 }
+
+/* ========== DESKTOP STYLES FOR VALUEBOOST - 1200PX AND ABOVE ========== */
+@media (min-width: 1200px) {
+  /* === B2STEP3 DESKTOP IMPROVEMENTS === */
+  .vb-b2-container {
+    padding: 60px 40px;
+  }
+
+  .vb-b2-headline {
+    font-size: 42px;
+    margin-bottom: 30px;
+  }
+
+  .vb-b2-subheadline {
+    font-size: 22px;
+  }
+
+  .vb-b2-benefits {
+    max-width: 600px;
+    padding: 40px;
+    margin-bottom: 40px;
+  }
+
+  .vb-b2-benefits-headline {
+    font-size: 26px;
+    margin-bottom: 20px;
+  }
+
+  .vb-b2-benefits-subtext {
+    font-size: 18px;
+    margin-bottom: 30px;
+  }
+
+  .vb-b2-checkmark {
+    font-size: 18px;
+  }
+
+  .vb-b2-form {
+    max-width: 600px;
+    padding: 40px;
+  }
+
+  .vb-b2-input {
+    padding: 18px;
+    font-size: 18px;
+  }
+
+  .vb-b2-submit-button {
+    padding: 18px;
+    font-size: 20px;
+    margin-bottom: 25px;
+  }
+
+  .vb-b2-disclaimer {
+    font-size: 14px;
+  }
+
+  .vb-b2-success {
+    max-width: 600px;
+    padding: 50px;
+  }
+
+  .vb-b2-success-headline {
+    font-size: 28px;
+    margin-bottom: 20px;
+  }
+
+  .vb-b2-success-message {
+    font-size: 18px;
+  }
+
+  /* === VALUEBOOST REPORT DESKTOP IMPROVEMENTS === */
+  .vb-report-container {
+    padding: 40px;
+  }
+
+  .vb-report-headline {
+    font-size: 42px;
+    margin-bottom: 30px;
+  }
+
+  .vb-report-subheadline {
+    font-size: 22px;
+  }
+
+  .vb-report-value-section {
+    max-width: 700px;
+    margin-bottom: 50px;
+  }
+
+  .vb-report-value-container {
+    padding: 40px;
+  }
+
+  .vb-report-potential-headline {
+    font-size: 26px;
+    margin-bottom: 25px;
+  }
+
+  .vb-report-current-value {
+    font-size: 20px;
+  }
+
+  .vb-report-boost-value {
+    font-size: 36px;
+  }
+
+  .vb-report-boost-percentage {
+    font-size: 20px;
+  }
+
+  .vb-report-contact-section {
+    max-width: 600px;
+    margin-bottom: 50px;
+  }
+
+  .vb-report-unlock-content {
+    padding: 40px;
+    margin-bottom: 30px;
+  }
+
+  .vb-report-unlock-headline {
+    font-size: 26px;
+    margin-bottom: 25px;
+  }
+
+  .vb-report-checkmark {
+    font-size: 18px;
+  }
+
+  .vb-report-contact-form {
+    padding: 40px;
+  }
+
+  .vb-report-input {
+    padding: 18px;
+    font-size: 18px;
+  }
+
+  .vb-report-unlock-button {
+    padding: 18px;
+    font-size: 20px;
+    margin-bottom: 25px;
+  }
+
+  .vb-report-disclaimer {
+    font-size: 14px;
+  }
+
+  .vb-report-unlocked {
+    max-width: 900px;
+    gap: 40px;
+  }
+
+  .vb-report-property-address {
+    padding: 25px;
+    font-size: 20px;
+  }
+
+  .vb-report-recommendations {
+    padding: 40px;
+  }
+
+  .vb-report-recommendations-header {
+    margin-bottom: 40px;
+  }
+
+  .vb-report-recommendations-title {
+    font-size: 28px;
+    margin-bottom: 15px;
+  }
+
+  .vb-report-recommendations-subtitle {
+    font-size: 18px;
+  }
+
+  .vb-report-recommendations-list {
+    gap: 25px;
+  }
+
+  .vb-report-recommendation-item {
+    padding: 25px;
+  }
+
+  .vb-report-recommendation-number {
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+  }
+
+  .vb-report-recommendation-strategy {
+    font-size: 20px;
+  }
+
+  .vb-report-recommendation-description {
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+
+  .vb-report-recommendation-details {
+    gap: 25px;
+  }
+
+  .vb-report-recommendation-cost,
+  .vb-report-recommendation-roi {
+    font-size: 15px;
+    padding: 8px 15px;
+  }
+
+  .vb-report-ai-section {
+    padding: 40px;
+  }
+
+  .vb-report-ai-header {
+    margin-bottom: 25px;
+  }
+
+  .vb-report-ai-title {
+    font-size: 28px;
+  }
+
+  .vb-report-ai-introduction {
+    font-size: 18px;
+    margin-bottom: 25px;
+    padding: 25px;
+  }
+
+  .vb-report-ai-text {
+    font-size: 15px;
+    padding: 25px;
+  }
+
+  .vb-report-success {
+    padding: 40px;
+  }
+
+  .vb-report-success-headline {
+    font-size: 26px;
+    margin-bottom: 15px;
+  }
+
+  .vb-report-success-message {
+    font-size: 18px;
+  }
+
+  /* === AIPROCESSING DESKTOP IMPROVEMENTS === */
+  .vb-ai-container {
+    padding: 40px;
+  }
+
+  .vb-ai-headline {
+    font-size: 42px;
+    margin-bottom: 30px;
+  }
+
+  .vb-ai-subheadline {
+    font-size: 22px;
+    margin-bottom: 40px;
+    min-height: 60px;
+  }
+
+  .vb-ai-value-container {
+    padding: 40px;
+    margin: 30px 0;
+  }
+
+  .vb-ai-value-display {
+    font-size: 28px;
+  }
+
+  .vb-ai-percentage-container {
+    font-size: 40px;
+    margin-top: 15px;
+  }
+
+  .vb-ai-arrow {
+    height: 24px;
+  }
+
+  .vb-ai-processing-container {
+    max-width: 600px;
+    height: 450px;
+  }
+
+  .vb-ai-house-icon {
+    width: 70px;
+    height: 70px;
+  }
+
+  .vb-ai-loading-spinner {
+    width: 50px;
+    height: 50px;
+  }
+
+  .vb-ai-loading-text {
+    font-size: 16px;
+    margin-top: 15px;
+  }
+
+  /* Adjust orb sizes for desktop */
+  .vb-ai-orb-tiny {
+    width: 5px;
+    height: 5px;
+  }
+
+  .vb-ai-orb-small {
+    width: 10px;
+    height: 10px;
+  }
+
+  .vb-ai-orb-medium {
+    width: 8px;
+    height: 8px;
+  }
+
+  .vb-ai-orb-large {
+    width: 12px;
+    height: 12px;
+  }
+
+  .vb-ai-orb-extra-large {
+    width: 15px;
+    height: 15px;
+  }
+
+  .vb-ai-scan-line {
+    height: 4px;
+  }
+
+  .vb-ai-particle {
+    width: 3px;
+    height: 3px;
+  }
+}

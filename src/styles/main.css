@@ -13,6 +13,11 @@
 }
 
 /* === GENERAL STYLES === */ 
+html {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+}
+
 @font-face {
   font-family: "AgencyBold";
   src: local("AgencyBold"), url("../assets/fonts/AGENCYB.TTF") format("truetype");
@@ -28,21 +33,24 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #ffffff !important;
+  background: #ffffff !important;
 }
 
 .app {
-  text-align: center;
-  /* min-height: calc(100vh - 50px); */
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center; 
-  background-size: contain;
-  background-repeat: repeat-x;
-  background-position: bottom 0px right 0px;
-  display: flex;
-  justify-content: center;
-  overflow-x: hidden;
+    text-align: center;
+    /* min-height: calc(100vh - 50px); */
+    display: flex
+;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    display: flex
+;
+    justify-content: center;
+    overflow-x: hidden;
+    background-color: #ffffff !important;
+    background: #ffffff !important;
 }
 
 
@@ -122,7 +130,7 @@ body {
   color: var(--brand-primary-dark);
   }
   .header-call-number {
-    color: #000000;
+    color: #444444;
     display: none;
     text-decoration: none !important;
     font-size: 20px;
@@ -2405,4 +2413,564 @@ button:disabled,
   }
 }
 
+/* ===================================================================
+   DESKTOP STYLES - 1200PX AND ABOVE
+   =================================================================== */
+@media (min-width: 1200px) {
+  /* === HEADER DESKTOP IMPROVEMENTS === */
+  .header {
+        width: calc(100% - 80px);
+        max-width: 1200px;
+        margin-top: 30px;
+        padding: 0 20px;
+        flex-direction: row;
+    }
+
+  .header-logo {
+    height: 40px;
+  }
+
+  .header-logo-text {
+    font-size: 24px;
+  }
+
+  .header a {
+    display: flex !important;
+  }
+
+  .header-phone-icon {
+    display: flex !important;
+    font-size: 18px;
+  }
+
+  .header-call-number {
+    display: block !important;
+    font-size: 22px;
+  }
+
+  /* === HERO SECTION DESKTOP IMPROVEMENTS === */
+  .hero-content {
+    max-width: 900px;
+    padding: 0 40px;
+  }
+
+  .hero-headline {
+    font-size: 4rem;
+    line-height: 1.1;
+    padding-top: 80px;
+    margin-bottom: 30px;
+  }
+
+  .hero-subheadline {
+    font-size: 2.2rem;
+    line-height: 2.6rem;
+    margin: 30px 0;
+  }
+
+  .hero-middle-container {
+    padding-top: 5%;
+  }
+
+  /* === FORM DESKTOP IMPROVEMENTS === */
+  .form-container {
+    flex-direction: row;
+    gap: 15px;
+    max-width: 900px;
+    margin: 30px auto;
+  }
+
+  .address-input {
+    font-size: 1.6rem;
+    height: 70px;
+    max-width: none;
+    flex: 1;
+  }
+
+  .address-input-invalid {
+    font-size: 1.6rem;
+    height: 70px;
+    max-width: none;
+    flex: 1;
+  }
+
+  .submit-button {
+    height: 74px;
+    font-size: 1.4rem;
+    min-width: 200px;
+    padding: 0 50px;
+    margin-top: 0;
+  }
+
+  /* === MAP PAGE IMPROVEMENTS === */
+  .custom-map-container {
+    height: 400px !important;
+    max-width: 800px !important;
+  }
+
+  .hero-1-api-address {
+    font-size: 2.4rem;
+    line-height: 2.8rem;
+  }
+
+  .hero-property-estimate {
+    font-size: 2.2rem;
+    padding: 15px 30px;
+  }
+
+  .hero-middle-map-buttons {
+    margin-top: 30px;
+  }
+
+  .hero-middle-map-submit-button,
+  .hero-middle-map-edit-button {
+    font-size: 1.6rem;
+    height: 70px;
+    min-width: 250px;
+  }
+
+  /* === QUALIFYING FORM IMPROVEMENTS === */
+  .qualifying-section {
+    max-width: 70%;
+    margin: 15% auto;
+  }
+
+  .qualifying-headline {
+    font-size: 3rem;
+    line-height: 3.2rem;
+  }
+
+  .qualifying-question {
+    font-size: 1.8rem;
+  }
+
+  .qualifying-toggle-selected-left,
+  .qualifying-toggle-selected-right,
+  .qualifying-toggle-deselected-left,
+  .qualifying-toggle-deselected-right {
+    width: 180px;
+    font-size: 1.4rem;
+    height: 60px;
+  }
+
+  .qualifying-button {
+    width: 360px;
+    font-size: 1.4rem;
+    height: 60px;
+  }
+
+  .qualifying-slider-container {
+    width: 360px;
+  }
+
+  .qualifying-text-input {
+    width: 360px;
+    height: 60px;
+    font-size: 1.4rem;
+  }
+
+  .dropdown {
+    width: 360px;
+  }
+
+  .dropbtn {
+    height: 60px;
+    font-size: 1.4rem;
+  }
+
+  .dropdown-content {
+    width: 360px;
+    font-size: 1.4rem;
+  }
+
+  /* === OVERLAY FORM IMPROVEMENTS === */
+  .overlay-form-container {
+    max-width: 600px;
+    padding: 40px 60px 60px;
+    margin-top: 8%;
+  }
+
+  .overlay-form-headline {
+    font-size: 2.6rem;
+    margin-bottom: 30px;
+  }
+
+  .overlay-form-input {
+    font-size: 1.4rem;
+    height: 65px;
+    padding: 15px 20px;
+  }
+
+  .registration-button {
+    font-size: 1.5rem;
+    height: 70px;
+    margin-top: 20px;
+  }
+
+  /* === THANK YOU PAGE IMPROVEMENTS === */
+  .thank-you-section {
+    max-width: 1000px;
+    margin-top: 8%;
+  }
+
+  .thank-you-headline {
+    font-size: 3.2rem;
+    line-height: 3.4rem;
+  }
+
+  .thank-you-text {
+    font-size: 1.6rem;
+    line-height: 1.4;
+    max-width: 80%;
+  }
+
+  /* === FOOTER IMPROVEMENTS === */
+  .footer {
+    padding: 60px 0;
+    font-size: 1.4rem;
+  }
+
+  .nav-links {
+    flex-direction: row;
+    gap: 15px;
+  }
+
+  .nav-links li {
+    padding: 0 30px;
+    font-size: 1.4rem;
+  }
+
+  .footer-copyright {
+    width: 60%;
+    font-size: 1.2rem;
+  }
+
+  /* === VALUE ESTIMATES IMPROVEMENTS === */
+  .v1-estimate-container {
+    font-size: 2.8rem;
+    gap: 12px;
+  }
+
+  .v1-hero-property-estimate {
+    font-size: 2.8rem;
+  }
+
+  .v1-volume-estimate-label {
+    font-size: 2.8rem;
+  }
+
+  .v1-input-field {
+    font-size: 1.6rem;
+    height: 60px;
+    padding: 15px 20px;
+  }
+
+  .v1-submit-button {
+    font-size: 1.6rem;
+    padding: 18px;
+    height: 64px;
+  }
+
+  .v1-input-container {
+    max-width: 500px;
+  }
+
+  .v1-hero-content {
+    max-width: 600px;
+  }
+
+  /* === ERROR MESSAGES === */
+  .error-message {
+    font-size: 1.6rem;
+  }
+
+  .phone-error-message {
+    font-size: 1.5rem;
+  }
+
+  /* === CONFIRMATION HEADERS === */
+  .confirmation-header {
+    font-size: 3rem !important;
+  }
+}
+
+
+/* ===================================================================
+   DESKTOP STYLES - 768PX AND ABOVE
+   =================================================================== */
+@media (min-width: 768px) {
+  /* === HEADER DESKTOP IMPROVEMENTS === */
+  .header {
+        width: calc(100% - 80px);
+        max-width: 1200px;
+        margin-top: 30px;
+        padding: 0 20px;
+        flex-direction: row;
+    }
+
+  .header-logo {
+    height: 40px;
+  }
+
+  .header-logo-text {
+    font-size: 24px;
+  }
+
+  .header a {
+    display: flex !important;
+  }
+
+  .header-phone-icon {
+    display: flex !important;
+    font-size: 18px;
+  }
+
+  .header-call-number {
+    display: block !important;
+    font-size: 22px;
+  }
+
+  /* === HERO SECTION DESKTOP IMPROVEMENTS === */
+  .hero-content {
+    max-width: 900px;
+    padding: 0 40px;
+  }
+
+  .hero-headline {
+    font-size: 4rem;
+    line-height: 1.1;
+    padding-top: 80px;
+    margin-bottom: 30px;
+  }
+
+  .hero-subheadline {
+    font-size: 2.2rem;
+    line-height: 2.6rem;
+    margin: 30px 0;
+  }
+
+  .hero-middle-container {
+    padding-top: 5%;
+  }
+
+  /* === FORM DESKTOP IMPROVEMENTS === */
+  .form-container {
+    flex-direction: row;
+    gap: 15px;
+    max-width: 900px;
+    margin: 30px auto;
+  }
+
+  .address-input {
+    font-size: 1.6rem;
+    height: 70px;
+    max-width: none;
+    flex: 1;
+  }
+
+  .address-input-invalid {
+    font-size: 1.6rem;
+    height: 70px;
+    max-width: none;
+    flex: 1;
+  }
+
+  .submit-button {
+    height: 74px;
+    font-size: 1.4rem;
+    min-width: 200px;
+    padding: 0 50px;
+    margin-top: 0;
+  }
+
+  /* === MAP PAGE IMPROVEMENTS === */
+  .custom-map-container {
+    height: 400px !important;
+    max-width: 800px !important;
+  }
+
+  .hero-1-api-address {
+    font-size: 2.4rem;
+    line-height: 2.8rem;
+  }
+
+  .hero-property-estimate {
+    font-size: 2.2rem;
+    padding: 15px 30px;
+  }
+
+  .hero-middle-map-buttons {
+    margin-top: 30px;
+  }
+
+  .hero-middle-map-submit-button,
+  .hero-middle-map-edit-button {
+    font-size: 1.6rem;
+    height: 70px;
+    min-width: 250px;
+  }
+
+  /* === QUALIFYING FORM IMPROVEMENTS === */
+  .qualifying-section {
+    max-width: 70%;
+    margin: 15% auto;
+  }
+
+  .qualifying-headline {
+    font-size: 3rem;
+    line-height: 3.2rem;
+  }
+
+  .qualifying-question {
+    font-size: 1.8rem;
+  }
+
+  .qualifying-toggle-selected-left,
+  .qualifying-toggle-selected-right,
+  .qualifying-toggle-deselected-left,
+  .qualifying-toggle-deselected-right {
+    width: 180px;
+    font-size: 1.4rem;
+    height: 60px;
+  }
+
+  .qualifying-button {
+    width: 360px;
+    font-size: 1.4rem;
+    height: 60px;
+  }
+
+  .qualifying-slider-container {
+    width: 360px;
+  }
+
+  .qualifying-text-input {
+    width: 360px;
+    height: 60px;
+    font-size: 1.4rem;
+  }
+
+  .dropdown {
+    width: 360px;
+  }
+
+  .dropbtn {
+    height: 60px;
+    font-size: 1.4rem;
+  }
+
+  .dropdown-content {
+    width: 360px;
+    font-size: 1.4rem;
+  }
+
+  /* === OVERLAY FORM IMPROVEMENTS === */
+  .overlay-form-container {
+    max-width: 600px;
+    padding: 40px 60px 60px;
+    margin-top: 8%;
+  }
+
+  .overlay-form-headline {
+    font-size: 2.6rem;
+    margin-bottom: 30px;
+  }
+
+  .overlay-form-input {
+    font-size: 1.4rem;
+    height: 65px;
+    padding: 15px 20px;
+  }
+
+  .registration-button {
+    font-size: 1.5rem;
+    height: 70px;
+    margin-top: 20px;
+  }
+
+  /* === THANK YOU PAGE IMPROVEMENTS === */
+  .thank-you-section {
+    max-width: 1000px;
+    margin-top: 8%;
+  }
+
+  .thank-you-headline {
+    font-size: 3.2rem;
+    line-height: 3.4rem;
+  }
+
+  .thank-you-text {
+    font-size: 1.6rem;
+    line-height: 1.4;
+    max-width: 80%;
+  }
+
+  /* === FOOTER IMPROVEMENTS === */
+  .footer {
+    padding: 60px 0;
+    font-size: 1.4rem;
+  }
+
+  .nav-links {
+    flex-direction: row;
+    gap: 15px;
+  }
+
+  .nav-links li {
+    padding: 0 30px;
+    font-size: 1.4rem;
+  }
+
+  .footer-copyright {
+    width: 60%;
+    font-size: 1.2rem;
+  }
+
+  /* === VALUE ESTIMATES IMPROVEMENTS === */
+  .v1-estimate-container {
+    font-size: 2.8rem;
+    gap: 12px;
+  }
+
+  .v1-hero-property-estimate {
+    font-size: 2.8rem;
+  }
+
+  .v1-volume-estimate-label {
+    font-size: 2.8rem;
+  }
+
+  .v1-input-field {
+    font-size: 1.6rem;
+    height: 60px;
+    padding: 15px 20px;
+  }
+
+  .v1-submit-button {
+    font-size: 1.6rem;
+    padding: 18px;
+    height: 64px;
+  }
+
+  .v1-input-container {
+    max-width: 500px;
+  }
+
+  .v1-hero-content {
+    max-width: 600px;
+  }
+
+  /* === ERROR MESSAGES === */
+  .error-message {
+    font-size: 1.6rem;
+  }
+
+  .phone-error-message {
+    font-size: 1.5rem;
+  }
+
+  /* === CONFIRMATION HEADERS === */
+  .confirmation-header {
+    font-size: 3rem !important;
+  }
+}
  

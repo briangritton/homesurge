@@ -551,7 +551,14 @@ function AddressForm({ campaign, variant }) {
           </div>
           <button 
             className="vb-af-contact-button vb-af-button-flare"
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            onClick={(e) => {
+              e.preventDefault();
+              console.log('AddressForm contact button clicked!');
+              // Multiple scroll methods for maximum compatibility
+              window.scrollTo(0, 0);
+              document.body.scrollTop = 0;
+              document.documentElement.scrollTop = 0;
+            }}
           >
             {dynamicContent.contactButtonText}
           </button>
