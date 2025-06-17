@@ -220,11 +220,19 @@ async function sendToGA4(callData) {
 }
 
 /**
- * Send immediate call notification using existing Pushover infrastructure
+ * Send immediate call notification directly to Pushover API
  */
 async function sendCallNotification(callData) {
   try {
     console.log('🔔 Attempting to send call notification:', callData);
+    
+    const pushoverToken = process.env.PUSHOVER_APP_TOKEN;
+    const pushoverUser = "um62xd21dr7pfugnwanooxi6mqxc3n";
+    
+    if (!pushoverToken) {
+      console.error('❌ PUSHOVER_APP_TOKEN environment variable not set');
+      return;
+    }
     
     const cleanPhoneNumber = callData.phoneNumber ? callData.phoneNumber.replace(/[^\d]/g, '') : 'Unknown';
     const formattedNumber = cleanPhoneNumber.length === 10 ? 
@@ -240,38 +248,34 @@ async function sendCallNotification(callData) {
       "Incoming Call from Website";
 
     console.log('🔔 Sending notification with message:', message);
+    console.log('🔔 Using token:', pushoverToken ? 'Present' : 'Missing');
 
-    // Use the same API endpoint that works for your other notifications
-    const payload = {
-      user: "um62xd21dr7pfugnwanooxi6mqxc3n", // Your working user key
-      message: message,
-      title: title,
-      priority: 1,
-      sound: "persistent"
-    };
+    // Call Pushover API directly to avoid self-calling issues
+    const pushoverPayload = new URLSearchParams();
+    pushoverPayload.append('token', pushoverToken);
+    pushoverPayload.append('user', pushoverUser);
+    pushoverPayload.append('message', message);
+    pushoverPayload.append('title', title);
+    pushoverPayload.append('priority', '1');
+    pushoverPayload.append('sound', 'persistent');
 
-    // Get the correct domain for the API call
-    const domain = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://sellforcash.online';
-    const apiUrl = `${domain}/api/pushover/send-notification`;
+    console.log('🔔 Calling Pushover API directly');
 
-    console.log('🔔 Calling pushover API at:', apiUrl);
-
-    const response = await fetch(apiUrl, {
+    const response = await fetch('https://api.pushover.net/1/messages.json', {
       method: 'POST',
+      body: pushoverPayload,
       headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload)
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
     });
 
-    const responseText = await response.text();
-    console.log('🔔 Pushover response status:', response.status);
-    console.log('🔔 Pushover response:', responseText);
+    const responseData = await response.json();
+    console.log('🔔 Pushover API response:', responseData);
 
-    if (response.ok) {
+    if (responseData.status === 1) {
       console.log('✅ Call notification sent successfully');
     } else {
-      console.error('❌ Call notification failed:', response.status, responseText);
+      console.error('❌ Pushover API error:', responseData);
     }
 
   } catch (error) {
