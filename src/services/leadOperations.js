@@ -359,6 +359,122 @@ class LeadOperationsService {
   }
 
   /**
+   * Match incoming phone call to existing lead and update status
+   * @param {string} phoneNumber - Incoming phone number
+   * @param {string} callSid - Twilio call SID
+   * @param {string} callStatus - Call status (incoming, completed, etc.)
+   * @returns {Promise<Object>} Match result with lead info
+   */
+  async updateLeadFromPhoneCall(phoneNumber, callSid, callStatus = 'incoming') {
+    try {
+      console.log('🔍 Searching for lead with phone number:', phoneNumber);
+
+      if (!phoneNumber) {
+        return { success: false, matched: false, error: 'No phone number provided' };
+      }
+
+      // Import Firebase functions (can't import at top due to server/client differences)
+      const { getFirestore, collection, query, where, getDocs, updateDoc, doc, serverTimestamp } = await import('firebase/firestore');
+      
+      const db = getFirestore();
+      
+      // Clean the phone number for matching (remove all non-digits)
+      const cleanPhone = phoneNumber.replace(/[^\d]/g, '');
+      
+      // Try different phone number formats for matching
+      const phoneVariations = [
+        phoneNumber, // Original format (+16786323811)
+        cleanPhone, // Digits only (16786323811)
+        `+1${cleanPhone}`, // With country code (+116786323811)
+        cleanPhone.startsWith('1') ? cleanPhone.substring(1) : cleanPhone, // Remove leading 1 (6786323811)
+        `(${cleanPhone.substring(1, 4)}) ${cleanPhone.substring(4, 7)}-${cleanPhone.substring(7)}`, // Formatted (678) 632-3811
+      ].filter((phone, index, arr) => arr.indexOf(phone) === index); // Remove duplicates
+
+      console.log('🔍 Searching for phone variations:', phoneVariations);
+
+      let matchingLead = null;
+
+      // Search for leads with matching phone numbers
+      for (const phoneVariation of phoneVariations) {
+        const leadsQuery = query(
+          collection(db, 'leads'),
+          where('phone', '==', phoneVariation)
+        );
+        
+        const snapshot = await getDocs(leadsQuery);
+        
+        if (!snapshot.empty) {
+          matchingLead = {
+            id: snapshot.docs[0].id,
+            ...snapshot.docs[0].data()
+          };
+          console.log('✅ Found matching lead:', matchingLead.id, 'for phone:', phoneVariation);
+          break;
+        }
+      }
+
+      if (!matchingLead) {
+        console.log('❌ No matching lead found for phone:', phoneNumber);
+        return { 
+          success: true, 
+          matched: false, 
+          message: 'No matching lead found for this phone number' 
+        };
+      }
+
+      // Prepare update data
+      const updateData = {
+        lastCallDate: new Date().toISOString(),
+        lastCallSid: callSid,
+        updatedAt: new Date().toISOString(), // This moves lead to top of list
+        callCount: (matchingLead.callCount || 0) + 1,
+        leadStage: 'Called In'
+      };
+
+      // Only update status if it's currently 'Unassigned' or 'New' or empty
+      if (!matchingLead.status || matchingLead.status === 'Unassigned' || matchingLead.status === 'New') {
+        updateData.status = 'Called In';
+        console.log('📞 Updating lead status to "Called In"');
+      } else {
+        console.log('📞 Lead already has status:', matchingLead.status, '- not changing status');
+      }
+
+      // Use the existing updateLead method for consistency and retry logic
+      const success = await this.updateLead(matchingLead.id, updateData);
+
+      if (success) {
+        console.log('✅ Updated lead with call information:', {
+          leadId: matchingLead.id,
+          name: matchingLead.name,
+          oldStatus: matchingLead.status,
+          newStatus: updateData.status || matchingLead.status,
+          callCount: updateData.callCount
+        });
+
+        return {
+          success: true,
+          matched: true,
+          leadId: matchingLead.id,
+          leadName: matchingLead.name,
+          oldStatus: matchingLead.status,
+          newStatus: updateData.status || matchingLead.status,
+          callCount: updateData.callCount
+        };
+      } else {
+        throw new Error('Failed to update lead in Firebase');
+      }
+
+    } catch (error) {
+      console.error('❌ Error updating lead from phone call:', error);
+      return { 
+        success: false, 
+        matched: false, 
+        error: error.message 
+      };
+    }
+  }
+
+  /**
    * Get lead statistics for debugging
    * @returns {Object} Lead operation statistics
    */

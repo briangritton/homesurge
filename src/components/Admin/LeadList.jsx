@@ -225,6 +225,7 @@ const styles = {
 const statusColors = {
   'Unassigned': { background: '#09a5c8', color: 'white' },
   'New': { background: '#09a5c8', color: 'white' }, // Legacy support - treat as Unassigned
+  'Called In': { background: '#4CAF50', color: 'white' }, // Green for incoming calls
   'Contacted': { background: '#C8E6C9', color: '#1B5E20' },
   'Qualified': { background: '#E0F2F1', color: '#00695C' },
   'Appointment': { background: '#E0F7FA', color: '#006064' },
@@ -241,7 +242,7 @@ const LeadList = ({ onSelectLead }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [showAllPageVisits, setShowAllPageVisits] = useState(false); // Default to false - only show form submissions
-  const [sortBy, setSortBy] = useState('createdAt');
+  const [sortBy, setSortBy] = useState('updatedAt');
   const [sortDirection, setSortDirection] = useState('desc');
   const [lastVisible, setLastVisible] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
