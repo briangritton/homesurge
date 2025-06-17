@@ -4216,3 +4216,61 @@ display:none;
         margin-top: 20px;
     }
 }
+
+/* ================================================================================
+   ADDRESSFORM PHONE SECTION STYLES
+   ================================================================================
+   Styling for the phone section in AddressForm contact area
+   ================================================================================ */
+
+/* AF Phone Section */
+.vb-af-phone-section {
+
+  text-align: center;
+}
+
+.vb-af-phone-link {
+  text-decoration: none !important;
+  display: inline-block;
+}
+
+.vb-af-phone-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.vb-af-phone-icon {
+  color: var(--brand-primary-dark);
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.vb-af-phone-number {
+  color: #444444;
+  font-size: 20px;
+  font-style: italic;
+  font-weight: 700;
+  text-decoration: none !important;
+}
+
+/* Mobile responsive styles for AF phone section */
+@media (max-width: 768px) {
+  .vb-af-phone-section {
+    /* margin-top: 15px; */
+  }
+  
+  .vb-af-phone-container {
+    gap: 4px;
+  }
+  
+  .vb-af-phone-icon {
+    font-size: 0.9rem;
+  }
+  
+  .vb-af-phone-number {
+    font-size: 18px;
+  }
+}

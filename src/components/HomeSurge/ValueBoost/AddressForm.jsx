@@ -11,6 +11,7 @@ import gradientArrow from '../../../assets/images/gradient-arrow.png';
 import waveImage from '../../../assets/images/wave.png';
 import BelowFold from '../../BelowFold/BelowFold';
 import LazyImage from '../../common/LazyImage';
+import { BsTelephoneFill } from 'react-icons/bs';
 
 // Import new services
 import { googlePlacesService } from '../../../services/googlePlaces';
@@ -549,10 +550,6 @@ function AddressForm({ campaign, variant }) {
               <p className="vb-af-feature-text" dangerouslySetInnerHTML={{ __html: dynamicContent.checkmark3 }}></p>
             </div>
           </div>
-          <div className="vb-af-phone-section">
-            <p className="vb-af-phone-text">Need help? Call or text:</p>
-            <a href="tel:+14046714628" className="vb-af-phone-number">(404) 671-4628</a>
-          </div>
           <button 
             className="vb-af-contact-button vb-af-button-flare"
             onClick={(e) => {
@@ -566,6 +563,16 @@ function AddressForm({ campaign, variant }) {
           >
             {dynamicContent.contactButtonText}
           </button>
+          <div className="vb-af-phone-section">
+            <a href="tel:+14046714628" className="vb-af-phone-link">
+              <div className="vb-af-phone-container">
+                <div className="vb-af-phone-icon">
+                  <BsTelephoneFill />
+                </div>
+                <div className="vb-af-phone-number">(404) 671-4628</div>
+              </div>
+            </a>
+          </div>
         </div>
 
         {/* BELOW FOLD CONTENT */}

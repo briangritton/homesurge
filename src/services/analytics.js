@@ -438,5 +438,47 @@ export function debugCampaignTracking() {
 // Re-export Facebook Pixel for compatibility
 export { default as ReactPixel } from './facebook';
 
+// Track phone call events (for Twilio integration)
+export function trackPhoneCall(callData) {
+  console.log('📞 Analytics - Phone Call Event:', callData);
+  
+  const { phoneNumber, callStatus, callSid, duration } = callData;
+  
+  // Clean phone number for privacy
+  const cleanPhoneNumber = phoneNumber ? phoneNumber.replace(/[^\d]/g, '') : 'unknown';
+  const formattedNumber = cleanPhoneNumber.length === 10 ? 
+    `(${cleanPhoneNumber.substr(0,3)}) ${cleanPhoneNumber.substr(3,3)}-${cleanPhoneNumber.substr(6,4)}` : 
+    phoneNumber || 'Unknown Number';
+
+  // Send to GA4 via ReactGA (like other events)
+  if (GA_TRACKING_ID) {
+    ReactGA.event({
+      category: 'Phone',
+      action: 'Call',
+      label: `${callStatus} - ${formattedNumber}`,
+      value: callStatus === 'completed' ? (duration >= 10 ? 10 : 1) : 1
+    });
+  }
+
+  // Send to GTM dataLayer (like your form events)
+  window.dataLayer = window.dataLayer || [];
+  
+  const eventName = callStatus === 'incoming' ? 'phone_call_started' : 'phone_call_completed';
+  
+  window.dataLayer.push({
+    event: eventName,
+    phoneCall: {
+      status: callStatus,
+      phoneNumber: cleanPhoneNumber,
+      formattedNumber: formattedNumber,
+      callSid: callSid || '',
+      duration: duration || 0,
+      timestamp: new Date().toISOString()
+    }
+  });
+
+  console.log('📞 Phone call event pushed to dataLayer:', eventName);
+}
+
 // Export campaign debugging utilities
 export { default as CampaignDebug } from './campaign-debug';
