@@ -603,16 +603,16 @@ function ValueBoostReport({ campaign, variant }) {
     const path = window.location.pathname.toLowerCase();
     
     if (path.includes('/buy')) {
-      return "Need help putting together your strongest potential offer? I can help! Give me a call or shoot me a text. <a href='tel:+18888743302'>(888) 874-3302</a>";
+      return "Need help putting together your strongest potential offer? I can help! Give me a call or shoot me a text. <a href='tel:+14046714628'>(404) 671-4628</a>";
     } else if (path.includes('/cash')) {
-      return "Want me to help you negotiate the strongest cash offer? I have direct connections with some of the industries largest buyers, let me do the work for you! Give me a call or shoot me a text. <a href='tel:+18888743302'>(888) 874-3302</a>";
+      return "Want me to help you negotiate the strongest cash offer? I have direct connections with some of the industries largest buyers, let me do the work for you! Give me a call or shoot me a text. <a href='tel:+14046714628'>(404) 671-4628</a>";
     } else if (path.includes('/fsbo')) {
-      return "Need help putting together the documents you need to do this on your own? I can help, no obligation! Give me a call or shoot me a text. <a href='tel:+18888743302'>(888) 874-3302</a>";
+      return "Need help putting together the documents you need to do this on your own? I can help, no obligation! Give me a call or shoot me a text. <a href='tel:+14046714628'>(404) 671-4628</a>";
     } else if (path.includes('/sell')) {
-      return "Want me to help you sell your home fast and for the maximum value? I've managed millions in listings and I would love to help you out! Give me a call or shoot me a text. <a href='tel:+18888743302'>(888) 874-3302</a>";
+      return "Want me to help you sell your home fast and for the maximum value? I've managed millions in listings and I would love to help you out! Give me a call or shoot me a text. <a href='tel:+14046714628'>(404) 671-4628</a>";
     } else {
       // Default to value campaign
-      return "Need help improving your home's value? I can help! I have connections with some of the industries best home improvement companies, and in some cases we might be able to do these upgrades <em>ABSOLUTELY FREE</em>! Give me a call or shoot me a text. <a href='tel:+18888743302'>(888) 874-3302</a>";
+      return "Need help improving your home's value? I can help! I have connections with some of the industries best home improvement companies, and in some cases we might be able to do these upgrades <em>ABSOLUTELY FREE</em>! Give me a call or shoot me a text. <a href='tel:+14046714628'>(404) 671-4628</a>";
     }
   };
 
@@ -625,7 +625,7 @@ function ValueBoostReport({ campaign, variant }) {
         </div>
         <div className="vb-contact-info">
           <div className="vb-contact-name">Spencer Gritton</div>
-           <a href="tel:+18888743302" className="vb-contact-phone">(888) 874-3302</a>
+           <a href="tel:+14046714628" className="vb-contact-phone">(404) 671-4628</a>
           <div className="vb-contact-title">NMLS# 407111</div>
          
           <div className="vb-contact-agency">HomeSmart Realty Partners</div>
@@ -650,7 +650,7 @@ function ValueBoostReport({ campaign, variant }) {
             </div>
             <div className="vb-sticky-popup-info">
               <div className="vb-sticky-popup-name">Spencer Gritton</div>
-              <a href="tel:+18888743302" className="vb-sticky-popup-phone">(888) 874-3302</a>
+              <a href="tel:+14046714628" className="vb-sticky-popup-phone">(404) 671-4628</a>
               <div className="vb-sticky-popup-title">NMLS# 407111</div>
               
               <div className="vb-sticky-popup-agency">HomeSmart Realty Partners</div>

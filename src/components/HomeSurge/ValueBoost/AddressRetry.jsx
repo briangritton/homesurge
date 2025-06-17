@@ -784,7 +784,7 @@ function AddressRetry({ campaign, variant }) {
           
           {/* Phone support option */}
           <div className="vb-retry-help-text">
-            Need Help? <a href="tel:+18888743302" className="vb-retry-phone-link">(888) 874-3302</a> - Call or text us and we'll process your request for you and answer any questions!
+            Need Help? <a href="tel:+14046714628" className="vb-retry-phone-link">(404) 671-4628</a> - Call or text us and we'll process your request for you and answer any questions!
           </div>
         </div>
       </div>

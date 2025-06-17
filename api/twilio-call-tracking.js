@@ -62,6 +62,14 @@ export default async function handler(req, res) {
     // Track different call statuses
     if (CallStatus === 'ringing') {
       console.log('📱 Call ringing from:', From);
+      
+      // Send immediate push notification when call starts ringing
+      await sendCallNotification({
+        phoneNumber: From,
+        status: 'incoming',
+        twilioNumber: To,
+        callSid: CallSid
+      });
     }
 
     if (CallStatus === 'in-progress') {
@@ -154,7 +162,7 @@ async function sendToGA4(callData) {
           phone_number: callData.phoneNumber.replace(/[^\d]/g, ''), // Clean phone number
           call_duration: callData.duration,
           call_sid: callData.callSid,
-          twilio_number: '8888743302'
+          twilio_number: '4046714628'
         }
       }
     ]
@@ -183,27 +191,79 @@ async function sendToGA4(callData) {
 }
 
 /**
- * Notify team about the phone call (using your existing notification system)
+ * Send immediate call notification (when phone starts ringing)
+ */
+async function sendCallNotification(callData) {
+  try {
+    const cleanPhoneNumber = callData.phoneNumber.replace(/[^\d]/g, '');
+    const formattedNumber = cleanPhoneNumber.length === 10 ? 
+      `(${cleanPhoneNumber.substr(0,3)}) ${cleanPhoneNumber.substr(3,3)}-${cleanPhoneNumber.substr(6,4)}` : 
+      callData.phoneNumber;
+
+    await sendPushoverNotification({
+      message: `📞 Real Estate Lead calling from ${formattedNumber}`,
+      title: "Incoming Call from Website",
+      priority: 1,
+      sound: "persistent"
+    });
+
+    console.log('✅ Call notification sent');
+  } catch (error) {
+    console.error('❌ Call notification failed:', error);
+  }
+}
+
+/**
+ * Notify team about completed phone call
  */
 async function notifyTeam(callData) {
   try {
-    // Use your existing notification system
-    const notificationData = {
-      type: 'phone_call',
-      phoneNumber: callData.phoneNumber,
-      duration: `${callData.duration} seconds`,
-      timestamp: callData.timestamp,
-      message: `📞 Phone call received from ${callData.phoneNumber} - Duration: ${callData.duration}s`
-    };
+    const cleanPhoneNumber = callData.phoneNumber.replace(/[^\d]/g, '');
+    const formattedNumber = cleanPhoneNumber.length === 10 ? 
+      `(${cleanPhoneNumber.substr(0,3)}) ${cleanPhoneNumber.substr(3,3)}-${cleanPhoneNumber.substr(6,4)}` : 
+      callData.phoneNumber;
 
-    // You can extend this to use your existing Pushover/EmailJS services
-    console.log('📬 Would notify team:', notificationData);
-    
-    // TODO: Integrate with your existing notification services
-    // await sendPushoverNotification(notificationData);
-    // await sendEmailNotification(notificationData);
+    await sendPushoverNotification({
+      message: `📞 Call completed: ${formattedNumber} - Duration: ${callData.duration}s`,
+      title: "Call Tracking Update",
+      priority: 0,
+      sound: "echo"
+    });
 
+    console.log('✅ Team notification sent');
   } catch (error) {
     console.error('❌ Team notification failed:', error);
+  }
+}
+
+/**
+ * Send Pushover notification using existing API endpoint
+ */
+async function sendPushoverNotification(data) {
+  const PUSHOVER_USER = "um62xd21dr7pfugnwanooxi6mqxc3n"; // Your existing user key
+
+  try {
+    // Use your existing Pushover API endpoint
+    const response = await fetch(`https://${process.env.VERCEL_URL || 'homesurge.ai'}/api/pushover/send-notification`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        user: PUSHOVER_USER,
+        message: data.message,
+        title: data.title || "Real Estate Call",
+        priority: data.priority || 0,
+        sound: data.sound || "pushover"
+      })
+    });
+
+    if (response.ok) {
+      console.log('✅ Pushover notification sent successfully');
+    } else {
+      console.error('❌ Pushover notification failed:', response.status);
+    }
+  } catch (error) {
+    console.error('❌ Pushover request failed:', error);
   }
 }

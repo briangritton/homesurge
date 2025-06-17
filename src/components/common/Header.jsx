@@ -9,13 +9,13 @@ function Header() {
         <img src={logo} className="header-logo" alt="HomeSurge.AI" />
       </div>
 
-      <a href="tel:+18888743302">
+      <a href="tel:+14046714628">
         <div className="header-right">
           <div className="number-positioner">
             <div className="header-phone-icon">
               <BsTelephoneFill />
             </div>
-            <div className="header-call-number">(888) 874-3302</div>
+            <div className="header-call-number">(404) 671-4628</div>
           </div>
         </div>
       </a>

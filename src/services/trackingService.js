@@ -229,7 +229,7 @@ class TrackingService {
    * Capture and store GCLID for phone call attribution
    * @param {string} phoneNumber - The tracking phone number
    */
-  static captureCallTrackingData(phoneNumber = '(888) 874-3302') {
+  static captureCallTrackingData(phoneNumber = '(404) 671-4628') {
     try {
       const urlParams = new URLSearchParams(window.location.search);
       const gclid = urlParams.get('gclid');
