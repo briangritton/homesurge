@@ -415,11 +415,58 @@ class LeadOperationsService {
 
       if (!matchingLead) {
         console.log('❌ No matching lead found for phone:', phoneNumber);
-        return { 
-          success: true, 
-          matched: false, 
-          message: 'No matching lead found for this phone number' 
+        console.log('🆕 Creating new lead for incoming call');
+        
+        // Import additional Firebase functions for creating new documents
+        const { addDoc } = await import('firebase/firestore');
+        
+        const newLeadData = {
+          phone: phoneNumber,
+          name: '', // Will be empty until they provide it
+          email: '',
+          street: '',
+          city: '',
+          state: '',
+          zip: '',
+          status: 'Called In',
+          leadStage: 'Called In',
+          leadSource: 'Phone Call',
+          traffic_source: 'Phone Call',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          lastCallDate: new Date().toISOString(),
+          lastCallSid: callSid,
+          callCount: 1,
+          submittedAny: false, // They haven't filled out forms yet
+          notes: `Incoming call from ${phoneNumber} at ${new Date().toLocaleString()}`
         };
+        
+        try {
+          const docRef = await addDoc(collection(db, 'leads'), newLeadData);
+          console.log('✅ Created new lead for phone call:', {
+            leadId: docRef.id,
+            phoneNumber: phoneNumber,
+            status: 'Called In'
+          });
+          
+          return {
+            success: true,
+            matched: true,
+            created: true,
+            leadId: docRef.id,
+            leadName: `Phone Lead: ${phoneNumber}`,
+            oldStatus: null,
+            newStatus: 'Called In',
+            callCount: 1
+          };
+        } catch (createError) {
+          console.error('❌ Failed to create new lead:', createError);
+          return { 
+            success: false, 
+            matched: false, 
+            error: 'Failed to create new lead: ' + createError.message 
+          };
+        }
       }
 
       // Prepare update data

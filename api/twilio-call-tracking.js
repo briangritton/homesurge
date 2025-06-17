@@ -4,6 +4,25 @@
  * Also handles Dial action callbacks from the voice webhook
  */
 
+// Initialize Firebase for server-side use
+import { initializeApp, getApps } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
+
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCOEm26rN6y-8T3A-SjqMoH4qJtjdi3H1A",
+  authDomain: "sell-for-cash-454017.firebaseapp.com",
+  projectId: "sell-for-cash-454017",
+  storageBucket: "sell-for-cash-454017.firebasestorage.app",
+  messagingSenderId: "961913513684",
+  appId: "1:961913513684:web:57bd83f1867273bf437d41"
+};
+
+// Initialize Firebase if not already initialized
+if (!getApps().length) {
+  initializeApp(firebaseConfig);
+}
+
 export default async function handler(req, res) {
   // Accept both GET and POST requests from Twilio
   if (req.method !== 'POST' && req.method !== 'GET') {
@@ -24,7 +43,8 @@ export default async function handler(req, res) {
       Direction,
       AnsweredBy,
       DialCallStatus,
-      DialCallDuration
+      DialCallDuration,
+      CallerName
     } = requestData;
 
     // Log all call events for debugging
@@ -74,17 +94,21 @@ export default async function handler(req, res) {
         console.error('❌ Pushover notification failed:', error);
       }
 
-      // Update lead in CRM if phone number matches
-      console.log('🔍 CHECKING FOR MATCHING LEAD');
+      // Update lead in CRM if phone number matches, or create new lead
+      console.log('🔍 CHECKING FOR MATCHING LEAD OR CREATING NEW');
       try {
-        const leadUpdateResult = await updateLeadFromCall(From, CallSid, 'incoming');
+        const leadUpdateResult = await updateLeadFromCall(From, CallSid, 'incoming', CallerName);
         if (leadUpdateResult.matched) {
-          console.log('✅ Lead updated:', leadUpdateResult.leadName, '- Status:', leadUpdateResult.newStatus);
+          if (leadUpdateResult.created) {
+            console.log('🆕 NEW LEAD CREATED:', leadUpdateResult.leadName, '- ID:', leadUpdateResult.leadId);
+          } else {
+            console.log('✅ EXISTING LEAD UPDATED:', leadUpdateResult.leadName, '- Status:', leadUpdateResult.newStatus);
+          }
         } else {
-          console.log('ℹ️ No matching lead found for phone:', From);
+          console.log('ℹ️ Lead operation failed for phone:', From);
         }
       } catch (error) {
-        console.error('❌ Lead update failed:', error);
+        console.error('❌ Lead operation failed:', error);
       }
       
       if (DialCallStatus === 'completed' && parseInt(DialCallDuration) >= 10) {
@@ -316,7 +340,7 @@ async function sendToGA4(callData) {
 /**
  * Update lead in CRM when phone call matches (server-side version)
  */
-async function updateLeadFromCall(phoneNumber, callSid, callStatus = 'incoming') {
+async function updateLeadFromCall(phoneNumber, callSid, callStatus = 'incoming', callerName = null) {
   try {
     console.log('🔍 Searching for lead with phone number:', phoneNumber);
 
@@ -324,10 +348,22 @@ async function updateLeadFromCall(phoneNumber, callSid, callStatus = 'incoming')
       return { success: false, matched: false, error: 'No phone number provided' };
     }
 
-    // Import Firebase functions
-    const { getFirestore, collection, query, where, getDocs, updateDoc, doc, serverTimestamp } = await import('firebase/firestore');
+    // Use Firebase functions (Firebase already initialized at top)
+    console.log('🔧 Getting Firebase database...');
+    const { collection, query, where, getDocs, updateDoc, doc, serverTimestamp, addDoc } = await import('firebase/firestore');
     
+    // Use the same Firebase instance as the rest of the app
     const db = getFirestore();
+    console.log('✅ Firebase database ready');
+    
+    // Test the database connection
+    try {
+      const testCollection = collection(db, 'leads');
+      console.log('✅ Collection reference created successfully');
+    } catch (testError) {
+      console.error('❌ Collection test failed:', testError);
+      throw new Error('Firebase collection creation failed: ' + testError.message);
+    }
     
     // Clean the phone number for matching (remove all non-digits)
     const cleanPhone = phoneNumber.replace(/[^\d]/g, '');
@@ -346,9 +382,11 @@ async function updateLeadFromCall(phoneNumber, callSid, callStatus = 'incoming')
     let matchingLead = null;
 
     // Search for leads with matching phone numbers
+    const leadsCollection = collection(db, 'leads');
+    
     for (const phoneVariation of phoneVariations) {
       const leadsQuery = query(
-        collection(db, 'leads'),
+        leadsCollection,
         where('phone', '==', phoneVariation)
       );
       
@@ -366,11 +404,59 @@ async function updateLeadFromCall(phoneNumber, callSid, callStatus = 'incoming')
 
     if (!matchingLead) {
       console.log('❌ No matching lead found for phone:', phoneNumber);
-      return { 
-        success: true, 
-        matched: false, 
-        message: 'No matching lead found for this phone number' 
+      console.log('🆕 Creating new lead for incoming call');
+      
+      // Create a new lead for the calling number
+      console.log('🔧 Preparing to create new lead with data...');
+      
+      const newLeadData = {
+        phone: phoneNumber,
+        name: callerName || '', // Use caller ID name if available
+        callerIdName: callerName || '', // Store original caller ID name
+        email: '',
+        street: '',
+        city: '',
+        state: '',
+        zip: '',
+        status: 'Called In',
+        leadStage: 'Called In',
+        leadSource: 'Phone Call',
+        traffic_source: 'Phone Call',
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        lastCallDate: serverTimestamp(),
+        lastCallSid: callSid,
+        callCount: 1,
+        submittedAny: false, // They haven't filled out forms yet
+        notes: `Incoming call from ${phoneNumber}${callerName ? ` (${callerName})` : ''} at ${new Date().toLocaleString()}`
       };
+      
+      try {
+        const docRef = await addDoc(leadsCollection, newLeadData);
+        console.log('✅ Created new lead for phone call:', {
+          leadId: docRef.id,
+          phoneNumber: phoneNumber,
+          status: 'Called In'
+        });
+        
+        return {
+          success: true,
+          matched: true,
+          created: true,
+          leadId: docRef.id,
+          leadName: `Phone Lead: ${phoneNumber}`,
+          oldStatus: null,
+          newStatus: 'Called In',
+          callCount: 1
+        };
+      } catch (createError) {
+        console.error('❌ Failed to create new lead:', createError);
+        return { 
+          success: false, 
+          matched: false, 
+          error: 'Failed to create new lead: ' + createError.message 
+        };
+      }
     }
 
     // Prepare update data
@@ -381,6 +467,16 @@ async function updateLeadFromCall(phoneNumber, callSid, callStatus = 'incoming')
       callCount: (matchingLead.callCount || 0) + 1,
       leadStage: 'Called In'
     };
+
+    // Add caller ID name if available and not already set
+    if (callerName && !matchingLead.callerIdName) {
+      updateData.callerIdName = callerName;
+      // Only update the name field if it's currently empty
+      if (!matchingLead.name) {
+        updateData.name = callerName;
+        console.log('📞 Adding caller ID name to lead:', callerName);
+      }
+    }
 
     // Only update status if it's currently 'Unassigned' or 'New' or empty
     if (!matchingLead.status || matchingLead.status === 'Unassigned' || matchingLead.status === 'New') {
