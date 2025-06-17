@@ -5,13 +5,15 @@
  */
 
 export default async function handler(req, res) {
-  // Only accept POST requests from Twilio
-  if (req.method !== 'POST') {
+  // Accept both GET and POST requests from Twilio
+  if (req.method !== 'POST' && req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    console.log('📞 Twilio webhook received:', req.body);
+    // Handle both GET and POST request data
+    const requestData = req.method === 'GET' ? req.query : req.body;
+    console.log('📞 Twilio webhook received:', requestData);
 
     const { 
       CallStatus, 
@@ -23,7 +25,7 @@ export default async function handler(req, res) {
       AnsweredBy,
       DialCallStatus,
       DialCallDuration
-    } = req.body;
+    } = requestData;
 
     // Log all call events for debugging
     console.log('Call details:', {
@@ -60,13 +62,40 @@ export default async function handler(req, res) {
     }
 
     // Track different call statuses
+    console.log('🔍 Checking call statuses - CallStatus:', CallStatus, 'DialCallStatus:', DialCallStatus);
+    
     if (CallStatus === 'ringing') {
       console.log('📱 Call ringing from:', From);
       
-      // Send immediate push notification when call starts ringing
+      // Send notification using existing infrastructure
       await sendCallNotification({
         phoneNumber: From,
         status: 'incoming',
+        twilioNumber: To,
+        callSid: CallSid
+      });
+    }
+
+    // Also check for DialCallStatus (which we're seeing in the logs)
+    if (DialCallStatus === 'completed') {
+      console.log('📞 Dial completed from:', From);
+      
+      // Send notification for completed call
+      await sendCallNotification({
+        phoneNumber: From,
+        status: 'completed',
+        twilioNumber: To,
+        callSid: CallSid
+      });
+    }
+
+    // Let's also try CallStatus completed as backup
+    if (CallStatus === 'completed' && !DialCallStatus) {
+      console.log('📞 Call completed from:', From);
+      
+      await sendCallNotification({
+        phoneNumber: From,
+        status: 'completed',
         twilioNumber: To,
         callSid: CallSid
       });
@@ -191,23 +220,60 @@ async function sendToGA4(callData) {
 }
 
 /**
- * Send immediate call notification (when phone starts ringing)
+ * Send immediate call notification using existing Pushover infrastructure
  */
 async function sendCallNotification(callData) {
   try {
-    const cleanPhoneNumber = callData.phoneNumber.replace(/[^\d]/g, '');
+    console.log('🔔 Attempting to send call notification:', callData);
+    
+    const cleanPhoneNumber = callData.phoneNumber ? callData.phoneNumber.replace(/[^\d]/g, '') : 'Unknown';
     const formattedNumber = cleanPhoneNumber.length === 10 ? 
       `(${cleanPhoneNumber.substr(0,3)}) ${cleanPhoneNumber.substr(3,3)}-${cleanPhoneNumber.substr(6,4)}` : 
-      callData.phoneNumber;
+      callData.phoneNumber || 'Unknown Number';
 
-    await sendPushoverNotification({
-      message: `📞 Real Estate Lead calling from ${formattedNumber}`,
-      title: "Incoming Call from Website",
+    const message = callData.status === 'completed' ? 
+      `📞 Call completed from ${formattedNumber}` :
+      `📞 Real Estate Lead calling from ${formattedNumber}`;
+
+    const title = callData.status === 'completed' ? 
+      "Call Completed" : 
+      "Incoming Call from Website";
+
+    console.log('🔔 Sending notification with message:', message);
+
+    // Use the same API endpoint that works for your other notifications
+    const payload = {
+      user: "um62xd21dr7pfugnwanooxi6mqxc3n", // Your working user key
+      message: message,
+      title: title,
       priority: 1,
       sound: "persistent"
+    };
+
+    // Get the correct domain for the API call
+    const domain = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://sellforcash.online';
+    const apiUrl = `${domain}/api/pushover/send-notification`;
+
+    console.log('🔔 Calling pushover API at:', apiUrl);
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload)
     });
 
-    console.log('✅ Call notification sent');
+    const responseText = await response.text();
+    console.log('🔔 Pushover response status:', response.status);
+    console.log('🔔 Pushover response:', responseText);
+
+    if (response.ok) {
+      console.log('✅ Call notification sent successfully');
+    } else {
+      console.error('❌ Call notification failed:', response.status, responseText);
+    }
+
   } catch (error) {
     console.error('❌ Call notification failed:', error);
   }
@@ -223,11 +289,12 @@ async function notifyTeam(callData) {
       `(${cleanPhoneNumber.substr(0,3)}) ${cleanPhoneNumber.substr(3,3)}-${cleanPhoneNumber.substr(6,4)}` : 
       callData.phoneNumber;
 
-    await sendPushoverNotification({
-      message: `📞 Call completed: ${formattedNumber} - Duration: ${callData.duration}s`,
-      title: "Call Tracking Update",
-      priority: 0,
-      sound: "echo"
+    // Send completion notification using the same infrastructure
+    await sendCallNotification({
+      phoneNumber: callData.phoneNumber,
+      callSid: callData.callSid,
+      status: 'completed',
+      duration: callData.duration
     });
 
     console.log('✅ Team notification sent');
@@ -236,34 +303,3 @@ async function notifyTeam(callData) {
   }
 }
 
-/**
- * Send Pushover notification using existing API endpoint
- */
-async function sendPushoverNotification(data) {
-  const PUSHOVER_USER = "um62xd21dr7pfugnwanooxi6mqxc3n"; // Your existing user key
-
-  try {
-    // Use your existing Pushover API endpoint
-    const response = await fetch(`https://${process.env.VERCEL_URL || 'homesurge.ai'}/api/pushover/send-notification`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        user: PUSHOVER_USER,
-        message: data.message,
-        title: data.title || "Real Estate Call",
-        priority: data.priority || 0,
-        sound: data.sound || "pushover"
-      })
-    });
-
-    if (response.ok) {
-      console.log('✅ Pushover notification sent successfully');
-    } else {
-      console.error('❌ Pushover notification failed:', response.status);
-    }
-  } catch (error) {
-    console.error('❌ Pushover request failed:', error);
-  }
-}
