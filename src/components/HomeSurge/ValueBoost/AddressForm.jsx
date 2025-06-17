@@ -549,6 +549,10 @@ function AddressForm({ campaign, variant }) {
               <p className="vb-af-feature-text" dangerouslySetInnerHTML={{ __html: dynamicContent.checkmark3 }}></p>
             </div>
           </div>
+          <div className="vb-af-phone-section">
+            <p className="vb-af-phone-text">Need help? Call or text:</p>
+            <a href="tel:+18888743302" className="vb-af-phone-number">(888) 874-3302</a>
+          </div>
           <button 
             className="vb-af-contact-button vb-af-button-flare"
             onClick={(e) => {

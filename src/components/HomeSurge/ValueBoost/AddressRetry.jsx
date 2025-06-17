@@ -782,17 +782,9 @@ function AddressRetry({ campaign, variant }) {
             <div className="vb-af1-error-message vb-retry-error-message">{errorMessage}</div>
           )}
           
-          {/* Chat support option */}
+          {/* Phone support option */}
           <div className="vb-retry-help-text">
-            Need Help? <button 
-              className="vb-retry-chat-link" 
-              onClick={(e) => {
-                e.preventDefault();
-                alert('Chat support coming soon! Please try entering your address again.');
-              }}
-            >
-              Click here to chat with a ValueBoost expert
-            </button> and we'll process your request for you and answer any questions!
+            Need Help? <a href="tel:+18888743302" className="vb-retry-phone-link">(888) 874-3302</a> - Call or text us and we'll process your request for you and answer any questions!
           </div>
         </div>
       </div>

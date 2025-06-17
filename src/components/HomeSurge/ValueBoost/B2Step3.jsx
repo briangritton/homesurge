@@ -363,6 +363,11 @@ function B2Step3({ campaign, variant }) {
 
                 <div className="vb-b2-unlock-security-text" dangerouslySetInnerHTML={{ __html: dynamicContent.disclaimer }}>
                 </div>
+                
+                <div className="vb-b2-phone-section">
+                  <p className="vb-b2-phone-text">Prefer to talk? Call or text:</p>
+                  <a href="tel:+18888743302" className="vb-b2-phone-number">(888) 874-3302</a>
+                </div>
               </div>
             </div>
           </div>

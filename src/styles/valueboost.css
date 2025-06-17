@@ -2647,7 +2647,10 @@ color: #1a5052;
   cursor: not-allowed;
   transform: none;
 }
+.vb-b2-phone-section{
 
+display:none;
+}
 .vb-b2-button-flare {
   position: relative;
 }
@@ -2801,6 +2804,12 @@ color: #1a5052;
     widows: 2;
   }
   
+.vb-b2-phone-section{
+
+display:none;
+}
+
+
   .vb-b2-unlock-headline {
     padding-left: 20px;
     padding-right: 20px;
@@ -3988,6 +3997,14 @@ color: #1a5052;
   font-weight: 700;
   margin-bottom: 2px;
   font-family: 'Arial', sans-serif;
+  color: white !important;
+  text-decoration: none;
+  cursor: pointer !important;
+}
+
+.vb-sticky-popup-phone:hover {
+  color: white !important;
+  text-decoration: underline;
 }
 
 .vb-sticky-popup-agency {
@@ -4055,6 +4072,14 @@ color: #1a5052;
   .vb-sticky-popup-phone {
     font-size: 1rem;
     margin-bottom: 1px;
+    color: white !important;
+    text-decoration: none;
+    cursor: pointer !important;
+  }
+  
+  .vb-sticky-popup-phone:hover {
+    color: white !important;
+    text-decoration: underline;
   }
   
   .vb-sticky-popup-agency {

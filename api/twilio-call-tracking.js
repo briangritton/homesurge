@@ -1,6 +1,7 @@
 /**
  * Twilio Call Tracking Webhook
  * Handles call status updates and tracks conversions
+ * Also handles Dial action callbacks from the voice webhook
  */
 
 export default async function handler(req, res) {
@@ -19,7 +20,9 @@ export default async function handler(req, res) {
       To, 
       CallSid,
       Direction,
-      AnsweredBy 
+      AnsweredBy,
+      DialCallStatus,
+      DialCallDuration
     } = req.body;
 
     // Log all call events for debugging
@@ -30,8 +33,31 @@ export default async function handler(req, res) {
       to: To,
       direction: Direction,
       answeredBy: AnsweredBy,
-      callSid: CallSid
+      callSid: CallSid,
+      dialCallStatus: DialCallStatus,
+      dialCallDuration: DialCallDuration
     });
+
+    // Handle Dial action callbacks (when call forwarding completes)
+    if (DialCallStatus) {
+      console.log(`📞 Dial action completed: ${DialCallStatus}, Duration: ${DialCallDuration}s`);
+      
+      if (DialCallStatus === 'completed' && parseInt(DialCallDuration) >= 10) {
+        // Track successful forwarded call
+        await trackPhoneConversion({
+          phoneNumber: From,
+          duration: parseInt(DialCallDuration),
+          callSid: CallSid,
+          timestamp: new Date().toISOString(),
+          twilioNumber: To,
+          type: 'forwarded_call'
+        });
+      }
+
+      // Return empty TwiML for Dial action callbacks
+      res.setHeader('Content-Type', 'text/xml');
+      return res.status(200).send('<?xml version="1.0" encoding="UTF-8"?><Response></Response>');
+    }
 
     // Track different call statuses
     if (CallStatus === 'ringing') {

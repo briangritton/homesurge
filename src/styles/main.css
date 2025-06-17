@@ -2974,3 +2974,18 @@ button:disabled,
   }
 }
  
+
+/* === CALL TRACKING PHONE NUMBER STYLES === */
+/* Pointer cursor for all phone number links */
+a[href^="tel:"] {
+  cursor: pointer \!important;
+}
+
+.vb-contact-phone,
+.vb-sticky-popup-phone,
+.vb-af-phone-number,
+.vb-b2-phone-number,
+.vb-retry-phone-link,
+.header-call-number {
+  cursor: pointer \!important;
+}
