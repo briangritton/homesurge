@@ -24,9 +24,48 @@ class TemplateEngineService {
       return this.getReportTemplate(campaign, variant);
     } else if (component === 'b2step3') {
       return this.getB2Step3Template(campaign, variant);
+    } else if (component === 'livechat') {
+      return this.getLiveChatTemplate(campaign, variant);
     }
     
     return this.getAddressFormTemplate('cash', 'A1O');
+  }
+
+  /**
+   * Live Chat templates - adapted from stickyPopupMessage content
+   */
+  getLiveChatTemplate(campaign, variant) {
+    const templates = {
+      cash: {
+        available: 'Live cash offer expert available!',
+        connecting: 'Offer agent connecting, just a sec...'
+      },
+      sell: {
+        available: 'Live selling expert available!',
+        connecting: 'Offer agent connecting, just a sec...'
+      },
+      value: {
+        available: 'Live value expert available!',
+        connecting: 'Value agent connecting, just a sec...'
+      },
+      default: {
+        available: 'Live chat offer available!',
+        connecting: 'Offer agent connecting, just a sec...'
+      }
+    };
+
+    // Match campaign type
+    const simplified = (campaign || '').toLowerCase();
+    
+    if (simplified.includes('cash') || simplified.includes('fast')) {
+      return templates.cash;
+    } else if (simplified.includes('sell') || simplified.includes('selling')) {
+      return templates.sell;
+    } else if (simplified.includes('value') || simplified.includes('boost')) {
+      return templates.value;
+    }
+    
+    return templates.default;
   }
 
   /**
