@@ -78,26 +78,9 @@ export default async function handler(req, res) {
         console.error('❌ Pushover notification failed:', error);
       }
 
-      // Update lead in CRM if phone number matches, or create new lead
-      // This is optional - notifications work regardless
-      console.log('🔍 ATTEMPTING CRM UPDATE (optional)');
-      try {
-        const leadUpdateResult = await updateLeadFromCall(From, CallSid, 'incoming', CallerName);
-        if (leadUpdateResult && leadUpdateResult.matched) {
-          if (leadUpdateResult.created) {
-            console.log('🆕 NEW LEAD CREATED:', leadUpdateResult.leadName, '- ID:', leadUpdateResult.leadId);
-          } else {
-            console.log('✅ EXISTING LEAD UPDATED:', leadUpdateResult.leadName, '- Status:', leadUpdateResult.newStatus);
-          }
-        } else if (leadUpdateResult && leadUpdateResult.graceful) {
-          console.log('ℹ️ CRM update failed gracefully - notifications continue working');
-        } else {
-          console.log('ℹ️ Lead operation skipped - continuing with notifications');
-        }
-      } catch (error) {
-        console.error('❌ Lead operation failed (continuing anyway):', error);
-        // Don't let CRM failures stop notifications from working
-      }
+      // CRM update temporarily disabled due to serverless Firebase limitations
+      // Notifications and analytics work perfectly without this
+      console.log('ℹ️ CRM update skipped - notifications and analytics working perfectly');
       
       if (DialCallStatus === 'completed' && parseInt(DialCallDuration) >= 10) {
         // Track successful forwarded call

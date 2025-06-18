@@ -1,4 +1,5 @@
 import { initializeApp } from 'firebase/app';
+import { getDatabase } from 'firebase/database';
 import { 
   getFirestore, 
   collection, 
@@ -19,7 +20,9 @@ import {
   signInWithEmailAndPassword, 
   signOut, 
   createUserWithEmailAndPassword, 
-  sendPasswordResetEmail 
+  sendPasswordResetEmail,
+  setPersistence,
+  browserLocalPersistence
 } from 'firebase/auth';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -36,7 +39,13 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const realtimeDb = getDatabase(app);
 const auth = getAuth(app);
+
+// Set auth persistence to LOCAL (never auto-logout)
+setPersistence(auth, browserLocalPersistence).catch((error) => {
+  console.error('Failed to set auth persistence:', error);
+});
 
 /**
  * Submit new lead to Firebase Firestore
@@ -1101,6 +1110,7 @@ export async function deleteLeadFromFirebase(leadId) {
 export default {
   app,
   db,
+  realtimeDb,
   auth,
   // Lead Management
   submitLeadToFirebase,

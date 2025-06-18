@@ -280,6 +280,7 @@ const NewLeadForm = ({ onClose, onLeadCreated }) => {
               style={styles.select}
             >
               <option value="Unassigned">Unassigned</option>
+              <option value="Called In">Called In</option>
               <option value="Contacted">Contacted</option>
               <option value="Qualified">Qualified</option>
               <option value="Appointment">Appointment</option>

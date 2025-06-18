@@ -14,6 +14,7 @@ import {
 import { trackFirebaseConversion, deleteLeadFromFirebase } from '../../services/firebase';
 import { sendLeadAssignmentSMS } from '../../services/twilio';
 import PriorityInfoFields from './PriorityInfoFields';
+import LiveChat from '../LiveChat/LiveChat';
 
 // CSS for the lead detail view
 const styles = {
@@ -246,6 +247,7 @@ const styles = {
 const statusColors = {
   'Unassigned': { background: '#09a5c8', color: 'white' },
   'New': { background: '#09a5c8', color: 'white' }, // Legacy support - treat as Unassigned
+  'Called In': { background: '#4CAF50', color: 'white' }, // Green for incoming calls
   'Contacted': { background: '#C8E6C9', color: '#1B5E20' },
   'Qualified': { background: '#FFF9C4', color: '#F57F17' },
   'Appointment': { background: '#FFE0B2', color: '#E65100' },
@@ -464,9 +466,8 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
       // Remove id field (it's the document ID, not a field)
       delete updateData.id;
       
-      // Remove timestamp fields (they will be handled by Firestore)
+      // Remove createdAt timestamp field (keep updatedAt)
       delete updateData.createdAt;
-      delete updateData.updatedAt;
       
       await updateDoc(leadRef, updateData);
       
@@ -679,6 +680,15 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
         </div>
       </div>
 
+      {/* Live Chat Section */}
+      <LiveChat 
+        leadId={leadId} 
+        leadName={lead.name || 'Customer'} 
+        userRole="sales" 
+        userName="Spencer"
+        // prefilledGreeting="Hey this is Spencer, I actually have a second now to see if this might be a good fit so I thought I'd jump right on and say hi! How are you today?"
+      />
+
       {/* Priority Information Section */}
       <div style={styles.prioritySection} className="crm-lead-section crm-lead-priority-section">
         <h3 style={styles.sectionTitle}>Priority Information</h3>
@@ -829,6 +839,7 @@ const LeadDetail = ({ leadId, onBack, isAdmin = true }) => {
                       style={styles.select}
                     >
                       <option value="Unassigned">Unassigned</option>
+                      <option value="Called In">Called In</option>
                       <option value="Contacted">Contacted</option>
                       <option value="Qualified">Qualified</option>
                       <option value="Appointment">Appointment</option>
