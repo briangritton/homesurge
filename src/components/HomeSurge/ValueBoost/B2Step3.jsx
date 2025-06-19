@@ -293,28 +293,6 @@ function B2Step3({ campaign, variant }) {
             <div className="vb-b2-locked-overlay">
               {/* Opaque background wrapper for the unlock section */}
               <div className="vb-b2-unlock-section-wrapper">
-                <div className="vb-b2-unlock-header">
-                  <h3 className="vb-b2-unlock-headline" dangerouslySetInnerHTML={{ __html: dynamicContent.unlockHeadline }}>
-                  </h3>
-                </div>
-                <div className="vb-b2-features-bubble">
-                  <div className="vb-b2-feature-item">
-                    <div className="vb-b2-feature-icon">✓</div>
-                    <p className="vb-b2-feature-text" dangerouslySetInnerHTML={{ __html: dynamicContent.checkmark1 }}>
-                    </p>
-                  </div>
-                  <div className="vb-b2-feature-item">
-                    <div className="vb-b2-feature-icon">✓</div>
-                    <p className="vb-b2-feature-text" dangerouslySetInnerHTML={{ __html: dynamicContent.checkmark2 }}>
-                    </p>
-                  </div>
-                  <div className="vb-b2-feature-item">
-                    <div className="vb-b2-feature-icon">✓</div>
-                    <p className="vb-b2-feature-text" dangerouslySetInnerHTML={{ __html: dynamicContent.checkmark3 }}>
-                    </p>
-                  </div>
-                </div>
-
                 {/* Inline form fields */}
                 <div className="vb-b2-unlock-form-container">
                   <div className="vb-b2-optin-form-fields">
@@ -360,6 +338,28 @@ function B2Step3({ campaign, variant }) {
                 >
                   {isSubmitting ? 'Processing...' : dynamicContent.buttonText}
                 </button>
+
+                <div className="vb-b2-unlock-header">
+                  <h3 className="vb-b2-unlock-headline" dangerouslySetInnerHTML={{ __html: dynamicContent.unlockHeadline }}>
+                  </h3>
+                </div>
+                <div className="vb-b2-features-bubble">
+                  <div className="vb-b2-feature-item">
+                    <div className="vb-b2-feature-icon">✓</div>
+                    <p className="vb-b2-feature-text" dangerouslySetInnerHTML={{ __html: dynamicContent.checkmark1 }}>
+                    </p>
+                  </div>
+                  <div className="vb-b2-feature-item">
+                    <div className="vb-b2-feature-icon">✓</div>
+                    <p className="vb-b2-feature-text" dangerouslySetInnerHTML={{ __html: dynamicContent.checkmark2 }}>
+                    </p>
+                  </div>
+                  <div className="vb-b2-feature-item">
+                    <div className="vb-b2-feature-icon">✓</div>
+                    <p className="vb-b2-feature-text" dangerouslySetInnerHTML={{ __html: dynamicContent.checkmark3 }}>
+                    </p>
+                  </div>
+                </div>
 
                 <div className="vb-b2-unlock-security-text" dangerouslySetInnerHTML={{ __html: dynamicContent.disclaimer }}>
                 </div>

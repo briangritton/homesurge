@@ -837,14 +837,14 @@ color:#444444;
 
 /* Hover effects for deselected buttons - fade towards selected state */
 .qualifying-toggle-deselected-left:hover {
-  background: linear-gradient(135deg, var(--brand-primary-alpha) 0%, rgba(35, 107, 109, 0.1) 100%);
+  background: linear-gradient(135deg, var(--brand-primary-alpha) 0%, rgba(53, 53, 53, 0.1) 100%);
   border-color: var(--brand-primary);
   color: var(--brand-primary);
   box-shadow: 0 4px 12px var(--brand-primary-alpha);
 }
 
 .qualifying-toggle-deselected-right:hover {
-  background: linear-gradient(135deg, var(--brand-primary-alpha) 0%, rgba(35, 107, 109, 0.1) 100%);
+  background: linear-gradient(135deg, var(--brand-primary-alpha) 0%, rgba(53, 53, 53, 0.1) 100%);
   border-color: var(--brand-primary);
   color: var(--brand-primary);
   box-shadow: 0 4px 12px var(--brand-primary-alpha);
@@ -852,12 +852,12 @@ color:#444444;
 
 /* Hover effects for selected buttons - fade towards deselected state */
 .qualifying-toggle-selected-left:hover {
-  background: linear-gradient(135deg, var(--brand-primary) 0%, rgba(35, 107, 109, 0.8) 100%);
+  background: linear-gradient(135deg, var(--brand-primary) 0%, rgba(53, 53, 53, 0.8) 100%);
   box-shadow: 0 4px 12px var(--brand-primary-alpha);
 }
 
 .qualifying-toggle-selected-right:hover {
-  background: linear-gradient(135deg, var(--brand-primary) 0%, rgba(35, 107, 109, 0.8) 100%);
+  background: linear-gradient(135deg, var(--brand-primary) 0%, rgba(53, 53, 53, 0.8) 100%);
   box-shadow: 0 4px 12px var(--brand-primary-alpha);
 }
 

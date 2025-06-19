@@ -289,6 +289,7 @@ const CRMApp = () => {
             >
               Leads
             </button>
+            {/* Hidden pause/unpause buttons
             <button 
               onClick={handlePauseGoogleAds}
               disabled={googleAdsPaused || adsPauseLoading}
@@ -311,6 +312,7 @@ const CRMApp = () => {
             >
               {facebookAdsPaused ? 'Facebook Paused' : 'Pause Facebook'}
             </button>
+            */}
           </nav>
         )}
         

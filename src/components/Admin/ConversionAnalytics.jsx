@@ -62,7 +62,7 @@ const styles = {
     fontSize: '16px',
     fontWeight: 'bold',
     marginBottom: '15px',
-    color: '#09a5c8',
+    color: '#45bc97',
   },
   variantTable: {
     width: '100%',
@@ -114,7 +114,7 @@ const styles = {
   summaryNumber: {
     fontSize: '24px',
     fontWeight: 'bold',
-    color: '#09a5c8',
+    color: '#45bc97',
   },
   summaryLabel: {
     fontSize: '12px',

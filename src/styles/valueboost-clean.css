@@ -870,7 +870,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: radial-gradient(circle, var(--brand-primary) 0%, rgba(35, 107, 109, 0.4) 100%);
+  background: radial-gradient(circle, var(--brand-primary) 0%, rgba(53, 53, 53, 0.4) 100%);
   animation: vb-ai-orbit 4s linear infinite;
 }
 

@@ -625,6 +625,7 @@
   justify-content: center;
   gap: 15px;
   margin-bottom: 20px;
+  display:none;
 }
 
 .vb-lock-icon-container {
@@ -2095,7 +2096,7 @@ padding-top:0%;
 @media (max-width: 768px) {
   .vb-unlock-section-wrapper {
     
- 
+ box-shadow:none;
     border-radius: 12px;
   }
 }
@@ -2161,7 +2162,7 @@ padding-top:0%;
 .vb-retry-address-input:focus {
   outline: none;
   border-color: var(--brand-primary-darker);
-  box-shadow: 0 0 0 2px rgba(35, 107, 109, 0.2);
+  box-shadow: 0 0 0 2px rgba(53, 53, 53, 0.2);
 }
 
 .vb-retry-submit-button {
@@ -2567,7 +2568,7 @@ color: #1a5052;
   align-items: center;
   display: flex;
   flex-direction: column;
-  padding: 40px 20px;
+  padding: 40px 20px 0px;
   text-align: center;
 }
 
@@ -2657,6 +2658,7 @@ color: #1a5052;
   text-align: center;
   margin: 0;
   font-style: italic;
+  display:none;
 }
 
 /* B2 features/checkmarks styles - EXACT MATCH ORIGINAL */
@@ -2706,14 +2708,15 @@ color: #1a5052;
 }
 
 .vb-b2-unlock-input {
-  width: 100%;
-  padding: 15px 20px;
-  font-size: 1rem;
-  border: 1px solid #e1e5e9;
-  border-radius: 8px;
-  background: white;
-  transition: all 0.3s ease;
-  box-sizing: border-box;
+    width: 100%;
+    padding: 15px 20px;
+    font-size: 1rem;
+    border: 1px solid #e1e5e9;
+    border-radius: 8px;
+    background: white;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    border: 1px solid var(--brand-primary-light) !important;
 }
 
 .vb-b2-unlock-input:focus {
@@ -2868,10 +2871,10 @@ display:none;
     box-sizing: border-box;
   }
   
-  .vb-b2-ready-container {
-    /* padding: 0px 20px; */
-    box-sizing: border-box;
-  }
+     .vb-b2-ready-container {
+        padding: 40px 20px 0px;
+        box-sizing: border-box;
+    }
   
   .vb-b2-form-section {
     padding: 10px 0px;
@@ -2936,6 +2939,7 @@ display:none;
     text-wrap: pretty;
     orphans: 2;
     widows: 2;
+    display:none;
   }
 }
 
@@ -2950,23 +2954,26 @@ display:none;
 */
 
 .vb-q-section {
-  align-items: center;
-  animation: vb-fadeIn 0.5s ease;
-  animation-fill-mode: forwards;
-  animation-iteration-count: 1;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  justify-content: center;
-  margin: 25% auto;
-  max-width: 60%;
-  min-width: 400px;
-  width: 100%;
-  width: 90%;
-  background-repeat: no-repeat;
-  background-size: 100% auto;
-  background-position: bottom center;
-  position: relative;
+    align-items: center;
+    animation: vb-fadeIn 0.5s ease;
+    animation-fill-mode: forwards;
+    animation-iteration-count: 1;
+    display: flex
+;
+    flex-direction: column;
+    height: 100%;
+    justify-content: center;
+    /* margin: 25% auto; */
+    /* max-width: 60%; */
+    min-width: 400px;
+    width: 100%;
+    width: 100%;
+    background-repeat: no-repeat;
+    background-size: 100% auto;
+    background-position: bottom center;
+    margin-top: -60px;
+    position: relative;
+    min-height: 100vh;
 }
 
 /* Transparent white overlay for better text readability */
@@ -3309,10 +3316,10 @@ display:none;
 /* Mobile responsive styles for ValueBoost Qualifying */
 @media (max-width: 768px) {
   .vb-q-section {
-    margin: 5% auto;
-    max-width: 95%;
-    min-width: 300px;
-    padding: 0 10px;
+ 
+       
+        min-width: 300px;
+        padding: 0 10px;
   }
   
   .vb-q-headline {

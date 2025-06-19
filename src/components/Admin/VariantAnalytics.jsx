@@ -32,7 +32,7 @@ const styles = {
     fontSize: '16px',
     fontWeight: 'bold',
     marginBottom: '15px',
-    color: '#09a5c8',
+    color: '#45bc97',
   },
   variantGrid: {
     display: 'grid',
@@ -58,7 +58,7 @@ const styles = {
   percentage: {
     fontSize: '18px',
     fontWeight: 'bold',
-    color: '#09a5c8',
+    color: '#45bc97',
   },
   loading: {
     textAlign: 'center',
@@ -379,7 +379,7 @@ const VariantAnalytics = () => {
                 padding: '6px 12px',
                 borderRadius: '4px',
                 border: '1px solid #ddd',
-                backgroundColor: datePreset === key ? '#09a5c8' : 'white',
+                backgroundColor: datePreset === key ? '#45bc97' : 'white',
                 color: datePreset === key ? 'white' : '#333',
                 cursor: 'pointer',
                 fontSize: '12px'

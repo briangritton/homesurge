@@ -99,13 +99,13 @@ const styles = {
   },
   button: {
     padding: '8px 16px',
-    background: 'linear-gradient(135deg, #09a5c8 0%, #236b6d 100%)',
+    background: '#45bc97',
     color: 'white',
     border: 'none',
     borderRadius: '8px',
     cursor: 'pointer',
     fontSize: '14px',
-    boxShadow: '0 4px 12px rgba(0, 184, 230, 0.3)',
+    boxShadow: '0 4px 12px rgba(69, 188, 151, 0.3)',
     transition: 'all 0.3s ease',
     height: '36px',
     boxSizing: 'border-box',
@@ -115,7 +115,7 @@ const styles = {
   },
   secondaryButton: {
     padding: '8px 16px',
-    background: 'linear-gradient(135deg, #09a5c8 0%, #236b6d 100%)',
+    background: '#45bc97',
     color: 'white',
     border: 'none',
     borderRadius: '8px',
@@ -125,7 +125,7 @@ const styles = {
     transition: 'all 0.3s ease',
     position: 'relative',
     overflow: 'hidden',
-    boxShadow: '0 4px 12px rgba(0, 184, 230, 0.3)',
+    boxShadow: '0 4px 12px rgba(69, 188, 151, 0.3)',
   },
   statusBadge: {
     display: 'inline-block',
@@ -157,10 +157,10 @@ const styles = {
     fontSize: '14px',
   },
   activePageButton: {
-    background: 'linear-gradient(135deg, #09a5c8 0%, #236b6d 100%)',
+    background: '#45bc97',
     color: 'white',
     border: 'none',
-    boxShadow: '0 4px 12px rgba(0, 184, 230, 0.3)',
+    boxShadow: '0 4px 12px rgba(69, 188, 151, 0.3)',
   },
   noResults: {
     textAlign: 'center',
@@ -223,8 +223,8 @@ const styles = {
 
 // Status color mapping
 const statusColors = {
-  'Unassigned': { background: '#09a5c8', color: 'white' },
-  'New': { background: '#09a5c8', color: 'white' }, // Legacy support - treat as Unassigned
+  'Unassigned': { background: '#45bc97', color: 'white' },
+  'New': { background: '#45bc97', color: 'white' }, // Legacy support - treat as Unassigned
   'Called In': { background: '#4CAF50', color: 'white' }, // Green for incoming calls
   'Contacted': { background: '#C8E6C9', color: '#1B5E20' },
   'Qualified': { background: '#E0F2F1', color: '#00695C' },
@@ -551,7 +551,7 @@ const LeadList = ({ onSelectLead }) => {
               Show all page visit leads
             </label>
           </div>
-          <button style={styles.button} className="crm-lead-list-add-button">+ Add New Lead</button>
+          <button className="crm-button crm-lead-list-add-button">+ Add New Lead</button>
         </div>
       </div>
       
@@ -566,7 +566,7 @@ const LeadList = ({ onSelectLead }) => {
             style={styles.searchInput}
             className="crm-lead-list-search-input"
           />
-          <button style={styles.button} onClick={handleSearch} className="crm-lead-list-search-button">
+          <button className="crm-button crm-lead-list-search-button" onClick={handleSearch}>
             Search
           </button>
         </div>
