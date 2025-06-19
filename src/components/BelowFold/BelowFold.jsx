@@ -3,24 +3,26 @@ import LeadershipSection from './LeadershipSection';
 import HowItWorks from './HowItWorks';
 import ComparisonTable from './ComparisonTable';
 import ContactForm from './ContactForm';
-import LazyImage from '../common/LazyImage';
-import waveImage from '../../assets/images/wave.gif';
+import ValueBoostContactSection from './ValueBoostContactSection';
+import arrowImage from '../../assets/images/arrowshort.webp';
 import '../../styles/belowfold.css';
 
 function BelowFold() {
+  // Arrow separator component
+  const ArrowSeparator = () => (
+    <div className="ai-wave-container">
+      <img src={arrowImage} alt="Section separator" />
+    </div>
+  );
+
   return (
     <div className="bf-belowfold">
-      <div className="ai-wave-container">
-        <LazyImage src={waveImage} alt="" />
-      </div>
+      <ValueBoostContactSection />
+      <ArrowSeparator />
       <LeadershipSection />
-      <div className="ai-wave-container">
-        <LazyImage src={waveImage} alt="" />
-      </div>
+      <ArrowSeparator />
       <HowItWorks />
-      <div className="ai-wave-container">
-        <LazyImage src={waveImage} alt="" />
-      </div>
+      <ArrowSeparator />
       <ComparisonTable />
       <ContactForm />
     </div>

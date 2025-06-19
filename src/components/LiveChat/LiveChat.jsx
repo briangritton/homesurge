@@ -65,7 +65,7 @@ const LiveChat = ({ leadId, leadName, userRole = 'sales', userName = 'Sales Rep'
 
       // Send notification to sales team
       try {
-        await fetch('/api/notify-live-chat', {
+        await fetch('/api/live-chat-notification', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -117,7 +117,7 @@ const LiveChat = ({ leadId, leadName, userRole = 'sales', userName = 'Sales Rep'
       if (userRole === 'customer' && !firstInteractionSent) {
         setFirstInteractionSent(true);
         try {
-          await fetch('/api/notify-live-chat', {
+          await fetch('/api/live-chat-notification', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

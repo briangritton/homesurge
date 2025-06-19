@@ -195,7 +195,7 @@ function AddressForm({ campaign, variant }) {
       // CASH B - Secondary cash selling content
       cashB2: {
         headline: 'Get an Instant Cash Offer Today and Sell Fast!',
-        subheadline: 'Just enter you address and we\'ll give you our <strong><em>highest cash offer</em></strong> in minutes. Close in as little as 7 days. No showings, no repairs, no stress',
+        subheadline: 'Simply enter your address and we\'ll give you our <strong><em>highest cash offer</em></strong> in minutes. Close in as little as 7 days. No showings, no repairs, no stress',
         buttonText: 'CHECK CASH OFFER',
         //  buttonText: 'GET INSTANT OFFER',
         exampleTag: 'Example OfferBoost Report Increase*',
@@ -222,7 +222,7 @@ function AddressForm({ campaign, variant }) {
       // WIDE B - Secondary hassle-free content
       sellB2: {
         headline: 'Want to Sell Your House Fast, Without Repairs?',
-        subheadline: 'Just enter you address to check your <strong><em>highest cash offer</em></strong> in minutes. Close in as little as 7 days. No showings, no repairs, no stress',
+        subheadline: 'Simply enter your address to check your <strong><em>highest cash offer</em></strong> in minutes. Close in as little as 7 days. No showings, no repairs, no stress',
         buttonText: 'CHECK CASH OFFER',
         exampleTag: 'Example OfferBoost Report Increase*',
         potentialHeadline: 'Your OfferBoost Potential:',

@@ -28,9 +28,8 @@
 /* Main container */
 .bf-container {
     /* width: calc(100% - 40px); */
-    max-width: 1200px;
+    max-width: 800px;
     margin: 0 auto;
-   
 }
 
 .bf-section {
@@ -44,7 +43,7 @@
 
 /* Typography */
 .bf-section-title {
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 700;
     text-align: center;
     margin-bottom: 60px;
@@ -53,14 +52,14 @@
 }
 
 .bf-section-subtitle {
-  font-size: 1.5rem;
-  color: var(--bf-text-gray);
-  text-align: left;
-  margin-bottom: 50px;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-  /* line-height: 1.5rem; */
+    font-size: 1.1rem;
+    color: var(--bf-text-dark);
+    text-align: left;
+    margin-bottom: 50px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5rem;
 }
 
 .bf-card-title {
@@ -72,7 +71,7 @@
 }
 
 .bf-card-text {
-  color: var(--bf-text-gray);
+  color: var(--bf-text-dark);
   font-size: 1rem;
   line-height: 1.6;
   margin-bottom: 0;
@@ -325,7 +324,7 @@
 
 /* Buttons */
 .bf-button {
-  background: var(--bf-gradient);
+  background: #353535 !important;
   color: white;
   border: none;
   border-radius: 12px;
@@ -338,12 +337,13 @@
   display: inline-block;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 15px var(--brand-primary-alpha);
+  box-shadow: 0 4px 15px rgba(53, 53, 53, 0.3);
 }
 
 .bf-button:hover {
+  background: #2a2a2a !important;
   transform: translateY(-2px);
-  box-shadow: 0 6px 25px var(--brand-primary-alpha);
+  box-shadow: 0 6px 25px rgba(53, 53, 53, 0.4);
 }
 
 .bf-button::before {
@@ -363,13 +363,13 @@
 
 .bf-button-secondary {
   background: white;
-  color: var(--bf-primary-blue);
-  border: 1px solid var(--bf-primary-blue);
-  box-shadow: 0 4px 15px var(--brand-primary-alpha);
+  color: #353535;
+  border: 1px solid #353535;
+  box-shadow: 0 4px 15px rgba(53, 53, 53, 0.2);
 }
 
 .bf-button-secondary:hover {
-  background: var(--bf-primary-blue);
+  background: #353535 !important;
   color: white;
 }
 
@@ -387,7 +387,7 @@
 
 /* CTA Section */
 .bf-cta-section {
-  background: var(--bf-gradient);
+  background: #353535;
   color: white;
   text-align: center;
   border-radius: 20px;
@@ -420,7 +420,7 @@
 
 .bf-cta-button {
   background: white;
-  color: var(--bf-primary-blue);
+  color: #353535;
   border: none;
   border-radius: 12px;
   padding: 18px 36px;
@@ -434,6 +434,8 @@
 }
 
 .bf-cta-button:hover {
+  background: #353535 !important;
+  color: white;
   transform: translateY(-3px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
@@ -961,7 +963,7 @@
         font-size: 1.2rem;
         line-height: 1.4;
         margin-bottom: 32px;
-            color: var(--bf-text-gray);
+            /* color: var(--bf-text-gray); */
     font-size: 1.1rem;
     line-height: 1.6;
     }
@@ -1366,21 +1368,15 @@
 
 /* AI Wave Container Styles */
 .ai-wave-container {
-  width: 100%;
-  max-width: 100%;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 20px 0;
+  text-align: center;
+  /* margin: 20px 0; */
 }
 
-.ai-wave-container img {
-  width: 100%;
-  max-width: 100%;
+.ai-wave-container img,
+.ai-wave-container picture img {
+  width: 50px;
   height: auto;
-  display: block;
-  object-fit: contain;
+  display: inline-block;
 }
 
 /* Contact Form Styles */
@@ -1455,7 +1451,7 @@
 
 .bf-contact-submit-button {
   width: 100%;
-  background: var(--bf-gradient);
+  background: #353535 !important;
   color: white;
   border: none;
   border-radius: 12px;
@@ -1469,12 +1465,13 @@
   margin-top: 20px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 15px var(--brand-primary-alpha);
+  box-shadow: 0 4px 15px rgba(53, 53, 53, 0.3);
 }
 
 .bf-contact-submit-button:hover {
+  background: #2a2a2a !important;
   transform: translateY(-2px);
-  box-shadow: 0 6px 25px var(--brand-primary-alpha);
+  box-shadow: 0 6px 25px rgba(53, 53, 53, 0.4);
 }
 
 .bf-contact-submit-button:disabled {
@@ -1514,8 +1511,41 @@
   line-height: 1.6;
 }
 
+/* ValueBoost Contact Section Two-Column Layout */
+.vb-af-contact-section-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  margin: 40px 0;
+}
+
+.vb-af-contact-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.vb-af-contact-footer {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.vb-af-contact-columns {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+
+
 /* Mobile responsive */
 @media (max-width: 768px) {
+
+.vb-af-contact-footer {
+  text-align: center;
+  margin-top: 0px;
+}
+
+
   .bf-contact-form-fields {
     padding: 30px 25px;
   }
@@ -1552,6 +1582,141 @@
   .bf-contact-submit-button {
     padding: 14px 24px;
     font-size: 1rem;
+  }
+}
+
+
+
+@media (min-width: 768px) {
+  .vb-af-contact-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+  
+  .vb-af-contact-content {
+    order: 1;
+  }
+  
+  .vb-af-contact-image {
+    order: 2;
+  }
+}
+
+.vb-af-contact-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.vb-af-contact-image picture,
+.vb-af-contact-image img {
+  width: 100%;
+  height: auto;
+  max-width: 400px;
+  /* border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); */
+}
+
+@media (max-width: 767px) {
+  .vb-af-contact-image {
+    display: none;
+  }
+}
+
+/* Leadership Section Two-Column Layout */
+.bf-leadership-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.bf-leadership-footer {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.bf-leadership-columns {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+@media (min-width: 768px) {
+  .bf-leadership-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+  
+  .bf-leadership-content {
+    order: 1;
+  }
+  
+  .bf-leadership-image {
+    order: 2;
+  }
+}
+
+.bf-leadership-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bf-leadership-image picture,
+.bf-leadership-image img {
+  width: 100%;
+  height: auto;
+  max-width: 400px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 767px) {
+  .bf-leadership-image img {
+    max-width: 300px;
+  }
+}
+
+/* Override ValueBoost button colors in BelowFold sections */
+.bf-section .vb-af-contact-button,
+.bf-leadership .vb-af-contact-button {
+  background: #353535 !important;
+}
+
+.bf-section .vb-af-contact-button:hover,
+.bf-leadership .vb-af-contact-button:hover {
+  background: #2a2a2a !important;
+}
+
+/* Paintswipe decoration under right column of comparison table */
+.bf-paintswipe-right-decoration {
+    position: relative;
+    width: 50%;
+    margin-left: 48%;
+    margin-top: -7px;
+    display: flex;
+    justify-content: center;
+}
+
+.bf-paintswipe-image {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  display: block;
+}
+
+@media (max-width: 768px) {
+    .bf-paintswipe-right-decoration {
+        width: 50%;
+        margin-left: 48%;
+        /* margin-top: 10px; */
+    }
+  
+  .bf-paintswipe-image {
+    max-width: 200px;
   }
 }
 

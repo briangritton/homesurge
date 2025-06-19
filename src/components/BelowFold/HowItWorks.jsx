@@ -1,6 +1,7 @@
 import React from 'react';
 import LazyImage from '../common/LazyImage';
-import familywalkImage from '../../assets/images/familywalk.jpg';
+import familywalkImage from '../../assets/images/familywalkblackwhite.webp';
+import familywalkImageFallback from '../../assets/images/familywalkblackwhite.png';
 
 function HowItWorks() {
   return (
@@ -9,7 +10,10 @@ function HowItWorks() {
         <h2 className="bf-section-title">We Take the Stress Out of Selling Your Home</h2>
         
         <div className="bf-how-it-works-image">
-          <LazyImage src={familywalkImage} alt="Family Walking" className="bf-familywalk-photo" />
+          <picture>
+            <source srcSet={familywalkImage} type="image/webp" />
+            <LazyImage src={familywalkImageFallback} alt="Family Walking" className="bf-familywalk-photo" />
+          </picture>
         </div>
         
         <div className="bf-grid-3">

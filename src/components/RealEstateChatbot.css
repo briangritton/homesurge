@@ -540,6 +540,11 @@ html, body {
     min-height: 100vh;
   }
   
+  .header-call-number {
+   
+      font-size: 15px;
+  }
+
   .re-left-panel,
   .re-right-panel {
     width: 100%;

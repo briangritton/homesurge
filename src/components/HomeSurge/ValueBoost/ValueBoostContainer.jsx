@@ -8,6 +8,7 @@ import ValueBoostReport from './ValueBoostReport';
 import B2Step3 from './B2Step3';
 import ValueBoostQualifyingB2 from './ValueBoostQualifyingB2';
 import AddressRetry from './AddressRetry';
+import BelowFold from '../../BelowFold/BelowFold';
 
 // Import custom styles for ValueBoost funnel
 import '../../../styles/valueboost.css';
@@ -56,10 +57,11 @@ function ValueBoostFunnel() {
   }, []);
 
   // Get the current step from form context
+  // Default to step 1 if not set
+  const currentStep = formData?.formStep || 1;
+  const { campaign, variant } = getRouteData();
+  
   const renderStep = () => {
-    // Default to step 1 if not set
-    const currentStep = formData?.formStep || 1;
-    const { campaign, variant } = getRouteData();
 
     // Log session restoration details for user experience insights
     if (currentStep > 1) {
@@ -103,6 +105,8 @@ function ValueBoostFunnel() {
   return (
     <div className="vb-container" style={{ width: '100%' }}>
       {renderStep()}
+      {/* Only show BelowFold on step 1 (AddressForm) */}
+      {currentStep === 1 && <BelowFold />}
     </div>
   );
 }

@@ -40,7 +40,7 @@ function Header() {
     
     try {
       // Send notification to Spencer
-      await fetch('/api/notify-live-chat', {
+      await fetch('/api/live-chat-notification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -70,15 +70,15 @@ function Header() {
       </div>
 
       <div className="header-right">
-        {/* Chat bubble icon */}
-        <div className="header-chat-container" onClick={handleChatClick}>
+        {/* Chat bubble icon - TEMPORARILY HIDDEN */}
+        {/* <div className="header-chat-container" onClick={handleChatClick}>
           <div className="header-chat-icon">
             <BsChatDotsFill />
           </div>
           <div className="header-chat-text">
             {chatConnecting ? chatText.connecting : chatText.available}
           </div>
-        </div>
+        </div> */}
 
         {/* Phone icon */}
         <a href="tel:+14046714628" className="header-phone-link">

@@ -1,6 +1,6 @@
 /**
  * Live Chat Notification API
- * Sends Pushover notification when customer wants to chat with Spencer
+ * Sends Pushover notifications directly (server-side version)
  */
 
 export default async function handler(req, res) {
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
       notificationType
     });
 
-    // Send Pushover notification
+    // Send Pushover notification directly
     const pushoverToken = process.env.PUSHOVER_APP_TOKEN;
     const pushoverUser = "um62xd21dr7pfugnwanooxi6mqxc3n";
     

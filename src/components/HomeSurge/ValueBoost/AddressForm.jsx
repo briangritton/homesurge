@@ -9,9 +9,7 @@ import { trackAddressSelected, trackFormStepComplete, trackFormError, trackPrope
 import { trackPropertyValue } from '../../../services/facebook';
 import gradientArrow from '../../../assets/images/gradient-arrow.png';
 import waveImage from '../../../assets/images/wave.png';
-import BelowFold from '../../BelowFold/BelowFold';
 import LazyImage from '../../common/LazyImage';
-import { BsTelephoneFill } from 'react-icons/bs';
 
 // Import new services
 import { googlePlacesService } from '../../../services/googlePlaces';
@@ -366,20 +364,24 @@ function AddressForm({ campaign, variant }) {
           
           {/* DYNAMIC CONTENT SECTION - Using original class names */}
           <div className="vb-af1-hero-headline">{dynamicContent.headline}</div>
-          <div 
-            className="vb-af1-hero-subheadline"
-            dangerouslySetInnerHTML={{ __html: dynamicContent.subheadline }}
-          />
-
-          {/* SPLIT TEST AREA - STEP 1 BOX VISIBILITY */}
-          {/* Position 1: A=Show Box, B=Hide Box */}
+          
+          {/* Desktop two-column layout for subheadline and value boost box */}
           {(() => {
             // Show value boost box for "1" variants (original layout), hide for "2" variants (streamlined layout)
             const showValueBoostBox = variant === 'A1O' || variant === 'A1I';
             console.log(`🎯 AddressForm: variant=${variant}, showValueBoostBox=${showValueBoostBox}`);
-            return showValueBoostBox;
-          })() && (
-            <div className="vb-value-boost-box">
+            
+            return (
+              <div className={`vb-subheadline-valuebox-wrapper ${showValueBoostBox ? 'has-valuebox' : ''}`}>
+                <div 
+                  className="vb-af1-hero-subheadline"
+                  dangerouslySetInnerHTML={{ __html: dynamicContent.subheadline }}
+                />
+
+                {/* SPLIT TEST AREA - STEP 1 BOX VISIBILITY */}
+                {/* Position 1: A=Show Box, B=Hide Box */}
+                {showValueBoostBox && (
+              <div className="vb-value-boost-box">
               {/* Example indicator */}
               <div className="vb-box-tag">
                 {dynamicContent.exampleTag}
@@ -444,7 +446,10 @@ function AddressForm({ campaign, variant }) {
                 {dynamicContent.percentageText}: 22%
               </p>
             </div>
-          )}
+                )}
+              </div>
+            );
+          })()}
 
           {/* FORM SECTION - Using original class names */}
           <form className="vb-af1-form-container" ref={formRef} onSubmit={(e) => e.preventDefault()}>
@@ -456,12 +461,12 @@ function AddressForm({ campaign, variant }) {
                 type="text"
                 name="address-line1"
                 autoComplete="off"
-                placeholder="Enter your property address"
+                placeholder="Enter your street address"
                 className={errorMessage ? 'vb-af1-address-input-invalid' : 'vb-af1-address-input'}
                 onChange={(e) => handleAddressInput(e.target.value)}
                 onKeyPress={handleKeyPress}
                 onFocus={(e) => e.target.placeholder = ''}
-                onBlur={(e) => e.target.placeholder = 'Enter your property address'}
+                onBlur={(e) => e.target.placeholder = 'Enter your street address'}
                 disabled={isLoading}
               />
               
@@ -504,7 +509,7 @@ function AddressForm({ campaign, variant }) {
           </div>
 
           {/* AI Wave container */}
-          <div className="ai-wave-container">
+          {/* <div className="ai-wave-container">
             <LazyImage 
               src={waveImage} 
               alt="Wave decoration" 
@@ -514,7 +519,7 @@ function AddressForm({ campaign, variant }) {
                 opacity: 0.6
               }}
             />
-          </div>
+          </div> */}
 
           {/* DISCLAIMER SECTION - Using original class names */}
           <div className="vb-disclaimer-section">
@@ -531,52 +536,7 @@ function AddressForm({ campaign, variant }) {
 
         </div>
 
-        {/* CONTACT SECTION - Using original class names, outside hero-content */}
-        <div className="vb-af-contact-section-wrapper">
-          <div className="vb-af-contact-header">
-            <h3 className="vb-af-contact-headline" dangerouslySetInnerHTML={{ __html: dynamicContent.contactHeadline }}></h3>
-          </div>
-          <div className="vb-af-features-bubble">
-            <div className="vb-af-feature-item">
-              <div className="vb-af-feature-icon">✓</div>
-              <p className="vb-af-feature-text" dangerouslySetInnerHTML={{ __html: dynamicContent.checkmark1 }}></p>
-            </div>
-            <div className="vb-af-feature-item">
-              <div className="vb-af-feature-icon">✓</div>
-              <p className="vb-af-feature-text" dangerouslySetInnerHTML={{ __html: dynamicContent.checkmark2 }}></p>
-            </div>
-            <div className="vb-af-feature-item">
-              <div className="vb-af-feature-icon">✓</div>
-              <p className="vb-af-feature-text" dangerouslySetInnerHTML={{ __html: dynamicContent.checkmark3 }}></p>
-            </div>
-          </div>
-          <button 
-            className="vb-af-contact-button vb-af-button-flare"
-            onClick={(e) => {
-              e.preventDefault();
-              console.log('AddressForm contact button clicked!');
-              // Multiple scroll methods for maximum compatibility
-              window.scrollTo(0, 0);
-              document.body.scrollTop = 0;
-              document.documentElement.scrollTop = 0;
-            }}
-          >
-            {dynamicContent.contactButtonText}
-          </button>
-          <div className="vb-af-phone-section">
-            <a href="tel:+14046714628" className="vb-af-phone-link">
-              <div className="vb-af-phone-container">
-                <div className="vb-af-phone-icon">
-                  <BsTelephoneFill />
-                </div>
-                <div className="vb-af-phone-number">(404) 671-4628</div>
-              </div>
-            </a>
-          </div>
-        </div>
 
-        {/* BELOW FOLD CONTENT */}
-        <BelowFold />
         
       </div>
     </div>

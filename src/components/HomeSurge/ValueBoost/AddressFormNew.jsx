@@ -292,7 +292,7 @@ function AddressForm({ campaign, variant }) {
               type="text"
               name="address-line1"
               autoComplete="street-address"
-              placeholder="Enter your property address"
+              placeholder="Enter your street address"
               className="vb-af1-address-input"
               onChange={(e) => handleAddressInput(e.target.value)}
               onKeyPress={handleKeyPress}

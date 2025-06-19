@@ -342,3 +342,47 @@ export async function sendMainFormNotifications(leadData) {
   });
 }
 
+/**
+ * Send live chat notification when customer wants to chat with Spencer
+ * @param {Object} chatData - Chat request data
+ * @param {string} chatData.leadId - Lead ID for the customer
+ * @param {string} chatData.customerName - Customer name
+ * @param {string} chatData.message - Customer's message
+ * @param {string} chatData.notificationType - Type of chat notification
+ * @returns {Promise<Object>} - Notification results
+ */
+export async function sendLiveChatNotification(chatData) {
+  const { leadId, customerName, message, notificationType = 'Live Chat Request' } = chatData;
+  
+  // Different notification messages based on type
+  let title, description;
+  
+  if (notificationType === 'Chat interaction') {
+    title = "💬 Chat Interaction";
+    description = `${customerName || 'Customer'} sent their first chat message!\n\nMessage: "${message}"`;
+  } else {
+    title = "💬 Live Chat Request";
+    description = `${customerName || 'Customer'} wants to chat with Spencer!\n\nMessage: ${message}`;
+  }
+
+  // Prepare lead data for notification system
+  const leadData = {
+    id: leadId,
+    name: customerName || 'Website Visitor',
+    phone: 'N/A',
+    address: 'N/A',
+    email: 'N/A',
+    leadSource: 'Live Chat',
+    customDescription: description
+  };
+
+  return sendLeadNotifications(leadData, {
+    source: "Live Chat",
+    pushoverTitle: title,
+    pushoverSound: "persistent",
+    pushoverPriority: 1,
+    // Use global additional recipients
+    ...GLOBAL_ADDITIONAL_RECIPIENTS,
+  });
+}
+

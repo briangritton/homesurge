@@ -1,4 +1,6 @@
 import React from 'react';
+import paintswipeImage from '../../assets/images/paintswipe.webp';
+import paintswipeImageFallback from '../../assets/images/paintswipe.png';
 
 function ComparisonTable() {
   return (
@@ -125,6 +127,14 @@ function ComparisonTable() {
               <div className="bf-item-value">Yes</div>
             </div>
           </div>
+        </div>
+        
+        {/* Paintswipe decoration under right column only */}
+        <div className="bf-paintswipe-right-decoration">
+          <picture>
+            <source srcSet={paintswipeImage} type="image/webp" />
+            <img src={paintswipeImageFallback} alt="" className="bf-paintswipe-image" />
+          </picture>
         </div>
       </div>
     </section>
