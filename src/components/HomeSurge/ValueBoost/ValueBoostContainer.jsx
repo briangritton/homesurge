@@ -10,8 +10,7 @@ import ValueBoostQualifyingB2 from './ValueBoostQualifyingB2';
 import AddressRetry from './AddressRetry';
 import BelowFold from '../../BelowFold/BelowFold';
 
-// Import custom styles for ValueBoost funnel
-import '../../../styles/valueboost.css';
+// ValueBoost styles now included in main.css
 
 function ValueBoostContainer() {
   // No longer need ::before override since we're using custom vb-content class

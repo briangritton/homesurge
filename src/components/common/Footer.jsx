@@ -5,7 +5,7 @@ import AboutUs from './AboutUs';
 import HowItWorks from './HowItWorks';
 import Benefits from './Benefits';
 import ContactUs from './ContactUs';
-import '../../styles/popup.css';
+import '../../styles/main.css';
 
 function Footer() {
   const privacyRef = useRef(null);

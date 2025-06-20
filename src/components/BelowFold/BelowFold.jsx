@@ -5,7 +5,7 @@ import ComparisonTable from './ComparisonTable';
 import ContactForm from './ContactForm';
 import ValueBoostContactSection from './ValueBoostContactSection';
 import arrowImage from '../../assets/images/arrowshort.webp';
-import '../../styles/belowfold.css';
+import '../../styles/main.css';
 
 function BelowFold() {
   // Arrow separator component

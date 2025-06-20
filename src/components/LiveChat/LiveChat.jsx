@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getDatabase, ref, push, onValue, off } from 'firebase/database';
-import '../../styles/valueboost.css';
 
 const LiveChat = ({ leadId, leadName, userRole = 'sales', userName = 'Sales Rep', prefilledGreeting = '' }) => {
   const [messages, setMessages] = useState([]);

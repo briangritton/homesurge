@@ -1,6 +1,7 @@
 import React from 'react';
 import LazyImage from '../common/LazyImage';
-import myfamilyImage from '../../assets/images/myfamily.jpg';
+import myfamilyImageWebP from '../../assets/images/myfamilyblackwhite.webp';
+import myfamilyImagePng from '../../assets/images/myfamilyblackwhite.png';
 
 function LeadershipSection() {
   return (
@@ -22,7 +23,10 @@ function LeadershipSection() {
           </div>
           
           <div className="bf-leadership-image">
-            <LazyImage src={myfamilyImage} alt="HomeSurge Family" className="bf-family-photo" />
+            <picture className="bf-family-photo">
+              <source srcSet={myfamilyImageWebP} type="image/webp" />
+              <LazyImage src={myfamilyImagePng} alt="HomeSurge Family" className="bf-family-photo" />
+            </picture>
           </div>
         </div>
 
