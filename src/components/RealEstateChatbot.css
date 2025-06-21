@@ -826,15 +826,20 @@ html, body {
   margin-bottom: 4px;
 }
 
-.re-agent-phone a {
-  font-size: 16px;
+.re-contact-agent-button {
+  background-color: #c1720c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
   font-weight: 500;
-  color: #c1720c;
-  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-.re-agent-phone a:hover {
-  text-decoration: underline;
+.re-contact-agent-button:hover {
+  background-color: #a05e0a;
 }
 
 .re-agent-stats {

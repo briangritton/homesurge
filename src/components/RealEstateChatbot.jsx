@@ -52,6 +52,7 @@ const RealEstateChatbot = () => {
   const [loadingAgentReport, setLoadingAgentReport] = useState(false);
   const [agentReportTimeout, setAgentReportTimeout] = useState(false);
   const [agentReportReady, setAgentReportReady] = useState(false);
+  const [collectingContactInfo, setCollectingContactInfo] = useState(false);
 
   // Refs
   const location = useLocation();
@@ -751,6 +752,39 @@ const RealEstateChatbot = () => {
     }
   };
 
+  // Handle contact agent action
+  const handleContactAgent = (agentName) => {
+    console.log('🏠 User wants to contact agent:', agentName);
+    
+    // Hide agent list
+    setShowAgentList(false);
+    
+    // Add bot message asking for contact info
+    const contactMessage = {
+      assistant: 
+        "<p class='re-message-text'>" +
+        `Great! We'll put you in touch with ${agentName}! First, can I get your name and the best number to reach you at in case you can't get a hold of them right away?` +
+        "</p>"
+    };
+    
+    setMessages(prev => [...prev, contactMessage]);
+    
+    // Reset input states to show regular text input
+    setShowPhoneInput(false);
+    setShowAddressInput(false);
+    setCollectingContactInfo(true);
+    
+    // Clear any existing query
+    setQuery("");
+    
+    // Track the event
+    trackFormStepComplete(5, "Agent Contact Request", {
+      agentName: agentName,
+      zipCode: userZipCode,
+      address: userAddress,
+    });
+  };
+
   // Handle view reviews action
   const handleViewReviews = async () => {
     trackFormStepComplete(4, "Agent Review - View Other Reviews", {
@@ -953,7 +987,12 @@ const RealEstateChatbot = () => {
                                                 </div>
                                                 <div className="re-agent-name">{agent.name}</div>
                                                 <div className="re-agent-phone">
-                                                  <a href={`tel:${agent.phone}`}>{agent.phone}</a>
+                                                  <button 
+                                                    onClick={() => handleContactAgent(agent.name)}
+                                                    className="re-contact-agent-button"
+                                                  >
+                                                    Contact agent
+                                                  </button>
                                                 </div>
                                                 <div className="re-agent-stats">{agent.salesVolume} | Avg: {agent.avgSalePrice}</div>
                                                 <div className="re-agent-brokerage">{agent.brokerage}</div>
@@ -1049,8 +1088,8 @@ const RealEstateChatbot = () => {
               </div>
             </div>
 
-            {/* Chat input area - Hide once Spencer recommendation appears */}
-            {!messages.some(msg => msg.showActionButtons) && (
+            {/* Chat input area - Hide once Spencer recommendation appears, unless collecting contact info */}
+            {(!messages.some(msg => msg.showActionButtons) || collectingContactInfo) && (
               <div className="re-input-container">
               <div className="re-input-wrapper">
                 <div className="re-text-input-box">

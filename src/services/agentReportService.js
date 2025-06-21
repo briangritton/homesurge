@@ -1,64 +1,8 @@
 // src/services/agentReportService.js
 
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-
 const OPENAI_API_KEY = process.env.REACT_APP_OPENAI_API_KEY;
-const CACHE_EXPIRY_DAYS = 30;
 
 export const agentReportService = {
-  /**
-   * Check Firebase cache for existing agent report
-   */
-  async getCachedAgentReport(zipCode) {
-    try {
-      const db = getFirestore();
-      const cacheRef = doc(db, 'agentReports', zipCode);
-      const cacheDoc = await getDoc(cacheRef);
-      
-      if (!cacheDoc.exists()) {
-        console.log(`🔍 No cached report found for zip: ${zipCode}`);
-        return null;
-      }
-      
-      const cachedData = cacheDoc.data();
-      const cacheAge = Date.now() - cachedData.timestamp.toMillis();
-      const maxAge = CACHE_EXPIRY_DAYS * 24 * 60 * 60 * 1000; // 30 days in milliseconds
-      
-      if (cacheAge > maxAge) {
-        console.log(`⏰ Cached report for zip ${zipCode} is expired (${Math.round(cacheAge / (24 * 60 * 60 * 1000))} days old)`);
-        return null;
-      }
-      
-      console.log(`✅ Using cached agent report for zip: ${zipCode} (${Math.round(cacheAge / (24 * 60 * 60 * 1000))} days old)`);
-      return cachedData;
-      
-    } catch (error) {
-      console.error('❌ Error checking cache:', error);
-      return null;
-    }
-  },
-
-  /**
-   * Save agent report to Firebase cache
-   */
-  async cacheAgentReport(zipCode, agentData) {
-    try {
-      const db = getFirestore();
-      const cacheRef = doc(db, 'agentReports', zipCode);
-      
-      const cacheData = {
-        ...agentData,
-        timestamp: serverTimestamp(),
-        cachedAt: new Date().toISOString()
-      };
-      
-      await setDoc(cacheRef, cacheData);
-      console.log(`💾 Cached agent report for zip: ${zipCode}`);
-      
-    } catch (error) {
-      console.error('❌ Error caching report:', error);
-    }
-  },
 
   /**
    * Generate top 10 real estate agents report using OpenAI with web search
@@ -66,12 +10,6 @@ export const agentReportService = {
   async generateAgentReport(zipCode, propertyValue = null) {
     try {
       console.log('🔍 Generating agent report for zip:', zipCode, 'value:', propertyValue);
-      
-      // First, check cache
-      const cachedReport = await this.getCachedAgentReport(zipCode);
-      if (cachedReport) {
-        return cachedReport;
-      }
       
       if (!OPENAI_API_KEY) {
         console.warn("No OpenAI API key found");
@@ -141,14 +79,7 @@ export const agentReportService = {
 
       // Validate and format data
       console.log('🔧 About to format agent data:', agentData);
-      const formattedReport = this.formatAgentReport(agentData, zipCode);
-      
-      // Cache the successful report for future use
-      if (formattedReport) {
-        await this.cacheAgentReport(zipCode, formattedReport);
-      }
-      
-      return formattedReport;
+      return this.formatAgentReport(agentData, zipCode);
       
     } catch (error) {
       console.error('❌ Agent report generation failed:', error);
