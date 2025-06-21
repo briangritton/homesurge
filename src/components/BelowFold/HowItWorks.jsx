@@ -50,6 +50,22 @@ Once we process your property details, our experts will contact you to make you 
             </p>
           </div>
         </div>
+
+        <div className="bf-leadership-footer">
+          <button 
+            className="vb-af-contact-button vb-af-button-flare bf-leadership-cta"
+            onClick={(e) => {
+              e.preventDefault();
+              console.log('How It Works contact button clicked!');
+              // Multiple scroll methods for maximum compatibility
+              window.scrollTo(0, 0);
+              document.body.scrollTop = 0;
+              document.documentElement.scrollTop = 0;
+            }}
+          >
+            GET CASH OFFER
+          </button>
+        </div>
       </div>
     </section>
   );
