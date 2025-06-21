@@ -735,16 +735,12 @@ html, body {
   gap: 16px;
 }
 
+/* Agent cards styled like Spencer's contact card */
 .re-agent-card {
-  display: grid;
-  grid-template-columns: 40px 1fr auto auto auto;
-  gap: 16px;
-  padding: 16px;
-  background: white;
+  padding: 15px;
+  background-color: #f8f9fa;
   border-radius: 8px;
-  border: 1px solid #dee2e6;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  align-items: center;
+  border: 1px solid #e4e4e4;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -753,84 +749,54 @@ html, body {
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-.re-agent-rank {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #4CAF50;
-  text-align: center;
-}
-
-.re-agent-info {
+/* Profile section matching Spencer's layout */
+.re-agent-profile {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.re-agent-name {
-  font-weight: 600;
-  font-size: 1.1rem;
-  color: #2c3e50;
-}
-
-.re-agent-brokerage {
-  color: #6c757d;
-  font-size: 0.9rem;
-}
-
-.re-agent-specialty {
-  color: #495057;
-  font-size: 0.85rem;
-  font-style: italic;
-}
-
-.re-agent-experience {
-  color: #6c757d;
-  font-size: 0.8rem;
-}
-
-.re-agent-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  text-align: center;
-  min-width: 120px;
-}
-
-.re-agent-volume {
-  font-weight: 600;
-  color: #2c3e50;
-  font-size: 0.9rem;
-}
-
-.re-agent-price {
-  color: #6c757d;
-  font-size: 0.85rem;
-}
-
-.re-agent-reviews {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
   align-items: center;
-  min-width: 100px;
+  gap: 15px;
+  margin-bottom: 12px;
+}
+
+/* Rank circle replacing Spencer's image */
+.re-agent-rank-circle {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 10px rgba(76, 175, 80, 0.3);
+}
+
+.re-rank-number {
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* Agent info matching Spencer's structure */
+.re-agent-info {
+  flex: 1;
 }
 
 .re-agent-score {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
+  margin-bottom: 8px;
 }
 
-.re-score-number {
-  font-weight: bold;
-  font-size: 1.1rem;
-  color: #4CAF50;
+.re-score-label {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 2px;
 }
 
 .re-score-stars {
   display: flex;
-  gap: 1px;
+  gap: 2px;
+  margin-bottom: 2px;
 }
 
 .re-star {
@@ -844,55 +810,52 @@ html, body {
 }
 
 .re-review-count {
-  font-size: 0.75rem;
-  color: #6c757d;
+  font-size: 12px;
+  color: #666;
+  font-weight: 400;
 }
 
-.re-top-review {
-  font-size: 0.75rem;
-  color: #495057;
-  font-style: italic;
-  text-align: center;
-  max-width: 150px;
-  line-height: 1.3;
-  margin-top: 4px;
-}
-
-.re-agent-contact {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  align-items: center;
+.re-agent-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
 }
 
 .re-agent-phone {
-  background: #4CAF50;
-  color: white;
-  padding: 6px 12px;
-  border-radius: 6px;
-  text-decoration: none;
-  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+
+.re-agent-phone a {
+  font-size: 16px;
   font-weight: 500;
-  transition: background 0.2s ease;
-}
-
-.re-agent-phone:hover {
-  background: #45a049;
-  color: white;
+  color: #c1720c;
   text-decoration: none;
 }
 
-.re-agent-email {
-  color: #4CAF50;
-  text-decoration: none;
-  font-size: 0.8rem;
-  font-weight: 500;
-  transition: color 0.2s ease;
-}
-
-.re-agent-email:hover {
-  color: #45a049;
+.re-agent-phone a:hover {
   text-decoration: underline;
+}
+
+.re-agent-stats {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 2px;
+}
+
+.re-agent-brokerage {
+  font-size: 14px;
+  color: #666;
+}
+
+/* Testimonial at bottom */
+.re-agent-testimonial {
+  font-size: 13px;
+  color: #555;
+  font-style: italic;
+  line-height: 1.4;
+  padding-top: 10px;
+  border-top: 1px solid #e9ecef;
 }
 
 .re-agent-list-footer {
@@ -911,27 +874,28 @@ html, body {
 
 /* Mobile responsive design */
 @media (max-width: 768px) {
-  .re-agent-card {
-    grid-template-columns: 1fr;
-    gap: 12px;
-    text-align: center;
-  }
-  
   .re-agent-list-header h3 {
     font-size: 1.1rem;
   }
   
-  .re-agent-stats,
-  .re-agent-reviews {
-    min-width: auto;
+  .re-agent-profile {
+    gap: 12px;
   }
   
-  .re-top-review {
-    max-width: none;
+  .re-agent-rank-circle {
+    width: 50px;
+    height: 50px;
   }
   
-  .re-agent-contact {
-    flex-direction: row;
-    justify-content: center;
+  .re-rank-number {
+    font-size: 14px;
+  }
+  
+  .re-agent-name {
+    font-size: 16px;
+  }
+  
+  .re-agent-phone a {
+    font-size: 14px;
   }
 }

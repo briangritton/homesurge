@@ -850,38 +850,32 @@ const RealEstateChatbot = () => {
                                       <div className="re-agent-list">
                                         {agentReportData.agents.map((agent, agentIndex) => (
                                           <div key={agent.id} className="re-agent-card">
-                                            <div className="re-agent-rank">#{agent.rank}</div>
-                                            
-                                            <div className="re-agent-info">
-                                              <div className="re-agent-name">{agent.name}</div>
-                                              <div className="re-agent-brokerage">{agent.brokerage}</div>
-                                              <div className="re-agent-specialty">{agent.specialty}</div>
-                                              <div className="re-agent-experience">{agent.yearsExp} years experience</div>
-                                            </div>
-                                            
-                                            <div className="re-agent-stats">
-                                              <div className="re-agent-volume">{agent.salesVolume}</div>
-                                              <div className="re-agent-price">Avg: {agent.avgSalePrice}</div>
-                                            </div>
-                                            
-                                            <div className="re-agent-reviews">
-                                              <div className="re-agent-score">
-                                                <span className="re-score-number">{agent.reviewScore}</span>
-                                                <div className="re-score-stars">
-                                                  {[1,2,3,4,5].map(star => (
-                                                    <span key={star} className={`re-star ${star <= Math.floor(agent.reviewScore) ? 'filled' : ''}`}>
-                                                      ⭐
-                                                    </span>
-                                                  ))}
-                                                </div>
+                                            <div className="re-agent-profile">
+                                              <div className="re-agent-rank-circle">
+                                                <span className="re-rank-number">#{agent.rank}</span>
                                               </div>
-                                              <div className="re-review-count">({agent.reviewCount} reviews)</div>
-                                              <div className="re-top-review">"{agent.topReview}"</div>
+                                              <div className="re-agent-info">
+                                                <div className="re-agent-score">
+                                                  <span className="re-score-label">HomeSurge.AI Agent Score: {agent.reviewScore}</span>
+                                                  <div className="re-score-stars">
+                                                    {[1,2,3,4,5].map(star => (
+                                                      <span key={star} className={`re-star ${star <= Math.floor(agent.reviewScore) ? 'filled' : ''}`}>
+                                                        ⭐
+                                                      </span>
+                                                    ))}
+                                                  </div>
+                                                  <span className="re-review-count">({agent.reviewCount} reviews)</span>
+                                                </div>
+                                                <div className="re-agent-name">{agent.name}</div>
+                                                <div className="re-agent-phone">
+                                                  <a href={`tel:${agent.phone}`}>{agent.phone}</a>
+                                                </div>
+                                                <div className="re-agent-stats">{agent.salesVolume} | Avg: {agent.avgSalePrice}</div>
+                                                <div className="re-agent-brokerage">{agent.brokerage}</div>
+                                              </div>
                                             </div>
-                                            
-                                            <div className="re-agent-contact">
-                                              <a href={`tel:${agent.phone}`} className="re-agent-phone">{agent.phone}</a>
-                                              <a href={`mailto:${agent.email}`} className="re-agent-email">Contact</a>
+                                            <div className="re-agent-testimonial">
+                                              "{agent.topReview}"
                                             </div>
                                           </div>
                                         ))}
