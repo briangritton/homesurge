@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 // import { sendMessageToOpenAI } from "../services/openAIService"; // Commented out - using scripted responses
 import { trackFormStepComplete } from "../services/analytics";
 import { googlePlacesService } from "../services/googlePlaces";
+import { agentReportService } from "../services/agentReportService";
 import "./RealEstateChatbot.css";
 
 const RealEstateChatbot = () => {
@@ -44,6 +45,11 @@ const RealEstateChatbot = () => {
   const [nonsenseCount, setNonsenseCount] = useState(0);
   const [openAIMessages, setOpenAIMessages] = useState([]);
   const [conversationStage, setConversationStage] = useState(0);
+
+  // Agent report state
+  const [showAgentList, setShowAgentList] = useState(false);
+  const [agentReportData, setAgentReportData] = useState(null);
+  const [loadingAgentReport, setLoadingAgentReport] = useState(false);
 
   // Refs
   const location = useLocation();
@@ -701,14 +707,52 @@ const RealEstateChatbot = () => {
   };
 
   // Handle view reviews action
-  const handleViewReviews = () => {
+  const handleViewReviews = async () => {
     trackFormStepComplete(4, "Agent Review - View Other Reviews", {
       zipCode: userZipCode,
       address: userAddress,
     });
     
-    // Redirect to reviews page (to be built)
-    window.location.href = "/agent-reviews?zip=" + userZipCode;
+    console.log('🔍 Loading agent reviews for zip:', userZipCode);
+    setLoadingAgentReport(true);
+    
+    try {
+      // Get property value from any available source (could be added later)
+      const propertyValue = null; // You can add property value logic here if available
+      
+      const agentData = await agentReportService.generateAgentReport(userZipCode, propertyValue);
+      console.log('📋 Agent report generated:', agentData);
+      
+      setAgentReportData(agentData);
+      setShowAgentList(true);
+      
+      // Add a message to the chat showing we're displaying the list
+      const agentListMessage = {
+        assistant: 
+          "<p class='re-message-text'>" +
+          `Great! I've found the top ${agentData.agentCount} real estate agents in ${userZipCode}. ` +
+          "Here's your personalized agent review list below. You can scroll through to compare their stats, reviews, and specialties." +
+          "</p>",
+        showAgentList: true
+      };
+      
+      setMessages(prev => [...prev, agentListMessage]);
+      
+    } catch (error) {
+      console.error('❌ Failed to load agent reviews:', error);
+      
+      const errorMessage = {
+        assistant: 
+          "<p class='re-message-text'>" +
+          "I'm having trouble loading the agent reviews right now. But don't worry - my top recommendation Spencer Gritton is still available to help you! " +
+          "He has an excellent track record and would be happy to discuss your needs." +
+          "</p>"
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setLoadingAgentReport(false);
+    }
   };
 
   // Handle phone number submission
@@ -794,6 +838,61 @@ const RealEstateChatbot = () => {
                                       __html: msg?.assistant,
                                     }}
                                   />
+                                  
+                                  {/* Agent List Display */}
+                                  {msg.showAgentList && agentReportData && (
+                                    <div className="re-agent-list-container">
+                                      <div className="re-agent-list-header">
+                                        <h3>Top {agentReportData.agentCount} Real Estate Agents in {agentReportData.zipCode}</h3>
+                                        <p>Based on sales volume, reviews, and buyer satisfaction ratings</p>
+                                      </div>
+                                      
+                                      <div className="re-agent-list">
+                                        {agentReportData.agents.map((agent, agentIndex) => (
+                                          <div key={agent.id} className="re-agent-card">
+                                            <div className="re-agent-rank">#{agent.rank}</div>
+                                            
+                                            <div className="re-agent-info">
+                                              <div className="re-agent-name">{agent.name}</div>
+                                              <div className="re-agent-brokerage">{agent.brokerage}</div>
+                                              <div className="re-agent-specialty">{agent.specialty}</div>
+                                              <div className="re-agent-experience">{agent.yearsExp} years experience</div>
+                                            </div>
+                                            
+                                            <div className="re-agent-stats">
+                                              <div className="re-agent-volume">{agent.salesVolume}</div>
+                                              <div className="re-agent-price">Avg: {agent.avgSalePrice}</div>
+                                            </div>
+                                            
+                                            <div className="re-agent-reviews">
+                                              <div className="re-agent-score">
+                                                <span className="re-score-number">{agent.reviewScore}</span>
+                                                <div className="re-score-stars">
+                                                  {[1,2,3,4,5].map(star => (
+                                                    <span key={star} className={`re-star ${star <= Math.floor(agent.reviewScore) ? 'filled' : ''}`}>
+                                                      ⭐
+                                                    </span>
+                                                  ))}
+                                                </div>
+                                              </div>
+                                              <div className="re-review-count">({agent.reviewCount} reviews)</div>
+                                              <div className="re-top-review">"{agent.topReview}"</div>
+                                            </div>
+                                            
+                                            <div className="re-agent-contact">
+                                              <a href={`tel:${agent.phone}`} className="re-agent-phone">{agent.phone}</a>
+                                              <a href={`mailto:${agent.email}`} className="re-agent-email">Contact</a>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                      
+                                      <div className="re-agent-list-footer">
+                                        <p>💡 <strong>Still not sure?</strong> Spencer Gritton (our top recommendation) has helped hundreds of buyers and has a proven track record in your area.</p>
+                                      </div>
+                                    </div>
+                                  )}
+                                  
                                   {msg.showActionButtons && (
                                     <>
                                       <div className="re-action-buttons">

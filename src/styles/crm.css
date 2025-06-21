@@ -257,7 +257,7 @@ flex-direction:row;
 
 .crm-nav-link:hover {
   border-color: var(--brand-primary);
-  color: var(--brand-primary);
+  /* color: var(--brand-primary); */
 }
 
 .crm-nav-link:focus {
