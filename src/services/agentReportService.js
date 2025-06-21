@@ -11,8 +11,8 @@ export const agentReportService = {
       console.log('🔍 Generating agent report for zip:', zipCode, 'value:', propertyValue);
       
       if (!OPENAI_API_KEY) {
-        console.warn("No OpenAI API key - returning mock data");
-        return this.getMockAgentData(zipCode);
+        console.warn("No OpenAI API key found");
+        return null;
       }
 
       const prompt = this.buildAgentSearchPrompt(zipCode, propertyValue);
@@ -22,7 +22,7 @@ export const agentReportService = {
         messages: [
           {
             role: "system",
-            content: "You are a real estate data analyst. Always return valid JSON with the exact structure requested. Use current web search data when available."
+            content: "You are a real estate data analyst. Always return valid JSON with the exact structure requested. Generate realistic agent data based on typical market patterns."
           },
           {
             role: "user",
@@ -30,16 +30,7 @@ export const agentReportService = {
           }
         ],
         temperature: 0.3,
-        max_tokens: 2000,
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "web_search",
-              description: "Search the web for current real estate agent information"
-            }
-          }
-        ]
+        max_tokens: 2000
       };
 
       console.log('📤 Sending agent search request to OpenAI');
@@ -61,23 +52,38 @@ export const agentReportService = {
       console.log('📥 Received OpenAI response');
       
       const content = data.choices[0].message.content;
+      console.log('🔍 OpenAI response content:', content);
       
-      // Parse JSON response
+      if (!content) {
+        throw new Error('OpenAI returned empty content');
+      }
+      
+      // Parse JSON response - strip markdown code blocks if present
+      let cleanContent = content.trim();
+      if (cleanContent.startsWith('```json')) {
+        cleanContent = cleanContent.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+      } else if (cleanContent.startsWith('```')) {
+        cleanContent = cleanContent.replace(/^```\s*/, '').replace(/\s*```$/, '');
+      }
+      
       let agentData;
       try {
-        agentData = JSON.parse(content);
+        agentData = JSON.parse(cleanContent);
+        console.log('✅ Successfully parsed JSON:', agentData);
       } catch (parseError) {
-        console.warn('Failed to parse JSON, extracting from text');
-        agentData = this.extractAgentDataFromText(content);
+        console.warn('❌ Failed to parse JSON, extracting from text:', parseError);
+        console.log('📄 Raw content that failed to parse:', cleanContent);
+        throw new Error('Failed to parse OpenAI response as JSON');
       }
 
       // Validate and format data
+      console.log('🔧 About to format agent data:', agentData);
       return this.formatAgentReport(agentData, zipCode);
       
     } catch (error) {
       console.error('❌ Agent report generation failed:', error);
-      // Return mock data as fallback
-      return this.getMockAgentData(zipCode);
+      // Return null instead of mock data
+      return null;
     }
   },
 
@@ -125,9 +131,14 @@ Use current web data from Zillow, Realtor.com, Google reviews, and local MLS dat
    */
   formatAgentReport(rawData, zipCode) {
     console.log('📋 Formatting agent report data');
+    console.log('🔍 Raw data structure:', rawData);
+    console.log('🔍 Has rawData:', !!rawData);
+    console.log('🔍 Has rawData.agents:', !!(rawData && rawData.agents));
+    console.log('🔍 agents is array:', !!(rawData && rawData.agents && Array.isArray(rawData.agents)));
     
     if (!rawData || !rawData.agents || !Array.isArray(rawData.agents)) {
-      return this.getMockAgentData(zipCode);
+      console.log('❌ Invalid data structure, returning null');
+      return null;
     }
 
     const formattedAgents = rawData.agents.slice(0, 10).map((agent, index) => ({
@@ -195,157 +206,6 @@ Use current web data from Zillow, Realtor.com, Google reviews, and local MLS dat
     return { agents: agents.slice(0, 10) };
   },
 
-  /**
-   * Fallback mock data for testing and API failures
-   */
-  getMockAgentData(zipCode) {
-    console.log('📝 Generating mock agent data for zip:', zipCode);
-    
-    const mockAgents = [
-      {
-        name: "Sarah Johnson",
-        brokerage: "Keller Williams Realty",
-        phone: "(404) 555-0123",
-        email: "sarah.johnson@kw.com",
-        reviewScore: 4.9,
-        reviewCount: 187,
-        salesVolume: "142 homes sold",
-        avgSalePrice: "$485K",
-        specialty: "First-time buyers & luxury homes",
-        yearsExp: 12,
-        topReview: "Sarah made buying our first home stress-free and enjoyable!"
-      },
-      {
-        name: "Michael Chen",
-        brokerage: "RE/MAX Metro Atlanta",
-        phone: "(404) 555-0124",
-        email: "m.chen@remax.com",
-        reviewScore: 4.8,
-        reviewCount: 203,
-        salesVolume: "156 homes sold",
-        avgSalePrice: "$512K",
-        specialty: "Investment properties & condos",
-        yearsExp: 15,
-        topReview: "Exceptional negotiation skills and market knowledge"
-      },
-      {
-        name: "Jennifer Martinez",
-        brokerage: "Coldwell Banker Realty",
-        phone: "(404) 555-0125",
-        email: "j.martinez@coldwell.com",
-        reviewScore: 4.7,
-        reviewCount: 164,
-        salesVolume: "98 homes sold",
-        avgSalePrice: "$445K",
-        specialty: "Family homes & relocations",
-        yearsExp: 9,
-        topReview: "Jennifer understood exactly what we were looking for"
-      },
-      {
-        name: "David Thompson",
-        brokerage: "Atlanta Fine Homes Sotheby's",
-        phone: "(404) 555-0126",
-        email: "d.thompson@sothebys.com",
-        reviewScore: 4.9,
-        reviewCount: 145,
-        salesVolume: "89 homes sold",
-        avgSalePrice: "$675K",
-        specialty: "Luxury homes & estates",
-        yearsExp: 18,
-        topReview: "Top-tier service for luxury home buyers"
-      },
-      {
-        name: "Lisa Wang",
-        brokerage: "Compass Real Estate",
-        phone: "(404) 555-0127",
-        email: "lisa.wang@compass.com",
-        reviewScore: 4.8,
-        reviewCount: 178,
-        salesVolume: "134 homes sold",
-        avgSalePrice: "$398K",
-        specialty: "Millennials & tech professionals",
-        yearsExp: 7,
-        topReview: "Tech-savvy agent who made the process seamless"
-      },
-      {
-        name: "Robert Williams",
-        brokerage: "Harry Norman Realtors",
-        phone: "(404) 555-0128",
-        email: "r.williams@harrynorman.com",
-        reviewScore: 4.6,
-        reviewCount: 192,
-        salesVolume: "167 homes sold",
-        avgSalePrice: "$435K",
-        specialty: "Suburban families & schools",
-        yearsExp: 22,
-        topReview: "Knows every neighborhood and school district perfectly"
-      },
-      {
-        name: "Amanda Foster",
-        brokerage: "EXIT Realty Nexus",
-        phone: "(404) 555-0129",
-        email: "a.foster@exitnexus.com",
-        reviewScore: 4.7,
-        reviewCount: 156,
-        salesVolume: "112 homes sold",
-        avgSalePrice: "$385K",
-        specialty: "First-time buyers & condos",
-        yearsExp: 10,
-        topReview: "Patient and thorough, perfect for first-time buyers"
-      },
-      {
-        name: "James Rodriguez",
-        brokerage: "Berkshire Hathaway HomeServices",
-        phone: "(404) 555-0130",
-        email: "j.rodriguez@bhhsga.com",
-        reviewScore: 4.8,
-        reviewCount: 174,
-        salesVolume: "123 homes sold",
-        avgSalePrice: "$465K",
-        specialty: "New construction & upgrades",
-        yearsExp: 13,
-        topReview: "Expert guidance on new builds and renovations"
-      },
-      {
-        name: "Nicole Davis",
-        brokerage: "Atlanta Communities Real Estate",
-        phone: "(404) 555-0131",
-        email: "n.davis@atlantacommunities.com",
-        reviewScore: 4.9,
-        reviewCount: 138,
-        salesVolume: "95 homes sold",
-        avgSalePrice: "$425K",
-        specialty: "Downsizing & senior moves",
-        yearsExp: 16,
-        topReview: "Compassionate service for life transitions"
-      },
-      {
-        name: "Kevin Park",
-        brokerage: "Ansley Real Estate Christie's",
-        phone: "(404) 555-0132",
-        email: "k.park@ansleyre.com",
-        reviewScore: 4.7,
-        reviewCount: 161,
-        salesVolume: "108 homes sold",
-        avgSalePrice: "$525K",
-        specialty: "International clients & relocations",
-        yearsExp: 11,
-        topReview: "Excellent with international buyers and relocations"
-      }
-    ];
-
-    return {
-      zipCode,
-      timestamp: new Date().toISOString(),
-      agentCount: mockAgents.length,
-      agents: mockAgents.map((agent, index) => ({
-        ...agent,
-        id: `agent_${index + 1}`,
-        rank: index + 1,
-        location: zipCode
-      }))
-    };
-  }
 };
 
 export default agentReportService;

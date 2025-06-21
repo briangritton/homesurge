@@ -50,6 +50,8 @@ const RealEstateChatbot = () => {
   const [showAgentList, setShowAgentList] = useState(false);
   const [agentReportData, setAgentReportData] = useState(null);
   const [loadingAgentReport, setLoadingAgentReport] = useState(false);
+  const [agentReportTimeout, setAgentReportTimeout] = useState(false);
+  const [agentReportReady, setAgentReportReady] = useState(false);
 
   // Refs
   const location = useLocation();
@@ -562,6 +564,9 @@ const RealEstateChatbot = () => {
         setUserZipCode(trimmedInput);
         collectedData = `Zip Code: ${trimmedInput}`;
         
+        // Start generating agent report in background
+        generateAgentReportBackground(trimmedInput);
+        
         // Show typing indicator and then proceed to address collection
         setTimeout(() => {
           const updatedMessages = newMessages.filter((msg) => !msg.typing);
@@ -706,6 +711,46 @@ const RealEstateChatbot = () => {
     setMessages(prev => [...prev, phoneMessage]);
   };
 
+  // Generate agent report in background when zip code is entered
+  const generateAgentReportBackground = async (zipCode) => {
+    console.log('🔍 Pre-loading agent reviews for zip:', zipCode);
+    setLoadingAgentReport(true);
+    setAgentReportTimeout(false);
+    setAgentReportReady(false);
+    
+    // Set 30-second timeout
+    const timeoutId = setTimeout(() => {
+      console.log('⏰ Agent report generation timed out after 30 seconds');
+      setAgentReportTimeout(true);
+      setLoadingAgentReport(false);
+    }, 30000);
+
+    try {
+      const propertyValue = null; // You can add property value logic here if available
+      const agentData = await agentReportService.generateAgentReport(zipCode, propertyValue);
+      
+      // Clear timeout if we got data in time
+      clearTimeout(timeoutId);
+      
+      if (agentData) {
+        console.log('📋 Agent report pre-loaded successfully:', agentData);
+        setAgentReportData(agentData);
+        setAgentReportReady(true);
+        setLoadingAgentReport(false);
+      } else {
+        console.log('❌ OpenAI failed to generate agent data');
+        setAgentReportTimeout(true);
+        setLoadingAgentReport(false);
+      }
+      
+    } catch (error) {
+      console.error('❌ Failed to pre-load agent reviews:', error);
+      clearTimeout(timeoutId);
+      setAgentReportTimeout(true);
+      setLoadingAgentReport(false);
+    }
+  };
+
   // Handle view reviews action
   const handleViewReviews = async () => {
     trackFormStepComplete(4, "Agent Review - View Other Reviews", {
@@ -713,45 +758,85 @@ const RealEstateChatbot = () => {
       address: userAddress,
     });
     
-    console.log('🔍 Loading agent reviews for zip:', userZipCode);
-    setLoadingAgentReport(true);
-    
-    try {
-      // Get property value from any available source (could be added later)
-      const propertyValue = null; // You can add property value logic here if available
+    // Check if we have pre-loaded data or if we timed out
+    if (agentReportReady && agentReportData) {
+      console.log('📋 Using pre-loaded agent report data');
       
-      const agentData = await agentReportService.generateAgentReport(userZipCode, propertyValue);
-      console.log('📋 Agent report generated:', agentData);
-      
-      setAgentReportData(agentData);
-      setShowAgentList(true);
-      
-      // Add a message to the chat showing we're displaying the list
       const agentListMessage = {
         assistant: 
           "<p class='re-message-text'>" +
-          `Great! I've found the top ${agentData.agentCount} real estate agents in ${userZipCode}. ` +
+          `Great! I've found the top ${agentReportData.agentCount} real estate agents in ${userZipCode}. ` +
           "Here's your personalized agent review list below. You can scroll through to compare their stats, reviews, and specialties." +
           "</p>",
         showAgentList: true
       };
       
+      setShowAgentList(true);
       setMessages(prev => [...prev, agentListMessage]);
       
-    } catch (error) {
-      console.error('❌ Failed to load agent reviews:', error);
+    } else if (agentReportTimeout) {
+      console.log('⏰ Agent report timed out, showing timeout message');
       
-      const errorMessage = {
+      const timeoutMessage = {
         assistant: 
           "<p class='re-message-text'>" +
-          "I'm having trouble loading the agent reviews right now. But don't worry - my top recommendation Spencer Gritton is still available to help you! " +
+          "Hmmm, it looks like I'm having trouble connecting at the moment. But don't worry - my top recommendation Spencer Gritton is still available to help you! " +
           "He has an excellent track record and would be happy to discuss your needs." +
           "</p>"
       };
       
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setLoadingAgentReport(false);
+      setMessages(prev => [...prev, timeoutMessage]);
+      
+    } else if (loadingAgentReport) {
+      console.log('⏳ Agent report still loading, showing loading message');
+      
+      const loadingMessage = {
+        assistant: 
+          "<p class='re-message-text'>" +
+          "I'm still pulling together the agent reviews for your area. This should just take a moment..." +
+          "</p>",
+        showLoading: true
+      };
+      
+      setMessages(prev => [...prev, loadingMessage]);
+      
+      // Poll for completion every 500ms
+      const pollInterval = setInterval(() => {
+        if (agentReportReady && agentReportData) {
+          clearInterval(pollInterval);
+          
+          const agentListMessage = {
+            assistant: 
+              "<p class='re-message-text'>" +
+              `Perfect! Here are the top ${agentReportData.agentCount} real estate agents in ${userZipCode}.` +
+              "</p>",
+            showAgentList: true
+          };
+          
+          setShowAgentList(true);
+          setMessages(prev => [...prev, agentListMessage]);
+          
+        } else if (agentReportTimeout) {
+          clearInterval(pollInterval);
+          
+          const timeoutMessage = {
+            assistant: 
+              "<p class='re-message-text'>" +
+              "Hmmm, it looks like I'm having trouble connecting at the moment. But Spencer Gritton is still available to help!" +
+              "</p>"
+          };
+          
+          setMessages(prev => [...prev, timeoutMessage]);
+        }
+      }, 500);
+      
+      // Clear polling after 35 seconds max
+      setTimeout(() => clearInterval(pollInterval), 35000);
+      
+    } else {
+      console.log('🔄 No pre-loaded data, generating now as fallback');
+      // Fallback - generate now (shouldn't happen but just in case)
+      generateAgentReportBackground(userZipCode);
     }
   };
 
@@ -1032,9 +1117,7 @@ const RealEstateChatbot = () => {
                           }
                         }}
                       />
-                      <div className="re-input-actions">
-                        <span className="re-input-hint">Select from dropdown</span>
-                      </div>
+                   
                     </div>
                   ) : (
                     <>
