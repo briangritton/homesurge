@@ -79,7 +79,7 @@ html, body {
   border: 1px solid #c7c7c7;
   display: flex;
   flex-direction: column;
-  height: 85vh;
+  height: 90vh;
   max-width: 700px;
   margin-right: 20px;
 }
@@ -115,6 +115,14 @@ html, body {
   background-color: #f8f9fa;
   max-height: calc(85vh - 160px);
   contain: strict;
+      border-bottom: 1px solid #e4e4e4;
+
+}
+
+/* When no input is shown, expand conversation to fill full chat interface height */
+.re-chat-interface.re-no-input .re-conversation-container {
+  max-height: calc(90vh - 60px); /* Full chat height minus header */
+  flex: 1;
 }
 
 .re-conversation {
@@ -706,30 +714,36 @@ html, body {
   bottom: 0;
   z-index: 9999;
   background: white;
+  height: 100vh; /* Fallback */
+  height: 100dvh; /* Dynamic viewport height - adjusts for mobile browser UI */
 }
 
 .re-fullscreen .re-container {
   padding: 0;
-  height: 100vh;
+  height: 100vh; /* Fallback */
+  height: 100dvh; /* Dynamic viewport height */
 }
 
 .re-fullscreen-chat {
   width: 100% !important;
   margin: 0 !important;
-  height: 100vh;
+  height: 100vh; /* Fallback */
+  height: 100dvh; /* Dynamic viewport height */
   display: flex;
   flex-direction: column;
 }
 
 .re-fullscreen .re-chat-interface {
-  height: 100vh !important;
+  height: 100vh !important; /* Fallback */
+  height: 100dvh !important; /* Dynamic viewport height */
   margin: 0 !important;
   border: none !important;
   border-radius: 0 !important;
 }
 
 .re-fullscreen .re-conversation-container {
-  max-height: calc(100vh - 160px) !important;
+  max-height: calc(100vh - 160px) !important; /* Fallback */
+  max-height: calc(100dvh - 160px) !important; /* Dynamic viewport height */
 }
 
 
@@ -739,7 +753,8 @@ html, body {
     display: flex;
     flex-direction: column;
     padding: 10px;
-    height: 100vh;
+    height: 100vh; /* Fallback */
+    height: 100dvh; /* Dynamic viewport height - adjusts for mobile browser UI */
     overflow: hidden;
   }
   
@@ -794,6 +809,7 @@ html, body {
     position: relative;
     margin-bottom: 15px;
     flex-shrink: 0; /* Never shrink the input */
+    padding-bottom: env(safe-area-inset-bottom, 0); /* Handle iPhone safe areas */
   }
 
   /* Mobile fullscreen overrides - hide headline/subheadline and expand chat */
@@ -806,7 +822,8 @@ html, body {
     max-width: none !important;
     margin: 0 !important;
     padding: 0 !important;
-    max-height: 100vh !important; /* Override the 35% limit */
+    max-height: 100vh !important; /* Fallback - Override the 35% limit */
+    max-height: 100dvh !important; /* Dynamic viewport height */
   }
 }
 
@@ -815,7 +832,8 @@ html, body {
         display: flex;
         flex-direction: column;
         padding: 5px;
-        height: 100vh;
+        height: 100vh; /* Fallback */
+        height: 100dvh; /* Dynamic viewport height - adjusts for mobile browser UI */
         overflow: hidden;
     }
 
@@ -827,19 +845,28 @@ html, body {
        .re-right-panel {
         flex: 1 1;
         min-height: 0;
-        max-height: calc(100vh - 35%);
+        max-height: calc(100vh - 35%); /* Fallback */
+        max-height: calc(100dvh - 35%); /* Dynamic viewport height */
     }
 
-    .re-headline {
-        font-size: 24px;
-        line-height: 28px;
+        .re-headline {
+        font-size: 18px;
+        line-height: 20px;
         margin-bottom: 8px;
     }
   
-    .re-subheadline {
-        font-size: 14px;
+.re-header-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+}
+
+
+
+      .re-subheadline {
         line-height: 18px;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
+        margin-top: 0px;
     }
 
     .re-chat-interface {
@@ -851,16 +878,14 @@ html, body {
         flex: 1;
         min-height: 0; /* Allow shrinking */
     }
-.re-fullscreen .re-conversation-container {
-    max-height: calc(100vh) !important;
-}
-  .re-textarea,
-  .re-phone-input,
-  .re-address-input {
-    height: 60px;
-    font-size: 16px;
-  }
-
+    .re-fullscreen .re-conversation-container {
+        max-height: calc(100vh) !important; /* Fallback */
+        max-height: calc(100dvh) !important; /* Dynamic viewport height */
+    }
+     .re-textarea, .re-phone-input, .re-address-input {
+        height: 100px;
+        font-size: 16px;
+    }
   .re-send-button {
     font-size: 16px;
     padding: 12px 18px;
@@ -872,10 +897,10 @@ html, body {
   }
 
   /* Chat message text should be larger on mobile */
-  .re-message-text {
-    font-size: 18px;
-    line-height: 1.5;
-  }
+      .re-message-text {
+        font-size: 16px;
+        line-height: 1.5;
+    }
 
   .re-bot-name {
     font-size: 16px;

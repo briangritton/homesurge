@@ -247,7 +247,7 @@ const RealEstateChatbot = () => {
   }, [location]);
   */
 
-  // UI behavior effects
+  // UI behavior effects - scroll to top of new messages
   useEffect(() => {
     if (!initialLoadComplete && messages.length > 0) {
       setInitialLoadComplete(true);
@@ -256,7 +256,18 @@ const RealEstateChatbot = () => {
     if (initialLoadComplete && messages.length > 0) {
       const conversationContainer = document.querySelector('.re-conversation-container');
       if (conversationContainer) {
-        conversationContainer.scrollTop = conversationContainer.scrollHeight;
+        // Find the last assistant message and scroll to its top
+        const messageContainers = conversationContainer.querySelectorAll('.re-bot-message-container');
+        if (messageContainers.length > 0) {
+          const lastAssistantMessage = messageContainers[messageContainers.length - 1];
+          // Scroll to show the top of the message with some padding
+          const containerTop = conversationContainer.offsetTop;
+          const messageTop = lastAssistantMessage.offsetTop;
+          conversationContainer.scrollTop = messageTop - containerTop - 20; // 20px padding from top
+        } else {
+          // Fallback to bottom scroll if no assistant messages found
+          conversationContainer.scrollTop = conversationContainer.scrollHeight;
+        }
       }
     }
   }, [messages, initialLoadComplete]);
@@ -626,7 +637,7 @@ const RealEstateChatbot = () => {
             const spencerDefaultMessage = {
               assistant:
                 "<p class='re-message-text'>" +
-                "No problem! Based on your geo location, my top priority recommendation is Spencer Gritton with HomeSmart. He has sold over 2.2 million dollars of luxury lakefront property alone this year, all in only a few days on the market, so I would feel very confident that he is the best agent to help you sell your home for its highest value with a quick turnaround.<br><br>" +
+                "No problem! Based on your geo location, my top priority recommendation is Spencer Gritton with HomeSmart. He has sold over 2.6 million dollars of luxury lakefront property alone this year, all in only a few days on the market, so I would feel very confident that he is the best agent to help you sell your home for its highest value with a quick turnaround.<br><br>" +
                 "He's accepting a few new clients, but he keeps his client list limited so he can stay highly personally focused on each listing under his team. Let's get you connected over chat, absolutely no obligation and no pressure, so the two of you can see if it might be a good fit. How would you like to connect?" +
                 "</p>",
               isFinal: true,
@@ -1193,7 +1204,7 @@ const RealEstateChatbot = () => {
 
         {/* Right side with chat interface */}
         <div className={`re-right-panel ${isFullscreen ? 're-fullscreen-chat' : ''}`}>
-          <div className="re-chat-interface">
+          <div className={`re-chat-interface ${messages.some(msg => msg.showActionButtons) && !collectingContactInfo ? 're-no-input' : ''}`}>
             {/* Chat header */}
             <div className="re-chat-header">
               <div className="re-header-container">
