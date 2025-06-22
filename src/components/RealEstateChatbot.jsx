@@ -869,7 +869,7 @@ const RealEstateChatbot = () => {
     const contactMessage = {
       assistant: 
         "<p class='re-message-text'>" +
-        `Great! We'll put you in touch with ${agentName}! Please provide your contact information below so they can reach out to you:` +
+        `Great! We'll put you in touch with ${agentName}! Please provide your contact information below so we can get you connected:` +
         "</p>"
     };
     
@@ -922,8 +922,8 @@ const RealEstateChatbot = () => {
       const confirmationMessage = {
         assistant: 
           "<p class='re-message-text'>" +
-          `Perfect! I've forwarded your information to the agent. They'll reach out to you ${callbackTime || 'soon'}. ` +
-          "In the meantime, feel free to ask me any other questions about real estate agents in your area." +
+          `Perfect! Our scheduling agent will call you to confirm at ${callbackTime || 'soon'}. ` +
+          "We look forward to helping you in any way we can!" +
           "</p>"
       };
       
@@ -1067,7 +1067,7 @@ const RealEstateChatbot = () => {
         {/* Left side with headline and content - hide on mobile fullscreen */}
         {!isFullscreen && (
           <div className="re-left-panel">
-            <h1 className="re-headline">{headline}</h1>
+            <div className="re-headline">{headline}</div>
             <p className="re-subheadline">{subheadline}</p>
           </div>
         )}
@@ -1133,6 +1133,8 @@ const RealEstateChatbot = () => {
                                                 <span className="re-rank-number">#{agent.rank}</span>
                                               </div>
                                               <div className="re-agent-info">
+                                                                                                <div className="re-agent-name">{agent.name}</div>
+
                                                 <div className="re-agent-score">
                                                   <span className="re-score-label">HomeSurge.AI Agent Score: {agent.reviewScore}</span>
                                                   <div className="re-score-stars">
@@ -1144,8 +1146,11 @@ const RealEstateChatbot = () => {
                                                   </div>
                                                   <span className="re-review-count">({agent.reviewCount} reviews)</span>
                                                 </div>
-                                                <div className="re-agent-name">{agent.name}</div>
-                                                <div className="re-agent-phone">
+                                             
+                                                <div className="re-agent-stats">{agent.salesVolume} | Avg: {agent.avgSalePrice}</div>
+                                                <div className="re-agent-brokerage">{agent.brokerage}</div>
+                                              
+                                                 <div className="re-agent-phone">
                                                   <button 
                                                     onClick={() => handleContactAgent(agent.name)}
                                                     className="re-contact-agent-button"
@@ -1153,8 +1158,6 @@ const RealEstateChatbot = () => {
                                                     Contact agent
                                                   </button>
                                                 </div>
-                                                <div className="re-agent-stats">{agent.salesVolume} | Avg: {agent.avgSalePrice}</div>
-                                                <div className="re-agent-brokerage">{agent.brokerage}</div>
                                               </div>
                                             </div>
                                             <div className="re-agent-testimonial">
@@ -1164,9 +1167,9 @@ const RealEstateChatbot = () => {
                                         ))}
                                       </div>
                                       
-                                      <div className="re-agent-list-footer">
+                                      {/* <div className="re-agent-list-footer">
                                         <p>💡 <strong>Still not sure?</strong> Spencer Gritton (our top recommendation) has helped hundreds of buyers and has a proven track record in your area.</p>
-                                      </div>
+                                      </div> */}
                                     </div>
                                   )}
                                   
@@ -1177,13 +1180,13 @@ const RealEstateChatbot = () => {
                                           onClick={handleTextSpencer}
                                           className="re-action-button re-text-button"
                                         >
-                                          📱 Text Spencer Now to Schedule
+                                          Text to Schedule
                                         </button>
                                         <button
                                           onClick={handleReceiveText}
                                           className="re-action-button re-call-button"
                                         >
-                                          📞 Receive a Text from Spencer
+                                          Receive a Text from Spencer
                                         </button>
                                       </div>
                                       
@@ -1205,7 +1208,10 @@ const RealEstateChatbot = () => {
                                               </div>
                                             </div>
                                             <div className="re-contact-name">Spencer Gritton</div>
-                                            <div className="re-contact-phone">(480) 519-0554</div>
+                                            <div className="re-contact-phone">
+                                              <span className="re-contact-phone-icon">📞</span>
+                                              (480) 519-0554
+                                            </div>
                                             <div className="re-contact-title">NMLS# 407111</div>
                                             <div className="re-contact-agency">HomeSmart Realty Partners</div>
                                           </div>
@@ -1217,7 +1223,7 @@ const RealEstateChatbot = () => {
                                         className="re-review-link"
                                         href="#"
                                       >
-                                        View other agent reviews first
+                                        View all HomeSurge agent reviews
                                       </a>
                                     </>
                                   )}
@@ -1285,15 +1291,13 @@ const RealEstateChatbot = () => {
                         <option value="5:00 PM">5:00 PM</option>
                         <option value="Anytime">Anytime</option>
                       </select>
-                      <div className="re-input-actions">
-                        <input
-                          type="button"
-                          value="Submit"
-                          onClick={handleContactSubmit}
-                          disabled={!userName.trim() || !userPhone.trim()}
-                          className="re-send-button"
-                        />
-                      </div>
+                      <input
+                        type="button"
+                        value="Submit"
+                        onClick={handleContactSubmit}
+                        disabled={!userName.trim() || !userPhone.trim()}
+                        className="re-contact-submit-button"
+                      />
                     </div>
                   ) : showPhoneInput ? (
                     <>

@@ -170,6 +170,7 @@ html, body {
   font-weight: normal;
   margin-right: 10px;
   font-size: 18px;
+  justify-self: flex-end;
 }
 
 /* Typing indicator */
@@ -290,21 +291,67 @@ html, body {
 }
 
 .re-text-button {
-  background-color: #25d366;
-  color: white;
+  background: var(--button-primary) !important;
+  border: solid;
+  border-color: #353535;
+  border-radius: 12px !important;
+  border-width: .5px;
+  box-shadow: 0 0 11px #00000061 !important;
+  color: #fff !important;
+  flex-shrink: 0 !important;
+  font-size: 1.1rem;
+  font-weight: 700 !important;
+  height: 60px;
+  letter-spacing: 1px !important;
+  min-width: 100px;
+  overflow: hidden !important;
+  padding: 18px 30px !important;
+  position: relative !important;
+  text-shadow: 0 0 2px #000 !important;
+  text-transform: uppercase !important;
+  transition: all .3s ease !important;
+  text-align: center !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .re-text-button:hover {
-  background-color: #22c55e;
+  background: var(--button-primary-hover) !important;
+  box-shadow: 0 0 15px #00000080 !important;
 }
 
 .re-call-button {
-  background-color: #c1720c;
-  color: white;
+ 
+  background: var(--button-primary) !important;
+  border: solid;
+  border-color: #353535;
+  border-radius: 12px !important;
+  border-width: .5px;
+  box-shadow: 0 0 11px #00000061 !important;
+  color: #fff !important;
+  flex-shrink: 0 !important;
+  font-size: 1.1rem;
+  font-weight: 700 !important;
+  height: 60px;
+  letter-spacing: 1px !important;
+  min-width: 100px;
+  overflow: hidden !important;
+  padding: 18px 30px !important;
+  position: relative !important;
+  text-shadow: 0 0 2px #000 !important;
+  text-transform: uppercase !important;
+  transition: all .3s ease !important;
+  text-align: center !important;
+  display: none !important;
+  align-items: center !important;
+  justify-content: center !important;
+  
 }
 
 .re-call-button:hover {
-  background-color: #a05e0a;
+  background: var(--button-primary-hover) !important;
+  box-shadow: 0 0 15px #00000080 !important;
 }
 
 .re-review-button {
@@ -313,12 +360,12 @@ html, body {
 }
 
 .re-review-button:hover {
-  background-color: #4f46e5;
+  background-color: #44bc97;
 }
 
 /* Review link styling */
 .re-review-link {
-  color: #6366f1;
+  color: #44bc97;
   text-decoration: underline;
   cursor: pointer;
   font-size: 16px;
@@ -328,7 +375,7 @@ html, body {
 }
 
 .re-review-link:hover {
-  color: #4f46e5;
+  color: #44bc97;
   text-decoration: none;
 }
 
@@ -370,10 +417,21 @@ html, body {
 }
 
 .re-contact-phone {
-  font-size: 16px;
-  font-weight: 500;
-  color: #c1720c;
+  color: #444444;
+  font-size: 18px;
+  font-style: italic;
+  font-weight: 700;
+  text-decoration: none !important;
+  cursor: pointer !important;
   margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.re-contact-phone-icon {
+  color: var(--button-primary);
+  margin-right: 2px;
+  align-items: center;
 }
 
 .re-contact-title {
@@ -448,6 +506,46 @@ html, body {
 .re-contact-select:focus {
   outline: none;
   border-color: #c1720c;
+}
+
+.re-contact-submit-button {
+  background: var(--button-primary) !important;
+  border: solid;
+  border-color: #353535;
+  border-radius: 12px !important;
+  border-width: .5px;
+  box-shadow: 0 0 11px #00000061 !important;
+  color: #fff !important;
+  cursor: pointer;
+  flex-shrink: 0 !important;
+  font-size: 1.1rem;
+  font-weight: 700 !important;
+  height: 50px;
+  letter-spacing: 1px !important;
+  margin-top: 15px;
+  min-width: 120px;
+  overflow: hidden !important;
+  padding: 12px 30px !important;
+  position: relative !important;
+  text-shadow: 0 0 2px #000 !important;
+  text-transform: uppercase !important;
+  transition: all .3s ease !important;
+  width: 100%;
+  text-align: center !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.re-contact-submit-button:hover {
+  background: var(--button-primary-hover) !important;
+  box-shadow: 0 0 15px #00000080 !important;
+}
+
+.re-contact-submit-button:disabled {
+  background: #ccc !important;
+  cursor: not-allowed !important;
+  opacity: 0.6;
 }
 
 /* Phone input styling */
@@ -743,11 +841,10 @@ html, body {
    ======================================== */
 
 .re-agent-list-container {
-  margin-top: 20px;
-  padding: 20px;
-  background: #f8f9fa;
-  border-radius: 12px;
-  border: 1px solid #e9ecef;
+    /* border: 1px solid #e9ecef; */
+    border-radius: 12px;
+    margin-top: 20px;
+    /* padding: 20px; */
 }
 
 .re-agent-list-header {
@@ -779,7 +876,7 @@ html, body {
 /* Agent cards styled like Spencer's contact card */
 .re-agent-card {
   padding: 15px;
-  background-color: #f8f9fa;
+  /* background-color: #f8f9fa; */
   border-radius: 8px;
   border: 1px solid #e4e4e4;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -800,15 +897,19 @@ html, body {
 
 /* Rank circle replacing Spencer's image */
 .re-agent-rank-circle {
-  flex-shrink: 0;
-  width: 60px;
-  height: 60px;
-  background: linear-gradient(135deg, #4CAF50, #45a049);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 3px 10px rgba(76, 175, 80, 0.3);
+    align-items: center;
+    background: var(--button-primary);
+    border-radius: 50%;
+    box-shadow: 0 3px 10px #4caf504d;
+    display: flex
+;
+    flex-shrink: 0;
+    height: 30px;
+    justify-content: center;
+    width: 30px;
+    margin-left: -30px;
+    align-self: flex-start;
+    margin-top: -15px;
 }
 
 .re-rank-number {
@@ -868,19 +969,37 @@ html, body {
 }
 
 .re-contact-agent-button {
-  background-color: #c1720c;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 16px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+    align-items: center !important;
+    background: var(--button-primary) !important;
+    border: solid;
+    border-color: #353535;
+    border-radius: 6px;
+    border-width: .5px;
+    /* box-shadow: 0 0 11px #00000061 !important; */
+    color: #fff !important;
+    cursor: pointer;
+    display: flex !important
+;
+    flex-shrink: 0 !important;
+    font-size: .7rem;
+    font-weight: 700 !important;
+    /* height: 40px; */
+    justify-content: center !important;
+    letter-spacing: 1px !important;
+    min-width: 120px;
+    overflow: hidden !important;
+    padding: 8px 16px !important;
+    position: relative !important;
+    text-align: center !important;
+    /* text-shadow: 0 0 2px #000 !important; */
+    text-transform: uppercase !important;
+    transition: all .3s ease !important;
+    margin: 10px 0px;
 }
 
 .re-contact-agent-button:hover {
-  background-color: #a05e0a;
+  background: var(--button-primary-hover) !important;
+  /* box-shadow: 0 0 15px #00000080 !important; */
 }
 
 .re-agent-stats {
