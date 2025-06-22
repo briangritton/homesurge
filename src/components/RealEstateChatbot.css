@@ -231,14 +231,15 @@ html, body {
 }
 
 .re-textarea {
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-sizing: border-box;
-  font-size: 18px;
-  height: 100px;
-  padding: 15px 90px 15px 15px;
-  resize: none;
-  width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 18px;
+    height: 100px;
+    padding: 15px 90px 15px 15px;
+    resize: none;
+    width: 100%;
+    font-family: sans-serif;
 }
 
 .re-input-actions {
@@ -250,16 +251,16 @@ html, body {
 }
 
 .re-send-button {
-  background-color: #c1720c;
-  border: none;
-  border-radius: 6px;
-  color: #fff;
-  cursor: pointer;
-  font-size: 22px;
-  font-weight: 500;
-  padding: 8px 20px;
-  transition: background-color .2s;
-  white-space: nowrap;
+    background-color: var(--button-primary) !important;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 22px;
+    font-weight: 500;
+    padding: 8px 20px;
+    transition: background-color .2s;
+    white-space: nowrap;
 }
 
 .re-send-button:hover:not(:disabled) {
@@ -571,6 +572,8 @@ html, body {
   padding: 15px 150px 15px 15px;
   width: 100%;
   font-family: inherit;
+  vertical-align: top;
+  resize: none;
 }
 
 .re-address-input:focus {
@@ -686,7 +689,7 @@ html, body {
 
   .re-left-panel,
   .re-right-panel {
-    width: 100%;
+    width: auto;
   }
   
   .re-left-panel {
@@ -695,9 +698,10 @@ html, body {
   }
   
   .re-headline {
-    font-size: 32px;
-    line-height: 38px;
-  }
+        font-size: 32px;
+        line-height: 38px;
+        letter-spacing: 1px;
+    }
   
   .re-subheadline {
     font-size: 18px;
@@ -737,10 +741,11 @@ html, body {
     line-height: 34px;
   }
   
-  .re-subheadline {
-    font-size: 16px;
-    line-height: 22px;
-  }
+    .re-subheadline {
+        font-size: 18px;
+        line-height: 24px;
+        margin: 0px auto 10px;
+    }
 
 
 
@@ -1026,15 +1031,23 @@ html, body {
 .re-agent-list-footer {
   margin-top: 20px;
   padding: 16px;
-  background: #e8f5e8;
+  background: #fff3cd;
   border-radius: 8px;
   text-align: center;
+  border: 1px solid #ffeaa7;
 }
 
 .re-agent-list-footer p {
   margin: 0;
   color: #2c3e50;
   font-size: 0.9rem;
+}
+
+.re-ai-disclaimer {
+  color: #856404 !important;
+  font-size: 0.85rem !important;
+  font-style: italic;
+  line-height: 1.4;
 }
 
 /* Mobile responsive design */

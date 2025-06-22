@@ -1167,9 +1167,9 @@ const RealEstateChatbot = () => {
                                         ))}
                                       </div>
                                       
-                                      {/* <div className="re-agent-list-footer">
-                                        <p>💡 <strong>Still not sure?</strong> Spencer Gritton (our top recommendation) has helped hundreds of buyers and has a proven track record in your area.</p>
-                                      </div> */}
+                                      <div className="re-agent-list-footer">
+                                        <p className="re-ai-disclaimer">⚠️ Agent reviews are compiled using various data sources, including OpenAI and Anthropic AI web searches. AI can provide inaccurate or incomplete information.</p>
+                                      </div>
                                     </div>
                                   )}
                                   
@@ -1180,7 +1180,7 @@ const RealEstateChatbot = () => {
                                           onClick={handleTextSpencer}
                                           className="re-action-button re-text-button"
                                         >
-                                          Text to Schedule
+                                          Click to Schedule
                                         </button>
                                         <button
                                           onClick={handleReceiveText}
