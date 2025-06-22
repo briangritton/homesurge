@@ -1,5 +1,7 @@
 // src/services/agentReportService.js
 
+import { saveAgentReportToFirebase, getCachedAgentReportFromFirebase } from './firebase';
+
 const OPENAI_API_KEY = process.env.REACT_APP_OPENAI_API_KEY;
 
 export const agentReportService = {
@@ -10,6 +12,12 @@ export const agentReportService = {
   async generateAgentReport(zipCode, propertyValue = null) {
     try {
       console.log('🔍 Generating agent report for zip:', zipCode, 'value:', propertyValue);
+      
+      // First, check Firebase cache using existing pattern
+      const cachedReport = await getCachedAgentReportFromFirebase(zipCode);
+      if (cachedReport) {
+        return cachedReport;
+      }
       
       if (!OPENAI_API_KEY) {
         console.warn("No OpenAI API key found");
@@ -79,7 +87,14 @@ export const agentReportService = {
 
       // Validate and format data
       console.log('🔧 About to format agent data:', agentData);
-      return this.formatAgentReport(agentData, zipCode);
+      const formattedReport = this.formatAgentReport(agentData, zipCode);
+      
+      // Cache the successful report using existing Firebase pattern
+      if (formattedReport) {
+        await saveAgentReportToFirebase(zipCode, formattedReport);
+      }
+      
+      return formattedReport;
       
     } catch (error) {
       console.error('❌ Agent report generation failed:', error);

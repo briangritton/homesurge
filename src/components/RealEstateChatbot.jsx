@@ -5,6 +5,9 @@ import { useLocation } from "react-router-dom";
 import { trackFormStepComplete } from "../services/analytics";
 import { googlePlacesService } from "../services/googlePlaces";
 import { agentReportService } from "../services/agentReportService";
+import { createImmediateLead } from "../services/firebase";
+import { leadService } from "../services/leadOperations";
+import { propertyService } from "../services/propertyLookup";
 import "./RealEstateChatbot.css";
 
 const RealEstateChatbot = () => {
@@ -29,14 +32,22 @@ const RealEstateChatbot = () => {
   const [userZipCode, setUserZipCode] = useState("");
   const [userAddress, setUserAddress] = useState("");
   const [userPhone, setUserPhone] = useState("");
+  const [userName, setUserName] = useState("");
+  const [callbackTime, setCallbackTime] = useState("");
   const [zipValidationAttempts, setZipValidationAttempts] = useState(0);
   const [showPhoneInput, setShowPhoneInput] = useState(false);
   const [showAddressInput, setShowAddressInput] = useState(false);
+  const [showContactForm, setShowContactForm] = useState(false);
   const [googleApiLoaded, setGoogleApiLoaded] = useState(false);
   const [addressSuggestions, setAddressSuggestions] = useState([]);
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [addressInputValue, setAddressInputValue] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+
+  // Lead tracking state (like AddressForm)
+  const [leadId, setLeadId] = useState(null);
+  const [campaignData, setCampaignData] = useState({});
+  const [leadCreated, setLeadCreated] = useState(false);
 
   // OpenAI integration state (DISABLED - using scripted responses only)
   const [useOpenAI, setUseOpenAI] = useState(false); // Disabled for agent review bot
@@ -61,12 +72,54 @@ const RealEstateChatbot = () => {
   const addressInputRef = useRef(null);
   const autocompleteRef = useRef(null);
 
-  // Setup headlines based on URL parameters
+  // Setup headlines and create immediate lead (like AddressForm)
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const area = urlParams.get("area");
     const propertyType = urlParams.get("type");
 
+    // Extract campaign data from URL (same as AddressForm)
+    const extractedCampaignData = {
+      campaign_name: urlParams.get('campaign_name') || '',
+      campaign_id: urlParams.get('campaign_id') || '',
+      adgroup_id: urlParams.get('adgroup_id') || '',
+      adgroup_name: urlParams.get('adgroup_name') || '',
+      keyword: urlParams.get('keyword') || '',
+      matchtype: urlParams.get('matchtype') || '',
+      device: urlParams.get('device') || '',
+      gclid: urlParams.get('gclid') || '',
+      traffic_source: urlParams.get('utm_source') || 'Direct',
+      variant: 'agent-chat', // Specific variant for this chatbot
+      split_test: 'agent-chat',
+      routeCampaign: 'agent-finder',
+      routeVariant: 'chat',
+      url: window.location.href,
+      referrer: document.referrer || ''
+    };
+
+    setCampaignData(extractedCampaignData);
+
+    // Create immediate lead (same pattern as AddressForm)
+    const createLead = async () => {
+      if (!leadCreated) {
+        try {
+          console.log('🎯 Creating immediate lead for agent chat');
+          const newLeadId = await createImmediateLead(extractedCampaignData);
+          if (newLeadId) {
+            setLeadId(newLeadId);
+            setLeadCreated(true);
+            leadService.setLeadId(newLeadId); // Store in localStorage like AddressForm
+            console.log('✅ Immediate lead created:', newLeadId);
+          }
+        } catch (error) {
+          console.error('❌ Failed to create immediate lead:', error);
+        }
+      }
+    };
+
+    createLead();
+
+    // Set headlines based on URL parameters
     if (area) {
       const capitalizedArea = area
         .split(' ')
@@ -79,7 +132,7 @@ const RealEstateChatbot = () => {
       const capitalizedType = propertyType.charAt(0).toUpperCase() + propertyType.slice(1).toLowerCase();
       setHeadline(`Need Help Selling Your ${capitalizedType}? Get Expert Guidance Now!`);
     }
-  }, [location]);
+  }, [location, leadCreated]);
 
   // Setup conversation flows - Agent Review Bot
   useEffect(() => {
@@ -287,6 +340,42 @@ const RealEstateChatbot = () => {
     // Set the selected address
     setUserAddress(place.formatted_address);
     setSelectedPlace(place);
+    
+    // Extract address components (like AddressForm)
+    const addressComponents = googlePlacesService.formatAddressComponents(place);
+    
+    // Update lead with address data (like AddressForm)
+    const updateLeadWithAddress = async () => {
+      try {
+        const addressData = {
+          street: place.formatted_address,
+          city: addressComponents.city,
+          state: addressComponents.state,
+          zip: addressComponents.zip || userZipCode,
+          selectedSuggestionAddress: place.formatted_address,
+          addressSelectionType: 'Google Places',
+          leadStage: 'Address Selected',
+          location: JSON.stringify({
+            lat: place.geometry.location.lat(),
+            lng: place.geometry.location.lng()
+          }),
+          ...campaignData
+        };
+        
+        await leadService.updateLead(leadService.getLeadId(), addressData);
+        console.log('✅ Lead updated with address data');
+        
+        // Start property API calls in background (non-blocking like AddressForm)
+        propertyService.lookupProperty(place.formatted_address, leadService.getLeadId())
+          .then(() => console.log('✅ Property lookup completed'))
+          .catch(error => console.error('❌ Property lookup failed:', error));
+          
+      } catch (error) {
+        console.error('❌ Failed to update lead with address:', error);
+      }
+    };
+    
+    updateLeadWithAddress();
     
     // Add user message showing selected address
     const userMessage = place.formatted_address;
@@ -565,6 +654,23 @@ const RealEstateChatbot = () => {
         setUserZipCode(trimmedInput);
         collectedData = `Zip Code: ${trimmedInput}`;
         
+        // Update lead with zip code (like AddressForm)
+        const updateLeadWithZip = async () => {
+          try {
+            const updateData = {
+              zip: trimmedInput,
+              leadStage: 'Zip Code Provided',
+              ...campaignData
+            };
+            await leadService.updateLead(leadService.getLeadId(), updateData);
+            console.log('✅ Lead updated with zip code:', trimmedInput);
+          } catch (error) {
+            console.error('❌ Failed to update lead with zip:', error);
+          }
+        };
+        
+        updateLeadWithZip();
+        
         // Start generating agent report in background
         generateAgentReportBackground(trimmedInput);
         
@@ -763,19 +869,22 @@ const RealEstateChatbot = () => {
     const contactMessage = {
       assistant: 
         "<p class='re-message-text'>" +
-        `Great! We'll put you in touch with ${agentName}! First, can I get your name and the best number to reach you at in case you can't get a hold of them right away?` +
+        `Great! We'll put you in touch with ${agentName}! Please provide your contact information below so they can reach out to you:` +
         "</p>"
     };
     
     setMessages(prev => [...prev, contactMessage]);
     
-    // Reset input states to show regular text input
+    // Show contact form instead of text input
     setShowPhoneInput(false);
     setShowAddressInput(false);
+    setShowContactForm(true);
     setCollectingContactInfo(true);
     
-    // Clear any existing query
-    setQuery("");
+    // Clear any existing values
+    setUserName("");
+    setUserPhone("");
+    setCallbackTime("");
     
     // Track the event
     trackFormStepComplete(5, "Agent Contact Request", {
@@ -783,6 +892,56 @@ const RealEstateChatbot = () => {
       zipCode: userZipCode,
       address: userAddress,
     });
+  };
+
+  // Handle contact form submission
+  const handleContactSubmit = async () => {
+    if (!userName.trim() || !userPhone.trim()) {
+      alert("Please fill in both your name and phone number.");
+      return;
+    }
+
+    try {
+      // Update lead with contact information (like AddressForm)
+      const contactData = {
+        name: userName.trim(),
+        phone: userPhone.trim(),
+        callbackTime: callbackTime || 'Anytime',
+        leadStage: 'Contact Info Provided',
+        ...campaignData
+      };
+      
+      await leadService.updateLead(leadService.getLeadId(), contactData);
+      console.log('✅ Lead updated with contact info');
+      
+      // Hide contact form
+      setShowContactForm(false);
+      setCollectingContactInfo(false);
+      
+      // Add confirmation message
+      const confirmationMessage = {
+        assistant: 
+          "<p class='re-message-text'>" +
+          `Perfect! I've forwarded your information to the agent. They'll reach out to you ${callbackTime || 'soon'}. ` +
+          "In the meantime, feel free to ask me any other questions about real estate agents in your area." +
+          "</p>"
+      };
+      
+      setMessages(prev => [...prev, confirmationMessage]);
+      
+      // Track successful contact submission
+      trackFormStepComplete(6, "Agent Contact Info Submitted", {
+        name: userName,
+        phone: userPhone,
+        callbackTime: callbackTime,
+        zipCode: userZipCode,
+        address: userAddress,
+      });
+      
+    } catch (error) {
+      console.error('❌ Failed to submit contact info:', error);
+      alert("There was an error submitting your information. Please try again.");
+    }
   };
 
   // Handle view reviews action
@@ -1093,7 +1252,50 @@ const RealEstateChatbot = () => {
               <div className="re-input-container">
               <div className="re-input-wrapper">
                 <div className="re-text-input-box">
-                  {showPhoneInput ? (
+                  {showContactForm ? (
+                    <div className="re-contact-form">
+                      <input
+                        type="text"
+                        placeholder="Your full name..."
+                        value={userName}
+                        onChange={(e) => setUserName(e.target.value)}
+                        className="re-contact-input"
+                      />
+                      <input
+                        type="tel"
+                        placeholder="Your phone number..."
+                        value={userPhone}
+                        onChange={(e) => setUserPhone(e.target.value)}
+                        className="re-contact-input"
+                      />
+                      <select
+                        value={callbackTime}
+                        onChange={(e) => setCallbackTime(e.target.value)}
+                        className="re-contact-select"
+                      >
+                        <option value="">Preferred callback time</option>
+                        <option value="9:00 AM">9:00 AM</option>
+                        <option value="10:00 AM">10:00 AM</option>
+                        <option value="11:00 AM">11:00 AM</option>
+                        <option value="12:00 PM">12:00 PM</option>
+                        <option value="1:00 PM">1:00 PM</option>
+                        <option value="2:00 PM">2:00 PM</option>
+                        <option value="3:00 PM">3:00 PM</option>
+                        <option value="4:00 PM">4:00 PM</option>
+                        <option value="5:00 PM">5:00 PM</option>
+                        <option value="Anytime">Anytime</option>
+                      </select>
+                      <div className="re-input-actions">
+                        <input
+                          type="button"
+                          value="Submit"
+                          onClick={handleContactSubmit}
+                          disabled={!userName.trim() || !userPhone.trim()}
+                          className="re-send-button"
+                        />
+                      </div>
+                    </div>
+                  ) : showPhoneInput ? (
                     <>
                       <input
                         type="tel"

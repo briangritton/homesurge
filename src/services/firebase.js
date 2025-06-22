@@ -1107,6 +1107,81 @@ export async function deleteLeadFromFirebase(leadId) {
   }
 }
 
+/**
+ * Save agent report to Firebase for caching
+ * @param {string} zipCode - The zip code for the agent report
+ * @param {Object} agentData - The agent report data to cache
+ * @returns {Promise<boolean>} - Success status
+ */
+export async function saveAgentReportToFirebase(zipCode, agentData) {
+  if (!zipCode || !agentData) {
+    console.error("Cannot save agent report: Missing zipCode or agentData");
+    return false;
+  }
+  
+  try {
+    const cacheData = {
+      zipCode,
+      ...agentData,
+      cachedAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    };
+    
+    console.log("Saving agent report to Firebase for zip:", zipCode);
+    
+    // Save to Firebase using same pattern as leads
+    await setDoc(doc(db, 'agentReports', zipCode), cacheData);
+    
+    console.log("Successfully cached agent report for zip:", zipCode);
+    return true;
+  } catch (error) {
+    console.error("Error saving agent report to Firebase:", error);
+    return false;
+  }
+}
+
+/**
+ * Get cached agent report from Firebase
+ * @param {string} zipCode - The zip code to look up
+ * @returns {Promise<Object|null>} - Cached agent data or null if not found/expired
+ */
+export async function getCachedAgentReportFromFirebase(zipCode) {
+  if (!zipCode) {
+    console.error("Cannot get agent report: Missing zipCode");
+    return null;
+  }
+  
+  try {
+    console.log("Checking for cached agent report for zip:", zipCode);
+    
+    const cacheRef = doc(db, 'agentReports', zipCode);
+    const cacheDoc = await getDoc(cacheRef);
+    
+    if (!cacheDoc.exists()) {
+      console.log("No cached agent report found for zip:", zipCode);
+      return null;
+    }
+    
+    const cachedData = cacheDoc.data();
+    
+    // Check if cache is expired (30 days)
+    const cacheAge = Date.now() - cachedData.cachedAt.toMillis();
+    const maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
+    
+    if (cacheAge > maxAge) {
+      console.log("Cached agent report is expired for zip:", zipCode);
+      return null;
+    }
+    
+    console.log("Using cached agent report for zip:", zipCode, `(${Math.round(cacheAge / (24 * 60 * 60 * 1000))} days old)`);
+    return cachedData;
+    
+  } catch (error) {
+    console.error("Error getting cached agent report from Firebase:", error);
+    return null;
+  }
+}
+
 export default {
   app,
   db,
@@ -1123,5 +1198,8 @@ export default {
   getCurrentUser,
   createUser,
   // Lead deletion
-  deleteLeadFromFirebase
+  deleteLeadFromFirebase,
+  // Agent Report Caching
+  saveAgentReportToFirebase,
+  getCachedAgentReportFromFirebase
 };
