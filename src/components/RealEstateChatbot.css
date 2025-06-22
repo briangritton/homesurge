@@ -22,7 +22,7 @@ html, body {
   flex: 1 0 auto;
   background-color: #fff;
   min-height: 100vh;
-  justify-content: center;
+  justify-content:flex-start;
 }
 
 /* Left side with headline and content */
@@ -732,16 +732,18 @@ html, body {
   max-height: calc(100vh - 160px) !important;
 }
 
+
 /* Responsive styles */
 @media (max-width: 768px) {
   .re-container {
+    display: flex;
     flex-direction: column;
     padding: 10px;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
   }
   
   .header-call-number {
-   
       font-size: 15px;
   }
 
@@ -751,72 +753,107 @@ html, body {
   }
   
   .re-left-panel {
-    padding: 20px;
+    padding: 15px 20px;
     text-align: center;
+    flex: none; /* Take only natural height */
+  }
+
+  .re-right-panel {
+    flex: 1; /* Take remaining space */
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
   }
   
   .re-headline {
-        font-size: 32px;
-        line-height: 38px;
+        font-size: 28px;
+        line-height: 32px;
         letter-spacing: 1px;
+        margin-bottom: 12px;
     }
   
   .re-subheadline {
-    font-size: 18px;
-    line-height: 24px;
+    font-size: 16px;
+    line-height: 22px;
+    margin-bottom: 12px;
   }
 
   .re-chat-interface {
     margin-right: 0;
-    height: calc(100vh - 200px);
-    min-height: 500px;
+    flex: 1; /* Take available space in right panel */
+    min-height: 0;
   }
 
   .re-conversation-container {
-    max-height: calc(100vh - 360px);
-    min-height: 300px;
+    flex: 1;
+    min-height: 0; /* Allow shrinking */
   }
   
   /* Ensure input container is always visible */
   .re-input-container {
     position: relative;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    flex-shrink: 0; /* Never shrink the input */
+  }
+
+  /* Mobile fullscreen overrides - hide headline/subheadline and expand chat */
+  .re-fullscreen .re-left-panel {
+    display: none !important;
+  }
+
+  .re-fullscreen .re-right-panel {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    max-height: 100vh !important; /* Override the 35% limit */
   }
 }
 
 @media (max-width: 480px) {
     .re-container {
-     
-        padding: 0px;
-       
+        display: flex;
+        flex-direction: column;
+        padding: 5px;
+        height: 100vh;
+        overflow: hidden;
     }
 
+    .re-left-panel {
+        padding: 10px 15px;
+        flex: none; /* Take only natural height */
+    }
 
+       .re-right-panel {
+        flex: 1 1;
+        min-height: 0;
+        max-height: calc(100vh - 35%);
+    }
 
-
-  .re-headline {
-    font-size: 28px;
-    line-height: 34px;
-  }
+    .re-headline {
+        font-size: 24px;
+        line-height: 28px;
+        margin-bottom: 8px;
+    }
   
     .re-subheadline {
-        font-size: 18px;
-        line-height: 24px;
-        margin: 0px auto 10px;
+        font-size: 14px;
+        line-height: 18px;
+        margin-bottom: 8px;
     }
 
+    .re-chat-interface {
+        flex: 1; /* Take available space */
+        min-height: 0;
+    }
 
-
-  .re-chat-interface {
-    height: calc(100vh - 150px);
-    min-height: 400px;
-  }
-
-  .re-conversation-container {
-    max-height: calc(100vh - 300px);
-    min-height: 250px;
-  }
-
+    .re-conversation-container {
+        flex: 1;
+        min-height: 0; /* Allow shrinking */
+    }
+.re-fullscreen .re-conversation-container {
+    max-height: calc(100vh) !important;
+}
   .re-textarea,
   .re-phone-input,
   .re-address-input {

@@ -191,21 +191,28 @@ const RealEstateChatbot = () => {
     setMessages([welcomeMessage]);
   }, [location, userZipCode]);
 
-  // Initialize Google Places API
+  // Pre-load Google Places API immediately for faster address suggestions
   useEffect(() => {
-    const initializeGooglePlaces = async () => {
+    const preloadGooglePlaces = async () => {
       try {
-        console.log('🗺️ Initializing Google Places API for chatbot...');
-        const initialized = await googlePlacesService.initialize();
-        setGoogleApiLoaded(initialized);
-        console.log('🗺️ Google Places API initialized:', initialized);
+        console.log('🗺️ Pre-loading Google Places API script...');
+        // Start loading the script immediately - don't wait for full initialization
+        googlePlacesService.loadAPI().then(async () => {
+          console.log('🗺️ Google Places API script loaded, initializing services...');
+          const initialized = await googlePlacesService.initialize();
+          setGoogleApiLoaded(initialized);
+          console.log('🗺️ Google Places API fully ready:', initialized);
+        }).catch((error) => {
+          console.error('❌ Failed to load Google Places API:', error);
+          setGoogleApiLoaded(false);
+        });
       } catch (error) {
-        console.error('❌ Failed to initialize Google Places API:', error);
+        console.error('❌ Failed to pre-load Google Places API:', error);
         setGoogleApiLoaded(false);
       }
     };
     
-    initializeGooglePlaces();
+    preloadGooglePlaces();
   }, []);
 
   // OpenAI initialization (COMMENTED OUT - Using scripted responses only)
