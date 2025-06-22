@@ -56,11 +56,11 @@ class ErrorBoundary extends React.Component {
                 Get Your Cash Offer Today
               </div>
               <div className="hero-subheadline">
-                We're experiencing a temporary issue. Please call us directly at (770) 765-7969 for immediate assistance.
+                We're experiencing a temporary issue. Please call us directly at (404) 671-4628 for immediate assistance.
               </div>
               <div style={{ marginTop: '20px' }}>
-                <a href="tel:+17707657969" className="submit-button" style={{ textDecoration: 'none', display: 'inline-block' }}>
-                  Call Now: (770) 765-7969
+                <a href="tel:+14046714628" className="submit-button" style={{ textDecoration: 'none', display: 'inline-block' }}>
+                  Call Now: (404) 671-4628
                 </a>
               </div>
             </div>

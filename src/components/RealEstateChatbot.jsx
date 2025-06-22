@@ -13,10 +13,10 @@ import "./RealEstateChatbot.css";
 const RealEstateChatbot = () => {
   // Dynamic headline based on URL parameter
   const [headline, setHeadline] = useState(
-    "Find the Best Real Estate Agent in Your Area"
+    "Don't Guess! Find the Best Real Estate Agent in Your Area"
   );
   const [subheadline, setSubheadline] = useState(
-    "Get AI-powered agent recommendations based on millions of reviews and performance data"
+    "HomeSurge.AI agent reviews are based on millions of real client reviews and performance data"
   );
 
   // Chat state
@@ -43,6 +43,8 @@ const RealEstateChatbot = () => {
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [addressInputValue, setAddressInputValue] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [userIntention, setUserIntention] = useState(""); // "buying" or "selling"
+  const [showBuyingSelling, setShowBuyingSelling] = useState(false);
 
   // Lead tracking state (like AddressForm)
   const [leadId, setLeadId] = useState(null);
@@ -141,13 +143,20 @@ const RealEstateChatbot = () => {
         {
           assistant:
             "<p class='re-message-text'>" +
-            "Hi, I'm your Real Estate Agent Review Assistant! Our HomeSurge.AI agent review system has been trained on millions of datapoints, and has access to a vast amount of data on local realtors reviews and performance in your area, so we can confidently point you to your top local agents! First, can I get the zip code you would like to search reviews of agents in?" +
+            "Hi, I’m Sarah your agent review assistant!  Our HomeSurge.AI review system has access to millions of agent reviews from real clients in your area, so we can confidently point you to your top local agents! First, can I get the zip code you’re considering buying or selling in?" +
             "</p>",
         },
         {
           assistant:
             "<p class='re-message-text'>" +
-            "Perfect, next let's get the address of the property you'd like to sell so I can recommend agents who have had the most success selling homes similar to yours the past year. Start typing and just click from the drop down suggestions..." +
+            "Great! And are you buying or selling in " + (userZipCode || "this area") + "?" +
+            "</p>",
+          showBuyingSelling: true,
+        },
+        {
+          assistant:
+            "<p class='re-message-text'>" +
+            "Perfect, next let's get the street address of the property you'd like to sell so I can recommend agents who have had the most success selling homes similar to yours the past year. Start typing and just click from the drop down suggestions..." +
             "</p>",
           showAddressInput: true,
         },
@@ -162,8 +171,8 @@ const RealEstateChatbot = () => {
         {
           assistant:
             "<p class='re-message-text'>" +
-            "Perfect, I have compiled a list of the top 10 agents in " + (userZipCode || "your zip code") + " for you to review. My top priority recommendation for your specific home, is Spencer Gritton. He has sold over 2.5 million dollars of luxury lakefront property alone this year, all in only a few days on the market, so I would feel very confident that he is the best agent to help you sell your home for its highest value with a quick turnaround.<br><br>" +
-            "He's accepting a few new clients, but he keeps his client list limited so he can stay highly personally focused on each listing under his team. Let's get you connected over chat, absolutely no obligation and no pressure, so the two of you can see if it might be a good fit. How would you like to connect?" +
+            "Perfect, I’ve compiled a list of the top 10 agents in " + (userZipCode || "your zip code") + " for you to review. My HomeSurge.AI top priority for your specific home, is Spencer Gritton. He has sold over 2.1million dollars of luxury lakefront property alone this year, all in only a few weeks on the market.<br><br>" +
+            "He is accepting a few new clients, but he keeps his client list limited so he can stay highly personally focused on each listing under his team. Let’s get you connected, absolutely no obligation and no pressure, so the two of you can see if it might be a good fit! Just click to get added to the schedule…" +
             "</p>",
           isFinal: true,
           showActionButtons: true,
@@ -674,31 +683,28 @@ const RealEstateChatbot = () => {
         // Start generating agent report in background
         generateAgentReportBackground(trimmedInput);
         
-        // Show typing indicator and then proceed to address collection
+        // Show typing indicator and then proceed to buying/selling choice
         setTimeout(() => {
           const updatedMessages = newMessages.filter((msg) => !msg.typing);
-          const nextMessage = conversationFlow[1]; // Address collection message
+          const nextMessage = conversationFlow[1]; // Buying/selling choice message
           
-          const addressMessage = {
-            assistant: nextMessage.assistant,
-            showAddressInput: nextMessage.showAddressInput || false,
+          // Replace zip code placeholder in message
+          let assistantText = nextMessage.assistant;
+          assistantText = assistantText.replace("this area", trimmedInput);
+          
+          const buyingSellingMessage = {
+            assistant: assistantText,
+            showBuyingSelling: nextMessage.showBuyingSelling || false,
           };
           
-          setMessages([...updatedMessages, addressMessage]);
+          setMessages([...updatedMessages, buyingSellingMessage]);
           setConversationIndex(1);
-          setShowAddressInput(true);
+          setShowBuyingSelling(true);
           
           trackFormStepComplete(2, "Agent Review Chatbot Valid Zip Code", {
             headline: headline,
             zipCode: trimmedInput,
           });
-          
-          // Focus address input after a short delay
-          setTimeout(() => {
-            if (addressInputRef.current) {
-              addressInputRef.current.focus();
-            }
-          }, 100);
         }, 1600); // Slightly longer to account for the 100ms typing delay
         return;
       }
@@ -1033,6 +1039,112 @@ const RealEstateChatbot = () => {
     }
   };
 
+  // Handle buying/selling choice
+  const handleBuyingChoice = () => {
+    setUserIntention("buying");
+    setShowBuyingSelling(false);
+    
+    // Add user choice message
+    const userMessage = "buying";
+    const newMessages = [...messages, { user: "Buying" }];
+    setMessages([...newMessages, { typing: true }]);
+    
+    // Update lead with intention
+    const updateLeadWithIntention = async () => {
+      try {
+        const updateData = {
+          intention: "buying",
+          leadStage: 'Intention Selected - Buying',
+          ...campaignData
+        };
+        await leadService.updateLead(leadService.getLeadId(), updateData);
+        console.log('✅ Lead updated with buying intention');
+      } catch (error) {
+        console.error('❌ Failed to update lead with intention:', error);
+      }
+    };
+    
+    updateLeadWithIntention();
+    
+    // Skip address collection for buyers - go straight to Spencer recommendation
+    setTimeout(() => {
+      const updatedMessages = newMessages.filter((msg) => !msg.typing);
+      const buyerMessage = {
+        assistant:
+          "<p class='re-message-text'>" +
+          "Perfect! For buyers in " + userZipCode + ", my top priority recommendation is Spencer Gritton. He has exceptional experience helping buyers find their perfect home and negotiate the best deals. He has sold over 2.1 million dollars of luxury properties this year and really knows the market.<br><br>" +
+          "He is accepting a few new clients, but he keeps his client list limited so he can stay highly personally focused on each client. Let's get you connected, absolutely no obligation and no pressure, so the two of you can see if it might be a good fit! Just click to get added to the schedule…" +
+          "</p>",
+        isFinal: true,
+        showActionButtons: true,
+      };
+      
+      setMessages([...updatedMessages, buyerMessage]);
+      setConversationIndex(4); // Skip address step
+      
+      trackFormStepComplete(3, "Agent Review Chatbot Buyer Recommendation", {
+        headline: headline,
+        zipCode: userZipCode,
+        intention: "buying",
+      });
+    }, 1500);
+  };
+
+  const handleSellingChoice = () => {
+    setUserIntention("selling");
+    setShowBuyingSelling(false);
+    
+    // Add user choice message
+    const userMessage = "selling";
+    const newMessages = [...messages, { user: "Selling" }];
+    setMessages([...newMessages, { typing: true }]);
+    
+    // Update lead with intention
+    const updateLeadWithIntention = async () => {
+      try {
+        const updateData = {
+          intention: "selling",
+          leadStage: 'Intention Selected - Selling',
+          ...campaignData
+        };
+        await leadService.updateLead(leadService.getLeadId(), updateData);
+        console.log('✅ Lead updated with selling intention');
+      } catch (error) {
+        console.error('❌ Failed to update lead with intention:', error);
+      }
+    };
+    
+    updateLeadWithIntention();
+    
+    // Continue to address collection for sellers
+    setTimeout(() => {
+      const updatedMessages = newMessages.filter((msg) => !msg.typing);
+      const nextMessage = conversationFlow[2]; // Address collection message
+      
+      const addressMessage = {
+        assistant: nextMessage.assistant,
+        showAddressInput: nextMessage.showAddressInput || false,
+      };
+      
+      setMessages([...updatedMessages, addressMessage]);
+      setConversationIndex(2);
+      setShowAddressInput(true);
+      
+      trackFormStepComplete(2, "Agent Review Chatbot Selling Selected", {
+        headline: headline,
+        zipCode: userZipCode,
+        intention: "selling",
+      });
+      
+      // Focus address input after a short delay
+      setTimeout(() => {
+        if (addressInputRef.current) {
+          addressInputRef.current.focus();
+        }
+      }, 100);
+    }, 1500);
+  };
+
   // Handle phone number submission
   const handlePhoneSubmit = () => {
     if (!userPhone.trim()) return;
@@ -1108,7 +1220,7 @@ const RealEstateChatbot = () => {
                               />
                               <div className="re-bot-content">
                                 <div className="re-bot-name">
-                                  Agent Review Assistant
+                                  Sarah - HomeSurge Agent Assistant
                                 </div>
                                 <div className="re-bot-message">
                                   <span
@@ -1168,8 +1280,25 @@ const RealEstateChatbot = () => {
                                       </div>
                                       
                                       <div className="re-agent-list-footer">
-                                        <p className="re-ai-disclaimer">⚠️ Agent reviews are compiled using various data sources, including OpenAI and Anthropic AI web searches. AI can provide inaccurate or incomplete information.</p>
+                                        <p className="re-ai-disclaimer">Agent reviews are compiled using various data sources, including OpenAI and Anthropic AI web searches. AI can provide inaccurate or incomplete information.</p>
                                       </div>
+                                    </div>
+                                  )}
+                                  
+                                  {msg.showBuyingSelling && (
+                                    <div className="re-buying-selling-buttons">
+                                      <button
+                                        onClick={handleBuyingChoice}
+                                        className="re-action-button re-buying-button"
+                                      >
+                                        Buying
+                                      </button>
+                                      <button
+                                        onClick={handleSellingChoice}
+                                        className="re-action-button re-selling-button"
+                                      >
+                                        Selling
+                                      </button>
                                     </div>
                                   )}
                                   
@@ -1218,13 +1347,15 @@ const RealEstateChatbot = () => {
                                         </div>
                                       </div>
                                       
-                                      <a
-                                        onClick={handleViewReviews}
-                                        className="re-review-link"
-                                        href="#"
-                                      >
-                                        View all HomeSurge agent reviews
-                                      </a>
+                                      {zipValidationAttempts < 2 && (
+                                        <a
+                                          onClick={handleViewReviews}
+                                          className="re-review-link"
+                                          href="#"
+                                        >
+                                          View all HomeSurge agent reviews
+                                        </a>
+                                      )}
                                     </>
                                   )}
                                 </div>
@@ -1347,7 +1478,7 @@ const RealEstateChatbot = () => {
                       <input
                         ref={addressInputRef}
                         type="text"
-                        placeholder="Start typing your address..."
+                        placeholder="Enter your street address..."
                         className="re-address-input"
                         autoComplete="off"
                         value={addressInputValue}

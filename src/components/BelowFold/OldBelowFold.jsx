@@ -168,7 +168,7 @@ function OldBelowFold() {
             Contact Us
           </div>
           <div className="old-hero-1-below-fold-contact-headline-subtext">
-            We're here to help. Call us at 770-765-7969 or fill out the form
+            We're here to help. Call us at (404) 671-4628 or fill out the form
             below.
           </div>
         </div>

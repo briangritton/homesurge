@@ -54,9 +54,12 @@ html, body {
   color: #365164;
   font-weight: 800;
   font-size: 45px;
-  letter-spacing: -2px;
+  letter-spacing: -1px;
   line-height: 50px;
   margin-bottom: 20px;
+  text-wrap: balance;
+  orphans: 2;
+  widows: 2;
 }
 
 /* Subheadline styling */
@@ -66,6 +69,9 @@ html, body {
   font-weight: 300;
   line-height: 30px;
   margin-bottom: 30px;
+  text-wrap: balance;
+  orphans: 2;
+  widows: 2;
 }
 
 /* Chat container */
@@ -242,6 +248,11 @@ html, body {
     font-family: sans-serif;
 }
 
+.re-textarea:focus {
+  outline: none;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+}
+
 .re-input-actions {
   position: absolute;
   right: 8px;
@@ -277,6 +288,48 @@ html, body {
   flex-direction: column;
   gap: 10px;
   margin-top: 15px;
+}
+
+/* Buying/Selling buttons styling */
+.re-buying-selling-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  margin-top: 15px;
+  justify-content: center;
+}
+
+.re-buying-button,
+.re-selling-button {
+  background: var(--button-primary) !important;
+  border: solid;
+  border-color: #353535;
+  border-radius: 12px !important;
+  border-width: .5px;
+  box-shadow: 0 0 11px #00000061 !important;
+  color: #fff !important;
+  cursor: pointer;
+  flex: 1;
+  font-size: 1.1rem;
+  font-weight: 700 !important;
+  height: 50px;
+  letter-spacing: 1px !important;
+  max-width: 150px;
+  overflow: hidden !important;
+  padding: 12px 24px !important;
+  text-shadow: 0 0 2px #000 !important;
+  text-transform: uppercase !important;
+  transition: all .3s ease !important;
+  text-align: center !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.re-buying-button:hover,
+.re-selling-button:hover {
+  background: var(--button-primary-hover) !important;
+  box-shadow: 0 0 15px #00000080 !important;
 }
 
 .re-action-button {
@@ -489,7 +542,7 @@ html, body {
 
 .re-contact-input:focus {
   outline: none;
-  border-color: #c1720c;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
 }
 
 .re-contact-select {
@@ -506,7 +559,7 @@ html, body {
 
 .re-contact-select:focus {
   outline: none;
-  border-color: #c1720c;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
 }
 
 .re-contact-submit-button {
@@ -562,6 +615,11 @@ html, body {
   font-family: inherit;
 }
 
+.re-phone-input:focus {
+  outline: none;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+}
+
 /* Address input styling */
 .re-address-input {
   border: 1px solid #ccc;
@@ -578,7 +636,7 @@ html, body {
 
 .re-address-input:focus {
   outline: none;
-  border-color: #c1720c;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
 }
 
 /* Input hint styling */
@@ -1029,22 +1087,21 @@ html, body {
 }
 
 .re-agent-list-footer {
-  margin-top: 20px;
-  padding: 16px;
-  background: #fff3cd;
-  border-radius: 8px;
-  text-align: center;
-  border: 1px solid #ffeaa7;
+    background: #ffffff;
+    /* border: 1px solid #ffeaa7; */
+    border-radius: 8px;
+    margin-top: 20px;
+    padding: 16px;
+    text-align: center;
 }
 
 .re-agent-list-footer p {
   margin: 0;
   color: #2c3e50;
-  font-size: 0.9rem;
+  font-size: 0.6rem;
 }
 
 .re-ai-disclaimer {
-  color: #856404 !important;
   font-size: 0.85rem !important;
   font-style: italic;
   line-height: 1.4;

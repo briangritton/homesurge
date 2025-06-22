@@ -12,14 +12,14 @@ function Privacy({ handleTermsClick }) {
 
       <div className="privacy-inner-container">
         <h1>PRIVACY POLICY</h1>
-        <h2>www.SellForCash.Online</h2>
+        <h2>www.HomeSurge.AI</h2>
         <p>Effective date: May 25, 2023</p>
         
         <ol type="1">
           <li>
             <p>
-              Welcome to www.SellForCash.Online (the "Site") which is owned by
-              Nomad Creative LLC ("SellForCash.Online", "we", "us" and "our")
+              Welcome to www.HomeSurge.AI (the "Site") which is owned by
+              Nomad Creative LLC ("HomeSurge.AI", "we", "us" and "our")
               and operated from the United States. This privacy policy has been
               compiled to better serve those who are concerned with how their
               'Personally Identifiable Information' (PII) is being used online.

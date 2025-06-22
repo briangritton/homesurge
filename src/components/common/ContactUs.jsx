@@ -12,7 +12,7 @@ function ContactUs({ isOpen, onClose }) {
         </p>
         
         <h3>Get in Touch</h3>
-        <p><strong>Phone:</strong> 770-765-7969</p>
+        <p><strong>Phone:</strong> (404) 671-4628</p>
         <p><strong>Email:</strong> contact@HomeSurge.ai</p>
         
         <p>
