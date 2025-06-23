@@ -827,6 +827,25 @@ function ValueBoostReport({ campaign, variant }) {
   return (
     <div className="vb-report-section">
       <div className="vb-report-container">
+        {/* VISIBLE DEBUG - Temporary for troubleshooting */}
+        <div style={{
+          background: 'yellow', 
+          padding: '10px', 
+          margin: '10px', 
+          border: '2px solid red',
+          fontSize: '12px',
+          position: 'relative',
+          zIndex: 9999
+        }}>
+          <strong>DEBUG VALUES:</strong><br/>
+          submitted: {String(submitted)}<br/>
+          apiMaxHomeValue: {String(formData.apiMaxHomeValue)}<br/>
+          apiEstimatedValue: {String(formData.apiEstimatedValue)}<br/>
+          street: {String(formData.street)}<br/>
+          apiLoading: {String(formData.apiLoading)}<br/>
+          shouldShow: {String(((formData.apiMaxHomeValue > 0) || (formData.apiEstimatedValue > 0)) && formData.street && !formData.apiLoading)}
+        </div>
+
         {/* Header Section - Always Visible */}
         <div className="vb-ready-container">
           <div 
@@ -858,22 +877,6 @@ function ValueBoostReport({ campaign, variant }) {
             allFormData: formData
           })}
 
-          {/* VISIBLE DEBUG - Temporary for troubleshooting */}
-          <div style={{
-            background: 'yellow', 
-            padding: '10px', 
-            margin: '10px', 
-            border: '2px solid red',
-            fontSize: '12px'
-          }}>
-            <strong>DEBUG VALUES:</strong><br/>
-            submitted: {String(submitted)}<br/>
-            apiMaxHomeValue: {String(formData.apiMaxHomeValue)}<br/>
-            apiEstimatedValue: {String(formData.apiEstimatedValue)}<br/>
-            street: {String(formData.street)}<br/>
-            apiLoading: {String(formData.apiLoading)}<br/>
-            shouldShow: {String(((formData.apiMaxHomeValue > 0) || (formData.apiEstimatedValue > 0)) && formData.street && !formData.apiLoading)}
-          </div>
 
           {/* Address Display - Only show when valid API data is available and fully loaded */}
           {((formData.apiMaxHomeValue > 0) || (formData.apiEstimatedValue > 0)) && formData.street && !formData.apiLoading && (
