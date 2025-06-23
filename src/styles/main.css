@@ -4994,7 +4994,7 @@ margin-bottom: 0px;
 
 .vb-b2-value-estimate-label{
 
-font-size:1.3rem;
+font-size:1.5rem;
 }
 
 .vb-b2-property-estimate {
@@ -5014,7 +5014,7 @@ color: #1a5052;
   align-items: center;
   display: flex;
   flex-direction: column;
-  padding: 40px 20px 0px;
+  padding: 10px 20px 0px;
   text-align: center;
 }
 
@@ -8452,7 +8452,7 @@ padding-top:0%;
 
 .vb-b2-value-estimate-label{
 
-  font-size: 1.3rem;
+  font-size: 1.1rem;
 }
 
 .vb-b2-property-estimate {
@@ -8462,10 +8462,10 @@ padding-top:0%;
         padding-left: 2px;
 }
 
-  .vb-b2-address-display {
-
-  font-size: 1.1rem;
-}
+     .vb-b2-address-display {
+        font-size: 1.1rem;
+        margin-top: 20px;
+    }
   .vb-b2-hero-headline {
     color: var(--brand-primary) !important;
     padding-left: 20px;
