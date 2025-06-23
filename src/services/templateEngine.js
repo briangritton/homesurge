@@ -115,7 +115,7 @@ class TemplateEngineService {
       
       valueA: {
         headline: 'See Your Maximum Home Value Potential With ValueBoost AI',
-        subheadline: 'Our ValueBoost AI home scan will generate your <strong><em>maximum home value</em></strong> report with FREE AI personalized opportunity recommendations customized to your unique home!',
+        readySubheadline: 'You\'re report contains a detailed <strong><i>maximum home value</strong></i>, breakdown with FREE AI personalized opportunity recommendations customized to your unique home! ',
         buttonText: 'GET VALUE REPORT',
         exampleTag: 'Example ValueBoost Report Increase*',
         potentialHeadline: 'Your ValueBoost Potential:',
@@ -182,7 +182,7 @@ class TemplateEngineService {
       
       valueB2: {
         headline: 'See Your Maximum Home Value Potential With ValueBoost AI',
-        subheadline: 'Our ValueBoost AI home scan will generate your <strong><em>maximum home value</em></strong> report with FREE AI personalized opportunity recommendations customized to your unique home!',
+        readySubheadline: 'You\'re report contains a detailed <strong><i>maximum home value</strong></i>, breakdown with FREE AI personalized opportunity recommendations customized to your unique home! ',
         buttonText: 'CHECK VALUE REPORT',
         exampleTag: 'Example ValueBoost Report Increase*',
         potentialHeadline: 'Your ValueBoost Potential:',
@@ -443,8 +443,8 @@ class TemplateEngineService {
       },
       
       valueB2: {
-        readyHeadline: 'Next, where do you want us to send your ValueBoost report?',
-        readySubheadline: 'We\'ll send you a detailed <strong><i>maximum home value</strong></i>, report with FREE AI personalized opportunity recommendations customized to your unique home! ',
+        readyHeadline: 'Next, let\'s open your ValueBoost report!',
+        readySubheadline: 'You\'re report contains a detailed <strong><i>maximum home value</strong></i>, breakdown with FREE AI personalized opportunity recommendations customized to your unique home! ',
         unlockHeadline: 'Get Your FREE ValueBoost Report',
         timeoutUnlockHeadline: 'HomeSurge ValueBoost Report Benefits:',
         unlockSubtext: 'Unlock your full property value report with all personalized recommendations',
@@ -533,9 +533,9 @@ class TemplateEngineService {
       },
 
       valueA: {
-        readyHeadline: 'Your ValueBoost Report is Ready!',
+        readyHeadline: 'Next Let\'s Open Your ValueBoost Report!',
         reportHeadline: 'ValueBoost Report Ready:',
-        readySubheadline: 'Check your <strong>maximum home value</strong> with FREE AI personalized opportunity recommendations below! See your home\'s true potential value.',
+        readySubheadline: 'You\'re report contains a detailed <strong><i>maximum home value</strong></i>, breakdown with FREE AI personalized opportunity recommendations customized to your unique home! ',
         loadingMessage: 'Processing Your ValueBoost Analysis...',
         potentialHeadline: 'Your ValueBoost Potential:',
         recommendationsTitle: 'Your Top 10 ValueBoost Recommendations',
@@ -561,7 +561,7 @@ class TemplateEngineService {
         unlockSubtext: 'Get your complete equity enhancement plan with growth projections',
         conciergeHeadline: 'Want Expert Help Unlocking Your Home Equity?',
         buttonText: 'GET VALUE REPORT',
-        readySubheadline: 'Check your <strong>maximum home value</strong> with FREE AI personalized opportunity recommendations below! See your home\'s true potential value.',
+        readySubheadline: 'You\'re report contains a detailed <strong><i>maximum home value</strong></i>, breakdown with FREE AI personalized opportunity recommendations customized to your unique home! ',
         loadingMessage: 'Processing Your ValueBoost Equity Analysis...',
         readyHeadline: 'Your ValueBoost Equity Analysis is Ready!'
       },

@@ -55,6 +55,24 @@ function ValueBoostReport({ campaign, variant }) {
     return () => clearTimeout(scrollTimer);
   }, []);
 
+  // ===== DEBUG HOME VALUE DISPLAY =====
+  useEffect(() => {
+    console.log('🏠 ValueBoostReport - Home Value Display Debug:', {
+      submitted,
+      apiMaxHomeValue: formData.apiMaxHomeValue,
+      apiMaxHomeValueType: typeof formData.apiMaxHomeValue,
+      apiEstimatedValue: formData.apiEstimatedValue,
+      apiEstimatedValueType: typeof formData.apiEstimatedValue,
+      street: formData.street,
+      apiLoading: formData.apiLoading,
+      campaign,
+      variant,
+      pathname: window.location.pathname,
+      shouldShowAddressDisplay: !submitted && ((formData.apiMaxHomeValue > 0) || (formData.apiEstimatedValue > 0)) && formData.street && !formData.apiLoading,
+      shouldShowValueDisplay: !submitted && (formData.apiMaxHomeValue > 0 || formData.apiEstimatedValue > 0) && !formData.apiLoading
+    });
+  }, [submitted, formData.apiMaxHomeValue, formData.apiEstimatedValue, formData.street, formData.apiLoading, campaign, variant]);
+
   // ===== SCROLL TO TOP WHEN REPORT STATE CHANGES =====
   useEffect(() => {
     // Scroll to top when transitioning to unlocked state (when report becomes visible)
@@ -829,8 +847,36 @@ function ValueBoostReport({ campaign, variant }) {
           {/* Value Display - DISABLED */}
           {/* {(displayValue && increaseValue) && renderValueDisplay()} */}
 
+          {/* DEBUG: Log formData values for troubleshooting */}
+          {console.log('🔍 ValueBoostReport formData debug:', {
+            submitted,
+            apiMaxHomeValue: formData.apiMaxHomeValue,
+            apiEstimatedValue: formData.apiEstimatedValue,
+            street: formData.street,
+            apiLoading: formData.apiLoading,
+            shouldShowAddress: ((formData.apiMaxHomeValue > 0) || (formData.apiEstimatedValue > 0)) && formData.street && !formData.apiLoading,
+            allFormData: formData
+          })}
+
+          {/* VISIBLE DEBUG - Temporary for troubleshooting */}
+          <div style={{
+            background: 'yellow', 
+            padding: '10px', 
+            margin: '10px', 
+            border: '2px solid red',
+            fontSize: '12px'
+          }}>
+            <strong>DEBUG VALUES:</strong><br/>
+            submitted: {String(submitted)}<br/>
+            apiMaxHomeValue: {String(formData.apiMaxHomeValue)}<br/>
+            apiEstimatedValue: {String(formData.apiEstimatedValue)}<br/>
+            street: {String(formData.street)}<br/>
+            apiLoading: {String(formData.apiLoading)}<br/>
+            shouldShow: {String(((formData.apiMaxHomeValue > 0) || (formData.apiEstimatedValue > 0)) && formData.street && !formData.apiLoading)}
+          </div>
+
           {/* Address Display - Only show when valid API data is available and fully loaded */}
-          {!submitted && ((formData.apiMaxHomeValue > 0) || (formData.apiEstimatedValue > 0)) && formData.street && !formData.apiLoading && (
+          {((formData.apiMaxHomeValue > 0) || (formData.apiEstimatedValue > 0)) && formData.street && !formData.apiLoading && (
             <div className="vb-b2-address-display">
               {(() => {
                 const parts = formData.street.split(',');
@@ -841,7 +887,7 @@ function ValueBoostReport({ campaign, variant }) {
                   return (
                     <>
                       {parts.slice(0, -2).join(',')},
-                      <span className="vb-b2-nowrap-phrase">
+                      <span className="nowrap-phrase">
                         {parts.slice(-2).join(',').replace(/, USA$/, '')}
                       </span>
                     </>
@@ -851,7 +897,7 @@ function ValueBoostReport({ campaign, variant }) {
                   return (
                     <>
                       {parts[0]},
-                      <span className="vb-b2-nowrap-phrase">
+                      <span className="nowrap-phrase">
                         {parts[1].replace(/, USA$/, '')}
                       </span>
                     </>
@@ -865,7 +911,7 @@ function ValueBoostReport({ campaign, variant }) {
           )}
 
           {/* Value Estimate Display - Only show when API data is available and fully loaded */}
-          {!submitted && formData.apiMaxHomeValue > 0 && !formData.apiLoading ? (
+          {formData.apiMaxHomeValue > 0 && !formData.apiLoading ? (
             <div className="vb-b2-estimate-container">
               <span className="vb-b2-value-estimate-label">Home Value Estimate:</span>
               <span className="vb-b2-property-estimate">
@@ -877,7 +923,7 @@ function ValueBoostReport({ campaign, variant }) {
                 }).format(formData.apiMaxHomeValue)}
               </span>
             </div>
-          ) : !submitted && formData.apiEstimatedValue > 0 && !formData.apiLoading ? (
+          ) : formData.apiEstimatedValue > 0 && !formData.apiLoading ? (
             <div className="vb-b2-estimate-container">
               <span className="vb-b2-value-estimate-label">Home Value Estimate:</span>
               <span className="vb-b2-property-estimate">

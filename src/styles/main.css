@@ -3337,6 +3337,7 @@ a[href^="tel:"] {
 .vb-report-section {
   min-height: 100vh;
   padding: 20px 0;
+  max-width:750px;
 }
 
 .vb-report-container {
@@ -3413,7 +3414,7 @@ a[href^="tel:"] {
   /* padding-top: 40px; */
   /* border: 1px solid var(--brand-primary-alpha);
   border-radius: 12px; */
-  box-shadow: 0 8px 32px var(--brand-primary-alpha), inset 0 0 0 1px rgba(255, 255, 255, 0.8), inset 0 0 30px var(--brand-primary-alpha);
+  /* box-shadow: 0 8px 32px var(--brand-primary-alpha), inset 0 0 0 1px rgba(255, 255, 255, 0.8), inset 0 0 30px var(--brand-primary-alpha); */
   /* backdrop-filter: blur(5px); */
   z-index: 10;
   /* padding: 30px; */
@@ -4998,7 +4999,7 @@ font-size:1.5rem;
 }
 
 .vb-b2-property-estimate {
-color: #1a5052;
+    color: #215a48;
         font-size: 1.3rem;
         font-weight: 700;
 }
@@ -5186,21 +5187,29 @@ color: #1a5052;
 
 /* B2 button styles */
 .vb-b2-unlock-button {
-  width: 100%;
-  padding: 18px 30px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: white;
-  background: var(--button-primary) !important;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  margin-bottom: 20px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+    background: #45bc97 !important;
+    background: var(--button-primary) !important;
+    border: solid;
+    border-color: #353535;
+    border-radius: 12px;
+    border-radius: 12px !important;
+    border-width: .5px;
+    box-shadow: 0 8px 20px #45bc9719;
+    box-shadow: 0 8px 20px var(--button-primary-alpha);
+    box-shadow: 0 0 11px #00000061 !important;
+    color: #fff;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    max-width: 500px;
+    overflow: hidden;
+    padding: 16px 32px;
+    position: relative;
+    text-shadow: 0 0 2px #000 !important;
+    transition: all .3s ease;
+    width: 100%;
+    z-index: 2;
 }
 
 .vb-b2-unlock-button:hover:not(:disabled) {
