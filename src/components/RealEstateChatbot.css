@@ -74,14 +74,13 @@ html, body {
   widows: 2;
 }
 
-/* Chat container */
 .re-chat-interface {
-  border: 1px solid #c7c7c7;
-  display: flex;
-  flex-direction: column;
-  height: 90vh;
-  max-width: 700px;
-  margin-right: 20px;
+    border: 1px solid #c7c7c7;
+    display: flex;
+    flex-direction: column;
+    height: 85vh;
+    margin-right: 20px;
+    max-width: 700px;
 }
 
 /* Chat header */
@@ -638,8 +637,8 @@ html, body {
   padding: 15px 150px 15px 15px;
   width: 100%;
   font-family: inherit;
-  vertical-align: top;
   resize: none;
+  vertical-align: top; /* Position text at top like other textareas */
 }
 
 .re-address-input:focus {

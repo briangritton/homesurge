@@ -128,12 +128,10 @@ body {
   display: flex !important;
   flex-direction: row;
   justify-content: space-between;
+  align-items: center;
   width: calc(100% - 50px);
   max-width: 1440px;
-  align-items: center;
   margin: 0 auto;
-  /* margin-top: 20px; */
-  flex-wrap: wrap;
   position: relative;
   z-index: 10;
   min-height: 60px;
@@ -141,20 +139,26 @@ body {
   box-sizing: border-box;
 }
 
-.header-left {
-  flex: 50% 1;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+/* Logo container */
+.header-logo-container {
+  flex-shrink: 0;
 }
 
-.header-right {
-  flex: 50% 1;
-  text-align: right;
+/* Navigation container */
+.header-nav {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  margin-left: 40px;
+  flex: 1; /* Take up available space */
+}
+
+/* Phone container */
+.header-phone-container {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  min-height: auto;
 }
 .header a {
   align-items: center;
@@ -167,7 +171,33 @@ body {
 .header-logo {
   height: 30px;
   width: auto;
-  /* margin-left: -7px; */
+}
+
+/* Navigation Links */
+.header-nav-link {
+  color: #444444;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 600;
+  transition: color 0.3s ease;
+  white-space: nowrap;
+}
+
+.header-nav-link:hover {
+  color: var(--button-primary);
+}
+
+/* ValueBoost Disclaimer Orphan Prevention */
+.vb-disclaimer-text,
+.vb-af1-disclaimer-main, 
+.vb-b2-unlock-security-text,
+.vb-unlock-security-text {
+  /* Orphan prevention - ensure minimum 2 words per line */
+  orphans: 2;
+  widows: 2;
+  word-break: keep-all;
+  text-wrap: pretty; /* Modern browsers */
+  text-wrap: balance; /* Fallback for better text balancing */
 }
 
 .header-phone-icon {
@@ -286,7 +316,7 @@ color:#444444;
   list-style-type: none;
   padding: 0px 24px;
   white-space: nowrap;
-  font-size:1.1rem;
+  font-size:.8rem;
 }
 
 /* === FORM CONTAINER STYLES === */
@@ -4539,14 +4569,15 @@ margin-bottom: 0px;
 
 
 
-/* Unlock section wrapper styles */
 .vb-unlock-section-wrapper {
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     background: #fffffff2;
     border-radius: 15px;
-    box-shadow: 0 8px 32px #0000001a;
+    /* box-shadow: 0 8px 32px #0000001a; */
     max-width: 500px;
     padding: 20px;
+    padding-top: 0px;
 }
 
 @keyframes pulseLock {
@@ -4798,6 +4829,7 @@ margin-bottom: 0px;
     /* min-height: 300px; */
     padding: 40px 20px;
     text-align: center;
+    padding-bottom:0px;
 }
 
 .vb-retry-button {
@@ -5048,9 +5080,10 @@ color: #1a5052;
   backdrop-filter: blur(10px);
   background: #fffffff2;
   border-radius: 15px;
-  box-shadow: 0 8px 32px #0000001a;
+  /* box-shadow: 0 8px 32px #0000001a; */
   max-width: 600px;
   padding: 20px;
+  padding-top:0px;
 }
 
 .vb-b2-unlock-header {
@@ -6268,7 +6301,7 @@ display:none;
   border: 1px solid var(--brand-primary);
   border-radius: 12px;
   max-width: 600px;
-  margin: 0 auto 40px;
+  margin: 20px auto 40px;
   opacity: 0.85;
   position: relative;
 }
@@ -9662,9 +9695,20 @@ min-width:100%;
 
 
   .header {
- 
     flex-direction: column;
-  
+    gap: 15px;
+  }
+
+  /* Mobile navigation adjustments */
+  .header-nav {
+    margin-left: 20px;
+    gap: 20px;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .header-nav-link {
+    font-size: 14px;
   }
 
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BsTelephoneFill, BsChatDotsFill } from 'react-icons/bs';
+import { Link } from 'react-router-dom';
 import logo from '../../../src/assets/images/homesurge.png';
 import { templateService } from '../../services/templateEngine';
 
@@ -65,22 +66,20 @@ function ValueBoostHeader() {
 
   return (
     <header className="header">
-      <div className="header-left">
+      {/* Logo */}
+      <div className="header-logo-container">
         <img src={logo} className="header-logo" alt="HomeSurge.AI" />
       </div>
+      
+      {/* Navigation Links */}
+      <div className="header-nav">
+        <Link to="/agent-reviews" className="header-nav-link">Agent Reviews</Link>
+        <Link to="/analysis/value/a2o" className="header-nav-link">Home Value</Link>
+        <Link to="/analysis/cash/b2o" className="header-nav-link">Cash Offer</Link>
+      </div>
 
-      <div className="header-right">
-        {/* Chat bubble icon - TEMPORARILY HIDDEN */}
-        {/* <div className="header-chat-container" onClick={handleChatClick}>
-          <div className="header-chat-icon">
-            <BsChatDotsFill />
-          </div>
-          <div className="header-chat-text">
-            {chatConnecting ? chatText.connecting : chatText.available}
-          </div>
-        </div> */}
-
-        {/* Phone icon */}
+      {/* Phone Number */}
+      <div className="header-phone-container">
         <a href="tel:+14046714628" className="header-phone-link">
           <div className="number-positioner">
             <div className="header-phone-icon">

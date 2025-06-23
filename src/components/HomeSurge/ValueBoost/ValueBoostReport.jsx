@@ -829,6 +829,71 @@ function ValueBoostReport({ campaign, variant }) {
           {/* Value Display - DISABLED */}
           {/* {(displayValue && increaseValue) && renderValueDisplay()} */}
 
+          {/* Address Display - Only show when valid API data is available and fully loaded */}
+          {!submitted && ((formData.apiMaxHomeValue > 0) || (formData.apiEstimatedValue > 0)) && formData.street && !formData.apiLoading && (
+            <div className="vb-b2-address-display">
+              {(() => {
+                const parts = formData.street.split(',');
+                
+                // Check if we have enough parts for the expected format
+                if (parts.length >= 3) {
+                  // Format with street part + city, state
+                  return (
+                    <>
+                      {parts.slice(0, -2).join(',')},
+                      <span className="vb-b2-nowrap-phrase">
+                        {parts.slice(-2).join(',').replace(/, USA$/, '')}
+                      </span>
+                    </>
+                  );
+                } else if (parts.length === 2) {
+                  // Format with just two parts (likely street + city/state)
+                  return (
+                    <>
+                      {parts[0]},
+                      <span className="vb-b2-nowrap-phrase">
+                        {parts[1].replace(/, USA$/, '')}
+                      </span>
+                    </>
+                  );
+                } else {
+                  // Just display the address as is if only one part
+                  return formData.street.replace(/, USA$/, '');
+                }
+              })()}
+            </div>
+          )}
+
+          {/* Value Estimate Display - Only show when API data is available and fully loaded */}
+          {!submitted && formData.apiMaxHomeValue > 0 && !formData.apiLoading ? (
+            <div className="vb-b2-estimate-container">
+              <span className="vb-b2-value-estimate-label">Home Value Estimate:</span>
+              <span className="vb-b2-property-estimate">
+                {new Intl.NumberFormat('en-US', {
+                  style: 'currency',
+                  currency: 'USD',
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0
+                }).format(formData.apiMaxHomeValue)}
+              </span>
+            </div>
+          ) : !submitted && formData.apiEstimatedValue > 0 && !formData.apiLoading ? (
+            <div className="vb-b2-estimate-container">
+              <span className="vb-b2-value-estimate-label">Home Value Estimate:</span>
+              <span className="vb-b2-property-estimate">
+                {formData.formattedApiEstimatedValue && formData.formattedApiEstimatedValue !== '$0' 
+                  ? formData.formattedApiEstimatedValue 
+                  : new Intl.NumberFormat('en-US', {
+                      style: 'currency',
+                      currency: 'USD',
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0
+                    }).format(formData.apiEstimatedValue)
+                }
+              </span>
+            </div>
+          ) : null}
+
           {/* Contact Form or Success State */}
           {!submitted ? (
             renderContactForm()

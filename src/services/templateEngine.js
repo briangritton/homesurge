@@ -115,7 +115,7 @@ class TemplateEngineService {
       
       valueA: {
         headline: 'See Your Maximum Home Value Potential With ValueBoost AI',
-        subheadline: 'Our ValueBoost AI home scan will generate your <strong><em>maximum home value</em></strong> report with FREE AI personalized opportunity recommendations!',
+        subheadline: 'Our ValueBoost AI home scan will generate your <strong><em>maximum home value</em></strong> report with FREE AI personalized opportunity recommendations customized to your unique home!',
         buttonText: 'GET VALUE REPORT',
         exampleTag: 'Example ValueBoost Report Increase*',
         potentialHeadline: 'Your ValueBoost Potential:',
@@ -182,7 +182,7 @@ class TemplateEngineService {
       
       valueB2: {
         headline: 'See Your Maximum Home Value Potential With ValueBoost AI',
-        subheadline: 'Our ValueBoost AI home scan will generate your <strong><em>maximum home value</em></strong> report with FREE AI personalized opportunity recommendations!',
+        subheadline: 'Our ValueBoost AI home scan will generate your <strong><em>maximum home value</em></strong> report with FREE AI personalized opportunity recommendations customized to your unique home!',
         buttonText: 'CHECK VALUE REPORT',
         exampleTag: 'Example ValueBoost Report Increase*',
         potentialHeadline: 'Your ValueBoost Potential:',
@@ -444,7 +444,7 @@ class TemplateEngineService {
       
       valueB2: {
         readyHeadline: 'Next, where do you want us to send your ValueBoost report?',
-        readySubheadline: 'We\'ll send you a detailed <strong><i>maximum home value</strong></i>, report with FREE AI personalized opportunity recommendations! ',
+        readySubheadline: 'We\'ll send you a detailed <strong><i>maximum home value</strong></i>, report with FREE AI personalized opportunity recommendations customized to your unique home! ',
         unlockHeadline: 'Get Your FREE ValueBoost Report',
         timeoutUnlockHeadline: 'HomeSurge ValueBoost Report Benefits:',
         unlockSubtext: 'Unlock your full property value report with all personalized recommendations',

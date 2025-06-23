@@ -13,7 +13,7 @@ import "./RealEstateChatbot.css";
 const RealEstateChatbot = () => {
   // Dynamic headline based on URL parameter
   const [headline, setHeadline] = useState(
-    "Don't Guess! Find the Best Real Estate Agent in Your Area"
+    "Buy With Confidence! Find the Best Real Estate Agent in Your Area"
   );
   const [subheadline, setSubheadline] = useState(
     "HomeSurge.AI agent reviews are based on millions of real client reviews and performance data"
@@ -1493,9 +1493,9 @@ const RealEstateChatbot = () => {
                       )}
                       
                       {/* Address input field */}
-                      <input
+                      <textarea
                         ref={addressInputRef}
-                        type="text"
+                        rows="1"
                         placeholder="Enter your street address..."
                         className="re-address-input"
                         autoComplete="off"
@@ -1508,6 +1508,15 @@ const RealEstateChatbot = () => {
                         onFocus={() => {
                           if (addressInputValue.length >= 3 && addressSuggestions.length > 0) {
                             setShowSuggestions(true);
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          // Prevent line breaks in address input
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            if (addressSuggestions.length > 0) {
+                              handleSuggestionSelect(addressSuggestions[0]);
+                            }
                           }
                         }}
                       />

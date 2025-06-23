@@ -251,7 +251,7 @@ function B2Step3({ campaign, variant }) {
           {/* Value Estimate Display - Only show when API data is available and fully loaded */}
           {formData.apiMaxHomeValue > 0 && !formData.apiLoading ? (
             <div className="vb-b2-estimate-container">
-              <span className="vb-b2-value-estimate-label">Value Estimate:</span>
+              <span className="vb-b2-value-estimate-label">Home Value Estimate:</span>
               <span className="vb-b2-property-estimate">
                 {new Intl.NumberFormat('en-US', {
                   style: 'currency',
@@ -263,7 +263,7 @@ function B2Step3({ campaign, variant }) {
             </div>
           ) : formData.apiEstimatedValue > 0 && !formData.apiLoading ? (
             <div className="vb-b2-estimate-container">
-              <span className="vb-b2-value-estimate-label">Value Estimate:</span>
+              <span className="vb-b2-value-estimate-label">Home Value Estimate:</span>
               <span className="vb-b2-property-estimate">
                 {formData.formattedApiEstimatedValue && formData.formattedApiEstimatedValue !== '$0' 
                   ? formData.formattedApiEstimatedValue 

@@ -240,7 +240,7 @@ function App() {
                   <Route path="/" element={<ValueBoostContainer />} />
                   
                   {/* Real Estate Chatbot Route */}
-                  <Route path="/chat-help" element={<RealEstateChatbot />} />
+                  <Route path="/agent-reviews" element={<RealEstateChatbot />} />
                   
                   {/* Specific routes for other funnels */}
                   <Route path="/form" element={<FormContainer />} />
