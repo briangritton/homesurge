@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { FormProvider, useFormContext } from './contexts/FormContext';
 import { initializeAnalytics, trackPageView } from './services/analytics';
 import { initEmailJS } from './services/emailjs.js';
@@ -236,8 +236,8 @@ function App() {
                   {/* Legacy analysis route - redirect to default */}
                   <Route path="/analysis" element={<ValueBoostContainer />} />
                   
-                  {/* Redirect root to default analysis route */}
-                  <Route path="/" element={<ValueBoostContainer />} />
+                  {/* Redirect root to value/a2o analysis route */}
+                  <Route path="/" element={<Navigate to="/analysis/value/a2o" replace />} />
                   
                   {/* Real Estate Chatbot Route */}
                   <Route path="/agent-reviews" element={<RealEstateChatbot />} />

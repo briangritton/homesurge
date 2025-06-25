@@ -114,8 +114,8 @@ class TemplateEngineService {
         },
       
       valueA: {
-        headline: 'See Your Maximum Home Value Potential With ValueBoost AI',
-        readySubheadline: 'You\'re report contains a detailed <strong><i>maximum home value</strong></i>, breakdown with FREE AI personalized opportunity recommendations customized to your unique home! ',
+        headline: 'See Your Maximum Home Value Potential With ValueBoost AI Personalized Recommendations',
+        readySubheadline: 'You\'re report contains a detailed <strong><i>maximum home value</strong></i> breakdown with FREE AI personalized opportunity recommendations customized to your unique home! ',
         buttonText: 'GET VALUE REPORT',
         exampleTag: 'Example ValueBoost Report Increase*',
         potentialHeadline: 'Your ValueBoost Potential:',
@@ -181,8 +181,8 @@ class TemplateEngineService {
       },
       
       valueB2: {
-        headline: 'See Your Maximum Home Value Potential With ValueBoost AI',
-        readySubheadline: 'You\'re report contains a detailed <strong><i>maximum home value</strong></i>, breakdown with FREE AI personalized opportunity recommendations customized to your unique home! ',
+        headline: 'See Your Maximum Home Value Potential With ValueBoost AI Personalized  Recommendations',
+        readySubheadline: 'You\'re report contains a detailed <strong><i>maximum home value</strong></i> breakdown with FREE AI personalized opportunity recommendations customized to your unique home! ',
         buttonText: 'CHECK VALUE REPORT',
         exampleTag: 'Example ValueBoost Report Increase*',
         potentialHeadline: 'Your ValueBoost Potential:',
@@ -444,7 +444,7 @@ class TemplateEngineService {
       
       valueB2: {
         readyHeadline: 'Next, let\'s open your ValueBoost report!',
-        readySubheadline: 'You\'re report contains a detailed <strong><i>maximum home value</strong></i>, breakdown with FREE AI personalized opportunity recommendations customized to your unique home! ',
+        readySubheadline: 'You\'re report contains a detailed <strong><i>maximum home value</strong></i> breakdown with FREE AI personalized opportunity recommendations customized to your unique home! ',
         unlockHeadline: 'Get Your FREE ValueBoost Report',
         timeoutUnlockHeadline: 'HomeSurge ValueBoost Report Benefits:',
         unlockSubtext: 'Unlock your full property value report with all personalized recommendations',
@@ -535,7 +535,7 @@ class TemplateEngineService {
       valueA: {
         readyHeadline: 'Next Let\'s Open Your ValueBoost Report!',
         reportHeadline: 'ValueBoost Report Ready:',
-        readySubheadline: 'You\'re report contains a detailed <strong><i>maximum home value</strong></i>, breakdown with FREE AI personalized opportunity recommendations customized to your unique home! ',
+        readySubheadline: 'You\'re report contains a detailed <strong><i>maximum home value</strong></i> breakdown with FREE AI personalized opportunity recommendations customized to your unique home! ',
         loadingMessage: 'Processing Your ValueBoost Analysis...',
         potentialHeadline: 'Your ValueBoost Potential:',
         recommendationsTitle: 'Your Top 10 ValueBoost Recommendations',
@@ -561,7 +561,7 @@ class TemplateEngineService {
         unlockSubtext: 'Get your complete equity enhancement plan with growth projections',
         conciergeHeadline: 'Want Expert Help Unlocking Your Home Equity?',
         buttonText: 'GET VALUE REPORT',
-        readySubheadline: 'You\'re report contains a detailed <strong><i>maximum home value</strong></i>, breakdown with FREE AI personalized opportunity recommendations customized to your unique home! ',
+        readySubheadline: 'You\'re report contains a detailed <strong><i>maximum home value</strong></i> breakdown with FREE AI personalized opportunity recommendations customized to your unique home! ',
         loadingMessage: 'Processing Your ValueBoost Equity Analysis...',
         readyHeadline: 'Your ValueBoost Equity Analysis is Ready!'
       },

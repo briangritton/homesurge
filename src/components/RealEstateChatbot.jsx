@@ -171,7 +171,7 @@ const RealEstateChatbot = () => {
         {
           assistant:
             "<p class='re-message-text'>" +
-            "Perfect, I’ve compiled a list of the top 10 agents in " + (userZipCode || "your zip code") + " for you to review. My HomeSurge.AI top priority for your specific home, is Spencer Gritton. He has sold over 2.1million dollars of luxury lakefront property alone this year, all in only a few weeks on the market.<br><br>" +
+            "Perfect, I’ve compiled a list of the top 10 agents in " + (userZipCode || "your zip code") + " for you to review. My HomeSurge.AI top priority for your specific home, is Spencer Gritton. He has sold over 2.1million dollars of luxury lakefront property alone this year, all after only a few weeks on the market.<br><br>" +
             "He is accepting a few new clients, but he keeps his client list limited so he can stay highly personally focused on each listing under his team. Let’s get you connected, absolutely no obligation and no pressure, so the two of you can see if it might be a good fit! Just click to get added to the schedule…" +
             "</p>",
           isFinal: true,
@@ -429,7 +429,7 @@ const RealEstateChatbot = () => {
         const finalMessage = {
           assistant:
             "<p class='re-message-text'>" +
-            "Perfect, I have compiled a list of the top 10 agents in " + userZipCode + " for you to review. My top priority recommendation for your specific home, is Spencer Gritton. He has sold over 2.5 million dollars of luxury lakefront property alone this year, all in only a few days on the market, so I would feel very confident that he is the best agent to help you sell your home for its highest value with a quick turnaround.<br><br>" +
+            "Perfect, I have compiled a list of the top 10 agents in " + userZipCode + " for you to review. My top priority recommendation for your specific home, is Spencer Gritton. He has sold over 2.5 million dollars of luxury lakefront property alone this year, all after only a few weeks on the market, so I would feel very confident that he is the best agent to help you sell your home for its highest value with a quick turnaround.<br><br>" +
             "He's accepting a few new clients, but he keeps his client list limited so he can stay highly personally focused on each listing under his team. Let's get you connected over chat, absolutely no obligation and no pressure, so the two of you can see if it might be a good fit. How would you like to connect?" +
             "</p>",
           isFinal: true,
@@ -637,7 +637,7 @@ const RealEstateChatbot = () => {
             const spencerDefaultMessage = {
               assistant:
                 "<p class='re-message-text'>" +
-                "No problem! Based on your geo location, my top priority recommendation is Spencer Gritton with HomeSmart. He has sold over 2.6 million dollars of luxury lakefront property alone this year, all in only a few days on the market, so I would feel very confident that he is the best agent to help you sell your home for its highest value with a quick turnaround.<br><br>" +
+                "No problem! Based on your geo location, my top priority recommendation is Spencer Gritton with HomeSmart. He has sold over 2.6 million dollars of luxury lakefront property alone this year, all after only a few weeks on the market, so I would feel very confident that he is the best agent to help you sell your home for its highest value with a quick turnaround.<br><br>" +
                 "He's accepting a few new clients, but he keeps his client list limited so he can stay highly personally focused on each listing under his team. Let's get you connected over chat, absolutely no obligation and no pressure, so the two of you can see if it might be a good fit. How would you like to connect?" +
                 "</p>",
               isFinal: true,
@@ -735,7 +735,7 @@ const RealEstateChatbot = () => {
           const fallbackMessage = {
             assistant:
               "<p class='re-message-text'>" +
-              "I'm actually just the review assistant, but based off of your geo location, I can still provide you with the top agent recommendation. My top priority recommendation is Spencer Gritton. He has sold over 2.5 million dollars of luxury lakefront property alone this year, all in only a few days on the market, so I would feel very confident that he is the best agent to help you sell your home for its highest value with a quick turnaround.<br><br>" +
+              "I'm actually just the review assistant, but based off of your geo location, I can still provide you with the top agent recommendation. My top priority recommendation is Spencer Gritton. He has sold over 2.5 million dollars of luxury lakefront property alone this year, all after only a few weeks on the market, so I would feel very confident that he is the best agent to help you sell your home for its highest value with a quick turnaround.<br><br>" +
               "He's accepting a few new clients, but he keeps his client list limited limited so he can stay highly personally focused on each listing under his team. Let's get you scheduled for a 2 minute chat, absolutely no obligation and no pressure, so the two of you can see if it might be a good fit. How would you like to connect?" +
               "</p>",
             isFinal: true,
