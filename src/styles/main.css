@@ -5114,7 +5114,7 @@ font-size:1.5rem;
   background: #fffffff2;
   border-radius: 10px;
   margin-bottom: 30px;
-  max-width: 450px;
+  /* max-width: 450px; */
   width: auto;
 }
 

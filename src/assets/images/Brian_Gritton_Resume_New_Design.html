@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brian Gritton - Resume</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8fafc;
+        }
+        
+        .resume-container {
+            max-width: 8.5in;
+            min-height: 11in;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            overflow: hidden;
+        }
+        
+        /* Left Sidebar */
+        .sidebar {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
+            color: white;
+            padding: 40px 30px;
+            position: relative;
+        }
+        
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.05)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.05)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.03)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            pointer-events: none;
+        }
+        
+        .profile-section {
+            position: relative;
+            z-index: 1;
+            margin-bottom: 40px;
+        }
+        
+        .name {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        
+        .title {
+            font-size: 16px;
+            font-weight: 300;
+            opacity: 0.9;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .contact-info {
+            margin-bottom: 40px;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        
+        .contact-icon {
+            width: 18px;
+            height: 18px;
+            margin-right: 12px;
+            opacity: 0.8;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 30px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.6);
+        }
+        
+        .skills-list {
+            list-style: none;
+        }
+        
+        .skills-list li {
+            margin-bottom: 10px;
+            font-size: 14px;
+            position: relative;
+            padding-left: 15px;
+        }
+        
+        .skills-list li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        /* Main Content */
+        .main-content {
+            padding: 40px 45px;
+            background: white;
+        }
+        
+        .objective {
+            margin-bottom: 45px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            border-left: 4px solid #3730a3;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .objective h2 {
+            color: #1e3a8a;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .objective p {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #475569;
+        }
+        
+        .content-section {
+            margin-bottom: 40px;
+        }
+        
+        .content-section h2 {
+            color: #1e3a8a;
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .content-section h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #3730a3, #1e3a8a);
+        }
+        
+        .profile-text {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #475569;
+            text-align: justify;
+        }
+        
+        .job {
+            margin-bottom: 35px;
+            padding: 25px;
+            border-radius: 8px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            position: relative;
+        }
+        
+        .job::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, #3730a3, #1e3a8a);
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .job-header {
+            margin-bottom: 15px;
+        }
+        
+        .job-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .company-date {
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 500;
+        }
+        
+        .job-description {
+            list-style: none;
+        }
+        
+        .job-description li {
+            margin-bottom: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #475569;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .job-description li::before {
+            content: '●';
+            position: absolute;
+            left: 0;
+            color: #3730a3;
+            font-size: 12px;
+            top: 2px;
+        }
+        
+        .achievements {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .achievements h3 {
+            color: #92400e;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .achievements ul {
+            list-style: none;
+        }
+        
+        .achievements li {
+            margin-bottom: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #451a03;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .achievements li::before {
+            content: '★';
+            position: absolute;
+            left: 0;
+            color: #f59e0b;
+            font-size: 14px;
+        }
+        
+        .education-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f1f5f9;
+            border-radius: 6px;
+            border-left: 3px solid #3730a3;
+        }
+        
+        .education-title {
+            font-weight: 600;
+            color: #1e3a8a;
+            font-size: 15px;
+            margin-bottom: 5px;
+        }
+        
+        .education-details {
+            font-size: 14px;
+            color: #64748b;
+        }
+        
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .resume-container {
+                box-shadow: none;
+                margin: 0;
+                max-width: none;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="resume-container">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <div class="profile-section">
+                <h1 class="name">Brian Gritton</h1>
+                <div class="title">Marketing & Lead Generation Specialist</div>
+            </div>
+            
+            <div class="contact-info">
+                <div class="contact-item">
+                    <svg class="contact-icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                    </svg>
+                    480.516.8560
+                </div>
+                <div class="contact-item">
+                    <svg class="contact-icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                    </svg>
+                    briangritton@gmail.com
+                </div>
+                <div class="contact-item">
+                    <svg class="contact-icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16zm0 2c-.076 0-.232.032-.465.262-.238.234-.497.623-.737 1.182-.389.907-.673 2.142-.766 3.556h3.936c-.093-1.414-.377-2.649-.766-3.556-.24-.559-.499-.948-.737-1.182C10.232 4.032 10.076 4 10 4zm3.971 5c-.089-1.546-.383-2.97-.837-4.118A6.004 6.004 0 0115.917 9h-1.946zm-2.003 2H8.032c.093 1.414.377 2.649.766 3.556.24.559.499.948.737 1.182.233.23.389.262.465.262.076 0 .232-.032.465-.262.238-.234.497-.623.737-1.182.389-.907.673-2.142.766-3.556zm1.166 4.118c.454-1.147.748-2.572.837-4.118h1.946a6.004 6.004 0 01-2.783 4.118zm-6.268 0C6.412 13.97 6.118 12.546 6.03 11H4.083a6.004 6.004 0 002.783 4.118z" clip-rule="evenodd"/>
+                    </svg>
+                    www.homesurge.ai
+                </div>
+            </div>
+            
+            <div class="skills-section">
+                <h3 class="section-title">Core Skills</h3>
+                <ul class="skills-list">
+                    <li>New home buyer psychology</li>
+                    <li>Advanced negotiations</li>
+                    <li>Microsoft Office & CRM databases</li>
+                    <li>Multi-platform marketing</li>
+                    <li>Entrepreneurial leadership</li>
+                    <li>Lead nurturing & conversion</li>
+                    <li>Software engineering & web development</li>
+                    <li>Advanced analytics & lifecycle tracking</li>
+                </ul>
+            </div>
+            
+            <div class="education-section">
+                <h3 class="section-title">Education</h3>
+                <div class="education-item">
+                    <div class="education-title">High School Diploma</div>
+                    <div class="education-details">Bingham High School - Utah</div>
+                </div>
+                <div class="education-item">
+                    <div class="education-title">University Studies</div>
+                    <div class="education-details">University of Utah (2007-2011)</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="objective">
+                <h2>Career Objective</h2>
+                <p>Seeking to transition into new home sales, bringing my proven experience in client conversion, communication, & marketing insight to the table.</p>
+            </div>
+            
+            <div class="content-section">
+                <h2>Professional Profile</h2>
+                <p class="profile-text">
+                    Over 12 years experience in lead generation, sales training, & real estate pipelines. Founder and marketing lead at HomeSurge.ai, a real estate platform focused on innovative lead generation strategies in the competitive home seller space using the latest advancements in AI technology. Generated qualified leads for top-performing Realtors & tech firms across multiple markets including AZ, CA, & GA. Skilled in converting online engagement into in-person appointments using self-created CRM systems, scripting, automated chatbots, & marketing funnels. Deep understanding of the home buying cycle (buyer psychology, financing, & sales timelines).
+                </p>
+            </div>
+            
+            <div class="content-section">
+                <h2>Professional Experience</h2>
+                
+                <div class="job">
+                    <div class="job-header">
+                        <div class="job-title">Co-Founder & Head of Marketing</div>
+                        <div class="company-date">Innovint | November 2013 - Present</div>
+                    </div>
+                    <ul class="job-description">
+                        <li>Co-founded a nationwide lead generation company that provided leads to multiple markets & industries both international & domestic.</li>
+                        <li>Managed marketing funnels & sales floor training for 50+ reps across two locations.</li>
+                        <li>Developed & executed lead generation strategies that delivered qualified, high-intent prospects for tech firms offering software sales, anti-virus, & computer repair services.</li>
+                        <li>Generated high-converting leads for top performing real estate agents in several markets (AZ, CA, GA).</li>
+                        <li>Designed scripts, CRM systems, & managed relationships with third-party partners.</li>
+                        <li>Oversaw the creation and flow of several call centers both domestic and international.</li>
+                        <li>Nurtured existing client relationships.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="achievements">
+                <h3>Key Achievements</h3>
+                <ul>
+                    <li>Partnered with agents to drive over $2.5M in real estate closings year-to-date through strategic marketing initiatives.</li>
+                    <li>Lead marketing efforts that lead to over $4.2M in real estate closings in the highly competitive California real estate market.</li>
+                    <li>Directed multi-year Google Ads strategies totaling $7.95M in client ad spend, driving qualified lead generation and conversions.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
