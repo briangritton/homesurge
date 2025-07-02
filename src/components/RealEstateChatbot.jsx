@@ -282,6 +282,26 @@ const RealEstateChatbot = () => {
     return () => clearTimeout(focusTimeout);
   }, []);
 
+  // Auto-display agent reviews when data becomes ready
+  useEffect(() => {
+    if (agentReportReady && agentReportData && loadingAgentReport && !showAgentList) {
+      console.log('🎯 Auto-triggering agent reviews display');
+      
+      const agentListMessage = {
+        assistant: 
+          "<p class='re-message-text'>" +
+          `Great! I've found the top ${agentReportData.agentCount} real estate agents in ${userZipCode}. ` +
+          "Here's your personalized agent review list below. You can scroll through to compare their stats, reviews, and specialties." +
+          "</p>",
+        showAgentList: true
+      };
+      
+      setShowAgentList(true);
+      setLoadingAgentReport(false);
+      setMessages(prev => [...prev, agentListMessage]);
+    }
+  }, [agentReportReady, agentReportData, loadingAgentReport, showAgentList, userZipCode]);
+
   // Helper functions
   const isValidZipCode = (input) => {
     // US zip code: 5 digits or 5+4 format (12345 or 12345-1234)
