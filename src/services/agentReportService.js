@@ -14,9 +14,14 @@ export const agentReportService = {
       console.log('🔍 Generating agent report for zip:', zipCode, 'value:', propertyValue);
       
       // First, check Firebase cache using existing pattern
-      const cachedReport = await getCachedAgentReportFromFirebase(zipCode);
-      if (cachedReport) {
-        return cachedReport;
+      try {
+        const cachedReport = await getCachedAgentReportFromFirebase(zipCode);
+        if (cachedReport) {
+          return cachedReport;
+        }
+      } catch (cacheError) {
+        console.warn('⚠️ Firebase cache check failed, proceeding with fresh data:', cacheError);
+        // Continue to generate fresh report
       }
       
       if (!OPENAI_API_KEY) {
