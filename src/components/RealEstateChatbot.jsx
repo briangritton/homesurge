@@ -282,9 +282,9 @@ const RealEstateChatbot = () => {
     return () => clearTimeout(focusTimeout);
   }, []);
 
-  // Auto-display agent reviews when data becomes ready
+  // Auto-display agent reviews when data arrives
   useEffect(() => {
-    if (agentReportReady && agentReportData && loadingAgentReport && !showAgentList) {
+    if (agentReportData && !showAgentList) {
       console.log('🎯 Auto-triggering agent reviews display');
       
       const agentListMessage = {
@@ -300,7 +300,7 @@ const RealEstateChatbot = () => {
       setLoadingAgentReport(false);
       setMessages(prev => [...prev, agentListMessage]);
     }
-  }, [agentReportReady, agentReportData, loadingAgentReport, showAgentList, userZipCode]);
+  }, [agentReportData]);
 
   // Helper functions
   const isValidZipCode = (input) => {
