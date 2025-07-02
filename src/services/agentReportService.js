@@ -94,14 +94,12 @@ export const agentReportService = {
       console.log('🔧 About to format agent data:', agentData);
       const formattedReport = this.formatAgentReport(agentData, zipCode);
       
-      // Cache the successful report using existing Firebase pattern
+      // Return the formatted report immediately, Firebase save can happen in background
       if (formattedReport) {
-        try {
-          await saveAgentReportToFirebase(zipCode, formattedReport);
-        } catch (firebaseError) {
-          console.warn('⚠️ Firebase save failed, but continuing with UI:', firebaseError);
-          // Don't throw - let the UI proceed with the data
-        }
+        // Try to save to Firebase in background, but don't wait for it
+        saveAgentReportToFirebase(zipCode, formattedReport).catch(firebaseError => {
+          console.warn('⚠️ Firebase save failed (background):', firebaseError);
+        });
       }
       
       return formattedReport;
