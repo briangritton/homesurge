@@ -91,7 +91,12 @@ export const agentReportService = {
       
       // Cache the successful report using existing Firebase pattern
       if (formattedReport) {
-        await saveAgentReportToFirebase(zipCode, formattedReport);
+        try {
+          await saveAgentReportToFirebase(zipCode, formattedReport);
+        } catch (firebaseError) {
+          console.warn('⚠️ Firebase save failed, but continuing with UI:', firebaseError);
+          // Don't throw - let the UI proceed with the data
+        }
       }
       
       return formattedReport;
