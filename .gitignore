@@ -8,3 +8,4 @@ npm-debug.log*
 **/.claude/settings.local.json
 vercelbackup/
 .vercel/
+training/
